@@ -145,7 +145,7 @@ const items: Item[] = [
       read: "Along y = 5 the doubly shaded region ends at x = 4. The boundary of y > 3x - 7 is dashed, so (4, 5) is excluded and the greatest integer is 3.",
       verified: false,
     },
-    byHand: "Substitute y = 5. From 5 > 3a - 7, a < 4. From 5 ≤ -a + 9, a ≤ 4. Both hold when a < 4, so the greatest integer is 3. Distractors: 4 treats the strict inequality as inclusive; 2 uses the least of the two bounds minus 2 after solving 5 > 3a - 7 as a < 2; 5 checks only the second inequality and reads a ≤ 4 as a ≤ 5.",
+    byHand: "Substitute y = 5. From 5 > 3a - 7, a < 4. From 5 ≤ -a + 9, a ≤ 4. Both hold when a < 4, so the greatest integer is 3. Distractors: 4 treats the strict inequality a < 4 as inclusive; 5 goes one past the bound a ≤ 4 from the second inequality; 2 is an off-by-one slip that drops the valid integer 3.",
     provenance: { author: "claude-agent", created: "2026-10-15", notes: "key verified with SymPy" },
   },
   {
