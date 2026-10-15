@@ -6281,6 +6281,288 @@ def adv_nf_quadratic_symmetric_values():
     return q.subs(sol).subs(x, 7)
 
 
+# ----- Batch batch9-le2v1 -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch9-le2v1.ts (batch batch9-le2v1).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch9_le2v1.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+import re
+
+
+import sympy as sp
+from sympy import Eq, Rational, symbols
+
+x, y, a, b, k, p, q = symbols("x y a b k p q")
+
+
+# ----- helpers (prefix _b9l2_) -----
+
+
+def _b9l2_line(pts):
+    """y as an expression in x for the line through two points."""
+    (x1, y1), (x2, y2) = [(sp.nsimplify(u), sp.nsimplify(v)) for u, v in pts]
+    m = (y2 - y1) / (x2 - x1)
+    return sp.expand(y1 + m * (x - x1))
+
+
+def _b9l2_slope(expr):
+    """Slope of the line expr = 0 (expr linear in x and y)."""
+    return sp.solve(expr, y)[0].diff(x)
+
+
+def _b9l2_eq(choice):
+    """'$lhs = rhs$' -> lhs - rhs as a SymPy expression."""
+    lhs, rhs = choice.strip().strip("$").split("=")
+    return sp.expand(latex_to_sympy_ext(lhs) - latex_to_sympy_ext(rhs))
+
+
+def _b9l2_point(choice):
+    """'$(4, -1)$' or '$(p + 3, q - 4)$' -> tuple of SymPy expressions."""
+    inner = choice.strip().strip("$").strip()
+    assert inner.startswith("(") and inner.endswith(")"), inner
+    parts = inner[1:-1].split(",")
+    return tuple(latex_to_sympy(part) for part in parts)
+
+
+def _b9l2_same_line(e1, e2):
+    """True when two linear equations (as expr = 0) describe the same line."""
+    s1, s2 = sp.solve(e1, y), sp.solve(e2, y)
+    return len(s1) == 1 and len(s2) == 1 and sp.simplify(s1[0] - s2[0]) == 0
+
+
+def _b9l2_unique(matches, idx, detail):
+    return matches == [idx], f"{detail}; matching choices {matches}"
+
+
+# ----- item checks -----
+
+
+def alg_slope_standard_form_7x_2y():
+    return _b9l2_slope(7 * x + 2 * y - 9)
+
+
+def alg_point_on_line_5x_3y_17():
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            px, py = _b9l2_point(ch)
+            if 5 * px - 3 * py == 17:
+                matches.append(i)
+        return _b9l2_unique(matches, idx, "points on 5x - 3y = 17")
+
+    return check
+
+
+def alg_x_intercept_slope_intercept_form():
+    return sp.solve(Eq(0, -4 * x + 10), x)[0]
+
+
+def alg_slope_from_two_intercepts():
+    line = _b9l2_line([(6, 0), (0, -4)])
+    return line.diff(x)
+
+
+def alg_hostel_pillows_term_meaning():
+    pp, tt = symbols("p t")
+    expr = 12 * pp + 5 * tt
+    term = 12 * pp
+    coeff, var = term.as_coeff_Mul()
+    other = expr - term
+    # Each choice names one object; map it to the expression it describes.
+    meanings = {
+        "number of pillows": var,
+        "price, in dollars, of one pillow": coeff,
+        "spent on towels": other,
+        "spent on pillows": coeff * var,
+    }
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            described = [v for key, v in meanings.items() if key in ch]
+            assert len(described) == 1, ch
+            if sp.simplify(described[0] - term) == 0:
+                matches.append(i)
+        return _b9l2_unique(matches, idx, "choice describing 12p")
+
+    return check
+
+
+def alg_two_points_standard_form_equation():
+    pts = [(-4, 1), (2, 10)]
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            e = _b9l2_eq(ch)
+            if all(e.subs({x: px, y: py}) == 0 for px, py in pts):
+                matches.append(i)
+        return _b9l2_unique(matches, idx, "line through (-4, 1) and (2, 10)")
+
+    return check
+
+
+def alg_perpendicular_slope_standard_form():
+    return -1 / _b9l2_slope(3 * x + 4 * y - 7)
+
+
+def alg_rewrite_to_standard_form_c():
+    # y = -2/5 x + 3  ->  (2/5) x + y = 3; scale so the x-coefficient is 2.
+    rhs = -Rational(2, 5) * x + 3
+    A, C = -rhs.coeff(x), rhs.subs(x, 0)
+    scale = 2 / A
+    return scale * C
+
+
+def alg_intercepts_triangle_area():
+    e = 5 * x + 2 * y - 20
+    xi = sp.solve(e.subs(y, 0), x)[0]
+    yi = sp.solve(e.subs(x, 0), y)[0]
+    return Rational(1, 2) * abs(xi) * abs(yi)
+
+
+def alg_point_slope_to_standard_form():
+    given = y - 4 + Rational(3, 5) * (x + 10)
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if _b9l2_same_line(_b9l2_eq(ch), given)]
+        return _b9l2_unique(matches, idx, "same line as y - 4 = -3/5 (x + 10)")
+
+    return check
+
+
+def alg_moving_boxes_table_equation():
+    pts = [(0, 12), (6, 8), (15, 2)]
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            e = _b9l2_eq(ch)
+            if all(e.subs({x: px, y: py}) == 0 for px, py in pts):
+                matches.append(i)
+        return _b9l2_unique(matches, idx, "equation through all three combinations")
+
+    return check
+
+
+def alg_club_hoodies_keychains_tradeoff():
+    dk = symbols("dk")
+    # 8(k + dk) + 20(h + 4) = 8k + 20h  ->  solve for the change in keychains
+    change = sp.solve(Eq(8 * dk + 20 * 4, 0), dk)[0]
+    return -change
+
+
+def alg_yarn_twine_combination_spr():
+    return _b9l2_line([(2, 12), (6, 6)]).subs(x, 8)
+
+
+def alg_slope_constant_x_intercept_spr():
+    kv = sp.solve(Eq(_b9l2_slope(k * x + 2 * y - 10), 3), k)[0]
+    return sp.solve((kv * x + 2 * y - 10).subs(y, 0), x)[0]
+
+
+def alg_perpendicular_shared_x_intercept():
+    given = 3 * x - 4 * y - 12
+    xi = sp.solve(given.subs(y, 0), x)[0]
+    m = -1 / _b9l2_slope(given)
+    target = y - m * (x - xi)
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if _b9l2_same_line(_b9l2_eq(ch), target)]
+        return _b9l2_unique(matches, idx, f"line y = {m}(x - {xi})")
+
+    return check
+
+
+def alg_point_shift_stays_on_line():
+    q_of_p = sp.solve(Eq(4 * p - 3 * q, 10), q)[0]
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            px, py = _b9l2_point(ch)
+            if sp.simplify((4 * px - 3 * py - 10).subs(q, q_of_p)) == 0:
+                matches.append(i)
+        return _b9l2_unique(matches, idx, "points on 4x - 3y = 10 for every (p, q)")
+
+    return check
+
+
+def alg_shared_y_intercept_x_intercept_spr():
+    yi = sp.solve((2 * x + 5 * y - 15).subs(x, 0), y)[0]
+    line = _b9l2_line([(0, yi), (3, -2)])
+    return sp.solve(line, x)[0]
+
+
+def alg_barge_containers_slope_meaning():
+    pat = re.compile(r"Adding (\d+) (small|large) containers? requires (adding|removing) (\d+) (small|large)")
+    slope = _b9l2_slope(3 * x + 12 * y - 180)  # x = small, y = large
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            m = pat.search(ch)
+            assert m, ch
+            n1, kind1, verb, n2, kind2 = m.groups()
+            d = {"small": 0, "large": 0}
+            d[kind1] += int(n1)
+            d[kind2] += int(n2) if verb == "adding" else -int(n2)
+            # a change keeps the load full exactly when it moves along the line
+            if d["small"] != 0 and sp.Rational(d["large"], d["small"]) == slope:
+                matches.append(i)
+        return _b9l2_unique(matches, idx, f"slope {slope}")
+
+    return check
+
+
+def alg_ribbon_pieces_unit_equation():
+    # In meters: 0.3 a + 1.2 b = 45. Valid choices are proportional to this.
+    target = [Rational(30, 100), Rational(12, 10), Rational(-45)]
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            e = _b9l2_eq(ch)
+            vec = [e.coeff(a), e.coeff(b), e.subs({a: 0, b: 0})]
+            ratio = vec[0] / target[0]
+            if all(sp.simplify(v - ratio * t_) == 0 for v, t_ in zip(vec, target)):
+                matches.append(i)
+        return _b9l2_unique(matches, idx, "proportional to 0.3a + 1.2b = 45")
+
+    return check
+
+
+def alg_fudge_toffee_intercepts_difference():
+    grams = 9 * 1000
+    f_only = sp.solve(Eq(450 * x, grams), x)[0]
+    t_only = sp.solve(Eq(300 * y, grams), y)[0]
+    return t_only - f_only
+
+
+def alg_parallel_through_point_which_point():
+    m = _b9l2_slope(4 * x + 6 * y - 5)
+    line = 7 + m * (x + 3)
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            px, py = _b9l2_point(ch)
+            if line.subs(x, px) == py:
+                matches.append(i)
+        return _b9l2_unique(matches, idx, f"points on y = {sp.expand(line)}")
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -6954,6 +7236,28 @@ CHECKS = {
     "adv-nf-cubic-shift-up-intercept-count": adv_nf_cubic_shift_up_intercept_count,
     "adv-nf-exponential-input-scale-rewrite": adv_nf_exponential_input_scale_rewrite,
     "adv-nf-quadratic-symmetric-values": adv_nf_quadratic_symmetric_values,
+    # batch batch9-le2v1
+    "alg-slope-standard-form-7x-2y": alg_slope_standard_form_7x_2y,
+    "alg-point-on-line-5x-3y-17": alg_point_on_line_5x_3y_17,
+    "alg-x-intercept-slope-intercept-form": alg_x_intercept_slope_intercept_form,
+    "alg-slope-from-two-intercepts": alg_slope_from_two_intercepts,
+    "alg-hostel-pillows-term-meaning": alg_hostel_pillows_term_meaning,
+    "alg-two-points-standard-form-equation": alg_two_points_standard_form_equation,
+    "alg-perpendicular-slope-standard-form": alg_perpendicular_slope_standard_form,
+    "alg-rewrite-to-standard-form-c": alg_rewrite_to_standard_form_c,
+    "alg-intercepts-triangle-area": alg_intercepts_triangle_area,
+    "alg-point-slope-to-standard-form": alg_point_slope_to_standard_form,
+    "alg-moving-boxes-table-equation": alg_moving_boxes_table_equation,
+    "alg-club-hoodies-keychains-tradeoff": alg_club_hoodies_keychains_tradeoff,
+    "alg-yarn-twine-combination-spr": alg_yarn_twine_combination_spr,
+    "alg-slope-constant-x-intercept-spr": alg_slope_constant_x_intercept_spr,
+    "alg-perpendicular-shared-x-intercept": alg_perpendicular_shared_x_intercept,
+    "alg-point-shift-stays-on-line": alg_point_shift_stays_on_line,
+    "alg-shared-y-intercept-x-intercept-spr": alg_shared_y_intercept_x_intercept_spr,
+    "alg-barge-containers-slope-meaning": alg_barge_containers_slope_meaning,
+    "alg-ribbon-pieces-unit-equation": alg_ribbon_pieces_unit_equation,
+    "alg-fudge-toffee-intercepts-difference": alg_fudge_toffee_intercepts_difference,
+    "alg-parallel-through-point-which-point": alg_parallel_through_point_which_point,
 }
 
 
