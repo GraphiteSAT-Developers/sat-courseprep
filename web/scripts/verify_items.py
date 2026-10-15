@@ -6817,6 +6817,186 @@ def _b9pd_shelter():
     return (young_total - young_dogs) / 45
 
 
+# ----- Batch batch9-circ -----
+import sympy as sp
+from sympy import Rational, Eq, pi, sqrt, cos, sin
+
+_b9ci_x, _b9ci_y, _b9ci_r, _b9ci_t, _b9ci_k, _b9ci_h = sp.symbols("x y r theta k h")
+X, Y = _b9ci_x, _b9ci_y
+
+
+# ----------------------------------------------------------------------------- helpers
+
+
+def _b9ci_circle(expr):
+    """x^2 + y^2 + Dx + Ey + F (any common leading coefficient) -> (center Point, r^2)."""
+    poly = sp.Poly(sp.expand(expr), X, Y)
+    lead = poly.coeff_monomial(X**2)
+    assert lead != 0 and poly.coeff_monomial(Y**2) == lead and poly.coeff_monomial(X * Y) == 0
+    d, e, f = (poly.coeff_monomial(m) / lead for m in (X, Y, 1))
+    h0, k0 = -d / 2, -e / 2
+    return sp.Point(h0, k0), h0**2 + k0**2 - f
+
+
+def _b9ci_choice_circle(choice):
+    lhs, rhs = _split_equation(choice)
+    return _b9ci_circle(lhs - rhs)
+
+
+def _b9ci_pick_circle(center, r2):
+    """Callable: exactly the key choice is the circle with this center and r^2."""
+
+    def check(choices, idx):
+        good = []
+        for i, ch in enumerate(choices):
+            c0, rr = _b9ci_choice_circle(ch)
+            if c0 == center and sp.simplify(rr - r2) == 0:
+                good.append(i)
+        return good == [idx], f"circle center {center}, r^2 = {r2}; matching choices {good}"
+
+    return check
+
+
+def _b9ci_point(text):
+    inner = text.strip().strip("$").strip().strip("()")
+    xs, ys = inner.split(",")
+    return sp.Point(sp.nsimplify(xs.strip()), sp.nsimplify(ys.strip()))
+
+
+# ----------------------------------------------------------------------------- easy
+
+
+def geo_circ_equation_from_center_radius():
+    return _b9ci_pick_circle(sp.Point(-3, 5), sp.Integer(6) ** 2)
+
+
+def geo_circ_sector_radians_area_easy():
+    return Rational(1, 2) * 10**2 * Rational(15, 10)
+
+
+def geo_circ_skating_rink_arc():
+    return sp.Integer(30) * Rational(12, 10)
+
+
+def geo_circ_point_on_standard_form():
+    expr = (X + 4) ** 2 + (Y - 3) ** 2 - 100
+
+    def check(choices, idx):
+        on = [i for i, ch in enumerate(choices) if expr.subs({X: _b9ci_point(ch).x, Y: _b9ci_point(ch).y}) == 0]
+        return on == [idx], f"choices on the circle: {on}"
+
+    return check
+
+
+# ----------------------------------------------------------------------------- medium
+
+
+def geo_circ_unit_circle_point_coordinates():
+    ang = Rational(4, 3) * pi
+    target = sp.Point(cos(ang), sin(ang))
+
+    def check(choices, idx):
+        good = []
+        for i, ch in enumerate(choices):
+            inner = ch.strip().strip("$").replace("\\left(", "").replace("\\right)", "")
+            xs, ys = inner.split(",")
+            pt = sp.Point(latex_to_sympy_ext(xs), latex_to_sympy_ext(ys))
+            if sp.simplify(pt.distance(target)) == 0:
+                good.append(i)
+        return good == [idx], f"P = {target}; matching choices {good}"
+
+    return check
+
+
+def geo_circ_sprinkler_sector_radius():
+    sols = sp.solve(Eq(Rational(80, 360) * pi * _b9ci_r**2, 32 * pi), _b9ci_r)
+    return [s for s in sols if s > 0][0]
+
+
+def geo_circ_line_through_center_greatest_y():
+    sols = sp.solve([Eq(Y, X + 1), Eq((X - 3) ** 2 + (Y - 4) ** 2, 8)], [X, Y], dict=True)
+    assert len(sols) == 2
+    return max(s[Y] for s in sols)
+
+
+def geo_circ_translate_left_up():
+    c0, r2 = _b9ci_circle((X - 1) ** 2 + (Y + 6) ** 2 - 20)
+    return _b9ci_pick_circle(sp.Point(c0.x - 4, c0.y + 3), r2)
+
+
+def geo_circ_chord_distance_radius():
+    return sqrt((Rational(30, 2)) ** 2 + 8**2)
+
+
+def geo_circ_clock_minute_hand_arc():
+    angle = sp.Integer(40) * 360 / 60
+    return angle / 360 * 2 * pi * 9
+
+
+def geo_circ_diameter_endpoints_equation():
+    a, b = sp.Point(-3, 4), sp.Point(5, -2)
+    return _b9ci_pick_circle(a.midpoint(b), (a.distance(b) / 2) ** 2)
+
+
+def geo_circ_point_inside_expanded():
+    expr = X**2 + Y**2 + 6 * X - 8 * Y
+
+    def check(choices, idx):
+        inside = [i for i, ch in enumerate(choices) if expr.subs({X: _b9ci_point(ch).x, Y: _b9ci_point(ch).y}) < 0]
+        return inside == [idx], f"choices inside the circle: {inside}"
+
+    return check
+
+
+# ----------------------------------------------------------------------------- hard
+
+
+def geo_circ_tangent_x_axis_constant():
+    center, r2 = _b9ci_circle(X**2 + Y**2 + 10 * X - 6 * Y + _b9ci_k)
+    kval = sp.solve(Eq(r2, center.y**2), _b9ci_k)[0]
+    # Tangency: y = 0 meets the circle in a double root.
+    roots = sp.roots(sp.Poly((X**2 + 10 * X + kval), X))
+    assert len(roots) == 1 and list(roots.values())[0] == 2
+    return kval
+
+
+def geo_circ_leading_coefficient_radius():
+    _, r2 = _b9ci_circle(2 * X**2 + 2 * Y**2 - 12 * X + 20 * Y + 18)
+    return sqrt(r2)
+
+
+def geo_circ_two_circles_common_chord():
+    sols = sp.solve([Eq(X**2 + Y**2, 25), Eq((X - 9) ** 2 + Y**2, 52)], [X, Y], dict=True)
+    assert len(sols) == 2
+    p1, p2 = (sp.Point(s_[X], s_[Y]) for s_ in sols)
+    return p1.distance(p2)
+
+
+def geo_circ_sector_arc_area_radius():
+    sols = sp.solve([Eq(_b9ci_r * _b9ci_t, 6 * pi), Eq(Rational(1, 2) * _b9ci_r**2 * _b9ci_t, 27 * pi)],
+                    [_b9ci_r, _b9ci_t], dict=True)
+    return [s[_b9ci_r] for s in sols if s[_b9ci_r] > 0][0]
+
+
+def geo_circ_fountain_tangent_path():
+    return sqrt(6**2 + 8**2) - 6
+
+
+def geo_circ_wiper_blade_region():
+    th = Rational(2, 3) * pi
+    return Rational(1, 2) * 28**2 * th - Rational(1, 2) * 10**2 * th
+
+
+def geo_circ_radian_central_inscribed():
+    central_deg = Rational(5, 9) * pi * 180 / pi
+    return central_deg / 2
+
+
+def geo_circ_center_h_through_point():
+    sols = sp.solve(Eq((1 - _b9ci_h) ** 2 + (7 - 3) ** 2, 25), _b9ci_h)
+    return [s for s in sols if s > 0][0]
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -7540,6 +7720,27 @@ CHECKS = {
     "psda-prob-seed-varieties-not-sprouted": _b9pd_seed_varieties,
     "psda-prob-museum-audio-no-tour": _b9pd_museum,
     "psda-prob-shelter-young-cats": _b9pd_shelter,
+    # batch batch9-circ
+    "geo-circ-equation-from-center-radius": geo_circ_equation_from_center_radius,
+    "geo-circ-sector-radians-area-easy": geo_circ_sector_radians_area_easy,
+    "geo-circ-skating-rink-arc": geo_circ_skating_rink_arc,
+    "geo-circ-point-on-standard-form": geo_circ_point_on_standard_form,
+    "geo-circ-unit-circle-point-coordinates": geo_circ_unit_circle_point_coordinates,
+    "geo-circ-sprinkler-sector-radius": geo_circ_sprinkler_sector_radius,
+    "geo-circ-line-through-center-greatest-y": geo_circ_line_through_center_greatest_y,
+    "geo-circ-translate-left-up": geo_circ_translate_left_up,
+    "geo-circ-chord-distance-radius": geo_circ_chord_distance_radius,
+    "geo-circ-clock-minute-hand-arc": geo_circ_clock_minute_hand_arc,
+    "geo-circ-diameter-endpoints-equation": geo_circ_diameter_endpoints_equation,
+    "geo-circ-point-inside-expanded": geo_circ_point_inside_expanded,
+    "geo-circ-tangent-x-axis-constant": geo_circ_tangent_x_axis_constant,
+    "geo-circ-leading-coefficient-radius": geo_circ_leading_coefficient_radius,
+    "geo-circ-two-circles-common-chord": geo_circ_two_circles_common_chord,
+    "geo-circ-sector-arc-area-radius": geo_circ_sector_arc_area_radius,
+    "geo-circ-fountain-tangent-path": geo_circ_fountain_tangent_path,
+    "geo-circ-wiper-blade-region": geo_circ_wiper_blade_region,
+    "geo-circ-radian-central-inscribed": geo_circ_radian_central_inscribed,
+    "geo-circ-center-h-through-point": geo_circ_center_h_through_point,
 }
 
 
