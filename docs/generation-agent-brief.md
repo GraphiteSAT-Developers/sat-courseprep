@@ -24,6 +24,7 @@ mix, context share, route mix, testing-point focus).
 - **SPR keys** fit Bluebook (5 characters positive, 6 negative, as a fraction or a full-width decimal); use the `Rational` type.
 - **Context stems** stay ≤ 50 standardized words (characters ÷ 6). Contexts must be new to the bank.
 - **Dollar amounts** are written as "23.00 dollars" in prose and ", in dollars," in the question (MathText uses `$` for math).
+- **Formulas not on the reference sheet are given in the stem.** The SAT reference sheet has: circle area and circumference, rectangle area, triangle area, the Pythagorean theorem, 30-60-90 and 45-45-90 triangles, rectangular box volume, cylinder volume, sphere volume, cone volume, pyramid volume, 360° = 2π radians, and the triangle angle sum. Any other formula (trapezoid area, surface or lateral area, slant height, arc length, sector area, compound interest, physics formulas) is stated in the stem as College Board does: a short sentence or parenthetical before the question.
 - **No figures.** Every item is fully specified in words; tables are described inline in one consistent sentence form.
 - **Desmos:** `desmos.lines` are lines a student types in the College Board calculator; `verified: false`. Hand-primary items say honestly in `desmos.read` that Desmos is slower and how to use it as a check, or omit `desmos` with `techniques: []` for pure reasoning items.
 - **Provenance:** `{ author: "claude-agent", created: "<today>", notes: "batch <id>; key verified with SymPy" }`.
