@@ -2453,6 +2453,186 @@ def psda_bicycle_survey_generalize():
     return check
 
 
+# ----- Batch batch5-geo -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch5-geo.ts (batch 5-geo).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch5_geo.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers. Every value is kept exact (sqrt, pi)
+until a stem asks for rounding.
+"""
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, pi, sqrt, sin, cos, symbols
+
+
+x, y, s, h = symbols("x y s h")
+
+
+def _b5g_nearest(value, places: int):
+    """Round an exact SymPy number to `places` decimals, asserting it is not a rounding tie."""
+    scaled = sp.nsimplify(value) * 10**places
+    assert abs(scaled - sp.floor(scaled) - Rational(1, 2)) > Rational(1, 100), "rounding tie"
+    return Rational(int(sp.floor(scaled + Rational(1, 2))), 10**places)
+
+
+def _b5g_point(text: str):
+    """'$(-4, 7)$' -> sympy Point(-4, 7)."""
+    inner = text.strip().strip("$").strip().strip("()")
+    xs, ys = inner.split(",")
+    return sp.Point(sp.nsimplify(xs.strip()), sp.nsimplify(ys.strip()))
+
+
+def _b5g_circle_from_general(expr):
+    """x^2 + y^2 + Dx + Ey + F -> (center Point, radius) by completing the square."""
+    poly = sp.Poly(sp.expand(expr), x, y)
+    assert poly.coeff_monomial(x**2) == 1 and poly.coeff_monomial(y**2) == 1 and poly.coeff_monomial(x * y) == 0
+    d, e, f = poly.coeff_monomial(x), poly.coeff_monomial(y), poly.coeff_monomial(1)
+    h0, k0 = -d / 2, -e / 2
+    r2 = h0**2 + k0**2 - f
+    assert r2 > 0
+    return sp.Point(h0, k0), sqrt(r2)
+
+
+# ----- Area and volume -----------------------------------------------------
+
+
+def geo_cone_radius_tripled_volume():
+    r, hh = symbols("r hh", positive=True)
+    v1 = Rational(1, 3) * pi * r**2 * hh
+    v2 = Rational(1, 3) * pi * (3 * r) ** 2 * hh
+    factor = sp.simplify(v2 / v1)
+    assert factor == 9
+    return 40 * factor
+
+
+def geo_pyramid_bin_height_perimeter():
+    side = Rational(24, 4)
+    base_area = side**2
+    return sp.solve(Eq(Rational(1, 3) * base_area * h, 84), h)[0]
+
+
+def geo_cone_cup_to_cylinder_height():
+    water = Rational(1, 3) * pi * 4**2 * 9
+    height = sp.solve(Eq(pi * 3**2 * h, water), h)[0]
+    assert height == Rational(16, 3)
+    # Distractor sanity: 144/9 (no 1/3), 48/16 (cone radius reused), 16/9 (divided by 3 twice).
+    assert [_b5g_nearest(v, 1) for v in (Rational(144, 9), Rational(48, 16), Rational(16, 9))] == [
+        Integer(16), Integer(3), Rational(18, 10)]
+    return _b5g_nearest(height, 1)
+
+
+# ----- Lines, angles, and triangles ----------------------------------------
+
+
+def geo_isosceles_vertex_to_base_angle():
+    vertex = Integer(44)
+    base = sp.solve(Eq(vertex + 2 * s, 180), s)[0]  # PQ = PR, so angles Q and R are equal
+    return base
+
+
+def geo_isosceles_nested_angle_dac():
+    # Coordinates: B at the origin, C on the positive x-axis, AB = AC = 1, angle B = 50°.
+    deg = pi / 180
+    A = sp.Point(cos(50 * deg), sin(50 * deg))
+    B = sp.Point(0, 0)
+    C = sp.Point(2 * cos(50 * deg), 0)
+    assert sp.simplify(A.distance(B) - A.distance(C)) == 0
+    # D = (d, 0) on BC with AD = BD.
+    d = symbols("d")
+    dd = sp.solve(Eq((d - A.x) ** 2 + A.y**2, d**2), d)[0]
+    D = sp.Point(dd, 0)
+    assert 0 < float(dd) < float(C.x), "D must lie between B and C"
+    assert abs(float(A.distance(D) - B.distance(D))) < 1e-12
+    v1, v2 = D - A, C - A
+    cos_dac = (v1.x * v2.x + v1.y * v2.y) / (A.distance(D) * A.distance(C))
+    angle = sp.acos(cos_dac) / deg
+    value = sp.nsimplify(round(float(angle), 9))
+    assert value == 30
+    return value
+
+
+def geo_similar_triangles_solve_x_side():
+    xx = sp.solve(Eq((x + 3) / (2 * x - 1), Rational(12, 20)), x)
+    assert xx == [18]
+    mn = (2 * x - 1).subs(x, xx[0])
+    assert (x + 3).subs(x, xx[0]) / mn == Rational(12, 20)  # corresponding sides proportional
+    return mn
+
+
+# ----- Right triangles and trigonometry ------------------------------------
+
+
+def geo_garden_diagonal_path_cosine():
+    deg = pi / 180
+    path = 30 / cos(28 * deg)
+    assert abs(float(path) - 33.977) < 0.001
+    # Distractor sanity: 30 cos 28°, 30 sin 28°, 30 / sin 28°.
+    assert [round(float(v), 1) for v in (30 * cos(28 * deg), 30 * sin(28 * deg), 30 / sin(28 * deg))] == [26.5, 14.1, 63.9]
+    return _b5g_nearest(sp.nsimplify(round(float(path), 6)), 1)
+
+
+def geo_sin_4x_cos_x_complement():
+    deg = pi / 180
+    expr = sin(4 * x * deg) - cos(x * deg)
+    # Exact root from the complementary-angle identity: 4x = 90 - x.
+    root = sp.solve(Eq(4 * x, 90 - x), x)[0]
+    assert sp.simplify(expr.subs(x, root)) == 0
+    # The root is the only one in (0, 20): scan sign changes of the difference.
+    grid = [Rational(2 * i + 1, 20) for i in range(0, 200)]  # 0.05, 0.15, ..., 19.95: never lands on the root itself
+    vals = [float(expr.subs(x, g)) for g in grid]
+    changes = sum(1 for p, q in zip(vals, vals[1:]) if p * q < 0)
+    assert changes == 1, changes
+    # ... and the same scan over (0, 90) finds the second solution, x = 30, outside the range.
+    wide = [Rational(2 * i + 1, 20) for i in range(0, 900)]
+    wvals = [float(expr.subs(x, g)) for g in wide]
+    assert sum(1 for p, q in zip(wvals, wvals[1:]) if p * q < 0) == 2
+    assert 0 < root < 20
+    return root
+
+
+def geo_30_60_90_area_hypotenuse():
+    short = sp.Symbol("short", positive=True)
+    area = Rational(1, 2) * short * (short * sqrt(3))
+    ss = sp.solve(Eq(area, 18 * sqrt(3)), short)
+    assert ss == [6]
+    return 2 * ss[0]
+
+
+# ----- Circles -------------------------------------------------------------
+
+
+def geo_tangent_point_distance_center():
+    return sqrt(8**2 + 15**2)  # radius ⟂ tangent, so OTP is a right triangle
+
+
+def geo_sector_area_radians_diameter():
+    radius = Rational(16, 2)
+    theta = 3 * pi / 4
+    area = Rational(1, 2) * radius**2 * theta
+    assert sp.simplify(area - theta / (2 * pi) * pi * radius**2) == 0
+    return area
+
+
+def geo_circle_general_form_top_point():
+    center, radius = _b5g_circle_from_general(x**2 + y**2 + 8 * x - 4 * y - 5)
+    assert center == sp.Point(-4, 2) and radius == 5
+    top = sp.Point(center.x, center.y + radius)
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if _b5g_point(ch) == top]
+        on_circle = [i for i, ch in enumerate(choices) if sp.simplify(_b5g_point(ch).distance(center) - radius) == 0]
+        return matches == [idx], f"top point {top}; matching choices {matches}; choices on the circle {on_circle}"
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -2701,6 +2881,19 @@ CHECKS = {
     "psda-workshop-book-conditional": psda_workshop_book_conditional,
     "psda-fish-mass-sample-mean": psda_fish_mass_sample_mean,
     "psda-bicycle-survey-generalize": psda_bicycle_survey_generalize,
+    # batch batch5-geo
+    "geo-cone-radius-tripled-volume": geo_cone_radius_tripled_volume,
+    "geo-pyramid-bin-height-perimeter": geo_pyramid_bin_height_perimeter,
+    "geo-cone-cup-to-cylinder-height": geo_cone_cup_to_cylinder_height,
+    "geo-isosceles-vertex-to-base-angle": geo_isosceles_vertex_to_base_angle,
+    "geo-isosceles-nested-angle-dac": geo_isosceles_nested_angle_dac,
+    "geo-similar-triangles-solve-x-side": geo_similar_triangles_solve_x_side,
+    "geo-garden-diagonal-path-cosine": geo_garden_diagonal_path_cosine,
+    "geo-sin-4x-cos-x-complement": geo_sin_4x_cos_x_complement,
+    "geo-30-60-90-area-hypotenuse": geo_30_60_90_area_hypotenuse,
+    "geo-tangent-point-distance-center": geo_tangent_point_distance_center,
+    "geo-sector-area-radians-diameter": geo_sector_area_radians_diameter,
+    "geo-circle-general-form-top-point": geo_circle_general_form_top_point,
 }
 
 
