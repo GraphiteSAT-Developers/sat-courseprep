@@ -2,6 +2,8 @@
 
 Planning for an AI-powered SAT Math course aimed at an 800. It teaches Desmos first and by-hand methods second, with an AI tutor that uses Desmos itself.
 
+Start here: [`HANDOFF.md`](HANDOFF.md)
+
 ## Contents
 
 - [`reports/AI Desmos SAT math course plan.md`](reports/AI%20Desmos%20SAT%20math%20course%20plan.md): the full planning report, with the recommended architecture, a phased roadmap, the decisions the owner needs to make, and a list of facts still to verify.
