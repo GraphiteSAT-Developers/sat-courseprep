@@ -1,6 +1,6 @@
 # Item generation plan: to 300, then 500
 
-_2026-10-15, bank at 227 after batch 4. Storage decision: items live in `web/content/items.ts` and are exported to `data/items.jsonl` for the AI side (Sonnet tutor, retrieval, evals). Firebase is deferred._
+_2026-10-15, bank at 301 after batch 5 (first milestone reached). Storage decision: items live in `web/content/items.ts` and are exported to `data/items.jsonl` for the AI side (Sonnet tutor, retrieval, evals). Firebase is deferred._
 
 ## Targets
 
@@ -8,10 +8,10 @@ The official distribution (`web/content/skills.ts`, from Table A31 of the Assess
 
 | Domain | Share | Target | Now | Skills |
 |---|---|---|---|---|
-| Algebra | 35% | 105 | 75 | 5 |
-| Advanced Math | 35% | 105 | 85 | 3 |
-| Problem-Solving and Data Analysis | 15% | 45 | 34 | 7 |
-| Geometry and Trigonometry | 15% | 45 | 33 | 4 |
+| Algebra | 35% | 105 | 105 | 5 |
+| Advanced Math | 35% | 105 | 105 | 3 |
+| Problem-Solving and Data Analysis | 15% | 45 | 46 | 7 |
+| Geometry and Trigonometry | 15% | 45 | 45 | 4 |
 
 Bank-wide ratios to hold on every batch: **MC:SPR ≈ 3:1**, **≈30% in context** (word-problem stems), SPR present in every domain, key position spread evenly across A–D, difficulty mix per domain ≈ 20% easy / 40% medium / 40% hard.
 
@@ -19,25 +19,25 @@ Bank-wide ratios to hold on every batch: **MC:SPR ≈ 3:1**, **≈30% in context
 
 | Skill | Target | Now |
 |---|---|---|
-| Linear equations in one variable | 18 | 2 |
-| Linear functions | 24 | 2 |
-| Linear equations in two variables | 18 | 2 |
-| Systems of two linear equations in two variables | 24 | 4 |
-| Linear inequalities in one or two variables | 21 | 1 |
-| Equivalent expressions | 30 | 6 |
-| Nonlinear equations in one variable and systems of equations in two variables | 40 | 10 |
-| Nonlinear functions | 35 | 5 |
-| Ratios, rates, proportional relationships, and units | 9 | 4 |
-| Percentages | 7 | 2 |
-| One-variable data: distributions and measures of center and spread | 7 | 3 |
-| Two-variable data: models and scatterplots | 7 | 1 |
-| Probability and conditional probability | 6 | 1 |
-| Inference from sample statistics and margin of error | 5 | 1 |
-| Evaluating statistical claims: observational studies and experiments | 4 | 0 |
-| Area and volume | 12 | 1 |
-| Lines, angles, and triangles | 12 | 5 |
-| Right triangles and trigonometry | 12 | 3 |
-| Circles | 9 | 2 |
+| Linear equations in one variable | 18 | 18 |
+| Linear functions | 24 | 24 |
+| Linear equations in two variables | 18 | 18 |
+| Systems of two linear equations in two variables | 24 | 23 |
+| Linear inequalities in one or two variables | 21 | 22 |
+| Equivalent expressions | 30 | 30 |
+| Nonlinear equations in one variable and systems of equations in two variables | 40 | 40 |
+| Nonlinear functions | 35 | 35 |
+| Ratios, rates, proportional relationships, and units | 9 | 10 |
+| Percentages | 7 | 7 |
+| One-variable data: distributions and measures of center and spread | 7 | 8 |
+| Two-variable data: models and scatterplots | 7 | 7 |
+| Probability and conditional probability | 6 | 6 |
+| Inference from sample statistics and margin of error | 5 | 4 |
+| Evaluating statistical claims: observational studies and experiments | 4 | 4 |
+| Area and volume | 12 | 10 |
+| Lines, angles, and triangles | 12 | 13 |
+| Right triangles and trigonometry | 12 | 12 |
+| Circles | 9 | 10 |
 
 ## The cycle for every batch
 

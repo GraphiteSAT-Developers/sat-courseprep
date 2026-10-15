@@ -2856,6 +2856,339 @@ def adv_quartic_end_behavior_factored():
     return check
 
 
+# ----- Batch batch5-algebra -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch5-algebra.ts (batch 5-algebra).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch5_algebra.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, symbols
+
+
+
+x, y, k, p, q, m, b, c, w, t, d, r = symbols("x y k p q m b c w t d r")
+
+
+def _b5a_rel(text: str):
+    """'$5r + 40d \\le 2,500$' -> SymPy relational; a chain '$-3 \\le x < 3.5$' -> And of relationals."""
+    import re as _re
+    body = text.strip().strip("$")
+    ops = {"\\le": sp.Le, "\\ge": sp.Ge, "\\neq": sp.Ne, "<": sp.Lt, ">": sp.Gt, "=": sp.Eq}
+    parts = _re.split(r"(\\le|\\ge|\\neq|<|>|=)", body)
+    if len(parts) < 3:
+        raise ValueError(f"no relation symbol in {text!r}")
+    exprs = [latex_to_sympy(parts[i]) for i in range(0, len(parts), 2)]
+    rels = [ops[parts[i]] for i in range(1, len(parts), 2)]
+    return sp.And(*[rel(lhs, rhs) for rel, lhs, rhs in zip(rels, exprs, exprs[1:])])
+
+
+def _b5a_condition(text: str):
+    """'$p = 8$ and $q \\neq 2$' -> And of the two relationals."""
+    return sp.And(*[_b5a_rel(part) for part in text.split(" and ")])
+
+
+def _b5a_line(points):
+    """Linear expression in x through two points."""
+    (x1, y1), (x2, y2) = points
+    slope = Rational(y2 - y1, x2 - x1)
+    return slope * x + (y1 - slope * x1)
+
+
+def _b5a_interpretation(key_phrases, contradictions):
+    """MC check for sentence choices: the key contains every key phrase; each
+    distractor is matched by one (phrase, claim_is_false) pair and that claim must be false."""
+
+    def check(choices, idx):
+        key_ok = all(ph in choices[idx] for ph in key_phrases)
+        wrong = []
+        for i, ch in enumerate(choices):
+            if i == idx:
+                continue
+            for phrase, is_false in contradictions:
+                if phrase in ch and is_false:
+                    wrong.append(i)
+                    break
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"key phrases {key_phrases} present={key_ok}; contradicted distractors {wrong}"
+
+    return check
+
+
+# ----- Linear equations in one variable -----
+
+
+def alg_distribute_both_sides_solve():
+    sols = sp.solve(Eq(3 * (x + 4), 5 * x - 2), x)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def alg_bookstore_split_copies():
+    fewer = sp.solve(Eq(c + (c + 24), 150), c)[0]
+    return fewer + 24
+
+
+def alg_fraction_difference_solve_spr():
+    sols = sp.solve(Eq((3 * x - 1) / 4 - x / 6, 2), x)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def alg_no_solution_two_constants_grid():
+    diff = sp.expand(p * x + 8 - 4 * (2 * x + q))
+    coeff, const = diff.coeff(x), diff.subs(x, 0)
+
+    def no_solution(pv, qv):
+        return coeff.subs(p, pv) == 0 and const.subs(q, qv) != 0
+
+    grid = [(pv, qv) for pv in (7, 8, 9, Rational(17, 2)) for qv in (1, 2, 3, Rational(5, 2))]
+
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices)
+                if all(bool(_b5a_condition(ch).subs({p: pv, q: qv})) == no_solution(pv, qv) for pv, qv in grid)]
+        return good == [idx], f"({coeff})x = {-const}; choices equivalent to 'no solution': {good}"
+
+    return check
+
+
+def alg_constant_both_sides_known_solution():
+    kk = sp.solve(Eq(k * (x - 2), 3 * x + 5 * k - 2).subs(x, 4), k)
+    assert len(kk) == 1
+    assert sp.solve(Eq(kk[0] * (x - 2), 3 * x + 5 * kk[0] - 2), x) == [4]
+    return kk[0]
+
+
+# ----- Linear functions -----
+
+
+def alg_evaluate_negative_input():
+    return (9 - 4 * x).subs(x, -3)
+
+
+def alg_balloon_descent_initial_altitude():
+    B = 520 - 65 * t
+    start, rate, ground, at65 = B.subs(t, 0), sp.diff(B, t), sp.solve(B, t)[0], B.subs(t, 65)
+    return _b5a_interpretation(
+        ["520 meters when it begins descending"],
+        [("each minute", rate != -520), ("reaches the ground", ground != 520), ("65 minutes after", at65 != 520)],
+    ) if start == 520 else (lambda choices, idx: (False, "B(0) != 520"))
+
+
+def alg_printer_page_count_input_spr():
+    return sp.solve(Eq(28 * d + 190, 1170), d)[0]
+
+
+def alg_linear_constant_from_one_output():
+    cc = sp.solve(Eq(5 * 3 + c, 4), c)[0]
+    return (5 * x + cc).subs(x, -1)
+
+
+def alg_warehouse_pallets_pair_meaning():
+    N = 36 + 9 * w
+    return _b5a_interpretation(
+        ["72 pallets in stock 4 weeks from now"],
+        [("during the next 4 weeks", N.subs(w, 4) - N.subs(w, 0) != 72),
+         ("4 pallets each week", sp.diff(N, w) != 4),
+         ("72 weeks from now", N.subs(w, 72) != 4)],
+    ) if N.subs(w, 4) == 72 else (lambda choices, idx: (False, "N(4) != 72"))
+
+
+def alg_linear_constants_output_relation():
+    f = m * x + b
+    sol = sp.solve([Eq(f.subs(x, 3), 2 * f.subs(x, 1)), Eq(f.subs(x, 5), 18)], [m, b])
+    return sol[b]
+
+
+def alg_linear_k_scaled_inputs_spr():
+    kp = sp.Symbol("k", positive=True)
+    f = m * x + b
+    sol = sp.solve([Eq(f.subs(x, kp), 3), Eq(f.subs(x, 2 * kp), 11), Eq(f.subs(x, 1), 5)], [m, b, kp], dict=True)
+    assert len(sol) == 1
+    return sol[0][kp]
+
+
+# ----- Linear equations in two variables -----
+
+
+def alg_point_on_standard_line_k():
+    return sp.solve(Eq(2 * 4 + 3 * k, 23), k)[0]
+
+
+def alg_recycling_coefficient_meaning():
+    expr = Rational("0.8") * x + Rational("3.2") * c  # x stands for a, the aluminum
+    coeff_c, coeff_a = expr.coeff(c), expr.coeff(x)
+    return _b5a_interpretation(
+        ["for each kilogram of copper"],
+        [("for each kilogram of aluminum", coeff_a != Rational("3.2")),
+         ("more for a kilogram of copper", coeff_c - coeff_a != Rational("3.2")),
+         ("contains 3.2 kilograms", all(sp.solve(Eq(expr.subs(c, cv), 56), x) for cv in (Rational("3.2"), 5)))],
+    ) if coeff_c == Rational("3.2") else (lambda choices, idx: (False, "coefficient of c != 3.2"))
+
+
+def alg_two_points_x_axis_crossing_spr():
+    line = _b5a_line([(-2, 9), (4, -3)])
+    return sp.solve(line, x)[0]
+
+
+def alg_perpendicular_line_equation():
+    given_slope = sp.solve(Eq(x - 4 * y, 2), y)[0].coeff(x)
+    perp = -1 / given_slope
+    expected = perp * (x + 1) + 5
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = _split_equation(ch)
+            assert lhs == y
+            if sp.expand(rhs - expected) == 0:
+                matches.append(i)
+        return matches == [idx], f"line: y = {expected}; matching choices {matches}"
+
+    return check
+
+
+def alg_intercepts_relation_k_spr():
+    bb = sp.solve(Eq(k * 0 - 3 * y, 12), y)[0]
+    aa = 2 * bb
+    kk = sp.solve(Eq(k * aa - 3 * 0, 12), k)
+    assert len(kk) == 1
+    return kk[0]
+
+
+# ----- Systems of two linear equations in two variables -----
+
+
+def alg_system_sum_of_coordinates():
+    sol = sp.solve([Eq(y, 2 * x + 1), Eq(y, -3 * x + 16)], [x, y])
+    return sol[x] + sol[y]
+
+
+def alg_hardware_bolts_containers():
+    sol = sp.solve([Eq(b + c, 14), Eq(25 * b + 8 * c, 248)], [b, c])  # b boxes, c bags
+    assert sol[b].is_integer and sol[c].is_integer and sol[b] > 0 and sol[c] > 0
+    return sol[b]
+
+
+def alg_system_count_solutions_coincident():
+    sols = sp.linsolve([4 * x - 6 * y - 10, -6 * x + 9 * y + 15], [x, y])
+    if sols == sp.S.EmptySet:
+        word = "Zero"
+    elif any(v.free_symbols for v in next(iter(sols))):
+        word = "Infinitely many"
+    else:
+        word = "Exactly one"
+
+    def check(choices, idx):
+        return choices[idx] == word, f"linsolve -> {sols} -> '{word}'"
+
+    return check
+
+
+def alg_fraction_coefficient_system_x_spr():
+    sol = sp.solve([Eq(x / 2 + y / 3, 5), Eq(x - y, 3)], [x, y])
+    return sol[x]
+
+
+def alg_parallel_unless_coincident_b():
+    def has_solution(bv):
+        return sp.linsolve([y - (2 * x + bv), 4 * x - 2 * y - 7], [x, y]) != sp.S.EmptySet
+
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices) if has_solution(latex_to_sympy(ch))]
+        return good == [idx], f"choices for which the system has a solution: {good}"
+
+    return check
+
+
+def alg_artist_prints_total_spr():
+    sol = sp.solve([Eq(x, 3 * y), Eq(15 * x + 40 * y, 1020)], [x, y])  # x small, y large
+    assert sol[x].is_integer and sol[y].is_integer
+    return sol[x] + sol[y]
+
+
+# ----- Linear inequalities in one or two variables -----
+
+
+def alg_greatest_value_simple_inequality():
+    sol = sp.solve_univariate_inequality(sp.Le(2 * x + 7, 19), x, relational=False)
+    assert sol.left == -sp.oo and not sol.right_open
+    return sol.right
+
+
+def alg_fundraiser_tickets_inequality():
+    expected = sp.Ge(5 * r + 40 * d, 2500)
+    grid = [(rv, dv) for rv in range(0, 601, 50) for dv in range(0, 81, 5)]
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rel = _b5a_rel(ch)
+            if all(bool(rel.subs({r: rv, d: dv})) == bool(expected.subs({r: rv, d: dv})) for rv, dv in grid):
+                matches.append(i)
+        return matches == [idx], f"5r + 40d >= 2500; choices agreeing on a {len(grid)}-point grid {matches}"
+
+    return check
+
+
+def alg_point_system_inequalities_count_k():
+    system = sp.And(sp.Lt(y, 2 * x + 1), sp.Gt(y, -x + 2)).subs(x, 3)
+    ints = [kv for kv in range(-50, 51) if bool(system.subs(y, kv))]
+    assert ints == list(range(0, 7))
+    return Integer(len(ints))
+
+
+def alg_craft_fair_mugs_least():
+    profit = 12 * x - Rational("4.5") * x - 350
+    sol = sp.solve_univariate_inequality(sp.Ge(profit, 200), x, relational=False)
+    assert sol.right == sp.oo
+    least = sp.ceiling(sol.left)
+    assert profit.subs(x, least) >= 200 and profit.subs(x, least - 1) < 200
+    return least
+
+
+def alg_compound_inequality_flip():
+    truth = sp.And(sp.Lt(-4, 3 - 2 * x), sp.Le(3 - 2 * x, 9))
+    tests = [Rational(v, 4) for v in range(-20, 21)]  # -5 .. 5 in quarter steps, including -3 and 3.5
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices)
+                   if all(bool(_b5a_rel(ch).subs(x, tv)) == bool(truth.subs(x, tv)) for tv in tests)]
+        sol = sp.reduce_inequalities([-4 < 3 - 2 * x, 3 - 2 * x <= 9], x)
+        return matches == [idx], f"solution set {sol}; choices agreeing on {len(tests)} test points: {matches}"
+
+    return check
+
+
+def alg_scaled_inequality_max():
+    target = 4 * x + 6 * y
+    ratio = sp.simplify(target / (2 * x + 3 * y))
+    assert ratio.is_number  # the target is a constant multiple of the constrained expression
+    best = ratio * 12
+    assert target.subs({x: 6, y: 0}) == best and (2 * x + 3 * y).subs({x: 6, y: 0}) <= 12
+    return best
+
+
+def alg_fraction_inequality_k_bound():
+    # Clearing denominators: 3(x - k) > 2x + 6, so x > 3k + 6; the bound must be 15.
+    lhs, rhs = (x - k) / 2, x / 3 + 1
+    bound = sp.solve(Eq(lhs - rhs, 0), x)[0]
+    assert sp.diff(lhs - rhs, x) > 0  # left side grows faster, so the solution set is x > bound
+    kk = sp.solve(Eq(bound, 15), k)[0]
+    assert sp.solve_univariate_inequality(sp.Gt(lhs.subs(k, kk), rhs), x, relational=False) == sp.Interval.open(15, sp.oo)
+    return kk
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -3138,6 +3471,37 @@ CHECKS = {
     "adv-coin-value-monthly-function": adv_coin_value_monthly_function,
     "adv-photo-frame-uniform-width": adv_photo_frame_uniform_width,
     "adv-quartic-end-behavior-factored": adv_quartic_end_behavior_factored,
+    # batch batch5-algebra
+    "alg-distribute-both-sides-solve": alg_distribute_both_sides_solve,
+    "alg-bookstore-split-copies": alg_bookstore_split_copies,
+    "alg-fraction-difference-solve-spr": alg_fraction_difference_solve_spr,
+    "alg-no-solution-two-constants-grid": alg_no_solution_two_constants_grid,
+    "alg-constant-both-sides-known-solution": alg_constant_both_sides_known_solution,
+    "alg-evaluate-negative-input": alg_evaluate_negative_input,
+    "alg-balloon-descent-initial-altitude": alg_balloon_descent_initial_altitude,
+    "alg-printer-page-count-input-spr": alg_printer_page_count_input_spr,
+    "alg-linear-constant-from-one-output": alg_linear_constant_from_one_output,
+    "alg-warehouse-pallets-pair-meaning": alg_warehouse_pallets_pair_meaning,
+    "alg-linear-constants-output-relation": alg_linear_constants_output_relation,
+    "alg-linear-k-scaled-inputs-spr": alg_linear_k_scaled_inputs_spr,
+    "alg-point-on-standard-line-k": alg_point_on_standard_line_k,
+    "alg-recycling-coefficient-meaning": alg_recycling_coefficient_meaning,
+    "alg-two-points-x-axis-crossing-spr": alg_two_points_x_axis_crossing_spr,
+    "alg-perpendicular-line-equation": alg_perpendicular_line_equation,
+    "alg-intercepts-relation-k-spr": alg_intercepts_relation_k_spr,
+    "alg-system-sum-of-coordinates": alg_system_sum_of_coordinates,
+    "alg-hardware-bolts-containers": alg_hardware_bolts_containers,
+    "alg-system-count-solutions-coincident": alg_system_count_solutions_coincident,
+    "alg-fraction-coefficient-system-x-spr": alg_fraction_coefficient_system_x_spr,
+    "alg-parallel-unless-coincident-b": alg_parallel_unless_coincident_b,
+    "alg-artist-prints-total-spr": alg_artist_prints_total_spr,
+    "alg-greatest-value-simple-inequality": alg_greatest_value_simple_inequality,
+    "alg-fundraiser-tickets-inequality": alg_fundraiser_tickets_inequality,
+    "alg-point-system-inequalities-count-k": alg_point_system_inequalities_count_k,
+    "alg-craft-fair-mugs-least": alg_craft_fair_mugs_least,
+    "alg-compound-inequality-flip": alg_compound_inequality_flip,
+    "alg-scaled-inequality-max": alg_scaled_inequality_max,
+    "alg-fraction-inequality-k-bound": alg_fraction_inequality_k_bound,
 }
 
 
