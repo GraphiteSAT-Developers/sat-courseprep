@@ -7500,6 +7500,327 @@ def alg_lf_composed_integer_count():
     return sp.Integer(count)
 
 
+# ----- Batch batch10-ne2 -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch10-ne2.ts (batch batch10-ne2).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch10_ne2.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers (radicals, words, points, equations).
+"""
+
+import re
+
+
+import sympy as sp
+from sympy import Eq, Rational, Symbol, sqrt, symbols
+
+x, y, k, b, c, t = symbols("x y k b c t")
+
+
+# ----- helpers (prefix _b10ne_) -----
+
+_B10NE_COUNT_WORDS = {0: "Zero", 1: "Exactly one", 2: "Exactly two", 3: "Exactly three", 4: "Exactly four"}
+
+
+def _b10ne_real_roots(expr, var=x):
+    """Distinct real roots of a polynomial or rational expression in var."""
+    vr = Symbol(str(var), real=True)
+    return sorted(set(sp.solve(sp.together(expr).subs(var, vr), vr)))
+
+
+def _b10ne_valid(expr, root, var=x):
+    """True if root keeps every denominator nonzero and makes expr exactly 0."""
+    num, den = sp.fraction(sp.together(expr))
+    if sp.simplify(den.subs(var, root)) == 0:
+        return False
+    val = expr.subs(var, root)
+    return val.is_real is not False and sp.simplify(val) == 0
+
+
+def _b10ne_mc(expected):
+    """Callable for numeric choices the base parser can't read (radicals)."""
+
+    def check(choices, idx):
+        vals = [latex_to_sympy_ext(ch) for ch in choices]
+        matches = [i for i, v in enumerate(vals) if sp.simplify(v - expected) == 0]
+        return matches == [idx], f"expected {expected}; matching choices {matches}"
+
+    return check
+
+
+def _b10ne_count(count):
+    def check(choices, idx):
+        word = _B10NE_COUNT_WORDS[count]
+        return choices[idx] == word, f"{count} real solution(s) -> '{word}'"
+
+    return check
+
+
+def _b10ne_point(text):
+    a_, b_ = text.strip().strip("$").strip("()").split(",")
+    return latex_to_sympy(a_), latex_to_sympy(b_)
+
+
+# ----- checks -----
+
+
+def adv_ne2_quartic_isolate_positive():
+    pos = [r for r in _b10ne_real_roots(2 * x**4 - 7 - 155) if r > 0]
+    assert len(pos) == 1
+    return pos[0]
+
+
+def adv_ne2_factored_greatest_solution():
+    return max(_b10ne_real_roots((2 * x - 9) * (x**2 - 16)))
+
+
+def adv_ne2_square_equals_twelve_radical():
+    pos = [r for r in _b10ne_real_roots((x + 2) ** 2 - 12) if r > 0]
+    assert len(pos) == 1
+    return _b10ne_mc(pos[0])
+
+
+def adv_ne2_rod_length_tolerance():
+    m = Symbol("L", real=True)
+    sols = sp.solve(sp.Abs(m - 120) - Rational(2, 5), m)
+    assert len(sols) == 2
+    return max(sols)
+
+
+def adv_ne2_rational_one_fraction_easy():
+    expr = (x + 5) / (x - 1) - 3
+    sols = [r for r in _b10ne_real_roots(expr) if _b10ne_valid(expr, r)]
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_ne2_line_parabola_which_point():
+    sols = sp.solve([Eq(y, x**2), Eq(y, x + 6)], [x, y], dict=True)
+    pts = {(s[x], s[y]) for s in sols}
+    assert len(pts) == 2
+
+    def check(choices, idx):
+        hits = [i for i, ch in enumerate(choices) if _b10ne_point(ch) in pts]
+        return hits == [idx], f"intersections {sorted(pts)}; matching choices {hits}"
+
+    return check
+
+
+def adv_ne2_irrational_negative_solution():
+    neg = [r for r in _b10ne_real_roots(3 * x**2 - 6 * x - 2) if r < 0]
+    assert len(neg) == 1
+    return _b10ne_mc(neg[0])
+
+
+def adv_ne2_complete_square_lesser():
+    roots = _b10ne_real_roots(x**2 + 8 * x - 5)
+    assert len(roots) == 2
+    return _b10ne_mc(min(roots))
+
+
+def adv_ne2_quartic_in_form_greatest():
+    roots = _b10ne_real_roots(x**4 - 11 * x**2 + 18)
+    assert len(roots) == 4
+    return _b10ne_mc(max(roots))
+
+
+def adv_ne2_rational_two_fractions_positive():
+    expr = 2 / x + 3 / (x + 2) - 1
+    pos = [r for r in _b10ne_real_roots(expr) if _b10ne_valid(expr, r) and r > 0]
+    assert len(pos) == 1
+    return pos[0]
+
+
+def adv_ne2_two_radicals_quadratic_radicand():
+    cands = _b10ne_real_roots(x**2 - 8 - 2 * x)
+    good = [r for r in cands if r**2 - 8 >= 0 and 2 * r >= 0 and sp.simplify(sqrt(r**2 - 8) - sqrt(2 * r)) == 0]
+    assert len(good) == 1
+    return good[0]
+
+
+def adv_ne2_difference_of_squares_system_y():
+    sols = sp.solve([Eq(x**2 - y**2, 24), Eq(x + y, 8)], [x, y], dict=True)
+    assert len(sols) == 1
+    return sols[0][y]
+
+
+def adv_ne2_exponential_line_count():
+    g = lambda v: 3.0**v - v - 2  # noqa: E731
+    # g is convex (g'' = 3^x ln(3)^2 > 0), so it has at most two zeros; count sign changes.
+    grid = [i / 1000 for i in range(-50000, 50001)]
+    changes = 0
+    for u, v in zip(grid, grid[1:]):
+        gu, gv = g(u), g(v)
+        if gu == 0 or gu * gv < 0:
+            changes += 1
+    assert sp.Integer(3) ** 1 == 1 + 2  # exact root at x = 1
+    return _b10ne_count(changes)
+
+
+def adv_ne2_hyperbola_line_other_point():
+    kv = sp.solve(Eq(2, k / 3), k)[0]
+    cv = sp.solve(Eq(2, 3 + c), c)[0]
+    others = [r for r in _b10ne_real_roots(kv / x - (x + cv)) if r != 3]
+    assert len(others) == 1
+    return others[0] + cv
+
+
+def adv_ne2_cabin_rental_group_size():
+    n = Symbol("n")
+    expr = 360 / n - 360 / (n + 3) - 6
+    pos = [r for r in _b10ne_real_roots(expr, n) if r > 0 and _b10ne_valid(expr, r, n)]
+    assert len(pos) == 1
+    return pos[0]
+
+
+def adv_ne2_illuminance_solve_distance():
+    E_, k_, d_ = symbols("q k d", positive=True)
+
+    def check(choices, idx):
+        good = []
+        for i, ch in enumerate(choices):
+            rhs = ch.strip().strip("$").split("=", 1)[1].replace("E", "q")
+            dv = latex_to_sympy_ext(rhs).subs({Symbol("q"): E_, Symbol("k"): k_})
+            if sp.simplify(k_ / dv**2 - E_) == 0:
+                good.append(i)
+        return good == [idx], f"choices solving E = k/d^2 for d: {good}"
+
+    return check
+
+
+def adv_ne2_catapult_balloon_height():
+    ts = _b10ne_real_roots(-5 * t**2 + 25 * t - (5 * t + 15), t)
+    assert len(ts) == 2
+    return 5 * max(ts) + 15
+
+
+def adv_ne2_library_collections_later_time():
+    f = 1000 * sp.Float("1.1") ** t - 900 - 150 * t
+    r1 = sp.nsolve(f, t, 2)
+    r2 = sp.nsolve(f, t, 7)
+    assert abs(r1 - r2) > 1
+    later = max(r1, r2)
+    return Rational(str(round(float(later), 1)))
+
+
+def adv_ne2_cube_root_quadratic_form():
+    u = Symbol("u", real=True)
+    xs = [r**3 for r in sp.solve(u**2 - 5 * u + 4, u)]
+    xp = Symbol("xp", positive=True)
+    for v in xs:
+        assert sp.simplify((xp ** Rational(2, 3) - 5 * xp ** Rational(1, 3) + 4).subs(xp, v)) == 0
+    return sum(xs)
+
+
+def adv_ne2_base_five_solution_count():
+    u = Symbol("u", real=True)
+    us = sp.solve(u**2 + 4 * u - 5, u)
+    xs = [sp.log(v, 5) for v in us if v > 0]
+    for v in xs:
+        assert sp.simplify(5 ** (2 * v) + 4 * 5**v - 5) == 0
+    return _b10ne_count(len(xs))
+
+
+def adv_ne2_base_three_product_solutions():
+    u = Symbol("u", real=True)
+    us = sp.solve(3 * u**2 - 28 * u + 9, u)
+    xs = [sp.simplify(sp.log(v, 3)) for v in us if v > 0]
+    assert len(xs) == 2
+    for v in xs:
+        assert sp.simplify(3 ** (2 * v + 1) - 28 * 3**v + 9) == 0
+    return sp.simplify(xs[0] * xs[1])
+
+
+def adv_ne2_rational_restriction_extraneous():
+    expr = x / (x - 2) - 3 / (x + 1) - 9 / (x**2 - x - 2)
+    sols = [r for r in _b10ne_real_roots(expr) if _b10ne_valid(expr, r)]
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_ne2_two_radicals_sum_solutions():
+    # Squaring twice gives (x + 1)^2 = 16(x - 2); keep candidates that satisfy the original.
+    cands = _b10ne_real_roots((x + 1) ** 2 - 16 * (x - 2))
+    good = [r for r in cands if 2 * r + 3 >= 0 and r - 2 >= 0
+            and sp.simplify(sqrt(2 * r + 3) - sqrt(r - 2) - 2) == 0]
+    assert len(good) == 2
+    return sum(good)
+
+
+def adv_ne2_two_radicals_no_solution():
+    cands = _b10ne_real_roots(5 * x - 4 - 4 * (x - 1))
+    good = [r for r in cands if 5 * r - 4 >= 0 and r - 1 >= 0
+            and sp.simplify(sqrt(5 * r - 4) - 2 * sqrt(r - 1)) == 0]
+    return _b10ne_count(len(good))
+
+
+def adv_ne2_parabola_absolute_three_points():
+    right = [r for r in _b10ne_real_roots(x**2 - 2 * x + 1 - (x - 1)) if r >= 1]
+    left = [r for r in _b10ne_real_roots(x**2 - 2 * x + 1 - (1 - x)) if r < 1]
+    return _b10ne_count(len(set(right + left)))
+
+
+def adv_ne2_absolute_quadratic_three_solutions_k():
+    f = x**2 - 6 * x + 5
+
+    def count(kv):
+        return len(set(_b10ne_real_roots(f - kv) + _b10ne_real_roots(f + kv)))
+
+    vx = sp.solve(sp.diff(f, x), x)[0]
+    kv = sp.Abs(f.subs(x, vx))
+    assert count(kv) == 3 and count(kv - 1) == 4 and count(kv + 1) == 2
+    return kv
+
+
+def adv_ne2_k_at_both_ends_one_solution():
+    kp = Symbol("kp", positive=True)
+    sols = sp.solve(6**2 - 4 * kp * kp, kp)
+    assert len(sols) == 1
+    assert len(_b10ne_real_roots(sols[0] * x**2 + 6 * x + sols[0])) == 1
+    return sols[0]
+
+
+def adv_ne2_rational_tangent_positive_k():
+    kp = Symbol("kp", positive=True)
+    sols = sp.solve(kp**2 - 36, kp)
+    assert len(sols) == 1
+    expr = 9 / x - (sols[0] - x)
+    assert len([r for r in _b10ne_real_roots(expr) if _b10ne_valid(expr, r)]) == 1
+    return sols[0]
+
+
+def adv_ne2_tangent_at_given_point_bc():
+    quad = sp.expand(x**2 + b * x + c - (2 * x - 1))
+    disc = sp.discriminant(quad, x)
+    sols = sp.solve([quad.subs(x, 2), disc], [b, c], dict=True)
+    assert len(sols) == 1
+    s0 = sols[0]
+    assert _b10ne_real_roots(quad.subs(s0)) == [2]
+    return s0[b] * s0[c]
+
+
+def adv_ne2_hiker_round_trip_speed():
+    s_ = Symbol("s")
+    expr = 12 / s_ + 12 / (s_ + 1) - 7
+    pos = [r for r in _b10ne_real_roots(expr, s_) if r > 0 and _b10ne_valid(expr, r, s_)]
+    assert len(pos) == 1
+    return pos[0]
+
+
+def adv_ne2_tabletop_diagonal_perimeter():
+    lp, wp = symbols("l w", positive=True)
+    sols = sp.solve([Eq(lp**2 + wp**2, 36), Eq(lp * wp, 14)], [lp, wp], dict=True)
+    perims = {sp.simplify(2 * (s[lp] + s[wp])) for s in sols}
+    assert len(perims) == 1
+    return _b10ne_mc(perims.pop())
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -8297,6 +8618,38 @@ CHECKS = {
     "alg-lf-output-difference-input-gap": alg_lf_output_difference_input_gap,
     "alg-lf-table-two-unknown-outputs": alg_lf_table_two_unknown_outputs,
     "alg-lf-composed-integer-count": alg_lf_composed_integer_count,
+    # batch batch10-ne2
+    "adv-ne2-quartic-isolate-positive": adv_ne2_quartic_isolate_positive,
+    "adv-ne2-factored-greatest-solution": adv_ne2_factored_greatest_solution,
+    "adv-ne2-square-equals-twelve-radical": adv_ne2_square_equals_twelve_radical,
+    "adv-ne2-rod-length-tolerance": adv_ne2_rod_length_tolerance,
+    "adv-ne2-rational-one-fraction-easy": adv_ne2_rational_one_fraction_easy,
+    "adv-ne2-line-parabola-which-point": adv_ne2_line_parabola_which_point,
+    "adv-ne2-irrational-negative-solution": adv_ne2_irrational_negative_solution,
+    "adv-ne2-complete-square-lesser": adv_ne2_complete_square_lesser,
+    "adv-ne2-quartic-in-form-greatest": adv_ne2_quartic_in_form_greatest,
+    "adv-ne2-rational-two-fractions-positive": adv_ne2_rational_two_fractions_positive,
+    "adv-ne2-two-radicals-quadratic-radicand": adv_ne2_two_radicals_quadratic_radicand,
+    "adv-ne2-difference-of-squares-system-y": adv_ne2_difference_of_squares_system_y,
+    "adv-ne2-exponential-line-count": adv_ne2_exponential_line_count,
+    "adv-ne2-hyperbola-line-other-point": adv_ne2_hyperbola_line_other_point,
+    "adv-ne2-cabin-rental-group-size": adv_ne2_cabin_rental_group_size,
+    "adv-ne2-illuminance-solve-distance": adv_ne2_illuminance_solve_distance,
+    "adv-ne2-catapult-balloon-height": adv_ne2_catapult_balloon_height,
+    "adv-ne2-library-collections-later-time": adv_ne2_library_collections_later_time,
+    "adv-ne2-cube-root-quadratic-form": adv_ne2_cube_root_quadratic_form,
+    "adv-ne2-base-five-solution-count": adv_ne2_base_five_solution_count,
+    "adv-ne2-base-three-product-solutions": adv_ne2_base_three_product_solutions,
+    "adv-ne2-rational-restriction-extraneous": adv_ne2_rational_restriction_extraneous,
+    "adv-ne2-two-radicals-sum-solutions": adv_ne2_two_radicals_sum_solutions,
+    "adv-ne2-two-radicals-no-solution": adv_ne2_two_radicals_no_solution,
+    "adv-ne2-parabola-absolute-three-points": adv_ne2_parabola_absolute_three_points,
+    "adv-ne2-absolute-quadratic-three-solutions-k": adv_ne2_absolute_quadratic_three_solutions_k,
+    "adv-ne2-k-at-both-ends-one-solution": adv_ne2_k_at_both_ends_one_solution,
+    "adv-ne2-rational-tangent-positive-k": adv_ne2_rational_tangent_positive_k,
+    "adv-ne2-tangent-at-given-point-bc": adv_ne2_tangent_at_given_point_bc,
+    "adv-ne2-hiker-round-trip-speed": adv_ne2_hiker_round_trip_speed,
+    "adv-ne2-tabletop-diagonal-perimeter": adv_ne2_tabletop_diagonal_perimeter,
 }
 
 
