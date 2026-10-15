@@ -1,6 +1,6 @@
 # Item generation plan: to 300, then 500
 
-_2026-10-15. Storage decision: items live in `web/content/items.ts` and are exported to `data/items.jsonl` for the AI side (Sonnet tutor, retrieval, evals). Firebase is deferred._
+_2026-10-15, bank at 163 after batch 3. Storage decision: items live in `web/content/items.ts` and are exported to `data/items.jsonl` for the AI side (Sonnet tutor, retrieval, evals). Firebase is deferred._
 
 ## Targets
 
@@ -8,10 +8,10 @@ The official distribution (`web/content/skills.ts`, from Table A31 of the Assess
 
 | Domain | Share | Target | Now | Skills |
 |---|---|---|---|---|
-| Algebra | 35% | 105 | 11 | 5 |
-| Advanced Math | 35% | 105 | 21 | 3 |
-| Problem-Solving and Data Analysis | 15% | 45 | 12 | 7 |
-| Geometry and Trigonometry | 15% | 45 | 11 | 4 |
+| Algebra | 35% | 105 | 43 | 5 |
+| Advanced Math | 35% | 105 | 53 | 3 |
+| Problem-Solving and Data Analysis | 15% | 45 | 34 | 7 |
+| Geometry and Trigonometry | 15% | 45 | 33 | 4 |
 
 Bank-wide ratios to hold on every batch: **MC:SPR ≈ 3:1**, **≈30% in context** (word-problem stems), SPR present in every domain, key position spread evenly across A–D, difficulty mix per domain ≈ 20% easy / 40% medium / 40% hard.
 
