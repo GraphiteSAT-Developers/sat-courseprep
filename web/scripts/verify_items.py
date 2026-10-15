@@ -5054,6 +5054,248 @@ def alg_sys_boat_current_speed():
     return sol[c]
 
 
+# ----- Batch batch7-lat -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch7-lat.ts (batch batch7-lat, Lines, angles, and triangles).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch7_lat.py --only-extra
+
+Each function derives the key from the stem's givens and returns it as an exact
+SymPy object, or a callable (choices, answer_index) -> (ok, detail) for choices
+the base parser cannot read (radicals, sentences).
+"""
+
+
+
+import re
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, symbols
+
+_b7lt_x = symbols("_b7lt_x")
+_b7lt_a = symbols("_b7lt_a", positive=True)
+
+
+def _b7lt_solve1(eq):
+    sols = sp.solve(eq, _b7lt_x)
+    assert len(sols) == 1, sols
+    return sols[0]
+
+
+def _b7lt_valid_roots(eq, exprs):
+    """Real roots of eq for which every angle/length expression is positive."""
+    out = []
+    for v in sp.solve(eq, _b7lt_x):
+        if v.is_real and all(e.subs(_b7lt_x, v) > 0 for e in exprs):
+            out.append(v)
+    assert len(out) == 1, out
+    return out[0]
+
+
+def geo_vertical_angles_expression_measure():
+    X = _b7lt_x
+    v = _b7lt_solve1(Eq(4 * X + 18, 6 * X - 12))  # vertical angles congruent
+    return (4 * X + 18).subs(X, v)
+
+
+def geo_complementary_expressions_x():
+    X = _b7lt_x
+    return _b7lt_solve1(Eq((3 * X + 7) + (2 * X - 2), 90))
+
+
+def geo_linear_pair_ratio_four_to_one():
+    a = sp.solve(Eq(_b7lt_a + 4 * _b7lt_a, 180), _b7lt_a)[0]
+    return 4 * a
+
+
+def geo_corresponding_angles_solve_x():
+    X = _b7lt_x
+    return _b7lt_solve1(Eq(5 * X - 14, 3 * X + 22))
+
+
+def geo_equilateral_side_expressions_x():
+    X = _b7lt_x
+    v = _b7lt_solve1(Eq(2 * X + 5, 4 * X - 9))
+    assert (2 * X + 5).subs(X, v) > 0
+    return v
+
+
+def geo_angle_ratio_largest_angle():
+    a = sp.solve(Eq(2 * _b7lt_a + 3 * _b7lt_a + 7 * _b7lt_a, 180), _b7lt_a)[0]
+    return 7 * a
+
+
+def geo_alternate_interior_obtuse_angle():
+    X = _b7lt_x
+    v = _b7lt_solve1(Eq(7 * X - 30, 4 * X + 15))
+    ang = (4 * X + 15).subs(X, v)
+    return max(ang, 180 - ang)
+
+
+def geo_isosceles_exterior_base_angle():
+    B = sp.solve(Eq(2 * _b7lt_a, 112), _b7lt_a)[0]  # exterior angle = B + C, B = C
+    assert (180 - 112) + 2 * B == 180
+    return B
+
+
+def geo_regular_polygon_sides_156():
+    n = symbols("n", positive=True)
+    return sp.solve(Eq(180 * (n - 2), 156 * n), n)[0]
+
+
+def geo_side_splitter_parallel_length():
+    AD, DB, DE = 4, 6, 5
+    return Rational(DE * (AD + DB), AD)
+
+
+def geo_dilation_angle_unchanged():
+    Z = 180 - 38 - 64  # dilation preserves angles: N = Z
+    return Integer(Z)
+
+
+def geo_triangle_inequality_integer_count():
+    return Integer(len([s for s in range(1, 100) if s < 7 + 12 and 12 < 7 + s and 7 < 12 + s]))
+
+
+def geo_quadrilateral_diagonal_congruence():
+    # Triangles ABC and CDA; correspondence A->C, B->D, C->A.
+    corr = {"A": "C", "B": "D", "C": "A"}
+    # Known congruent side pairs (as vertex sets in triangle ABC): AB<->CD and AC<->CA.
+    known_sides = {frozenset("AB"), frozenset("AC")}
+
+    def angle_vertex_in_ABC(name_abc, name_cda):
+        """Return the ABC vertex if the stated pair corresponds, else None."""
+        if set(name_abc) != set("ABC"):
+            return None
+        v1 = name_abc[1]
+        # In triangle CDA the angle must use only C, D, A and sit at corr[v1].
+        if set(name_cda) != set("CDA") or name_cda[1] != corr[v1]:
+            return None
+        return v1
+
+    def sufficient(sides, angles):
+        if len(sides) == 3:
+            return True
+        if len(angles) >= 2 and len(sides) >= 1:
+            return True
+        if len(sides) == 2 and angles:
+            s1, s2 = sides
+            return any(v in (s1 & s2) for v in angles)  # SAS needs the included angle
+        return False
+
+    def check(choices, idx):
+        good = []
+        for i, ch in enumerate(choices):
+            names = re.findall(r"angle \$([A-Z]{3})\$", ch)
+            assert len(names) == 2, ch
+            v = angle_vertex_in_ABC(names[0], names[1])
+            if v is not None and sufficient(known_sides, {v}):
+                good.append(i)
+        return good == [idx], f"sufficient choices {good}"
+
+    return check
+
+
+def geo_linear_pair_quadratic_angle():
+    X = _b7lt_x
+    v = _b7lt_valid_roots(Eq(X**2 + 6 * X - 7, 180), [X**2, 6 * X - 7])
+    return (6 * X - 7).subs(X, v)
+
+
+def geo_triangle_fraction_angle_expressions():
+    X = _b7lt_x
+    angles = [X / 3 + 20, X / 4 + 35, X / 6 + 17]
+    v = _b7lt_solve1(Eq(sum(angles), 180))
+    vals = [e.subs(X, v) for e in angles]
+    assert all(val > 0 for val in vals)
+    return max(vals)
+
+
+def geo_exterior_angle_quadratic_interior():
+    X = _b7lt_x
+    A, B, ext = 3 * X + 4, 4 * X - 6, X**2 - 10
+    v = _b7lt_valid_roots(Eq(ext, A + B), [A, B, ext, 180 - ext])
+    return 180 - ext.subs(X, v)
+
+
+def geo_side_splitter_quadratic_length():
+    X = _b7lt_x
+    FJ, JG, FK, KH = X - 2, 8, 5, X + 4
+    v = _b7lt_valid_roots(Eq(FJ * KH, JG * FK), [FJ, KH])
+    return FK + KH.subs(X, v)
+
+
+def geo_pond_width_crossing_segments():
+    AB, AC, CE = 18, 12, 30
+    return Rational(AB * CE, AC)  # triangle ABC ~ triangle EDC
+
+
+def geo_regular_frame_perimeter_140():
+    n = sp.solve(Eq(180 * (symbols("n") - 2), 140 * symbols("n")), symbols("n"))[0]
+    return 9 * n
+
+
+def geo_welded_tubes_third_side():
+    def check(choices, idx):
+        vals = [latex_to_sympy_ext(c) for c in choices]
+        good = [i for i, s in enumerate(vals) if s + 16 > 27 and s + 27 > 16 and 16 + 27 > s]
+        return good == [idx], f"valid third sides at {good}"
+
+    return check
+
+
+def geo_mirror_beam_lamp_height():
+    post_h, mirror_to_post, gap = Rational(12, 10), 2, 7
+    mirror_to_wall = gap - mirror_to_post
+    return post_h * mirror_to_wall / mirror_to_post
+
+
+def geo_pentagon_flower_bed_fifth_angle():
+    return Integer(180 * (5 - 2) - (100 + 115 + 108 + 120))
+
+
+def geo_rail_lines_same_side_interior():
+    X = _b7lt_x
+    v = _b7lt_solve1(Eq((2 * X + 14) + (5 * X - 9), 180))
+    vals = [(2 * X + 14).subs(X, v), (5 * X - 9).subs(X, v)]
+    return min(vals)
+
+
+def geo_equilateral_extension_angle_bad():
+    acd = 180 - 60
+    cad = Rational(180 - acd, 2)
+    return 60 + cad
+
+
+def geo_shared_angle_similar_side():
+    AD, DC = 4, 5
+    ab = symbols("ab", positive=True)
+    return sp.solve(Eq(ab / (AD + DC), AD / ab), ab)[0]  # triangle ABD ~ triangle ACB: AB/AC = AD/AB
+
+
+def geo_angle_bisectors_meet_bic():
+    half_sum = Rational(180 - 52, 2)
+    return 180 - half_sum
+
+
+def geo_parallel_lines_bent_path_angle():
+    # Coordinates: l is y = 1, m is y = 0, A = (0, 1), B = (0, 0), C and D on the +x side.
+    import math
+    pac, pbd = math.radians(38), math.radians(47)
+    # P = A + t1*(cos pac, -sin pac) = B + t2*(cos pbd, sin pbd).
+    t1 = 1 / (math.sin(pac) + math.cos(pac) * math.tan(pbd))
+    px, py = t1 * math.cos(pac), 1 - t1 * math.sin(pac)
+    assert 0 < py < 1 and px > 0  # P between the lines, same side of AB as C and D
+    assert abs(math.degrees(math.atan2(py, px)) - 47) < 1e-9  # angle PBD really is 47
+    ax, ay, bx, by = -px, 1 - py, -px, -py
+    deg = math.degrees(math.acos((ax * bx + ay * by) / (math.hypot(ax, ay) * math.hypot(bx, by))))
+    assert abs(deg - (38 + 47)) < 1e-9, deg
+    return Integer(round(deg))
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -5592,6 +5834,34 @@ CHECKS = {
     "alg-sys-bagels-juices-combined-price": alg_sys_bagels_juices_combined_price,
     "alg-sys-two-clubs-members-table-weeks-spr": alg_sys_two_clubs_members_table_weeks_spr,
     "alg-sys-boat-current-speed": alg_sys_boat_current_speed,
+    # batch batch7-lat
+    "geo-vertical-angles-expression-measure": geo_vertical_angles_expression_measure,
+    "geo-complementary-expressions-x": geo_complementary_expressions_x,
+    "geo-linear-pair-ratio-four-to-one": geo_linear_pair_ratio_four_to_one,
+    "geo-corresponding-angles-solve-x": geo_corresponding_angles_solve_x,
+    "geo-equilateral-side-expressions-x": geo_equilateral_side_expressions_x,
+    "geo-angle-ratio-largest-angle": geo_angle_ratio_largest_angle,
+    "geo-alternate-interior-obtuse-angle": geo_alternate_interior_obtuse_angle,
+    "geo-isosceles-exterior-base-angle": geo_isosceles_exterior_base_angle,
+    "geo-regular-polygon-sides-156": geo_regular_polygon_sides_156,
+    "geo-side-splitter-parallel-length": geo_side_splitter_parallel_length,
+    "geo-dilation-angle-unchanged": geo_dilation_angle_unchanged,
+    "geo-triangle-inequality-integer-count": geo_triangle_inequality_integer_count,
+    "geo-quadrilateral-diagonal-congruence": geo_quadrilateral_diagonal_congruence,
+    "geo-linear-pair-quadratic-angle": geo_linear_pair_quadratic_angle,
+    "geo-triangle-fraction-angle-expressions": geo_triangle_fraction_angle_expressions,
+    "geo-exterior-angle-quadratic-interior": geo_exterior_angle_quadratic_interior,
+    "geo-side-splitter-quadratic-length": geo_side_splitter_quadratic_length,
+    "geo-pond-width-crossing-segments": geo_pond_width_crossing_segments,
+    "geo-regular-frame-perimeter-140": geo_regular_frame_perimeter_140,
+    "geo-welded-tubes-third-side": geo_welded_tubes_third_side,
+    "geo-mirror-beam-lamp-height": geo_mirror_beam_lamp_height,
+    "geo-pentagon-flower-bed-fifth-angle": geo_pentagon_flower_bed_fifth_angle,
+    "geo-rail-lines-same-side-interior": geo_rail_lines_same_side_interior,
+    "geo-equilateral-extension-angle-bad": geo_equilateral_extension_angle_bad,
+    "geo-shared-angle-similar-side": geo_shared_angle_similar_side,
+    "geo-angle-bisectors-meet-bic": geo_angle_bisectors_meet_bic,
+    "geo-parallel-lines-bent-path-angle": geo_parallel_lines_bent_path_angle,
 }
 
 
