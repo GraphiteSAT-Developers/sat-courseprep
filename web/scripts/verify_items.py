@@ -8884,6 +8884,221 @@ def adv_nf_factored_cubic_remainder_constant():
     return sols[0]
 
 
+# ----- Batch batch12-le2v2 -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch12-le2v2.ts (batch batch12-le2v2).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch12_le2v2.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers (equations, points).
+"""
+
+
+
+import sympy as sp
+from sympy import Eq, Rational, sqrt, symbols
+
+x, y, k, p, t, n = symbols("x y k p t n")
+
+
+# ----- helpers (prefix _b12l2_) -----
+
+
+def _b12l2_line(pts):
+    """y as an expression in x for the line through two points."""
+    (x1, y1), (x2, y2) = [(sp.nsimplify(u), sp.nsimplify(v)) for u, v in pts]
+    m = (y2 - y1) / (x2 - x1)
+    return sp.expand(y1 + m * (x - x1))
+
+
+def _b12l2_eq(choice):
+    """'$lhs = rhs$' -> lhs - rhs as a SymPy expression ('{,}' thousands separators allowed)."""
+    s = choice.strip().strip("$").replace("{,}", "")
+    lhs, rhs = s.split("=")
+    return sp.expand(latex_to_sympy_ext(lhs) - latex_to_sympy_ext(rhs))
+
+
+def _b12l2_point(choice):
+    inner = choice.strip().strip("$").strip().strip("()")
+    u, v = inner.split(",")
+    return latex_to_sympy_ext(u), latex_to_sympy_ext(v)
+
+
+def _b12l2_unique(matches, idx, what):
+    return matches == [idx], f"choices satisfying {what}: {matches}, key index {idx}"
+
+
+def _b12l2_same_line(e1, e2):
+    """True if e1 = 0 and e2 = 0 are the same line (proportional coefficients)."""
+    v1 = [e1.coeff(x), e1.coeff(y), e1.subs({x: 0, y: 0})]
+    v2 = [e2.coeff(x), e2.coeff(y), e2.subs({x: 0, y: 0})]
+    return sp.Matrix([v1, v2]).rank() == 1
+
+
+# ----- checks -----
+
+
+def alg_vertical_line_shared_x_equation():
+    pts = [(-3, 2), (-3, 9)]
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices)
+                   if all(_b12l2_eq(ch).subs({x: px, y: py}) == 0 for px, py in pts)]
+        return _b12l2_unique(matches, idx, "line through (-3, 2) and (-3, 9)")
+
+    return check
+
+
+def alg_perpendicular_to_vertical_y_crossing_spr():
+    # x = 7 has direction (0, 1); a perpendicular line through (5, -2) has direction (1, 0).
+    d_perp = sp.Matrix([1, 0])
+    assert sp.Matrix([0, 1]).dot(d_perp) == 0
+    s_ = symbols("s_")
+    px, py = 5 + s_ * d_perp[0], -2 + s_ * d_perp[1]
+    return sp.sympify(py).subs(s_, sp.solve(px, s_)[0])
+
+
+def alg_collinear_point_k_and_k_plus_13():
+    line = _b12l2_line([(-2, 5), (4, -7)])
+    return sp.solve(Eq(line.subs(x, k), k + 13), k)[0]
+
+
+def alg_table_missing_y_entry_spr():
+    return _b12l2_line([(2, 7), (6, 17)]).subs(x, 11)
+
+
+def alg_origin_line_missing_x_coordinate():
+    line = _b12l2_line([(0, 0), (8, 6)])
+    return sp.solve(Eq(line.subs(x, k), 15), k)[0]
+
+
+def alg_origin_constant_slope():
+    e = (k - 3) * x + 4 * y - (2 * k - 10)
+    kv = sp.solve(e.subs({x: 0, y: 0}), k)[0]
+    return sp.solve(e.subs(k, kv), y)[0].diff(x)
+
+
+def alg_x_intercept_parallel_line_equation():
+    given = 3 * x - 2 * y - 7
+    m = sp.solve(given, y)[0].diff(x)
+    target = y - m * (x + 4)
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if _b12l2_same_line(_b12l2_eq(ch), target)]
+        return _b12l2_unique(matches, idx, "line through (-4, 0) parallel to 3x - 2y = 7")
+
+    return check
+
+
+def alg_intercepts_ten_units_apart_k():
+    kp = symbols("kp", positive=True)
+    e = kp * x + 3 * y - 24
+    xi = sp.solve(e.subs(y, 0), x)[0]
+    yi = sp.solve(e.subs(x, 0), y)[0]
+    sols = sp.solve(Eq(xi**2 + yi**2, 10**2), kp)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def alg_verbal_rate_x_axis_crossing():
+    m = Rational(-2, 3)
+    line = -1 + m * (x - 6)
+    return sp.solve(line, x)[0]
+
+
+def alg_collinear_equal_spacing_k_spr():
+    pts = sp.Matrix([[0, k, 1], [3, 2 * k, 1], [6, 10, 1]])
+    return sp.solve(pts.det(), k)[0]
+
+
+def alg_table_entries_p_and_2p():
+    line = _b12l2_line([(1, 5), (3, 11)])
+    return sp.solve(Eq(line.subs(x, p), 2 * p), p)[0]
+
+
+def alg_horizontal_vertical_intersection_point():
+    sol = sp.solve([Eq(y, -9), Eq(x, 4)], [x, y])
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if _b12l2_point(ch) == (sol[x], sol[y])]
+        return _b12l2_unique(matches, idx, f"intersection {(sol[x], sol[y])}")
+
+    return check
+
+
+def alg_undefined_slope_points_with_k():
+    kv = sp.solve(Eq(k + 1, 3 * k - 7), k)[0]
+    xv = kv + 1
+    assert (3 * kv - 7) == xv
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if _b12l2_same_line(_b12l2_eq(ch), x - xv)]
+        return _b12l2_unique(matches, idx, f"vertical line x = {xv}")
+
+    return check
+
+
+def alg_horizontal_line_constant_y_crossing():
+    kv = sp.solve(2 * k - 6, k)[0]
+    e = (2 * kv - 6) * x + (kv + 1) * y - 20
+    assert e.coeff(x) == 0
+    return sp.solve(e.subs(x, 0), y)[0]
+
+
+def alg_patio_tiles_table_missing_count():
+    # small tiles as a linear function of large tiles, through (40, 12) and (32, 36)
+    small = _b12l2_line([(40, 12), (32, 36)])
+    return small.subs(x, 17)
+
+
+def alg_seed_packet_boxes_combination_count_spr():
+    combos = [(s_, b_) for s_ in range(0, 61) for b_ in range(0, 61) if 4 * s_ + 6 * b_ == 60]
+    return sp.Integer(len(combos))
+
+
+def alg_catering_trays_verbal_rate_equation():
+    m = Rational(-2, 3)
+    target = y - 20 - m * (x - 6)
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if _b12l2_same_line(_b12l2_eq(ch), target)]
+        return _b12l2_unique(matches, idx, "slope -2/3 through (6, 20)")
+
+    return check
+
+
+def alg_art_club_canvases_greatest_count():
+    canv = [c_ for c_ in range(0, 15) for f_ in range(0, 15) if 6 * f_ + 15 * c_ == 84]
+    return sp.Integer(max(canv))
+
+
+def alg_dye_scarves_blankets_substitution():
+    s_, b_ = symbols("s_ b_")
+    return sp.solve(Eq(Rational(2, 5) * 60 + Rational(13, 20) * b_, 50), b_)[0]
+
+
+def alg_concrete_sand_gravel_total_spr():
+    s_, g_ = symbols("s_ g_")
+    sol = sp.solve([Eq(5 * s_, 3 * g_), Eq(g_ - s_, 45)], [s_, g_])
+    return sol[s_] + sol[g_]
+
+
+def alg_tram_minutes_distance_equation():
+    # distance = 30 * (x/60) + 12 * (y/60) = 48
+    target = 30 * x / 60 + 12 * y / 60 - 48
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if _b12l2_same_line(_b12l2_eq(ch), target)]
+        return _b12l2_unique(matches, idx, "30(x/60) + 12(y/60) = 48")
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -9817,6 +10032,28 @@ CHECKS = {
     "adv-nf-rational-point-undefined-input": adv_nf_rational_point_undefined_input,
     "adv-nf-half-life-ratio-constant": adv_nf_half_life_ratio_constant,
     "adv-nf-factored-cubic-remainder-constant": adv_nf_factored_cubic_remainder_constant,
+    # batch batch12-le2v2
+    "alg-vertical-line-shared-x-equation": alg_vertical_line_shared_x_equation,
+    "alg-perpendicular-to-vertical-y-crossing-spr": alg_perpendicular_to_vertical_y_crossing_spr,
+    "alg-collinear-point-k-and-k-plus-13": alg_collinear_point_k_and_k_plus_13,
+    "alg-table-missing-y-entry-spr": alg_table_missing_y_entry_spr,
+    "alg-origin-line-missing-x-coordinate": alg_origin_line_missing_x_coordinate,
+    "alg-origin-constant-slope": alg_origin_constant_slope,
+    "alg-x-intercept-parallel-line-equation": alg_x_intercept_parallel_line_equation,
+    "alg-intercepts-ten-units-apart-k": alg_intercepts_ten_units_apart_k,
+    "alg-verbal-rate-x-axis-crossing": alg_verbal_rate_x_axis_crossing,
+    "alg-collinear-equal-spacing-k-spr": alg_collinear_equal_spacing_k_spr,
+    "alg-table-entries-p-and-2p": alg_table_entries_p_and_2p,
+    "alg-horizontal-vertical-intersection-point": alg_horizontal_vertical_intersection_point,
+    "alg-undefined-slope-points-with-k": alg_undefined_slope_points_with_k,
+    "alg-horizontal-line-constant-y-crossing": alg_horizontal_line_constant_y_crossing,
+    "alg-patio-tiles-table-missing-count": alg_patio_tiles_table_missing_count,
+    "alg-seed-packet-boxes-combination-count-spr": alg_seed_packet_boxes_combination_count_spr,
+    "alg-catering-trays-verbal-rate-equation": alg_catering_trays_verbal_rate_equation,
+    "alg-art-club-canvases-greatest-count": alg_art_club_canvases_greatest_count,
+    "alg-dye-scarves-blankets-substitution": alg_dye_scarves_blankets_substitution,
+    "alg-concrete-sand-gravel-total-spr": alg_concrete_sand_gravel_total_spr,
+    "alg-tram-minutes-distance-equation": alg_tram_minutes_distance_equation,
 }
 
 
