@@ -1932,6 +1932,358 @@ def adv_barrel_percent_decrease():
     return real[0]
 
 
+# ----- Batch batch4-algebra -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch4-algebra.ts (batch 4-algebra).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch4_algebra.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, symbols
+
+
+x, y, a, b, c, k, m, s, p, q, h, w, t = symbols("x y a b c k m s p q h w t")
+
+
+def _b4_rel(text: str):
+    """'$3s + 5m \\le 400$' -> SymPy relational; a chain '$-2 < q - 3p < 4$' -> And of relationals."""
+    body = text.strip().strip("$")
+    for tok, rel in (("\\le", sp.Le), ("\\ge", sp.Ge), ("\\neq", sp.Ne), ("<", sp.Lt), (">", sp.Gt), ("=", sp.Eq)):
+        if tok in body:
+            exprs = [latex_to_sympy(part) for part in body.split(tok)]
+            return sp.And(*[rel(lhs, rhs) for lhs, rhs in zip(exprs, exprs[1:])])
+    raise ValueError(f"no relation symbol in {text!r}")
+
+
+def _b4_system(text: str):
+    """'$4s + 6b = 94$ and $s + 2b = 27$' -> list of SymPy equations."""
+    return [Eq(*_split_equation(part)) for part in text.split(" and ")]
+
+
+def _b4_line(points):
+    """Linear expression in x through two points; extra points are checked to lie on it."""
+    (x1, y1), (x2, y2) = points[:2]
+    slope = Rational(y2 - y1, x2 - x1)
+    intercept = y1 - slope * x1
+    for px, py in points[2:]:
+        assert slope * px + intercept == py
+    return slope * x + intercept
+
+
+# ----- Linear equations in one variable -----
+
+
+def alg_trail_crew_solution_meaning():
+    done, rate, target = 250, 18, 970
+    ww = sp.solve(Eq(done + rate * w, target), w)[0]
+
+    def check(choices, idx):
+        key_ok = "weeks" in choices[idx] and "970 meters" in choices[idx] and done + rate * ww == target
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("each week" in ch and rate != ww)
+            or ("add 250" in ch and Rational(done, rate) != ww)
+            or ("970 weeks" in ch and done + rate * 970 != ww))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"w = {ww} weeks reaches {target} m; contradicted distractors {wrong}"
+
+    return check
+
+
+def alg_decimal_distribute_solve():
+    sols = sp.solve(Eq(Rational("0.4") * (x - 5), Rational("1.2") * x + 3), x)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def alg_cord_three_pieces():
+    first = x
+    second = 2 * first
+    third = second + 15
+    return sp.solve(Eq(first + second + third, 180), x)[0]
+
+
+def alg_unique_solution_k_condition():
+    diff = sp.expand(k * x - 6 - (4 * (x - 3) + 2 * x))
+    coeff, const = diff.coeff(x), diff.subs(x, 0)
+    assert const != 0  # when the x-coefficient vanishes the equation has no solution, not infinitely many
+
+    def unique(kv):
+        return coeff.subs(k, kv) != 0
+
+    tests = [-6, -1, 0, Rational(1, 2), 6, 7, 100]
+
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices)
+                if all(bool(_b4_rel(ch).subs(k, kv)) == unique(kv) for kv in tests)]
+        return good == [idx], f"({coeff})x = {const}; choices equivalent to 'exactly one solution': {good}"
+
+    return check
+
+
+def alg_fraction_identity_c_infinite():
+    lhs = (5 * x - 2) / 3 - (x + 4) / 6
+    rhs = (3 * x + 1) / 2 + c
+    poly = sp.Poly(sp.expand(lhs - rhs), x)
+    assert poly.degree() == 0  # the x-terms cancel identically, so only the constants must agree
+    return sp.solve(poly.all_coeffs()[0], c)[0]
+
+
+# ----- Linear functions -----
+
+
+def alg_evaluate_fraction_input():
+    return (x / 4 + 9).subs(x, -12)
+
+
+def alg_vine_growth_rate_meaning():
+    L = Rational("3.2") * t + 14
+    rate, start = sp.diff(L, t), L.subs(t, 0)
+
+    def check(choices, idx):
+        key_ok = "each week" in choices[idx] and "3.2 centimeters" in choices[idx] and rate == Rational("3.2")
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("when it is planted" in ch and start != Rational("3.2"))
+            or ("3.2 weeks after" in ch and L.subs(t, Rational("3.2")) != 14)
+            or ("every 3.2 weeks" in ch and Rational(14) / Rational("3.2") != rate))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"rate={rate}, L(0)={start}, L(3.2)={L.subs(t, Rational('3.2'))}; contradicted distractors {wrong}"
+
+    return check
+
+
+def alg_two_outputs_evaluate_ten():
+    f = _b4_line([(-2, 19), (6, -5)])
+    return f.subs(x, 10)
+
+
+def alg_cooling_liquid_model():
+    expected = _b4_line([(3, 86), (8, 71)])
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices)
+                   if sp.expand(latex_to_sympy(ch.split("=")[1]).subs(t, x) - expected) == 0]
+        return matches == [idx], f"T(t) = {expected.subs(x, t)}; matching choices {matches}"
+
+    return check
+
+
+def alg_composite_linear_g4():
+    f = 3 * x - 7
+    g = f.subs(x, 2 * x) + 1
+    return g.subs(x, 4)
+
+
+def alg_linear_difference_shift_a():
+    mm, bb = symbols("m_ b_")
+    sol = sp.solve([Eq(mm * a + bb, 12), Eq(mm * (a + 4) + bb, 30)], [mm, bb])
+    f = sol[mm] * x + sol[bb]
+    return sp.simplify(f.subs(x, a + 10) - f.subs(x, a))
+
+
+def alg_linear_through_origin_structure():
+    f = m * x + b
+    condition = sp.expand(f.subs(x, x + 1) - f - f.subs(x, 1))  # must vanish for every x
+    bb = sp.solve(sp.Poly(condition, x).all_coeffs(), [b])[b]
+    mm = sp.solve(Eq(f.subs({b: bb, x: 2}), 5), m)[0]
+    return f.subs({b: bb, m: mm, x: 6})
+
+
+# ----- Linear equations in two variables -----
+
+
+def alg_standard_form_y_intercept():
+    return sp.solve(Eq(3 * 0 - 5 * y, 30), y)[0]
+
+
+def alg_kiln_time_equation():
+    expected = Rational("0.25") * a + Rational("0.75") * b - 18
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = _split_equation(ch)
+            ratio = sp.simplify((lhs - rhs) / expected)
+            if ratio.is_number and ratio != 0:
+                matches.append(i)
+        return matches == [idx], f"0.25a + 0.75b = 18; equivalent choices {matches}"
+
+    return check
+
+
+def alg_parallel_line_y_intercept():
+    slope = sp.solve(Eq(2 * x + 3 * y, 12), y)[0].coeff(x)
+    bb = sp.solve(Eq(slope * 6 + b, -1), b)[0]
+    assert bb != sp.solve(Eq(2 * x + 3 * y, 12), y)[0].subs(x, 0)  # a distinct parallel line
+    return bb
+
+
+def alg_intercepts_to_constants():
+    aa = sp.solve(Eq(a * 4 + b * 0, 24), a)[0]
+    bb = sp.solve(Eq(a * 0 + b * (-3), 24), b)[0]
+    return aa - bb
+
+
+def alg_slope_two_points_with_k():
+    sols = sp.solve(Eq((11 - k) / (k - 2), 2), k)
+    assert len(sols) == 1 and sols[0] != 2
+    return sols[0]
+
+
+# ----- Systems of two linear equations in two variables -----
+
+
+def alg_elimination_sum_x():
+    sol = sp.solve([Eq(3 * x + y, 14), Eq(x - y, 2)], [x, y])
+    return sol[x]
+
+
+def alg_fraction_slope_system_y():
+    sol = sp.solve([Eq(y, Rational(1, 2) * x - 4), Eq(y, -Rational(3, 4) * x + 1)], [x, y])
+    return sol[y]
+
+
+def alg_woodworking_shop_system():
+    truth = sp.solve([Eq(4 * s + 6 * b, 94), Eq(s + 2 * b, 27)], [s, b])  # from the stem's givens
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            sol = sp.solve(_b4_system(ch), [s, b], dict=True)
+            if sol and sol[0] == truth:
+                matches.append(i)
+        return matches == [idx], f"stools {truth[s]}, benches {truth[b]}; systems with that solution {matches}"
+
+    return check
+
+
+def alg_intersection_point_constants_sum():
+    aa = sp.solve(Eq(9, 3 * 4 + a), a)[0]
+    bb = sp.solve(Eq(9, -2 * 4 + b), b)[0]
+    return aa + bb
+
+
+def alg_system_k_two_places_infinite():
+    parallel = sp.solve(sp.Matrix([[3, k], [k, 12]]).det(), k)
+    infinite = [kv for kv in parallel if sp.linsolve([3 * x + kv * y - 11, kv * x + 12 * y - 22], [x, y]) != sp.S.EmptySet]
+    assert len(parallel) == 2 and len(infinite) == 1
+    return infinite[0]
+
+
+def alg_proportional_system_a_plus_b():
+    factor = Rational(5, 10)
+    aa, bb = factor * 3, factor * (-4)
+    assert sp.linsolve([3 * x - 4 * y - 10, aa * x + bb * y - 5], [x, y]) != sp.S.EmptySet
+    assert sp.Matrix([[3, -4], [aa, bb]]).det() == 0
+    return aa + bb
+
+
+def alg_farm_stand_baskets_difference():
+    sol = sp.solve([Eq(p + q, 21), Eq(8 * p + 5 * q, 138)], [p, q])
+    return sol[p] - sol[q]
+
+
+# ----- Linear inequalities in one or two variables -----
+
+
+def alg_inequality_flip_sign_easy():
+    expected = sp.solve_univariate_inequality(sp.Ge(-3 * x + 7, 1), x, relational=False)
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices)
+                   if sp.solve_univariate_inequality(_b4_rel(ch), x, relational=False) == expected]
+        return matches == [idx], f"solution set {expected}; matching choices {matches}"
+
+    return check
+
+
+def alg_garden_club_budget_inequality():
+    expected = sp.Le(3 * s + 5 * m, 400)
+    grid = [(sv, mv) for sv in range(0, 141, 10) for mv in range(0, 141, 10)]
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rel = _b4_rel(ch)
+            if all(bool(rel.subs({s: sv, m: mv})) == bool(expected.subs({s: sv, m: mv})) for sv, mv in grid):
+                matches.append(i)
+        return matches == [idx], f"3s + 5m <= 400; choices agreeing on a 15x15 grid {matches}"
+
+    return check
+
+
+def alg_inequality_bound_c():
+    sol = sp.solve_univariate_inequality(sp.Le((2 * x - 1) / 3 + 2, x / 2 + 4), x, relational=False)
+    assert sol.left == -sp.oo and not sol.right_open
+    return sol.right
+
+
+def alg_point_x5_y_range():
+    expected = sp.solve_univariate_inequality(sp.Lt(3 * 5 - 2 * y, 7), y, relational=False)
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices)
+                   if sp.solve_univariate_inequality(_b4_rel(ch), y, relational=False) == expected]
+        return matches == [idx], f"solution set {expected}; matching choices {matches}"
+
+    return check
+
+
+def alg_inequality_coefficient_k_flip():
+    # (k - 2)x < 15 with solution x > -3: the symbol reversed, so k - 2 < 0 and 15/(k - 2) = -3.
+    kk = sp.solve(Eq(15 / (k - 2), -3), k)[0]
+    assert kk - 2 < 0
+    sol = sp.solve_univariate_inequality(sp.Lt(kk * x - 8, 2 * x + 7), x, relational=False)
+    assert sol == sp.Interval.open(-3, sp.oo), sol
+    return kk
+
+
+def alg_parallel_strip_combination():
+    system = sp.And(sp.Gt(q, 3 * p - 2), sp.Lt(q, 3 * p + 4))
+    pts = [(pv, qv) for pv in range(-4, 5) for qv in [Rational(n_, 2) for n_ in range(-30, 31)]]
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rel = _b4_rel(ch)
+            if all(bool(rel.subs({p: pv, q: qv})) == bool(system.subs({p: pv, q: qv})) for pv, qv in pts):
+                matches.append(i)
+        return matches == [idx], f"choices equivalent to the strip -2 < q - 3p < 4 on {len(pts)} test points: {matches}"
+
+    return check
+
+
+def alg_two_jobs_least_hours():
+    sol = sp.solve_univariate_inequality(sp.Ge(14 * (30 - h) + 20 * h, 480), h, relational=False)
+    assert not sol.left_open and sol.right == sp.oo
+    return sol.left
+
+
+def alg_shelf_inequality_point_meaning():
+    weight = 12 * 10 + 8 * 12
+    limit = 240
+    max_small_with_10_medium = sp.floor((limit - 12 * 10) / sp.Integer(8))
+
+    def check(choices, idx):
+        key_ok = "without exceeding" in choices[idx] and weight <= limit
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("at most 12" in ch and max_small_with_10_medium != 12)
+            or ("exactly 240" in ch and weight != limit)
+            or ("but not both" in ch and weight <= limit))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"12(10) + 8(12) = {weight} <= {limit}; max small boxes with 10 medium = {max_small_with_10_medium}; contradicted {wrong}"
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -2134,6 +2486,39 @@ CHECKS = {
     "adv-horizontal-compression-intercepts": adv_horizontal_compression_intercepts,
     "adv-cubic-y-intercept-a": adv_cubic_y_intercept_a,
     "adv-barrel-percent-decrease": adv_barrel_percent_decrease,
+    # batch batch4-algebra
+    "alg-trail-crew-solution-meaning": alg_trail_crew_solution_meaning,
+    "alg-decimal-distribute-solve": alg_decimal_distribute_solve,
+    "alg-cord-three-pieces": alg_cord_three_pieces,
+    "alg-unique-solution-k-condition": alg_unique_solution_k_condition,
+    "alg-fraction-identity-c-infinite": alg_fraction_identity_c_infinite,
+    "alg-evaluate-fraction-input": alg_evaluate_fraction_input,
+    "alg-vine-growth-rate-meaning": alg_vine_growth_rate_meaning,
+    "alg-two-outputs-evaluate-ten": alg_two_outputs_evaluate_ten,
+    "alg-cooling-liquid-model": alg_cooling_liquid_model,
+    "alg-composite-linear-g4": alg_composite_linear_g4,
+    "alg-linear-difference-shift-a": alg_linear_difference_shift_a,
+    "alg-linear-through-origin-structure": alg_linear_through_origin_structure,
+    "alg-standard-form-y-intercept": alg_standard_form_y_intercept,
+    "alg-kiln-time-equation": alg_kiln_time_equation,
+    "alg-parallel-line-y-intercept": alg_parallel_line_y_intercept,
+    "alg-intercepts-to-constants": alg_intercepts_to_constants,
+    "alg-slope-two-points-with-k": alg_slope_two_points_with_k,
+    "alg-elimination-sum-x": alg_elimination_sum_x,
+    "alg-fraction-slope-system-y": alg_fraction_slope_system_y,
+    "alg-woodworking-shop-system": alg_woodworking_shop_system,
+    "alg-intersection-point-constants-sum": alg_intersection_point_constants_sum,
+    "alg-system-k-two-places-infinite": alg_system_k_two_places_infinite,
+    "alg-proportional-system-a-plus-b": alg_proportional_system_a_plus_b,
+    "alg-farm-stand-baskets-difference": alg_farm_stand_baskets_difference,
+    "alg-inequality-flip-sign-easy": alg_inequality_flip_sign_easy,
+    "alg-garden-club-budget-inequality": alg_garden_club_budget_inequality,
+    "alg-inequality-bound-c": alg_inequality_bound_c,
+    "alg-point-x5-y-range": alg_point_x5_y_range,
+    "alg-inequality-coefficient-k-flip": alg_inequality_coefficient_k_flip,
+    "alg-parallel-strip-combination": alg_parallel_strip_combination,
+    "alg-two-jobs-least-hours": alg_two_jobs_least_hours,
+    "alg-shelf-inequality-point-meaning": alg_shelf_inequality_point_meaning,
 }
 
 
