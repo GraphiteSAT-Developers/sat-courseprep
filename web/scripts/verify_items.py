@@ -5782,6 +5782,205 @@ def psda_two_lines_defective_source():
     return a_def / (a_def + b_def)
 
 
+# ----- Batch batch8-le1v1 -----
+import sympy as sp
+from sympy import Rational, Eq
+
+_b8l1_x, _b8l1_k, _b8l1_a, _b8l1_b, _b8l1_c = sp.symbols("x k a b c")
+_b8l1_m, _b8l1_n, _b8l1_p, _b8l1_g, _b8l1_C = sp.symbols("m n p g C")
+_b8l1_R = Rational
+
+
+def _b8l1_solve1(lhs, rhs, var=None):
+    """Unique solution of a linear equation lhs = rhs in one variable."""
+    var = var if var is not None else _b8l1_x
+    sol = sp.solve(Eq(lhs, rhs), var)
+    assert len(sol) == 1, sol
+    return sol[0]
+
+
+def _b8l1_count(lhs, rhs, var=None):
+    """'Zero', 'Exactly one' or 'Infinitely many' for a linear equation."""
+    var = var if var is not None else _b8l1_x
+    d = sp.expand(lhs - rhs)
+    coef, const = d.coeff(var, 1), d.coeff(var, 0)
+    if coef != 0:
+        return "Exactly one"
+    return "Infinitely many" if const == 0 else "Zero"
+
+
+def _b8l1_parse_eq(choice):
+    s = choice.strip().strip("$")
+    left, right = s.split("=")
+    return latex_to_sympy(left), latex_to_sympy(right)
+
+
+def _b8l1_rhs_matches(target_symbol, expected):
+    """Choices are 'v = expr'; exactly the key's expr equals expected."""
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            left, right = _b8l1_parse_eq(ch)
+            assert left == sp.Symbol(str(target_symbol)), left
+            right = right.subs({sp.Symbol(str(s)): s for s in right.free_symbols})
+            if sp.simplify(right - expected) == 0:
+                hits.append(i)
+        return hits == [idx], f"expected {expected}; matching choices {hits}"
+
+    return check
+
+
+def alg_decimal_quarter_coefficients_solve():
+    return _b8l1_solve1(_b8l1_R(1, 4) * _b8l1_x + _b8l1_R(3, 2), _b8l1_R(3, 4) * _b8l1_x - _b8l1_R(5, 2))
+
+
+def alg_distribute_negative_two_spr():
+    return _b8l1_solve1(7 - 2 * (_b8l1_x - 3), 5)
+
+
+def alg_flour_batches_equation():
+    b = sp.Symbol("b")
+    model = 40 - _b8l1_R(5, 2) * b - _b8l1_R(25, 2)  # flour left after b batches equals 12.5
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            left, right = _b8l1_parse_eq(ch)
+            d = sp.nsimplify(sp.expand(left - right))
+            ratio = sp.simplify(d / model)
+            if ratio.is_number and ratio != 0:
+                hits.append(i)
+        return hits == [idx], f"choices equivalent to 40 - 2.5b = 12.5: {hits}"
+
+    return check
+
+
+def alg_submarine_depth_constant_meaning():
+    m = sp.Symbol("m")
+    msol = _b8l1_solve1(940 - 65 * m, 290, m)
+    described = [940, 65, 940 - 65 * msol, 65 * msol]  # quantity each choice describes, in order
+
+    def check(choices, idx):
+        hits = [i for i, v in enumerate(described) if v == 290]
+        return hits == [idx], f"m = {msol}; choices describing 290: {hits}"
+
+    return check
+
+
+def alg_literal_solve_m_three_terms():
+    m, n, p = sp.symbols("m n p")
+    return _b8l1_rhs_matches(m, sp.solve(Eq(3 * m + 2 * n, p), m)[0])
+
+
+def alg_three_unit_fractions_of_x_solve():
+    return _b8l1_solve1(_b8l1_x / 2 + _b8l1_x / 3, _b8l1_x / 4 + 7)
+
+
+def alg_decimal_distribute_both_sides_spr():
+    R = _b8l1_R
+    return _b8l1_solve1(R(6, 5) * (3 * _b8l1_x - 5), R(4, 5) * (2 * _b8l1_x + 10) + R(2, 5))
+
+
+def alg_value_3x_minus_5_from_12x():
+    return 3 * _b8l1_solve1(12 * _b8l1_x - 20, 7) - 5
+
+
+def alg_count_solutions_x_zero_trap():
+    word = _b8l1_count(2 * (3 * _b8l1_x - 4), 6 * _b8l1_x - 8 + _b8l1_x)
+
+    def check(choices, idx):
+        return choices[idx] == word, f"count -> {word}"
+
+    return check
+
+
+def alg_parking_additional_hours():
+    h = sp.Symbol("h")
+    R = _b8l1_R
+    return _b8l1_solve1(R(9, 2) + R(9, 4) * (h - 1), R(45, 2), h)
+
+
+def alg_caterer_guests_literal():
+    C, g = sp.symbols("C g")
+    return _b8l1_rhs_matches(g, sp.solve(Eq(C, 18 * g + 250), g)[0])
+
+
+def alg_common_factor_x_minus_2_spr():
+    return _b8l1_solve1(5 * (_b8l1_x - 2) - 3 * (_b8l1_x - 2), 14) - 2
+
+
+def alg_two_thirds_one_fourth_distribute():
+    R = _b8l1_R
+    return _b8l1_solve1(R(2, 3) * (_b8l1_x - 6), R(1, 4) * (_b8l1_x + 9) + 1)
+
+
+def alg_silos_equal_grain():
+    t = sp.Symbol("t")
+    tsol = _b8l1_solve1(500 - 12 * t, 140 - 3 * t, t)
+    assert 140 - 3 * tsol == 500 - 12 * tsol
+    return 500 - 12 * tsol
+
+
+def alg_strawberry_crews_rate_spr():
+    r = sp.Symbol("r")
+    return _b8l1_solve1(_b8l1_R(3, 2) * r * 8 + r * 6, 135, r)
+
+
+def alg_value_3x_minus_2_structure_spr():
+    xs = _b8l1_solve1((3 * _b8l1_x - 2) / 5, (3 * _b8l1_x - 2) / 2 - 6)
+    return 3 * xs - 2
+
+
+def alg_literal_x_two_fractions_abc():
+    a, b, c = sp.symbols("a b c", positive=True)
+    sol = sp.solve(Eq((_b8l1_x - a) / b, (_b8l1_x + a) / c), _b8l1_x)[0]
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            left, right = _b8l1_parse_eq(ch)
+            right = right.subs({sp.Symbol("a"): a, sp.Symbol("b"): b, sp.Symbol("c"): c})
+            if sp.simplify(right - sol) == 0:
+                hits.append(i)
+        return hits == [idx], f"x = {sol}; matching choices {hits}"
+
+    return check
+
+
+def alg_no_solution_fraction_k():
+    k = sp.Symbol("k")
+    d = sp.expand(6 * ((k * _b8l1_x + 2) / 3 - (_b8l1_x - 4) / 2))
+    ks = sp.solve(Eq(d.coeff(_b8l1_x, 1), 0), k)
+    ks = [kv for kv in ks if d.coeff(_b8l1_x, 0).subs(k, kv) != 0]
+    assert len(ks) == 1
+    return ks[0]
+
+
+def alg_decimal_mixture_value_40_minus_x():
+    R = _b8l1_R
+    xs = _b8l1_solve1(R(3, 20) * (40 - _b8l1_x) + R(7, 20) * _b8l1_x, R(1, 4) * (_b8l1_x + 18))
+    return 40 - xs
+
+
+def alg_repeated_binomial_value_5x():
+    R = _b8l1_R
+    xs = _b8l1_solve1(R(13, 5) * (5 * _b8l1_x - 3) + R(21, 10), R(8, 5) * (5 * _b8l1_x - 3) + R(42, 5))
+    return 5 * xs
+
+
+def alg_pick_one_var_equation_no_solution():
+    def check(choices, idx):
+        counts = []
+        for ch in choices:
+            left, right = _b8l1_parse_eq(ch)
+            counts.append(_b8l1_count(sp.nsimplify(left), sp.nsimplify(right)))
+        hits = [i for i, w in enumerate(counts) if w == "Zero"]
+        return hits == [idx], f"counts {counts}"
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -6404,6 +6603,28 @@ CHECKS = {
     "psda-inspection-truck-given-failed": psda_inspection_truck_given_failed,
     "psda-household-pets-at-least-two": psda_household_pets_at_least_two,
     "psda-two-lines-defective-source": psda_two_lines_defective_source,
+    # batch batch8-le1v1
+    "alg-decimal-quarter-coefficients-solve": alg_decimal_quarter_coefficients_solve,
+    "alg-distribute-negative-two-spr": alg_distribute_negative_two_spr,
+    "alg-flour-batches-equation": alg_flour_batches_equation,
+    "alg-submarine-depth-constant-meaning": alg_submarine_depth_constant_meaning,
+    "alg-literal-solve-m-three-terms": alg_literal_solve_m_three_terms,
+    "alg-three-unit-fractions-of-x-solve": alg_three_unit_fractions_of_x_solve,
+    "alg-decimal-distribute-both-sides-spr": alg_decimal_distribute_both_sides_spr,
+    "alg-value-3x-minus-5-from-12x": alg_value_3x_minus_5_from_12x,
+    "alg-count-solutions-x-zero-trap": alg_count_solutions_x_zero_trap,
+    "alg-parking-additional-hours": alg_parking_additional_hours,
+    "alg-caterer-guests-literal": alg_caterer_guests_literal,
+    "alg-common-factor-x-minus-2-spr": alg_common_factor_x_minus_2_spr,
+    "alg-two-thirds-one-fourth-distribute": alg_two_thirds_one_fourth_distribute,
+    "alg-silos-equal-grain": alg_silos_equal_grain,
+    "alg-strawberry-crews-rate-spr": alg_strawberry_crews_rate_spr,
+    "alg-value-3x-minus-2-structure-spr": alg_value_3x_minus_2_structure_spr,
+    "alg-literal-x-two-fractions-abc": alg_literal_x_two_fractions_abc,
+    "alg-no-solution-fraction-k": alg_no_solution_fraction_k,
+    "alg-decimal-mixture-value-40-minus-x": alg_decimal_mixture_value_40_minus_x,
+    "alg-repeated-binomial-value-5x": alg_repeated_binomial_value_5x,
+    "alg-pick-one-var-equation-no-solution": alg_pick_one_var_equation_no_solution,
 }
 
 
