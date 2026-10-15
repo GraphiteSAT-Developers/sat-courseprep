@@ -7821,6 +7821,296 @@ def adv_ne2_tabletop_diagonal_perimeter():
     return _b10ne_mc(perims.pop())
 
 
+# ----- Batch batch10-sys2 -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch10-sys2.ts (batch batch10-sys2).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch10_sys2.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+
+
+import sympy as sp
+from sympy import Eq, Rational
+
+_b10sy_x, _b10sy_y = sp.symbols("x y")
+
+
+# ----- helpers (prefix _b10sy_) -----
+
+
+def _b10sy_solve(e1, e2, syms=None):
+    """Unique solution of two linear equations, as a tuple in the order of syms."""
+    syms = syms or [_b10sy_x, _b10sy_y]
+    sol = sp.solve([e1, e2], syms, dict=True)
+    assert len(sol) == 1 and len(sol[0]) == len(syms)
+    assert not any(v.free_symbols for v in sol[0].values())
+    return tuple(sol[0][v] for v in syms)
+
+
+def _b10sy_parse_system(choice, syms):
+    """Parse '$e1$ and $e2$' into a list of SymPy Eq objects in the given symbols."""
+    eqs = []
+    for part in choice.split(" and "):
+        lhs, rhs = part.strip().strip("$").split("=")
+        loc = {str(v): v for v in syms}
+        eqs.append(Eq(sp.sympify(latex_to_sympy(lhs), locals=loc), sp.sympify(latex_to_sympy(rhs), locals=loc)))
+    return eqs
+
+
+def _b10sy_same_line(e1, e2):
+    """True when two linear equations in x, y describe the same line."""
+    f1 = sp.expand(e1.lhs - e1.rhs)
+    f2 = sp.expand(e2.lhs - e2.rhs)
+    X, Y = _b10sy_x, _b10sy_y
+    v1 = [f1.coeff(X), f1.coeff(Y), f1.subs({X: 0, Y: 0})]
+    v2 = [f2.coeff(X), f2.coeff(Y), f2.subs({X: 0, Y: 0})]
+    return sp.Matrix([v1, v2]).rank() == 1
+
+
+def _b10sy_system_matches(truth, syms):
+    """Callable: exactly one choice is a system whose unique solution equals truth (dict)."""
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            eqs = _b10sy_parse_system(ch, syms)
+            sol = sp.solve(eqs, syms, dict=True)
+            if len(sol) == 1 and len(sol[0]) == len(syms) and all(sol[0][v] == truth[v] for v in syms):
+                hits.append(i)
+        return hits == [idx], f"truth {truth}; matching systems {hits}"
+
+    return check
+
+
+# ----- item checks -----
+
+
+def alg_sys_combine_for_five_x_plus_seven_y():
+    X, Y = _b10sy_x, _b10sy_y
+    sx, sy = _b10sy_solve(Eq(4 * X + 5 * Y, 23), Eq(X + 2 * Y, 8))
+    return 5 * sx + 7 * sy
+
+
+def alg_sys_scale_first_equation_seven_x_nine_y_spr():
+    X, Y = _b10sy_x, _b10sy_y
+    sx, sy = _b10sy_solve(Eq(2 * X + 5 * Y, 13), Eq(3 * X - Y, 4))
+    return 7 * sx + 9 * sy
+
+
+def alg_sys_three_constants_solution_given_c_spr():
+    a, b, c = sp.symbols("a b c")
+    X, Y = 2, 5
+    sol = sp.solve([Eq(a * X + 3 * Y, 19), Eq(4 * X - b * Y, c), Eq(b, 2 * a)], [a, b, c], dict=True)
+    assert len(sol) == 1
+    return sol[0][c]
+
+
+def alg_sys_three_constants_p_plus_r():
+    p, q, r = sp.symbols("p q r")
+    X, Y = -1, 4
+    sol = sp.solve([Eq(p * X + q * Y, 10), Eq(q * X + r * Y, 13), Eq(q, p + 1)], [p, q, r], dict=True)
+    assert len(sol) == 1
+    return sol[0][p] + sol[0][r]
+
+
+def alg_sys_solution_x_twice_y_coefficient_k():
+    X, Y = _b10sy_x, _b10sy_y
+    k = sp.Symbol("k")
+    sol = sp.solve([Eq(3 * X + k * Y, 26), Eq(X - 4 * Y, -2), Eq(X, 2 * Y)], [X, Y, k], dict=True)
+    assert len(sol) == 1
+    return sol[0][k]
+
+
+def alg_sys_fractions_both_sides_x_spr():
+    X, Y = _b10sy_x, _b10sy_y
+    sx, sy = _b10sy_solve(Eq((X - 1) / 2, (Y + 3) / 4), Eq((X + 2 * Y) / 5, (X + 1) / 4))
+    return sx
+
+
+def alg_sys_parameter_ratio_x_over_y():
+    X, Y = _b10sy_x, _b10sy_y
+    k = sp.Symbol("k", nonzero=True)
+    sol = sp.solve([Eq(2 * X + 3 * Y, 7 * k), Eq(5 * X - Y, 9 * k)], [X, Y], dict=True)
+    assert len(sol) == 1
+    ratio = sp.simplify(sol[0][X] / sol[0][Y])
+    assert not ratio.free_symbols
+    return ratio
+
+
+def alg_sys_ratio_x_over_y_elimination():
+    X, Y = _b10sy_x, _b10sy_y
+    sx, sy = _b10sy_solve(Eq(6 * X - 4 * Y, 18), Eq(3 * X + 5 * Y, 30))
+    return sx / sy
+
+
+def alg_sys_lines_described_standard_form():
+    X, Y = _b10sy_x, _b10sy_y
+    # line p: slope 3, y-intercept -2; line q through (0, 4) and (8, 0)
+    mq = Rational(0 - 4, 8 - 0)
+    p_line = Eq(Y, 3 * X - 2)
+    q_line = Eq(Y, mq * X + 4)
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            e1, e2 = _b10sy_parse_system(ch, [X, Y])
+            if (_b10sy_same_line(e1, p_line) and _b10sy_same_line(e2, q_line)) or (
+                _b10sy_same_line(e1, q_line) and _b10sy_same_line(e2, p_line)
+            ):
+                hits.append(i)
+        return hits == [idx], f"choices matching lines p and q: {hits}"
+
+    return check
+
+
+def alg_sys_which_ordered_pair_satisfies_both():
+    X, Y = _b10sy_x, _b10sy_y
+    sx, sy = _b10sy_solve(Eq(2 * X + Y, 7), Eq(X - 3 * Y, 7))
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            u, v = latex_to_sympy(ch.strip("$").strip("()").split(",")[0]), latex_to_sympy(ch.strip("$").strip("()").split(",")[1])
+            if (u, v) == (sx, sy):
+                hits.append(i)
+        return hits == [idx], f"solution ({sx}, {sy}); matching choices {hits}"
+
+    return check
+
+
+def alg_sys_horizontal_line_intersection_x():
+    X, Y = _b10sy_x, _b10sy_y
+    return _b10sy_solve(Eq(Y, 5), Eq(Y, 2 * X - 3))[0]
+
+
+def alg_sys_solution_given_find_coefficient_a():
+    a = sp.Symbol("a")
+    X, Y = 2, -3
+    assert X - Y == 5  # the pair satisfies the second equation
+    return sp.solve(Eq(a * X + 3 * Y, 5), a)[0]
+
+
+def alg_sys_sum_in_words_and_equation_x():
+    X, Y = _b10sy_x, _b10sy_y
+    return _b10sy_solve(Eq(X + Y, 12), Eq(3 * X - Y, 4))[0]
+
+
+def alg_sys_infinite_solutions_y_at_given_x():
+    X, Y = _b10sy_x, _b10sy_y
+    a = sp.Symbol("a")
+    # infinitely many solutions: coefficient vectors proportional
+    a_val = sp.solve(Eq(a * 3, 6 * 2), a)[0]
+    assert _b10sy_same_line(Eq(a_val * X + 6 * Y, 18), Eq(2 * X + 3 * Y, 9))
+    return sp.solve(Eq(2 * 3 + 3 * Y, 9), Y)[0]
+
+
+def alg_sys_which_system_has_given_solution():
+    X, Y = _b10sy_x, _b10sy_y
+    return _b10sy_system_matches({X: -2, Y: 3}, [X, Y])
+
+
+def alg_sys_x_described_in_words_sum():
+    X, Y = _b10sy_x, _b10sy_y
+    sx, sy = _b10sy_solve(Eq(X, 3 * Y - 4), Eq(2 * X + 5 * Y, 47))
+    return sx + sy
+
+
+def alg_sys_swapped_slope_intercept_y_spr():
+    X, Y = _b10sy_x, _b10sy_y
+    a = sp.Symbol("a")
+    b = 9 - a
+    sol = sp.solve([Eq(Y, a * X + b), Eq(Y, b * X + a)], [X, Y], dict=True)
+    assert len(sol) == 1
+    yv = sp.simplify(sol[0][Y])
+    assert not yv.free_symbols  # independent of a (for a != b)
+    return yv
+
+
+def alg_sys_infinite_solutions_product_mc():
+    X, Y = _b10sy_x, _b10sy_y
+    m, c = sp.symbols("m c")
+    # 4x - 6y = c  ->  y = (4x - c)/6 must equal mx + 1 for all x
+    expr = sp.expand((4 * X - c) / 6 - (m * X + 1))
+    sol = sp.solve([expr.coeff(X), expr.subs(X, 0)], [m, c], dict=True)
+    assert len(sol) == 1
+    return sol[0][m] * sol[0][c]
+
+
+def alg_sys_fractions_both_sides_x_minus_y():
+    X, Y = _b10sy_x, _b10sy_y
+    sx, sy = _b10sy_solve(Eq((X + Y) / 2, (X - 5) / 4), Eq((2 * X - Y) / 5, (Y + 10) / 3))
+    return sx - sy
+
+
+def alg_sys_florist_bouquets_roses_spr():
+    s, l = sp.symbols("s l")
+    return _b10sy_solve(Eq(3 * s + 7 * l, 156), Eq(s, 2 * l), [s, l])[1]
+
+
+def alg_sys_drones_altitude_interpret_y():
+    X, Y = _b10sy_x, _b10sy_y
+    sx, sy = _b10sy_solve(Eq(Y, 20 + 3 * X), Eq(Y, 140 - 5 * X))
+    assert (sx, sy) == (15, 65)
+    key = f"Both drones are at an altitude of {sy} meters {sx} seconds after the test begins."
+
+    def check(choices, idx):
+        return choices[idx] == key and choices.count(key) == 1, f"intersection ({sx}, {sy}); key text {key!r}"
+
+    return check
+
+
+def alg_sys_ice_sculptures_equal_height():
+    t, h = sp.symbols("t h")
+    R = Rational
+    return _b10sy_solve(Eq(h, 30 - R(6, 5) * t), Eq(h, 22 - R(4, 5) * t), [t, h])[1]
+
+
+def alg_sys_bowling_equal_cost_fee_spr():
+    f = sp.Symbol("f")
+    R = Rational
+    games = 5
+    return sp.solve(Eq(f + 6 * games, R(9, 2) + R(15, 2) * games), f)[0]
+
+
+def alg_sys_hiker_flat_uphill_distance():
+    f, u = sp.symbols("f u")
+    sf, su = _b10sy_solve(Eq(5 * f + 3 * u, 21), Eq(f, u + 1), [f, u])
+    return 3 * su
+
+
+def alg_sys_bike_shop_repairs_model():
+    t, b = sp.symbols("t b")
+    truth = dict(zip([t, b], _b10sy_solve(Eq(t + b, 22), Eq(15 * t + 40 * b, 8 * 60), [t, b])))
+    return _b10sy_system_matches(truth, [t, b])
+
+
+def alg_sys_bridges_ages_future():
+    a, b = sp.symbols("a b")
+    R = Rational
+    return _b10sy_solve(Eq(a, 4 * b), Eq(a + 12, R(5, 2) * (b + 12)), [a, b])[0]
+
+
+def alg_sys_courier_van_unloaded_type_b_spr():
+    a, b = sp.symbols("a b")
+    sa, sb = _b10sy_solve(Eq(a + b, 20), Eq(900 - 60 * a - 25 * b, 120), [a, b])
+    assert sa.is_integer and sb.is_integer and sa >= 0 and sb >= 0
+    return 25 * sb
+
+
+def alg_sys_puppies_weight_weeks_units():
+    w, p = sp.symbols("w p")
+    R = Rational
+    return _b10sy_solve(Eq(p, 18 + 2 * w), Eq(p, 6 + R(1, 2) * 7 * w), [w, p])[0]
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -8650,6 +8940,35 @@ CHECKS = {
     "adv-ne2-tangent-at-given-point-bc": adv_ne2_tangent_at_given_point_bc,
     "adv-ne2-hiker-round-trip-speed": adv_ne2_hiker_round_trip_speed,
     "adv-ne2-tabletop-diagonal-perimeter": adv_ne2_tabletop_diagonal_perimeter,
+    # batch batch10-sys2
+    "alg-sys-combine-for-five-x-plus-seven-y": alg_sys_combine_for_five_x_plus_seven_y,
+    "alg-sys-scale-first-equation-seven-x-nine-y-spr": alg_sys_scale_first_equation_seven_x_nine_y_spr,
+    "alg-sys-three-constants-solution-given-c-spr": alg_sys_three_constants_solution_given_c_spr,
+    "alg-sys-three-constants-p-plus-r": alg_sys_three_constants_p_plus_r,
+    "alg-sys-solution-x-twice-y-coefficient-k": alg_sys_solution_x_twice_y_coefficient_k,
+    "alg-sys-fractions-both-sides-x-spr": alg_sys_fractions_both_sides_x_spr,
+    "alg-sys-parameter-ratio-x-over-y": alg_sys_parameter_ratio_x_over_y,
+    "alg-sys-ratio-x-over-y-elimination": alg_sys_ratio_x_over_y_elimination,
+    "alg-sys-lines-described-standard-form": alg_sys_lines_described_standard_form,
+    "alg-sys-which-ordered-pair-satisfies-both": alg_sys_which_ordered_pair_satisfies_both,
+    "alg-sys-horizontal-line-intersection-x": alg_sys_horizontal_line_intersection_x,
+    "alg-sys-solution-given-find-coefficient-a": alg_sys_solution_given_find_coefficient_a,
+    "alg-sys-sum-in-words-and-equation-x": alg_sys_sum_in_words_and_equation_x,
+    "alg-sys-infinite-solutions-y-at-given-x": alg_sys_infinite_solutions_y_at_given_x,
+    "alg-sys-which-system-has-given-solution": alg_sys_which_system_has_given_solution,
+    "alg-sys-x-described-in-words-sum": alg_sys_x_described_in_words_sum,
+    "alg-sys-swapped-slope-intercept-y-spr": alg_sys_swapped_slope_intercept_y_spr,
+    "alg-sys-infinite-solutions-product-mc": alg_sys_infinite_solutions_product_mc,
+    "alg-sys-fractions-both-sides-x-minus-y": alg_sys_fractions_both_sides_x_minus_y,
+    "alg-sys-florist-bouquets-roses-spr": alg_sys_florist_bouquets_roses_spr,
+    "alg-sys-drones-altitude-interpret-y": alg_sys_drones_altitude_interpret_y,
+    "alg-sys-ice-sculptures-equal-height": alg_sys_ice_sculptures_equal_height,
+    "alg-sys-bowling-equal-cost-fee-spr": alg_sys_bowling_equal_cost_fee_spr,
+    "alg-sys-hiker-flat-uphill-distance": alg_sys_hiker_flat_uphill_distance,
+    "alg-sys-bike-shop-repairs-model": alg_sys_bike_shop_repairs_model,
+    "alg-sys-bridges-ages-future": alg_sys_bridges_ages_future,
+    "alg-sys-courier-van-unloaded-type-b-spr": alg_sys_courier_van_unloaded_type_b_spr,
+    "alg-sys-puppies-weight-weeks-units": alg_sys_puppies_weight_weeks_units,
 }
 
 
