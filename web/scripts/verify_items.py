@@ -4016,6 +4016,256 @@ def geo_planter_soil_bags():
     return sp.ceiling(bags)
 
 
+# ----- Batch batch6-ne1 -----
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, sqrt, Eq
+
+x, y, k, a, b, c, p, s, r, n, t = symbols("x y k a b c p s r n t")
+
+_B6NE_WORDS = {0: "Zero", 1: "Exactly one", 2: "Exactly two"}
+
+
+def _b6ne_real_roots(expr, var=x):
+    """Distinct real roots of an expression (polynomial or rational) in var."""
+    vr = Symbol(str(var), real=True)
+    return sorted(set(sp.solve(expr.subs(var, vr), vr)))
+
+
+def _b6ne_count_check(count):
+    def check(choices, idx):
+        return choices[idx] == _B6NE_WORDS[count], f"{count} real solution(s) -> '{_B6NE_WORDS[count]}'"
+
+    return check
+
+
+def adv_trinomial_larger_root_factor():
+    return max(_b6ne_real_roots(x**2 - 13 * x + 36))
+
+
+def adv_square_isolate_positive_x():
+    return [v for v in _b6ne_real_roots(3 * x**2 + 5 - 80) if v > 0][0]
+
+
+def adv_factored_cubic_least_solution():
+    return min(_b6ne_real_roots(x * (x + 6) * (3 * x - 2)))
+
+
+def adv_exponential_power_of_two_easy():
+    xr = Symbol("x", real=True)
+    sols = sp.solve(Eq(2 ** (xr - 1), 32), xr)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_absolute_value_negative_zero_solutions():
+    xr = Symbol("x", real=True)
+    sols = sp.solve(Eq(sp.Abs(2 * xr + 5) + 7, 3), xr)
+    return _b6ne_count_check(len(sols))
+
+
+def adv_rug_room_floor_strip():
+    sols = [v for v in _b6ne_real_roots((x + 6) ** 2 - 324) if v > 0]
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_quadratic_formula_positive_radical():
+    pos = [v for v in _b6ne_real_roots(x**2 + 4 * x - 6) if v > 0]
+    assert len(pos) == 1
+
+    def check(choices, idx):
+        vals = [latex_to_sympy_ext(ch) for ch in choices]
+        matches = [i for i, v in enumerate(vals) if sp.simplify(v - pos[0]) == 0]
+        return matches == [idx], f"expected {pos[0]}; matching choices {matches}"
+
+    return check
+
+
+def adv_product_of_solutions_noninteger():
+    roots = _b6ne_real_roots(3 * x**2 - 10 * x - 4)
+    assert len(roots) == 2
+    return sp.simplify(roots[0] * roots[1])
+
+
+def adv_rational_common_denominator_extraneous():
+    xr = Symbol("x", real=True)
+    sols = sp.solve(Eq((xr**2 + 3 * xr) / (xr + 5), 10 / (xr + 5)), xr)
+    sols = [v for v in sols if v != -5]
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_radical_equals_x_extraneous():
+    xr = Symbol("x", real=True)
+    sols = sp.solve(Eq(sp.sqrt(5 * xr + 6), xr), xr)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_line_parabola_y_difference():
+    sols = sp.solve([Eq(y, 2 * x - 1), Eq(y, x**2 - 4 * x + 4)], [x, y], dict=True)
+    assert len(sols) == 2
+    sols.sort(key=lambda d: d[x])
+    return sols[1][y] - sols[0][y]
+
+
+def adv_exponential_product_same_base():
+    xr = Symbol("x", real=True)
+    sols = sp.solve(Eq(3**xr * 9 ** (xr + 1), 3**11), xr)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_circle_line_which_point():
+    sols = sp.solve([Eq((x - 2) ** 2 + (y + 1) ** 2, 25), Eq(y, x - 2)], [x, y], dict=True)
+    pts = {(d[x], d[y]) for d in sols}
+    assert len(pts) == 2
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            inner = ch.strip().strip("$").strip("()")
+            px, py = (latex_to_sympy(v) for v in inner.split(","))
+            if (px, py) in pts:
+                hits.append(i)
+        return hits == [idx], f"intersection points {pts}; matching choices {hits}"
+
+    return check
+
+
+def adv_discriminant_zero_rearranged():
+    expr = 4 * x**2 + 9 - 12 * x
+    assert sp.discriminant(expr, x) == 0
+    return _b6ne_count_check(len(_b6ne_real_roots(expr)))
+
+
+def adv_biquadratic_real_solution_count():
+    return Integer(len(_b6ne_real_roots(x**4 - 5 * x**2 - 36)))
+
+
+def adv_tossed_ball_second_time():
+    roots = _b6ne_real_roots(-5 * t**2 + 20 * t + Rational(18, 10) - Rational(168, 10), t)
+    assert len(roots) == 2
+    return max(roots)
+
+
+def adv_raffle_price_revenue():
+    roots = [v for v in _b6ne_real_roots(p * (200 - 10 * p) - 750, p) if v > 0 and 200 - 10 * v > 0]
+    assert len(roots) == 2
+    return max(roots)
+
+
+def adv_horizon_distance_radical():
+    hr = Symbol("h", nonnegative=True)
+    sols = sp.solve(Eq(Rational(36, 10) * sp.sqrt(hr), 18), hr)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_drone_distance_absolute_value():
+    tr = Symbol("t", real=True)
+    sols = [v for v in sp.solve(Eq(sp.Abs(3 * tr - 45), 15), tr) if 0 <= v <= 30]
+    assert len(sols) == 2
+    return max(sols)
+
+
+def adv_two_machines_rational_time():
+    roots = [v for v in _b6ne_real_roots(1 / x + 1 / (x + 3) - Rational(1, 2)) if v > 0]
+    assert len(roots) == 1
+    return roots[0]
+
+
+def adv_stopping_distance_speed():
+    v = Symbol("v", positive=True)
+    sols = sp.solve(Eq(v**2 / 20 + v, 120), v)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_two_parabolas_greatest_integer_k():
+    good = []
+    for kv in range(-50, 51):
+        if len(_b6ne_real_roots(x**2 + kv - (-(x**2) + 6 * x))) == 2:
+            good.append(kv)
+    return Integer(max(good))
+
+
+def adv_factored_cubic_two_distinct_c():
+    good = []
+    for cv in [Rational(i, 4) for i in range(-400, 401)]:
+        if cv != 0 and len(_b6ne_real_roots(x * (x**2 - 6 * x + cv))) == 2:
+            good.append(cv)
+    assert len(good) == 1
+    return good[0]
+
+
+def adv_absolute_value_line_one_solution_c():
+    xr = Symbol("x", real=True)
+
+    def count(cv):
+        return len(sp.solve(Eq(sp.Abs(xr - 3), xr / 2 + cv), xr))
+
+    good = [cv for cv in [Rational(i, 4) for i in range(-40, 41)] if count(cv) == 1]
+    assert len(good) == 1
+    return good[0]
+
+
+def adv_double_radical_equation():
+    xr = Symbol("x", nonnegative=True)
+    sols = sp.solve(Eq(sp.sqrt(xr + 7), sp.sqrt(xr) + 1), xr)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_rational_all_extraneous_zero():
+    expr = x / (x + 2) + 8 / (x**2 - 4) - 2 / (x - 2)
+    cands = _b6ne_real_roots(sp.numer(sp.together(expr)))
+    sols = [v for v in cands if v not in (2, -2)]
+    return _b6ne_count_check(len(sols))
+
+
+def adv_line_circle_tangent_intercept_b():
+    bp = Symbol("b", positive=True)
+    disc = sp.discriminant(sp.expand(x**2 + (3 * x + bp) ** 2 - 10), x)
+    sols = sp.solve(disc, bp)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_parabola_line_no_intersection_k():
+    good = [kv for kv in range(-50, 51) if len(_b6ne_real_roots(x**2 - 5 * x + 2 - (x + kv))) == 0]
+    return Integer(max(good))
+
+
+def adv_root_twice_other_c():
+    sol = sp.solve([Eq(r + 2 * r, 9), Eq(c, r * 2 * r)], [r, c], dict=True)
+    assert len(sol) == 1
+    cv = sol[0][c]
+    roots = _b6ne_real_roots(x**2 - 9 * x + cv)
+    assert len(roots) == 2 and roots[1] == 2 * roots[0]
+    return cv
+
+
+def adv_exponential_quadratic_in_two_power():
+    xr = Symbol("x", real=True)
+    sols = sp.solve(Eq(4**xr - 3 * 2 ** (xr + 1) + 8, 0), xr)
+    assert len(sols) == 2
+    return sum(sols)
+
+
+def adv_absolute_value_steep_line_count():
+    xr = Symbol("x", real=True)
+    counts = set()
+    for cv in [Rational(i, 3) for i in range(-90, 91)]:
+        counts.add(len(sp.solve(Eq(sp.Abs(xr - 4), 2 * xr + cv), xr)))
+
+    def check(choices, idx):
+        ok = counts == {1} and "exactly one real solution for every value" in choices[idx]
+        return ok, f"solution counts over sampled c: {counts}"
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -4441,6 +4691,38 @@ CHECKS = {
     "geo-garden-path-uniform-width": geo_garden_path_uniform_width,
     "geo-similar-candles-wax": geo_similar_candles_wax,
     "geo-planter-soil-bags": geo_planter_soil_bags,
+    # batch batch6-ne1
+    "adv-trinomial-larger-root-factor": adv_trinomial_larger_root_factor,
+    "adv-square-isolate-positive-x": adv_square_isolate_positive_x,
+    "adv-factored-cubic-least-solution": adv_factored_cubic_least_solution,
+    "adv-exponential-power-of-two-easy": adv_exponential_power_of_two_easy,
+    "adv-absolute-value-negative-zero-solutions": adv_absolute_value_negative_zero_solutions,
+    "adv-rug-room-floor-strip": adv_rug_room_floor_strip,
+    "adv-quadratic-formula-positive-radical": adv_quadratic_formula_positive_radical,
+    "adv-product-of-solutions-noninteger": adv_product_of_solutions_noninteger,
+    "adv-rational-common-denominator-extraneous": adv_rational_common_denominator_extraneous,
+    "adv-radical-equals-x-extraneous": adv_radical_equals_x_extraneous,
+    "adv-line-parabola-y-difference": adv_line_parabola_y_difference,
+    "adv-exponential-product-same-base": adv_exponential_product_same_base,
+    "adv-circle-line-which-point": adv_circle_line_which_point,
+    "adv-discriminant-zero-rearranged": adv_discriminant_zero_rearranged,
+    "adv-biquadratic-real-solution-count": adv_biquadratic_real_solution_count,
+    "adv-tossed-ball-second-time": adv_tossed_ball_second_time,
+    "adv-raffle-price-revenue": adv_raffle_price_revenue,
+    "adv-horizon-distance-radical": adv_horizon_distance_radical,
+    "adv-drone-distance-absolute-value": adv_drone_distance_absolute_value,
+    "adv-two-machines-rational-time": adv_two_machines_rational_time,
+    "adv-stopping-distance-speed": adv_stopping_distance_speed,
+    "adv-two-parabolas-greatest-integer-k": adv_two_parabolas_greatest_integer_k,
+    "adv-factored-cubic-two-distinct-c": adv_factored_cubic_two_distinct_c,
+    "adv-absolute-value-line-one-solution-c": adv_absolute_value_line_one_solution_c,
+    "adv-double-radical-equation": adv_double_radical_equation,
+    "adv-rational-all-extraneous-zero": adv_rational_all_extraneous_zero,
+    "adv-line-circle-tangent-intercept-b": adv_line_circle_tangent_intercept_b,
+    "adv-parabola-line-no-intersection-k": adv_parabola_line_no_intersection_k,
+    "adv-root-twice-other-c": adv_root_twice_other_c,
+    "adv-exponential-quadratic-in-two-power": adv_exponential_quadratic_in_two_power,
+    "adv-absolute-value-steep-line-count": adv_absolute_value_steep_line_count,
 }
 
 
