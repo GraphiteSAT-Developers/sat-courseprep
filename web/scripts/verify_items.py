@@ -2633,6 +2633,229 @@ def geo_circle_general_form_top_point():
     return check
 
 
+# ----- Batch batch5-advmath -----
+#!/usr/bin/env python3
+"""SymPy checks for batch 5-advmath (web/content/batches/batch5-advmath.ts).
+
+Run from the repo root, against a temp items.ts that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch5_advmath.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers. Helpers are prefixed _b5m_.
+"""
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, sqrt, Eq, pi
+
+
+
+x, y, a, b, k, w, d, m, g, T = symbols("x y a b k w d m g T")
+
+
+def _b5m_rhs(choice: str):
+    """Right-hand side of an equation choice such as '$V(d) = 20(3)^{d - 1}$'."""
+    return latex_to_sympy_ext(choice.strip().strip("$").split("=", 1)[1])
+
+
+def _b5m_expr_check(expected, samples, parse=latex_to_sympy_ext, label=""):
+    """MC with expression choices: exactly the key equals `expected` at every sample point."""
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            try:
+                expr = parse(ch)
+            except Exception as e:  # noqa: BLE001
+                return False, f"could not parse choice {i} {ch!r}: {e}"
+            if all(abs(complex((expr - expected).subs(s).evalf())) < 1e-9 for s in samples):
+                matches.append(i)
+        return matches == [idx], f"{label or expected}; matching choices {matches}, key index {idx}"
+
+    return check
+
+
+_B5M_X_POS = [{x: v} for v in (Rational(1, 3), Rational(3, 2), 3, 5, 7, 11)]
+_B5M_X_ALL = [{x: v} for v in (-3, Rational(-1, 2), Rational(1, 3), Rational(3, 2), 3, 5, 7)]
+
+
+# ---------------------------------------------------------------- Equivalent expressions
+
+
+def adv_radical_simplify_even_power():
+    return _b5m_expr_check(sqrt(50 * x**6), _B5M_X_POS, label="sqrt(50x^6) for x > 0")
+
+
+def adv_poly_multiply_binomial_trinomial():
+    return _b5m_expr_check(sp.expand((2 * x - 5) * (x**2 + 3 * x - 1)), _B5M_X_ALL, label="(2x-5)(x^2+3x-1)")
+
+
+def adv_rational_undefined_values_sum():
+    zeros = sp.solve(2 * x**2 - 7 * x + 3, x)
+    assert len(zeros) == 2 and all(z.is_real for z in zeros)
+    assert (x + 4).subs(x, zeros[0]) != 0 and (x + 4).subs(x, zeros[1]) != 0  # genuinely undefined, not 0/0
+    return sum(zeros)
+
+
+def adv_long_division_quadratic_divisor():
+    quotient, remainder = sp.div(x**3 + 2 * x**2 - 5 * x + 1, x**2 + 1, x)
+    assert sp.expand(quotient) == x + 2
+    return sp.Poly(remainder, x).coeff_monomial(x)
+
+
+def adv_rational_subtract_factor_denominator():
+    expected = x / (x - 2) - 4 / (x**2 - 2 * x)
+    samples = [{x: v} for v in (-3, Rational(-1, 2), Rational(1, 3), Rational(3, 2), 5, 7)]  # avoid 0 and 2
+    assert sp.simplify(expected - (x + 2) / x) == 0
+    return _b5m_expr_check(expected, samples, label="x/(x-2) - 4/(x^2-2x)")
+
+
+def adv_radical_product_rational_exponent():
+    expected = x ** Rational(5, 4)
+    assert abs((sp.root(x**3, 4) * sqrt(x) - expected).subs(x, 7).evalf()) < 1e-12
+    return _b5m_expr_check(expected, _B5M_X_POS, label="x^(3/4) * x^(1/2)")
+
+
+def adv_difference_squares_quartic_ab():
+    expr = sp.expand((a * x**2 + 9) * (b * x + 3) * (b * x - 3) - (16 * x**4 - 81))
+    sols = sp.solve(sp.Poly(expr, x).all_coeffs(), [a, b], dict=True)
+    sol = [s for s in sols if s[a] > 0 and s[b] > 0]
+    assert len(sol) == 1
+    return sol[0][a] * sol[0][b]
+
+
+# ------------------------------------------- Nonlinear equations and systems
+
+
+def adv_square_equals_constant_greater_root():
+    sols = sp.solve((x - 3) ** 2 - 25, x)
+    assert len(sols) == 2
+    return max(sols)
+
+
+def adv_two_parabolas_no_common_point():
+    sols = sp.solve([Eq(y, x**2 + 2 * x + 5), Eq(y, -(x**2) + 2 * x + 1)], [x, y], dict=True)
+    count = len([s for s in sols if all(v.is_real for v in s.values())])
+    words = {0: "Zero", 1: "Exactly one", 2: "Exactly two"}
+
+    def check(choices, idx):
+        return choices[idx] == words[count], f"{count} real common point(s) -> '{words[count]}'"
+
+    return check
+
+
+def adv_two_parabolas_tangent_y_coordinate():
+    sols = sp.solve([Eq(y, 2 * x**2 - 3 * x + 1), Eq(y, x**2 + x - 3)], [x, y], dict=True)
+    assert len(sols) == 1, sols  # tangent: exactly one common point
+    return sols[0][y]
+
+
+def adv_pendulum_solve_for_length():
+    L = Symbol("L", positive=True)
+    gg = Symbol("g", positive=True)
+    TT = Symbol("T", positive=True)
+    expected = sp.solve(Eq(TT, 2 * pi * sqrt(L / gg)), L)[0]
+    samples = [{g: 9.8, T: 2}, {g: Rational(49, 5), T: Rational(7, 3)}, {g: 3, T: 5}]
+    target = expected.subs({gg: g, TT: T})
+    return _b5m_expr_check(target, samples, parse=_b5m_rhs, label=f"L = {target}")
+
+
+def adv_two_real_solutions_least_integer_k():
+    disc = sp.discriminant(x**2 - 2 * k * x + 5 * k - 6, x)
+    ok = [kv for kv in range(1, 20) if disc.subs(k, kv) > 0]
+    assert ok[:3] == [1, 4, 5], ok
+    return Integer(min(ok))
+
+
+def adv_two_parabolas_tangent_k():
+    disc = sp.discriminant((x - 1) ** 2 + k - (-((x - 3) ** 2) + 5), x)
+    sols = sp.solve(disc, k)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_exponential_difference_common_factor():
+    sols = sp.solve(2 ** (x + 3) - 2**x - 56, x)
+    assert len(sols) == 1
+    return sols[0]
+
+
+# ---------------------------------------------------------- Nonlinear functions
+
+
+def adv_message_board_posts_weeks():
+    sols = sp.solve(4 * 2**w - 128, w)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_video_views_exponential_model():
+    data = {1: 20, 2: 60, 3: 180, 4: 540}
+
+    def check(choices, idx):
+        fits = []
+        for i, ch in enumerate(choices):
+            rhs = _b5m_rhs(ch)
+            if all(sp.simplify(rhs.subs(d, dv) - vv) == 0 for dv, vv in data.items()):
+                fits.append(i)
+        return fits == [idx], f"choices fitting all four data points: {fits}"
+
+    return check
+
+
+def adv_distinct_intercepts_multiplicity():
+    rts = sp.roots(sp.Poly(sp.expand(x * (x - 4) ** 2 * (x**2 + 1)), x))
+    real = [r for r in rts if r.is_real]
+    assert sum(rts.values()) == 5  # degree 5 counting multiplicity
+    return Integer(len(real))
+
+
+def adv_coin_value_monthly_function():
+    yearly = Rational(106, 100)
+
+    def check(choices, idx):
+        fits = []
+        for i, ch in enumerate(choices):
+            rhs = _b5m_rhs(ch)
+            good = True
+            for months in (12, 24, 36):
+                val = rhs.subs(m, months).evalf()
+                target = (1200 * yearly ** Rational(months, 12)).evalf()
+                if abs(val - target) > 1e-6:
+                    good = False
+            if good:
+                fits.append(i)
+        return fits == [idx], f"choices giving exactly 6% per year at 12, 24, 36 months: {fits}"
+
+    return check
+
+
+def adv_photo_frame_uniform_width():
+    sols = sp.solve((8 + 2 * w) * (10 + 2 * w) - 168, w)
+    pos = [s for s in sols if s > 0]
+    assert len(pos) == 1
+    return pos[0]
+
+
+def adv_quartic_end_behavior_factored():
+    f = (2 - x) * (x + 1) ** 2 * (x - 5)
+    left = "decreases" if sp.limit(f, x, -sp.oo) == -sp.oo else "increases"
+    right = "decreases" if sp.limit(f, x, sp.oo) == -sp.oo else "increases"
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            first, second = ch.split(", and ")
+            if f"$f(x)$ {left} without bound" in first and f"$f(x)$ {right} without bound" in second:
+                matches.append(i)
+        return matches == [idx], f"left {left}, right {right}; matching choices {matches}"
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -2894,6 +3117,27 @@ CHECKS = {
     "geo-tangent-point-distance-center": geo_tangent_point_distance_center,
     "geo-sector-area-radians-diameter": geo_sector_area_radians_diameter,
     "geo-circle-general-form-top-point": geo_circle_general_form_top_point,
+    # batch batch5-advmath
+    "adv-radical-simplify-even-power": adv_radical_simplify_even_power,
+    "adv-poly-multiply-binomial-trinomial": adv_poly_multiply_binomial_trinomial,
+    "adv-rational-undefined-values-sum": adv_rational_undefined_values_sum,
+    "adv-long-division-quadratic-divisor": adv_long_division_quadratic_divisor,
+    "adv-rational-subtract-factor-denominator": adv_rational_subtract_factor_denominator,
+    "adv-radical-product-rational-exponent": adv_radical_product_rational_exponent,
+    "adv-difference-squares-quartic-ab": adv_difference_squares_quartic_ab,
+    "adv-square-equals-constant-greater-root": adv_square_equals_constant_greater_root,
+    "adv-two-parabolas-no-common-point": adv_two_parabolas_no_common_point,
+    "adv-two-parabolas-tangent-y-coordinate": adv_two_parabolas_tangent_y_coordinate,
+    "adv-pendulum-solve-for-length": adv_pendulum_solve_for_length,
+    "adv-two-real-solutions-least-integer-k": adv_two_real_solutions_least_integer_k,
+    "adv-two-parabolas-tangent-k": adv_two_parabolas_tangent_k,
+    "adv-exponential-difference-common-factor": adv_exponential_difference_common_factor,
+    "adv-message-board-posts-weeks": adv_message_board_posts_weeks,
+    "adv-video-views-exponential-model": adv_video_views_exponential_model,
+    "adv-distinct-intercepts-multiplicity": adv_distinct_intercepts_multiplicity,
+    "adv-coin-value-monthly-function": adv_coin_value_monthly_function,
+    "adv-photo-frame-uniform-width": adv_photo_frame_uniform_width,
+    "adv-quartic-end-behavior-factored": adv_quartic_end_behavior_factored,
 }
 
 
