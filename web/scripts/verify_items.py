@@ -1604,6 +1604,334 @@ def adv_exponential_quarterly_annual_percent():
     return check
 
 
+# ----- Batch batch4-advmath -----
+#!/usr/bin/env python3
+"""SymPy checks for batch 4-advmath (web/content/batches/batch4-advmath.ts).
+
+Run from the repo root, against a temp items.ts that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch4_advmath.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, sqrt, Eq
+
+
+x, y, a, b, c, k, p, t, h = symbols("x y a b c k p t h")
+
+
+def _b4_rhs(choice: str):
+    """Right-hand side of an equation choice such as '$M(h) = 500(0.5)^{h/6}$'."""
+    return latex_to_sympy_ext(choice.strip().strip("$").split("=", 1)[1])
+
+
+def _b4_expr_check(expected, samples, parse=latex_to_sympy_ext, label=""):
+    """MC with expression choices: exactly the key equals `expected` at every sample point.
+
+    samples: list of dicts {Symbol: value}. Comparing numerically at several points avoids
+    simplification differences between radical, rational and exponential forms.
+    """
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            try:
+                expr = parse(ch)
+            except Exception as e:  # noqa: BLE001
+                return False, f"could not parse choice {i} {ch!r}: {e}"
+            if all(abs(complex((expr - expected).subs(s).evalf())) < 1e-9 for s in samples):
+                matches.append(i)
+        return matches == [idx], f"{label or expected}; matching choices {matches}, key index {idx}"
+
+    return check
+
+
+_B4_X_SAMPLES = [{x: v} for v in (Rational(1, 3), Rational(3, 2), 3, 5, 7, 11)]
+_B4_XY_SAMPLES = [{x: xv, y: yv} for xv, yv in ((1, 2), (3, Rational(-1, 2)), (Rational(2, 5), 4), (-3, 7))]
+
+
+# ---------------------------------------------------------------- Equivalent expressions
+
+
+def adv_common_factor_xy():
+    return _b4_expr_check(12 * x**3 * y - 18 * x**2 * y**2, _B4_XY_SAMPLES, label="12x^3y - 18x^2y^2")
+
+
+def adv_cube_root_power():
+    xp = Symbol("x", positive=True)
+    assert sp.simplify((27 * xp**6) ** Rational(1, 3) - 3 * xp**2) == 0
+    return _b4_expr_check(3 * x**2, _B4_X_SAMPLES, label="(27x^6)^(1/3) = 3x^2 for x > 0")
+
+
+def adv_complex_fraction_difference_squares():
+    expr = sp.cancel((1 - 4 / x**2) / (1 + 2 / x))
+    assert sp.simplify(expr - (x - 2) / x) == 0
+    return _b4_expr_check(expr, _B4_X_SAMPLES, label=f"simplifies to {expr}")
+
+
+def adv_tilde_square_minus_product_b():
+    lhs = sp.expand((3 * x - 2) ** 2 - (x + 5) * (x - 1))
+    sol = sp.solve(sp.Poly(lhs - (a * x**2 + b * x + c), x).all_coeffs(), [a, b, c])
+    return sol[b]
+
+
+def adv_rational_subtract_difference_squares():
+    expr = sp.cancel(2 / (x**2 - 4) - 1 / (x - 2))
+    assert sp.simplify(expr - (-x) / (x**2 - 4)) == 0
+    return _b4_expr_check(expr, _B4_X_SAMPLES, label=f"simplifies to {expr}")
+
+
+def adv_remainder_theorem_k():
+    pk = x**3 + k * x**2 - 5 * x + 6
+    kk = sp.solve(Eq(pk.subs(x, -2), 12), k)[0]
+    _, rem = sp.div(pk.subs(k, kk), x + 2, x)
+    assert rem == 12
+    return kk
+
+
+def adv_rational_divide_simplify():
+    expr = sp.cancel((x**2 - 16) / (x**2 - 2 * x - 8) / ((x + 4) / (x - 1)))
+    assert sp.simplify(expr - (x - 1) / (x + 2)) == 0
+    return _b4_expr_check(expr, _B4_X_SAMPLES, label=f"simplifies to {expr}")
+
+
+# ------------------------------------------- Nonlinear equations and systems
+
+
+def adv_quadratic_negative_solution():
+    sols = sp.solve(x**2 + 3 * x - 28, x)
+    neg = [v for v in sols if v < 0]
+    assert len(sols) == 2 and len(neg) == 1
+    return neg[0]
+
+
+def adv_radical_equation_coefficient():
+    sols = sp.solve(Eq(2 * sqrt(x + 1), 6), x)
+    assert sols == [8]
+    return sols[0]
+
+
+def adv_circle_line_positive_x():
+    sols = sp.solve([Eq(x**2 + y**2, 20), Eq(y, 2 * x)], [x, y])
+    pos = [sx for sx, _ in sols if sx > 0]
+    assert len(sols) == 2 and len(pos) == 1
+    return pos[0]
+
+
+def adv_circle_tangent_line_c():
+    disc = sp.discriminant((x**2 + (x + 4) ** 2 - c), x)
+    sols = sp.solve(disc, c)
+    assert len(sols) == 1 and sols[0] > 0
+    # Cross-check: squared distance from the origin to the line y = x + 4.
+    assert sols[0] == Rational(16, 2)
+    return sols[0]
+
+
+def adv_two_parabolas_x_difference():
+    sols = sp.solve(Eq(x**2 - 4 * x + 1, -(x**2) + 2 * x + 9), x)
+    assert len(sols) == 2
+    return max(sols) - min(sols)
+
+
+def adv_absolute_value_midpoint_c():
+    xr, cr = symbols("x c", real=True)
+    s1 = set(sp.solve(Eq(sp.Abs(2 * 1 - cr), 6), cr))
+    s7 = set(sp.solve(Eq(sp.Abs(2 * 7 - cr), 6), cr))
+    cvals = s1 & s7
+    assert s1 == {-4, 8} and s7 == {8, 20} and cvals == {8}
+    cv = cvals.pop()
+    assert set(sp.solve(Eq(sp.Abs(2 * xr - cv), 6), xr)) == {1, 7}
+    return cv
+
+
+def adv_radical_constant_extraneous_sum():
+    cv = sp.solve(Eq(sqrt(3 * 8 + c), 8 - 1), c)[0]
+    assert cv == 25
+    sols = sp.solve(Eq(sqrt(3 * x + cv), x - 1), x)  # sympy discards the extraneous root
+    squared = sp.solve(Eq(3 * x + cv, (x - 1) ** 2), x)
+    assert sols == [8] and set(squared) == {8, -3}
+    return sum(sols)
+
+
+def adv_one_solution_leading_k():
+    sols = sp.solve(sp.discriminant(k * x**2 + 12 * x + 9, x), k)
+    assert sols == [4]
+    assert len(sp.solve((k * x**2 + 12 * x + 9).subs(k, sols[0]), x)) == 1
+    return sols[0]
+
+
+def adv_kinetic_energy_solve_v():
+    # The parser reads a bare E as Euler's number, so the energy symbol is renamed W before parsing (Q is sympy.Q).
+    W, m, v = symbols("W m v", positive=True)
+    expected = sp.solve(Eq(W, Rational(1, 2) * m * v**2), v)
+    assert len(expected) == 1
+    target = expected[0].subs({W: Symbol("W"), m: Symbol("m")})
+    samples = [{Symbol("W"): ev, Symbol("m"): mv} for ev, mv in ((9, 2), (Rational(1, 2), 1), (50, 4), (7, 3))]
+    return _b4_expr_check(target, samples, parse=lambda ch: _b4_rhs(ch.replace("E", "W")), label="v = sqrt(2E/m)")
+
+
+def adv_circle_line_no_solution():
+    sols = sp.solve([Eq(x**2 + y**2, 9), Eq(y, x + 5)], [x, y], dict=True)
+    count = len([s for s in sols if all(v.is_real for v in s.values())])
+    words = {0: "Zero", 1: "Exactly one", 2: "Exactly two"}
+
+    def check(choices, idx):
+        return choices[idx] == words[count], f"{count} real solution(s) -> '{words[count]}'"
+
+    return check
+
+
+def adv_quadratic_in_disguise_sum():
+    sols = sp.solve((x - 4) ** 2 - 3 * (x - 4) - 10, x)
+    assert set(sols) == {2, 9}
+    return sum(sols)
+
+
+def adv_rational_equation_sum_solutions():
+    num = sp.together(6 / x + x / (x + 1) - 2).as_numer_denom()[0]
+    sols = sp.solve(num, x)
+    valid = [v for v in sols if v != 0 and v != -1]
+    assert len(valid) == 2
+    return sp.simplify(sum(valid))
+
+
+# ---------------------------------------------------------- Nonlinear functions
+
+
+def adv_cubic_evaluate_negative():
+    return (3 * x**3 - x**2 + 4).subs(x, -2)
+
+
+def adv_van_decay_factor_interpretation():
+    factor = Rational(85, 100)
+    pct_decrease = (1 - factor) * 100  # 15
+    V = 38000 * factor**t
+
+    def check(choices, idx):
+        key_ok = f"decreases by {pct_decrease}%" in choices[idx] and pct_decrease == 15
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("decreases by 85%" in ch and (1 - factor) * 100 != 85)
+            or ("increases" in ch and factor >= 1)  # factor < 1 means decay, so this is false
+            or ("85 dollars" in ch and sp.simplify(V.subs(t, 1) - V.subs(t, 0) + 85) != 0))]
+        # 'increases' is a contradicted distractor exactly when factor < 1
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("decreases by 85%" in ch) or ("increases" in ch and factor < 1) or ("85 dollars" in ch))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"factor {factor} -> {pct_decrease}% decrease per year; contradicted distractors {wrong}"
+
+    return check
+
+
+def adv_medication_half_life_model():
+    target = 500 * Rational(1, 2) ** (h / 6)
+    samples = [{h: v} for v in (0, 1, 6, 12, 15)]
+    assert target.subs(h, 6) == 250 and target.subs(h, 12) == 125
+    return _b4_expr_check(target, samples, parse=_b4_rhs, label="M(h) = 500(0.5)^(h/6)")
+
+
+def adv_arch_symmetry_distance():
+    hx = -Rational(5, 100) * x**2 + 3 * x
+    sols = sp.solve(Eq(hx, hx.subs(x, 10)), x)
+    big = [v for v in sols if v > 10]
+    assert set(sols) == {10, 50} and len(big) == 1
+    return big[0]
+
+
+def adv_factored_form_displays_intercepts():
+    f = 3 * (x - 2) ** 2 - 27
+    zeros = set(sp.solve(f, x))
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rhs = _b4_rhs(ch)
+            equivalent = sp.expand(rhs - f) == 0
+            shown = set()
+            if rhs.is_Mul:
+                for arg in rhs.args:
+                    if arg.is_polynomial(x) and sp.Poly(arg, x).degree() == 1:
+                        shown |= set(sp.solve(arg, x))
+            if equivalent and shown == zeros:
+                matches.append(i)
+        return matches == [idx], f"zeros {zeros}; equivalent factored forms showing them: {matches}"
+
+    return check
+
+
+def adv_table_shift_minimum_value():
+    f = a * x**2 + b * x + c
+    sol = sp.solve([Eq(f.subs(x, 0), 5), Eq(f.subs(x, 1), 0), Eq(f.subs(x, 2), -3)], [a, b, c])
+    g = f.subs(sol).subs(x, x - 2) + 3
+    xv = sp.solve(sp.diff(g, x), x)[0]
+    assert sp.diff(g, x, 2) > 0
+    return g.subs(x, xv)
+
+
+def adv_composition_positive_a():
+    f = 2 * x + a
+    g = x**2
+    sols = sp.solve(Eq(g.subs(x, f.subs(x, 1)), 49), a)
+    pos = [v for v in sols if v > 0]
+    assert len(sols) == 2 and len(pos) == 1
+    return pos[0]
+
+
+def adv_insect_colony_doubling_time():
+    sols = sp.solve(Eq(900 * 2 ** (t / 5), 7200), t)
+    vals = {sp.nsimplify(sp.simplify(v)) for v in sols}
+    assert vals == {15}
+    return Integer(15)
+
+
+def adv_fountain_stream_zero():
+    zeros = sp.solve(-Rational(1, 2) * x**2 + 6 * x, x)
+    pos = [v for v in zeros if v > 0]
+    assert len(pos) == 1
+    return pos[0]
+
+
+def adv_vehicles_percent_per_year():
+    r = sp.sqrt(Rational(144, 100))
+    pct = (r - 1) * 100
+    assert pct == 20
+
+    def check(choices, idx):
+        vals = [latex_to_sympy_ext(ch) for ch in choices]
+        matches = [i for i, v in enumerate(vals) if sp.simplify(v - pct) == 0]
+        return matches == [idx], f"yearly factor {r} -> {pct}%; matching choices {matches}"
+
+    return check
+
+
+def adv_horizontal_compression_intercepts():
+    f = (x - 6) * (x + 2)
+    g = f.subs(x, 2 * x)
+    zeros = sp.solve(g, x)
+    assert set(zeros) == {-1, 3}
+    return sum(zeros)
+
+
+def adv_cubic_y_intercept_a():
+    f = (x - a) * (x**2 + 4)
+    sols = sp.solve(Eq(f.subs(x, 0), -12), a)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_barrel_percent_decrease():
+    pr = Symbol("p", real=True)
+    sols = sp.solve(Eq(250 * (1 - pr / 100) ** 3, 54), pr)
+    real = [v for v in sols if v.is_real]
+    assert real == [40]
+    return real[0]
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -1773,6 +2101,39 @@ CHECKS = {
     "adv-exponential-translation-y-intercept": adv_exponential_translation_y_intercept,
     "adv-shop-profit-max-price": adv_shop_profit_max_price,
     "adv-exponential-quarterly-annual-percent": adv_exponential_quarterly_annual_percent,
+    # batch batch4-advmath
+    "adv-common-factor-xy": adv_common_factor_xy,
+    "adv-cube-root-power": adv_cube_root_power,
+    "adv-complex-fraction-difference-squares": adv_complex_fraction_difference_squares,
+    "adv-tilde-square-minus-product-b": adv_tilde_square_minus_product_b,
+    "adv-rational-subtract-difference-squares": adv_rational_subtract_difference_squares,
+    "adv-remainder-theorem-k": adv_remainder_theorem_k,
+    "adv-rational-divide-simplify": adv_rational_divide_simplify,
+    "adv-quadratic-negative-solution": adv_quadratic_negative_solution,
+    "adv-radical-equation-coefficient": adv_radical_equation_coefficient,
+    "adv-circle-line-positive-x": adv_circle_line_positive_x,
+    "adv-circle-tangent-line-c": adv_circle_tangent_line_c,
+    "adv-two-parabolas-x-difference": adv_two_parabolas_x_difference,
+    "adv-absolute-value-midpoint-c": adv_absolute_value_midpoint_c,
+    "adv-radical-constant-extraneous-sum": adv_radical_constant_extraneous_sum,
+    "adv-one-solution-leading-k": adv_one_solution_leading_k,
+    "adv-kinetic-energy-solve-v": adv_kinetic_energy_solve_v,
+    "adv-circle-line-no-solution": adv_circle_line_no_solution,
+    "adv-quadratic-in-disguise-sum": adv_quadratic_in_disguise_sum,
+    "adv-rational-equation-sum-solutions": adv_rational_equation_sum_solutions,
+    "adv-cubic-evaluate-negative": adv_cubic_evaluate_negative,
+    "adv-van-decay-factor-interpretation": adv_van_decay_factor_interpretation,
+    "adv-medication-half-life-model": adv_medication_half_life_model,
+    "adv-arch-symmetry-distance": adv_arch_symmetry_distance,
+    "adv-factored-form-displays-intercepts": adv_factored_form_displays_intercepts,
+    "adv-table-shift-minimum-value": adv_table_shift_minimum_value,
+    "adv-composition-positive-a": adv_composition_positive_a,
+    "adv-insect-colony-doubling-time": adv_insect_colony_doubling_time,
+    "adv-fountain-stream-zero": adv_fountain_stream_zero,
+    "adv-vehicles-percent-per-year": adv_vehicles_percent_per_year,
+    "adv-horizontal-compression-intercepts": adv_horizontal_compression_intercepts,
+    "adv-cubic-y-intercept-a": adv_cubic_y_intercept_a,
+    "adv-barrel-percent-decrease": adv_barrel_percent_decrease,
 }
 
 
