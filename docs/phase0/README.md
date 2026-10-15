@@ -18,7 +18,7 @@ Not to keep building. The one blocker that bites immediately is the AI vendor's 
 - **OpenAI:** allowed for users 13+ with safeguards (age-appropriate filters, AI disclosure, escalation path, zero data retention for under-13s) ([under-18 API guidance](https://developers.openai.com/api/docs/guides/safety-checks/under-18-api-guidance)).
 - **Anthropic:** allowed in products for minors if the developer adds age verification, content moderation and monitoring and follows child privacy law; their policy names tutoring and test prep as intended uses ([policy](https://www.anthropic.com/policy), [usage policy update](https://www.anthropic.com/news/updating-our-usage-policy)).
 
-So the working plan is: **build on OpenAI or Anthropic** (the site's `TutorProvider` seam makes either a drop-in), and keep Gemini out unless Google gives a written exception. The safeguards both vendors ask for are the same ones in `age-gate-plan.md`.
+**Decision (owner, 2026-10-15): Anthropic, with Sonnet as the live tutoring model.** Both Anthropic and OpenAI were cheaper than the difference mattered; the deciding factors were the terms and the fact that the tutor's accuracy, not token price, is the real cost. Provider code: `web/lib/tutor/anthropic.ts`. Gemini stays out unless Google gives a written exception. The safeguards both vendors ask for are the same ones in `age-gate-plan.md`.
 
 `counsel-questions.md` is a "when you're ready" document: worth a one-time consult before you take parents' money, store minors' chat logs, or sell to schools. It is not a gate on building and testing.
 
@@ -26,7 +26,7 @@ So the working plan is: **build on OpenAI or Anthropic** (the site's `TutorProvi
 
 1. **Send the Desmos email today.** It needs no legal input and the reply may take time.
 2. **Do the Bluebook audit this week.** It needs only a Bluebook install, the public College Board configuration, a Desmos trial key and a few hours. Its results change `config.ts`, the technique library and the verification service, so it unblocks engineering regardless of how the legal questions come out.
-3. **Pick the AI vendor** (OpenAI or Anthropic; see above) and record it in `HANDOFF.md`. Group 1 of `counsel-questions.md` then only matters if you still want Gemini.
+3. ~~Pick the AI vendor~~ Done: Anthropic / Sonnet. Group 1 of `counsel-questions.md` only matters if Gemini comes back into the picture.
 4. **Before launch, not before building:** send counsel groups 2–4 of `counsel-questions.md` with the background paragraph and the age-gate plan attached.
 5. **Revise `age-gate-plan.md`** once counsel answers groups 3 and 4, then build the gate, consent record and parent checkout.
 6. **Record each outcome** in `HANDOFF.md` ("Open blockers") and the decisions table in `reports/AI Desmos SAT math course plan.md`. Phase 0 exits when there is a written vendor decision, a chosen Desmos tier and an approved budget.

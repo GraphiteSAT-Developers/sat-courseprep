@@ -25,14 +25,14 @@ This is a collaborative project.
    - a three-layer eval (solver accuracy, expression validity, tutoring quality).
 
 ## Open blockers (resolve first, as Phase 0)
-- **Gemini under-18 terms.** The Gemini API Additional Terms (effective March 2026) bar apps "directed towards or likely to be accessed by" anyone under 18, with no education exception. **Working decision (2026-10-15): build on OpenAI or Anthropic instead**; both allow apps serving minors with safeguards (age screen, AI disclosure, content filtering). Details and sources in `docs/phase0/README.md`. The LLM layer stays provider-agnostic.
+- **Gemini under-18 terms.** The Gemini API Additional Terms (effective March 2026) bar apps "directed towards or likely to be accessed by" anyone under 18, with no education exception. **Decision (2026-10-15, owner): build on Anthropic; Sonnet (`claude-sonnet-5-5`) is the live tutoring model.** Anthropic allows apps serving minors with safeguards (age screen, AI disclosure, content moderation). A working provider is in `web/lib/tutor/anthropic.ts`; the stub is used when no key is set. Details and sources in `docs/phase0/README.md`. The LLM layer stays provider-agnostic.
 - **Desmos API license.** The free key covers personal use or 90-day internal evaluation only. Production needs a paid plan: Starter is reported at about $100/month for 1,000 users. Ask Desmos whether a server-side headless instance is covered.
 - **College Board content.** Official questions can't be used commercially or with generative AI. **All items must be original**, including the eval benchmark. Every use of "SAT" needs College Board's trademark footnote.
 - **COPPA and minors' privacy.** The amended rule's compliance date was April 22, 2026. Plan for a neutral age screen, parental consent for under-13s, and a parent-paid checkout.
 
 ## Owner decisions still pending
 These are listed in the report's decisions table:
-- LLM vendor and legal path
+- ~~LLM vendor~~ Anthropic, Sonnet for live tutoring (2026-10-15). Legal path: safeguards per `docs/phase0/age-gate-plan.md`.
 - audience and channel
 - Desmos plan tier
 - launch quality thresholds

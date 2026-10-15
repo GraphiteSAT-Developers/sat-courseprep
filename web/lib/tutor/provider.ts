@@ -1,12 +1,13 @@
 import "server-only";
+import { createAnthropicProvider } from "./anthropic";
 import type { TutorContext, TutorProvider, TutorReply } from "./types";
 
 /**
- * Placeholder until the AI side plugs in a real provider. It answers from the
+ * Placeholder used when no ANTHROPIC_API_KEY is set. It answers from the
  * item's stored by-hand route and Desmos lines, so the UI can be built and
  * tested end to end without any model.
  */
-const stubProvider: TutorProvider = {
+export const stubProvider: TutorProvider = {
   async reply(ctx: TutorContext): Promise<TutorReply> {
     const { item, hintLevel, calculator } = ctx;
     const errors = calculator.expressions.filter((e) => e.error);
@@ -30,6 +31,9 @@ const stubProvider: TutorProvider = {
   },
 };
 
+let provider: TutorProvider | undefined;
+
 export function getTutorProvider(): TutorProvider {
-  return stubProvider;
+  provider ??= process.env.ANTHROPIC_API_KEY ? createAnthropicProvider() : stubProvider;
+  return provider;
 }
