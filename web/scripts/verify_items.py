@@ -5,8 +5,8 @@ How to run (from the repo root, needs Python 3 and SymPy >= 1.12):
 
     python3 web/scripts/verify_items.py
 
-The script reads items.ts directly (a small regex parser; no JSON export to keep
-in sync), looks up a SymPy computation for each item id in CHECKS below, and
+The script reads items.ts directly (the regex parser in itembank.py, shared with
+lint_items.py; no JSON export to keep in sync), looks up a SymPy computation for each item id in CHECKS below, and
 prints one row per item. It exits non-zero if any item fails or if an item in
 items.ts has no check here, so a new item isn't "verified" until someone adds its
 computation.
@@ -41,45 +41,11 @@ from sympy.parsing.sympy_parser import (
     implicit_multiplication_application,
 )
 
-ITEMS_TS = Path(__file__).resolve().parents[1] / "content" / "items.ts"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from itembank import ITEMS_TS, parse_items  # noqa: E402  (shared with lint_items.py)
 
 MAX_POSITIVE_LENGTH = 5
 MAX_NEGATIVE_LENGTH = 6
-
-# ---------------------------------------------------------------------------
-# items.ts parsing
-# ---------------------------------------------------------------------------
-
-
-def _unescape_ts(s: str) -> str:
-    """Turn a TS double-quoted string body into its runtime value (only \\ and \" matter here)."""
-    return s.replace('\\"', '"').replace("\\\\", "\\")
-
-
-def parse_items(source: str) -> list[dict]:
-    items = []
-    # Each item object starts with `id: "..."`. Split the file on those markers.
-    starts = [m.start() for m in re.finditer(r'^\s*id: "', source, re.M)]
-    for i, start in enumerate(starts):
-        end = starts[i + 1] if i + 1 < len(starts) else len(source)
-        block = source[start:end]
-        item: dict = {"id": re.search(r'id: "([^"]+)"', block).group(1)}
-        item["format"] = re.search(r'format: "(mc|spr)"', block).group(1)
-        item["domain"] = re.search(r'domain: "([^"]+)"', block).group(1)
-        item["difficulty"] = re.search(r'difficulty: "([^"]+)"', block).group(1)
-        item["route"] = re.search(r'route: "([^"]+)"', block).group(1)
-        if item["format"] == "mc":
-            raw = re.search(r"choices: \[(.*?)\]", block, re.S).group(1)
-            item["choices"] = [_unescape_ts(c) for c in re.findall(r'"((?:[^"\\]|\\.)*)"', raw)]
-            item["answerIndex"] = int(re.search(r"answerIndex: (\d)", block).group(1))
-        else:
-            raw = re.search(r"answers: \[(.*?)\]", block, re.S).group(1)
-            item["answers"] = [
-                Fraction(int(n), int(d)) for n, d in re.findall(r"num: (-?\d+), den: (\d+)", raw)
-            ]
-        items.append(item)
-    return items
-
 
 # ---------------------------------------------------------------------------
 # Choice parsing: a small LaTeX subset ($-\frac{4}{5}$, $2304\pi$, $37.5$ ...)
