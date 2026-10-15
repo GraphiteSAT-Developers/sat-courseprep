@@ -47,7 +47,7 @@ These are listed in the report's decisions table:
    - first run against the real Desmos API with a key (only a mock was tested)
    - the headless Desmos verification service (Playwright) and SymPy verifier (AI collaborator)
 3. ~~Build the technique library~~ T1–T13 done (`web/content/techniques.ts`); T14/T15 proposed pending the Bluebook audit.
-4. ~~Build the item bank~~ **Done 2026-10-16: 1,000 original items** at the official College Board domain and format ratios, every key SymPy-verified, lint-clean (`docs/generation-plan.md`, Phase 2 result). Still owed: owner review, a held-out split, and a near-duplicate check against public items before release. **Decision (2026-10-15): every item goes into Firestore first; the site serves from it and the AI side trains/retrieves from its export. All items must pass the style lint derived from the College Board framework.**
+4. ~~Build the item bank~~ **Done 2026-10-16: 1,000 original items** at the official College Board domain and format ratios, every key SymPy-verified, lint-clean (`docs/generation-plan.md`, Phase 2 result). Still owed: owner review, a held-out split, and a near-duplicate check against public items before release. **Storage (decided 2026-10-15): items live in `web/content/items.ts` and are exported to `data/items.jsonl` (`npm run items:export`), which is the feed the AI side sends to Sonnet and uses for traces and fine-tuning. Firebase is deferred. Every item must pass the SymPy verifier and the style lint derived from the College Board framework.**
 
 ## Where things are
 | Path | What |
