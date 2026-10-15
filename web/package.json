@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "items:export": "tsx --conditions=react-server scripts/export-items.ts"
+    "items:export": "tsx --conditions=react-server scripts/export-items.ts",
+    "items:check": "python3 scripts/verify_items.py && python3 scripts/lint_items.py"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.134.0",

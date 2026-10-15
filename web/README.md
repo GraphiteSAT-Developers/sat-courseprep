@@ -27,8 +27,10 @@ Without a Desmos key the page still works; the calculator pane shows a setup mes
 | `lib/desmos/snapshot.ts` | Compact, serializable view of the student's calculator that the tutor reads | Contract |
 | `lib/tutor/types.ts` | `TutorProvider` interface: the seam between site and AI. No vendor names | Contract |
 | `lib/tutor/guardrails.ts` | Site-enforced rules: no full solution or "show me" before a graded attempt | Site |
-| `lib/tutor/anthropic.ts` | Real provider on Anthropic's API, Sonnet (`claude-sonnet-5-5`), used when `ANTHROPIC_API_KEY` is set. Prompts, retrieval and evals are the AI side's to develop from here | AI |
-| `lib/tutor/provider.ts` | Picks the Anthropic provider or, with no key, a stub that answers from the item's stored routes | Site |
+| `lib/tutor/prompt.ts` | Prompt assembly shared by every model-backed provider: frozen system rules, the item block, the per-turn state block, the show-me rule | AI |
+| `lib/tutor/anthropic.ts` | Provider on Anthropic's API, Sonnet (`claude-sonnet-5-5`): the live tutor until the fine-tuned model passes the eval gate; also the solver, dialogue generator and judge | AI |
+| `lib/tutor/openai-compatible.ts` | Provider for any OpenAI-compatible chat-completions endpoint (Together, Fireworks, vLLM, Bedrock) over plain `fetch`: how the fine-tuned open-weight tutor is served. See `../docs/fine-tuning-plan.md` | AI |
+| `lib/tutor/provider.ts` | Selection: `TUTOR_PROVIDER` override, else endpoint vars → endpoint, else `ANTHROPIC_API_KEY` → Anthropic, else a stub that answers from the item's stored routes | Site |
 | `app/api/grade`, `app/api/tutor` | Server routes. The browser only ever sees `PublicItem` | Site |
 | `components/` | `DesmosCalculator`, `PracticeView`, `MathText` (KaTeX), `SatFootnote` | Site |
 
