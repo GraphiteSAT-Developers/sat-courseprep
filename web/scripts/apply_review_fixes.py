@@ -73,6 +73,13 @@ def apply_one(block: str, fix: dict) -> str:
         if n != 1:
             raise ValueError("answers not found")
         return block
+    if field == "route" and not re.fullmatch(r"desmos-primary|hand-primary|either", str(new)):
+        raise ValueError("'route' is the Desmos-vs-hand tag; Desmos line/read fixes must use field 'desmos'")
+    if field == "desmos":
+        eo, en = ts_escape(str(old)), ts_escape(str(new))
+        if block.count(eo) != 1:
+            raise ValueError(f"desmos text found {block.count(eo)} times")
+        return block.replace(eo, en)
     if field in ("difficulty", "route"):
         block, n = re.subn(rf'{field}: "[a-z-]+"', f'{field}: "{new}"', block)
         if n != 1:
