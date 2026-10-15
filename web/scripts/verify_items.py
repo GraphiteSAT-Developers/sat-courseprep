@@ -9099,6 +9099,237 @@ def alg_tram_minutes_distance_equation():
     return check
 
 
+# ----- Batch batch12-ee3 -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch12-ee3.ts (batch batch12-ee3, Equivalent expressions).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch12_ee3.py --only-extra
+
+Each function derives the answer from the stem's givens: an exact SymPy value for
+numeric keys, or a callable (choices, answer_index) -> (ok, detail) for items whose
+choices are expressions.
+"""
+
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, Eq, sqrt
+
+x, y, k, a, b, c, p, s, r, n, t = symbols("x y k a b c p s r n t")
+d, q, u = symbols("d q u")
+
+
+def _b12e3_matches(choices, expected_fn, samples):
+    """Indices of the choices that agree with expected_fn at every sample (dict of symbol values)."""
+    out = []
+    for i, ch in enumerate(choices):
+        expr = latex_to_sympy_ext(ch)
+        if all(abs(complex((expr.subs(sv) - expected_fn(sv)).evalf(30))) < 1e-12 for sv in samples):
+            out.append(i)
+    return out
+
+
+def _b12e3_expr_check(expected, samples, label=""):
+    """MC with expression choices: exactly the key equals `expected` at every sample point."""
+
+    def check(choices, idx):
+        try:
+            m = _b12e3_matches(choices, lambda sv: expected.subs(sv), samples)
+        except Exception as e:  # noqa: BLE001
+            return False, f"could not parse a choice: {e}"
+        return m == [idx], f"{label or expected}; matching choices {m}, key index {idx}"
+
+    return check
+
+
+def _b12e3_not_equiv_check(expected, samples, label=""):
+    """MC 'NOT equivalent': exactly one choice (the key) disagrees with `expected`."""
+
+    def check(choices, idx):
+        try:
+            m = _b12e3_matches(choices, lambda sv: expected.subs(sv), samples)
+        except Exception as e:  # noqa: BLE001
+            return False, f"could not parse a choice: {e}"
+        odd = [i for i in range(len(choices)) if i not in m]
+        return odd == [idx], f"{label}; non-equivalent choices {odd}, key index {idx}"
+
+    return check
+
+
+def _b12e3_coeffs(identity, unknowns, var=None):
+    """Solve a polynomial identity (expression == 0 for all values of var) for the unknown constants."""
+    return sp.solve(sp.Poly(sp.expand(identity), var if var is not None else x).all_coeffs(), unknowns, dict=True)
+
+
+_B12E3_X = [{x: v} for v in (Rational(-7, 2), Rational(-1, 3), Rational(1, 3), Rational(3, 2), Rational(7, 2), 5, 11)]
+_B12E3_XPOS = [{x: v} for v in (Rational(1, 4), Rational(2, 3), 2, 5, 9)]
+_B12E3_XY = [{x: xv, y: yv} for xv, yv in ((1, 2), (3, Rational(1, 2)), (Rational(2, 5), 4), (-3, 7), (5, -2))]
+
+
+# ------------------------------------------------------------------ easy
+
+
+def adv_ee3_gcf_identify_two_variable():
+    t1, t2 = 18 * x**5 * y**2, 24 * x**3 * y**4
+    g = sp.gcd(t1, t2)
+    assert sp.simplify(t1 / g).is_polynomial(x, y) and sp.simplify(t2 / g).is_polynomial(x, y)
+
+    def check(choices, idx):
+        m = [i for i, ch in enumerate(choices) if sp.expand(latex_to_sympy_ext(ch) - g) == 0]
+        return m == [idx], f"gcd {g}; matching choices {m}, key index {idx}"
+
+    return check
+
+
+def adv_ee3_divide_trinomial_by_monomial():
+    expr = sp.cancel((6 * x**3 + 9 * x**2 - 3 * x) / (3 * x))
+    assert expr == 2 * x**2 + 3 * x - 1
+    return _b12e3_expr_check(expr, _B12E3_X, label=str(expr))
+
+
+def adv_ee3_difference_squares_fraction_coefficient():
+    return _b12e3_expr_check(x**2 / 4 - 25, _B12E3_X, label="x^2/4 - 25")
+
+
+def adv_ee3_trinomial_two_variable_factor():
+    expr = x**2 - 3 * x * y - 28 * y**2
+    assert sp.factor(expr) == (x - 7 * y) * (x + 4 * y)
+    return _b12e3_expr_check(expr, _B12E3_XY, label=str(sp.factor(expr)))
+
+
+def adv_ee3_store_shelves_cans_total():
+    expr = sp.expand((x + 3) * (2 * x - 1) + 5)
+    return _b12e3_expr_check(expr, _B12E3_X, label=str(expr))
+
+
+# ------------------------------------------------------------------ medium
+
+
+def adv_ee3_gcf_variable_exponent_n():
+    expr = x ** (n + 4) - 9 * x ** (n + 2)
+    samples = [{n: nv, x: xv} for nv in (1, 2, 3, 4) for xv in (Rational(1, 2), 2, 5, -3)]
+    return _b12e3_expr_check(expr, samples, label="x^(n+2)(x-3)(x+3) for n = 1..4")
+
+
+def adv_ee3_absolute_value_two_terms_negative():
+    expr = sp.Abs(x - 3) - sp.Abs(x + 2) + x
+    samples = [{x: v} for v in (Rational(-5, 2), -3, Rational(-9, 2), -7, -20)]  # stem restricts x < -2
+    for sv in samples:
+        assert expr.subs(sv) == sv[x] + 5
+    return _b12e3_expr_check(expr, samples, label="x + 5 for x < -2")
+
+
+def adv_ee3_factored_form_zero_p():
+    sols = _b12e3_coeffs(3 * x**2 + 4 * x - 15 - 3 * (x - p) * (x - q), [p, q])
+    ok = [sv for sv in sols if sv[p] > sv[q]]
+    assert len(ok) == 1
+    return ok[0][p]
+
+
+def adv_ee3_not_equivalent_product_forms():
+    return _b12e3_not_equiv_check(sp.expand((x - 4) * (x + 6)), _B12E3_X, label="(x - 4)(x + 6)")
+
+
+def adv_ee3_substitution_u_shift():
+    target = x**2 - 6 * x + 4
+    in_u = sp.expand(target.subs(x, u + 3))
+    assert in_u == u**2 - 5
+    samples = [{u: v} for v in (-3, Rational(-1, 2), 0, Rational(2, 3), 4, 9)]
+    # Each choice in u must equal the given expression at x = u + 3.
+    return _b12e3_expr_check(target.subs(x, u + 3), samples, label=f"in terms of u: {in_u}")
+
+
+def adv_ee3_cube_of_sum_k():
+    sols = _b12e3_coeffs((x + 2) ** 3 - (x**3 + 8) - k * x * (x + 2), [k])
+    assert len(sols) == 1
+    return sols[0][k]
+
+
+def adv_ee3_negative_rational_exponent_radical():
+    xp = Symbol("xp", positive=True)
+    val = xp ** Rational(-3, 2)
+    assert sp.simplify(val - 1 / (xp * sqrt(xp))) == 0
+    return _b12e3_expr_check(x ** Rational(-3, 2), _B12E3_XPOS, label="x^(-3/2) = 1/(x sqrt(x))")
+
+
+def adv_ee3_theater_ticket_revenue_b():
+    sols = _b12e3_coeffs((12 + x) * (300 - 15 * x) - (a * x**2 + b * x + c), [a, b, c])
+    assert len(sols) == 1
+    return sols[0][b]
+
+
+def adv_ee3_solar_panels_area_difference():
+    expr = sp.expand((x + 3) ** 2 - (x - 3) ** 2)
+    samples = [{x: v} for v in (Rational(7, 2), 4, Rational(11, 2), 9, 20)]  # stem restricts x > 3
+    return _b12e3_expr_check(expr, samples, label=f"difference {expr}")
+
+
+# ------------------------------------------------------------------ hard
+
+
+def adv_ee3_absolute_value_quotient_b():
+    expr = (x**2 - 4) / sp.Abs(x - 2)
+    samples = [{x: v} for v in (Rational(3, 2), 0, -1, Rational(-7, 3), -10)]  # stem restricts x < 2
+    # Fit ax + b from two points, then confirm on the rest.
+    sol = sp.solve([Eq(a * sv[x] + b, expr.subs(sv)) for sv in samples[:2]], [a, b], dict=True)[0]
+    for sv in samples:
+        assert expr.subs(sv) == sol[a] * sv[x] + sol[b]
+    return sol[b]
+
+
+def adv_ee3_substitution_quartic_u():
+    target = x**4 + 5 * x**2 + 4
+    # x^2 = u - 1, so substitute x = sqrt(u - 1) for u > 1.
+    in_u = sp.expand(target.subs(x, sqrt(u - 1)))
+    assert in_u == u**2 + 3 * u
+    samples = [{u: v} for v in (Rational(3, 2), 2, Rational(7, 3), 5, 10)]
+    return _b12e3_expr_check(in_u, samples, label=f"in terms of u: {in_u}")
+
+
+def adv_ee3_four_factor_x2_coefficient():
+    poly = sp.Poly(sp.expand((x - 1) * (x + 2) * (x + 3) * (x - 4)), x)
+    return poly.coeff_monomial(x**2)
+
+
+def adv_ee3_quartic_over_quadratic_polynomial():
+    expr = sp.cancel((x**4 - 10 * x**2 + 9) / (x**2 + 2 * x - 3))
+    assert expr == x**2 - 2 * x - 3
+    return _b12e3_expr_check(expr, _B12E3_X, label=f"quotient {expr}")
+
+
+def adv_ee3_ball_height_shifted_time_k():
+    sols = _b12e3_coeffs(-5 * t**2 + 30 * t + 2 - (-5 * (t - 3) ** 2 + k), [k], var=t)
+    assert len(sols) == 1
+    return sols[0][k]
+
+
+def adv_ee3_not_equivalent_difference_squares():
+    return _b12e3_not_equiv_check(9 * x**2 - 1, _B12E3_X, label="9x^2 - 1")
+
+
+def adv_ee3_gcf_then_trinomial_a_plus_b():
+    lhs = 12 * x**5 * y**2 + 18 * x**4 * y**3 - 30 * x**3 * y**4
+    diff = sp.expand(lhs - 6 * x**3 * y**2 * (a * x + b * y) * (x - y))
+    sols = sp.solve(sp.Poly(diff, x, y).coeffs(), [a, b], dict=True)
+    assert len(sols) == 1
+    return sols[0][a] + sols[0][b]
+
+
+def adv_ee3_equal_coefficients_k():
+    poly = sp.Poly(sp.expand((x**2 + k * x + 2) * (x**2 - 3 * x + 5)), x)
+    sols = sp.solve(Eq(poly.coeff_monomial(x**3), poly.coeff_monomial(x)), k)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_ee3_exponential_sum_squared():
+    expr = (2**x + 2 ** (-x)) ** 2
+    return _b12e3_expr_check(expr, _B12E3_X, label="(2^x + 2^-x)^2 = 4^x + 2 + 4^-x")
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -10054,6 +10285,30 @@ CHECKS = {
     "alg-dye-scarves-blankets-substitution": alg_dye_scarves_blankets_substitution,
     "alg-concrete-sand-gravel-total-spr": alg_concrete_sand_gravel_total_spr,
     "alg-tram-minutes-distance-equation": alg_tram_minutes_distance_equation,
+    # batch batch12-ee3
+    "adv-ee3-gcf-identify-two-variable": adv_ee3_gcf_identify_two_variable,
+    "adv-ee3-divide-trinomial-by-monomial": adv_ee3_divide_trinomial_by_monomial,
+    "adv-ee3-difference-squares-fraction-coefficient": adv_ee3_difference_squares_fraction_coefficient,
+    "adv-ee3-trinomial-two-variable-factor": adv_ee3_trinomial_two_variable_factor,
+    "adv-ee3-store-shelves-cans-total": adv_ee3_store_shelves_cans_total,
+    "adv-ee3-gcf-variable-exponent-n": adv_ee3_gcf_variable_exponent_n,
+    "adv-ee3-absolute-value-two-terms-negative": adv_ee3_absolute_value_two_terms_negative,
+    "adv-ee3-factored-form-zero-p": adv_ee3_factored_form_zero_p,
+    "adv-ee3-not-equivalent-product-forms": adv_ee3_not_equivalent_product_forms,
+    "adv-ee3-substitution-u-shift": adv_ee3_substitution_u_shift,
+    "adv-ee3-cube-of-sum-k": adv_ee3_cube_of_sum_k,
+    "adv-ee3-negative-rational-exponent-radical": adv_ee3_negative_rational_exponent_radical,
+    "adv-ee3-theater-ticket-revenue-b": adv_ee3_theater_ticket_revenue_b,
+    "adv-ee3-solar-panels-area-difference": adv_ee3_solar_panels_area_difference,
+    "adv-ee3-absolute-value-quotient-b": adv_ee3_absolute_value_quotient_b,
+    "adv-ee3-substitution-quartic-u": adv_ee3_substitution_quartic_u,
+    "adv-ee3-four-factor-x2-coefficient": adv_ee3_four_factor_x2_coefficient,
+    "adv-ee3-quartic-over-quadratic-polynomial": adv_ee3_quartic_over_quadratic_polynomial,
+    "adv-ee3-ball-height-shifted-time-k": adv_ee3_ball_height_shifted_time_k,
+    "adv-ee3-not-equivalent-difference-squares": adv_ee3_not_equivalent_difference_squares,
+    "adv-ee3-gcf-then-trinomial-a-plus-b": adv_ee3_gcf_then_trinomial_a_plus_b,
+    "adv-ee3-equal-coefficients-k": adv_ee3_equal_coefficients_k,
+    "adv-ee3-exponential-sum-squared": adv_ee3_exponential_sum_squared,
 }
 
 
