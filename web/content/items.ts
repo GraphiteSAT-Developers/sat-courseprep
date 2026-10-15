@@ -28,7 +28,7 @@ const items: Item[] = [
       read: "The line touches the parabola at one point, (4, 3). Zoom in to confirm it doesn't cross twice.",
       verified: false,
     },
-    byHand: "Set equal: x^2 - 8x + 16 = 0, so (x - 4)^2 = 0. The discriminant is 0, so there is exactly one solution.",
+    byHand: "Set equal: x^2 - 8x + 16 = 0, so (x - 4)^2 = 0. The discriminant is 0, so there is exactly one solution. Distractors: Zero comes from misreading a discriminant of 0 as negative; Exactly two assumes a line always crosses a parabola twice; Infinitely many would need the two graphs to be the same, which a line and a parabola never are.",
     provenance: { author: "scaffold", created: "2026-10-15" },
   },
   {
@@ -145,7 +145,7 @@ const items: Item[] = [
       read: "Along y = 5 the doubly shaded region ends at x = 4. The boundary of y > 3x - 7 is dashed, so (4, 5) is excluded and the greatest integer is 3.",
       verified: false,
     },
-    byHand: "Substitute y = 5. From 5 > 3a - 7, a < 4. From 5 ≤ -a + 9, a ≤ 4. Both hold when a < 4, so the greatest integer is 3. Distractor 4 treats the strict inequality as inclusive.",
+    byHand: "Substitute y = 5. From 5 > 3a - 7, a < 4. From 5 ≤ -a + 9, a ≤ 4. Both hold when a < 4, so the greatest integer is 3. Distractors: 4 treats the strict inequality as inclusive; 2 uses the least of the two bounds minus 2 after solving 5 > 3a - 7 as a < 2; 5 checks only the second inequality and reads a ≤ 4 as a ≤ 5.",
     provenance: { author: "claude-agent", created: "2026-10-15", notes: "key verified with SymPy" },
   },
   {

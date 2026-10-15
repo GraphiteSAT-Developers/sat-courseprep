@@ -201,6 +201,34 @@ def math_form(text: str) -> str:
     return s
 
 
+def loose_form(text: str) -> str:
+    """Looser comparison form for PR04: renders \\frac and \\sqrt the way prose writes them
+    (a/b, sqrt(x)), then drops grouping, spacing and multiplication marks, so a byHand that writes
+    "sqrt(d)/4.9" matches the choice "$t = \\frac{\\sqrt{d}}{4.9}$"."""
+    s = text.replace("$", "")
+    s = re.sub(r"\\(left|right)", "", s)
+    s = s.replace("\\cdot", "").replace("\\times", "").replace("\\pi", "pi").replace("π", "pi")
+    s = s.replace("\\pm", "±").replace("+/-", "±").replace("\\neq", "!=").replace("≠", "!=")
+    s = s.replace("√", "sqrt").replace("\\%", "%").replace("{,}", ",")
+    s = re.sub(r"\\geq?(?![a-z])", ">=", s)
+    s = re.sub(r"\\leq?(?![a-z])", "<=", s)
+    s = s.replace("≥", ">=").replace("≤", "<=")
+    # innermost-first rewrites so nesting resolves
+    for _ in range(6):
+        s2 = re.sub(r"\\sqrt\[([^\[\]{}]*)\]\{([^{}]*)\}", r"root\1(\2)", s)
+        s2 = re.sub(r"\\sqrt\{([^{}]*)\}", r"sqrt(\1)", s2)
+        s2 = re.sub(r"\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}", r"(\1)/(\2)", s2)
+        if s2 == s:
+            break
+        s = s2
+    s = re.sub(r"\\[A-Za-z]+", "", s)
+    s = s.lower()
+    s = re.sub(r"^\s*([a-z](\([a-z]\))?)\s*=", "", s)  # drop a leading "t =" / "f(x) ="
+    s = re.sub(r"[\s(){}\[\]*·]", "", s)
+    s = s.replace("−", "-")
+    return s
+
+
 def spr_fits_bluebook(value: Fraction) -> bool:
     limit = MAX_NEGATIVE_LENGTH if value < 0 else MAX_POSITIVE_LENGTH
     frac = f"{value.numerator}" if value.denominator == 1 else f"{value.numerator}/{value.denominator}"
@@ -333,8 +361,11 @@ def lint_item(item: dict, skills: dict[str, str], rep: Report) -> None:
                     v = int(n)
                     forms.add(f"{v:,}")
                 found = any(re.search(r"(?<![\d./])" + re.escape(f) + r"(?![\d/])", by_flat) for f in forms)
+                if not found and c.strip().startswith("$"):
+                    lc = loose_form(c)
+                    found = bool(re.search(r"(?<![\d./])" + re.escape(lc) + r"(?![\d/])", loose_form(by)))
             elif c.strip().startswith("$"):
-                found = math_form(c) in math_form(by)
+                found = math_form(c) in math_form(by) or loose_form(c) in loose_form(by)
             else:
                 text = re.sub(r"[^a-z0-9 ]", " ", strip_math_markup(c).lower())
                 toks = text.split()
