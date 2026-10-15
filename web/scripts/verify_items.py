@@ -4266,6 +4266,247 @@ def adv_absolute_value_steep_line_count():
     return check
 
 
+# ----- Batch batch7-psdaB -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch7-psdaB.ts (Percentages; One-variable data).
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch7_psdaB.py --only-extra
+
+Each function derives the key from the stem's givens and returns it as an exact
+SymPy object, or a callable (choices, idx) -> (ok, detail) for percent or
+sentence choices.
+"""
+
+from itertools import combinations_with_replacement
+
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, symbols, sqrt
+
+_b7pb_x = symbols("_b7pb_x")
+
+
+def _b7pb_mean(values):
+    return Rational(sum(values), len(values))
+
+
+def _b7pb_median(values):
+    v = sorted(values)
+    m = len(v)
+    return Rational(v[m // 2]) if m % 2 else Rational(v[m // 2 - 1] + v[m // 2], 2)
+
+
+def _b7pb_sd(values):
+    mu = _b7pb_mean(values)
+    return sqrt(sum((Rational(v) - mu) ** 2 for v in values) / len(values))
+
+
+def _b7pb_expand(freq):
+    return [v for v, f in freq for _ in range(f)]
+
+
+def _b7pb_numeric(expected):
+    """Choices may carry \\%; exactly the key choice must equal expected."""
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if sp.simplify(latex_to_sympy_ext(ch) - expected) == 0]
+        return matches == [idx], f"expected {expected}; matching choices {matches}, key index {idx}"
+
+    return check
+
+
+def _b7pb_sentence(expected):
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if ch.strip() == expected]
+        return matches == [idx], f"expected '{expected}'; matching choices {matches}"
+
+    return check
+
+
+def _b7pb_pos_root(eq):
+    sols = [v for v in sp.solve(eq, _b7pb_x) if v.is_real and v > 0]
+    assert len(sols) == 1, sols
+    return sols[0]
+
+
+def _b7pb_change(before, after, word_same="remains the same"):
+    if after > before:
+        return "increases"
+    if after < before:
+        return "decreases"
+    return word_same
+
+
+# ----- Percentages ----------------------------------------------------------
+
+
+def psda_orchard_young_apple_percent():
+    return _b7pb_numeric(Rational(60, 400) * 100)
+
+
+def psda_scale_reading_percent_error():
+    return Rational(520 - 494, 520) * 100
+
+
+def psda_helmet_price_before_tax():
+    return _b7pb_pos_root(Eq(Rational(106, 100) * _b7pb_x, Rational(6360, 100)))
+
+
+def psda_pond_fish_three_year_chain():
+    return _b7pb_numeric(Rational(120, 100) * Rational(75, 100) * Rational(110, 100) * 100)
+
+
+def psda_a_b_c_percent_chain():
+    c = Integer(1)
+    b = Rational(150, 100) * c
+    a = Rational(40, 100) * b
+    return a / c * 100
+
+
+def psda_machine_value_depreciation():
+    v = Integer(18000)
+    for _ in range(3):
+        v -= Rational(10, 100) * v
+    return v
+
+
+def psda_store_hardcover_fiction_share():
+    fiction_hc = Rational(40, 100) * Rational(30, 100)
+    nonfiction_hc = Rational(60, 100) * Rational(60, 100)
+    return fiction_hc / (fiction_hc + nonfiction_hc) * 100
+
+
+def psda_notebook_price_revenue():
+    return (Rational(125, 100) * (1 - Rational(16, 100)) - 1) * 100
+
+
+def psda_rug_prices_chain_difference():
+    c = _b7pb_x
+    b = (1 - Rational(20, 100)) * c
+    a = (1 + Rational(30, 100)) * b
+    return _b7pb_pos_root(Eq(a - c, Rational(240, 100)))
+
+
+def psda_deposit_two_year_rate():
+    return _b7pb_pos_root(Eq(5000 * (1 + _b7pb_x / 100) ** 2, 5832))
+
+
+# ----- One-variable data -----------------------------------------------------
+
+
+def psda_homework_minutes_median():
+    return _b7pb_median([34, 18, 27, 45, 22, 30, 41, 25])
+
+
+def psda_pets_dot_plot_range():
+    data = _b7pb_expand([(0, 3), (1, 4), (2, 2), (3, 2), (6, 1)])
+    assert len(data) == 12
+    return max(data) - min(data)
+
+
+def psda_missing_fifth_value_mean():
+    return sp.solve(Eq((12 + 15 + 9 + 20 + _b7pb_x) / 5, 15), _b7pb_x)[0]
+
+
+def psda_trips_frequency_median():
+    data = _b7pb_expand([(1, 6), (2, 9), (3, 5), (4, 3), (5, 2)])
+    assert len(data) == 25
+    return _b7pb_median(data)
+
+
+def psda_add_value_mean_median_amounts():
+    before = [4, 7, 7, 9, 12, 15]
+    after = before + [30]
+    dm = _b7pb_mean(after) - _b7pb_mean(before)
+    dmed = _b7pb_median(after) - _b7pb_median(before)
+    med_text = "the median remains the same" if dmed == 0 else f"the median increases by {dmed}"
+    return _b7pb_sentence(f"The mean increases by {dm}, and {med_text}.")
+
+
+def psda_bakery_ovens_combined_mean():
+    return _b7pb_mean([480] * 16 + [455] * 24)
+
+
+def psda_race_time_recording_error():
+    total = 10 * 52 - 61 + 47
+    return Rational(total, 10)
+
+
+def psda_fish_length_box_plot_iqr():
+    q1, q3 = 24, 33
+    return Integer(q3 - q1)
+
+
+def psda_shifted_spread_sets_compare():
+    A = _b7pb_expand([(10, 2), (11, 4), (12, 8), (13, 4), (14, 2)])
+    B = _b7pb_expand([(20, 4), (21, 2), (22, 8), (23, 2), (24, 4)])
+    assert len(A) == len(B) == 20
+    mean_part = "The means are equal" if _b7pb_mean(A) == _b7pb_mean(B) else (
+        "The mean of data set B is greater" if _b7pb_mean(B) > _b7pb_mean(A) else "The mean of data set A is greater")
+    sa, sb = _b7pb_sd(A), _b7pb_sd(B)
+    sd_part = "the standard deviations are equal" if sa == sb else (
+        "the standard deviation of data set B is greater" if sb > sa else "the standard deviation of data set A is greater")
+    return _b7pb_sentence(f"{mean_part}, and {sd_part}.")
+
+
+def psda_mode_median_greatest_value():
+    best = None
+    # sorted 7-tuple of positive integers, sum 70, median 12, unique mode 14
+    for low in combinations_with_replacement(range(1, 13), 3):
+        for high in combinations_with_replacement(range(12, 71), 3):
+            data = list(low) + [12] + list(high)
+            if sum(data) != 70:
+                continue
+            counts = {v: data.count(v) for v in set(data)}
+            top = max(counts.values())
+            modes = [v for v, c in counts.items() if c == top]
+            if modes != [14] or top < 2:
+                continue
+            best = max(best or 0, max(data))
+    return Integer(best)
+
+
+def psda_two_sections_size_from_mean():
+    return _b7pb_pos_root(Eq(70 * (30 - _b7pb_x) + 85 * _b7pb_x, 76 * 30))
+
+
+def psda_temperature_entry_error_effects():
+    before = [82, 85, 86, 87, 88, 88, 90, 91, 93, 9]
+    after = [82, 85, 86, 87, 88, 88, 90, 91, 93, 90]
+    med = _b7pb_change(_b7pb_median(before), _b7pb_median(after))
+    sd = _b7pb_change(_b7pb_sd(before), _b7pb_sd(after))
+    return _b7pb_sentence(f"The median {med}, and the standard deviation {sd}.")
+
+
+def psda_household_cars_added_mean():
+    data = _b7pb_expand([(0, 5), (1, 14), (2, 13), (3, 6), (4, 2)])
+    assert len(data) == 40
+    return _b7pb_pos_root(Eq((sum(data) + 4 * _b7pb_x) / (40 + _b7pb_x), 2))
+
+
+def psda_quiz_scores_correction_shift():
+    # Any 11 distinct scores with median 74 behave the same; use a representative set.
+    before = [50, 55, 60, 65, 70, 74, 78, 82, 86, 90, 95]
+    after = sorted(before)
+    after[-1] += 15
+    after[0] -= 4
+    assert _b7pb_median(before) == 74
+    dm = _b7pb_mean(after) - _b7pb_mean(before)
+    med_text = f"the median remains {_b7pb_median(after)}" if _b7pb_median(after) == 74 else f"the median increases by {_b7pb_median(after) - 74}"
+    return _b7pb_sentence(f"The mean increases by {dm}, and {med_text}.")
+
+
+def psda_rice_bags_added_at_mean():
+    # Representative data: mean 500, population SD 4.
+    before = [496] * 12 + [504] * 12
+    assert _b7pb_mean(before) == 500 and _b7pb_sd(before) == 4
+    after = before + [500, 500]
+    mean = _b7pb_change(_b7pb_mean(before), _b7pb_mean(after))
+    sd = _b7pb_change(_b7pb_sd(before), _b7pb_sd(after))
+    return _b7pb_sentence(f"The mean {mean}, and the standard deviation {sd}.")
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -4723,6 +4964,32 @@ CHECKS = {
     "adv-root-twice-other-c": adv_root_twice_other_c,
     "adv-exponential-quadratic-in-two-power": adv_exponential_quadratic_in_two_power,
     "adv-absolute-value-steep-line-count": adv_absolute_value_steep_line_count,
+    # batch batch7-psdaB
+    "psda-orchard-young-apple-percent": psda_orchard_young_apple_percent,
+    "psda-scale-reading-percent-error": psda_scale_reading_percent_error,
+    "psda-helmet-price-before-tax": psda_helmet_price_before_tax,
+    "psda-pond-fish-three-year-chain": psda_pond_fish_three_year_chain,
+    "psda-a-b-c-percent-chain": psda_a_b_c_percent_chain,
+    "psda-machine-value-depreciation": psda_machine_value_depreciation,
+    "psda-store-hardcover-fiction-share": psda_store_hardcover_fiction_share,
+    "psda-notebook-price-revenue": psda_notebook_price_revenue,
+    "psda-rug-prices-chain-difference": psda_rug_prices_chain_difference,
+    "psda-deposit-two-year-rate": psda_deposit_two_year_rate,
+    "psda-homework-minutes-median": psda_homework_minutes_median,
+    "psda-pets-dot-plot-range": psda_pets_dot_plot_range,
+    "psda-missing-fifth-value-mean": psda_missing_fifth_value_mean,
+    "psda-trips-frequency-median": psda_trips_frequency_median,
+    "psda-add-value-mean-median-amounts": psda_add_value_mean_median_amounts,
+    "psda-bakery-ovens-combined-mean": psda_bakery_ovens_combined_mean,
+    "psda-race-time-recording-error": psda_race_time_recording_error,
+    "psda-fish-length-box-plot-iqr": psda_fish_length_box_plot_iqr,
+    "psda-shifted-spread-sets-compare": psda_shifted_spread_sets_compare,
+    "psda-mode-median-greatest-value": psda_mode_median_greatest_value,
+    "psda-two-sections-size-from-mean": psda_two_sections_size_from_mean,
+    "psda-temperature-entry-error-effects": psda_temperature_entry_error_effects,
+    "psda-household-cars-added-mean": psda_household_cars_added_mean,
+    "psda-quiz-scores-correction-shift": psda_quiz_scores_correction_shift,
+    "psda-rice-bags-added-at-mean": psda_rice_bags_added_at_mean,
 }
 
 
