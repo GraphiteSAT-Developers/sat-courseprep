@@ -3361,6 +3361,249 @@ def psda_b6pa_monthly_sales_successive():
     return (mar - jan) / jan * 100
 
 
+# ----- Batch batch6-lf1 -----
+import sympy as sp
+from sympy import Rational, Eq
+
+_b6lf_x = sp.Symbol("x")
+_b6lf_k = sp.Symbol("k")
+_b6lf_t = sp.Symbol("t")
+
+
+def _b6lf_line(p1, p2):
+    (x1, y1), (x2, y2) = p1, p2
+    m = (sp.nsimplify(y2) - sp.nsimplify(y1)) / (sp.nsimplify(x2) - sp.nsimplify(x1))
+    return m * _b6lf_x + (sp.nsimplify(y1) - m * sp.nsimplify(x1))
+
+
+def _b6lf_rhs_matches(expected, var=None):
+    """MC check for equation choices 'f(x) = ...': exactly the key's right side equals expected."""
+    var = var or _b6lf_x
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            rhs = ch.strip().strip("$").split("=", 1)[1]
+            expr = sp.nsimplify(latex_to_sympy(rhs).subs(sp.Symbol(str(var)), _b6lf_x), rational=True)
+            if sp.expand(expr - expected) == 0:
+                hits.append(i)
+        return hits == [idx], f"expected {expected}; matching choices {hits}"
+
+    return check
+
+
+def _b6lf_sentences(key_phrase, key_true, contradictions):
+    """Sentence choices: key contains key_phrase and its claim is true; each distractor
+    matches one (phrase, claim_is_false) pair whose claim is false."""
+
+    def check(choices, idx):
+        key_ok = key_phrase in choices[idx] and key_true
+        wrong = []
+        for i, ch in enumerate(choices):
+            if i == idx:
+                continue
+            if any(ph in ch and is_false for ph, is_false in contradictions):
+                wrong.append(i)
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"key ok={key_ok}; contradicted distractors {wrong}"
+
+    return check
+
+
+def alg_lf_eval_two_thirds_coefficient():
+    return (6 - Rational(2, 3) * _b6lf_x).subs(_b6lf_x, 9)
+
+
+def alg_lf_input_for_negative_output():
+    sol = sp.solve(Eq(4 * _b6lf_x + 15, -9), _b6lf_x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_slope_through_two_points():
+    return sp.Poly(_b6lf_line((2, 9), (6, 1)), _b6lf_x).coeff_monomial(_b6lf_x)
+
+
+def alg_lf_scaled_output_known_value():
+    f4 = 11
+    return 2 * f4 - 3
+
+
+def alg_lf_campsite_temperature_rate():
+    h = sp.Symbol("h")
+    T = 62 - Rational(7, 2) * h
+    rate = sp.diff(T, h)
+    return _b6lf_sentences(
+        "decreases by 3.5 degrees Fahrenheit each hour",
+        rate == -Rational(7, 2),
+        [("at sunset is 3.5", T.subs(h, 0) != Rational(7, 2)),
+         ("reaches 0 degrees", T.subs(h, Rational(7, 2)) != 0),
+         ("62 hours after sunset", T.subs(h, 62) != Rational(7, 2))],
+    )
+
+
+def alg_lf_rule_from_slope_and_intercept():
+    return _b6lf_rhs_matches(4 * _b6lf_x - 3)
+
+
+def alg_lf_combined_outputs_value():
+    f = -5 * _b6lf_x + 8
+    return 3 * f.subs(_b6lf_x, 2) - f.subs(_b6lf_x, -2)
+
+
+def alg_lf_table_x_intercept_spr():
+    pts = [(-3, 17), (1, 5), (6, -10)]
+    h = _b6lf_line(pts[0], pts[1])
+    assert h.subs(_b6lf_x, pts[2][0]) == pts[2][1]
+    sol = sp.solve(Eq(h, 0), _b6lf_x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_two_intercepts_evaluate():
+    f = _b6lf_line((6, 0), (0, -4))
+    return f.subs(_b6lf_x, 15)
+
+
+def alg_lf_point_slope_form_intercept():
+    return (5 * (_b6lf_x - 2) + 1).subs(_b6lf_x, 0)
+
+
+def alg_lf_input_shift_rule():
+    f = lambda v: 3 * v - 8  # noqa: E731
+    return _b6lf_rhs_matches(sp.expand(f(_b6lf_x + 2)))
+
+
+def alg_lf_table_y_intercept():
+    pts = [(-4, 21), (2, 6), (6, -4)]
+    f = _b6lf_line(pts[0], pts[1])
+    assert f.subs(_b6lf_x, pts[2][0]) == pts[2][1]
+    return f.subs(_b6lf_x, 0)
+
+
+def alg_lf_sum_of_constants_two_points():
+    a, b = sp.symbols("a b")
+    sol = sp.solve([Eq(a * -1 + b, 11), Eq(a * 2 + b, 2)], [a, b])
+    return sol[a] + sol[b]
+
+
+def alg_lf_generator_fuel_factored():
+    d = sp.Symbol("d")
+    V = 25 * (32 - d)
+    return _b6lf_sentences(
+        "empty 32 days after",
+        V.subs(d, 32) == 0,
+        [("holds 32 liters of fuel when it is filled", V.subs(d, 0) != 32),
+         ("uses 32 liters of fuel each day", -sp.diff(V, d) != 32),
+         ("holds 25 liters of fuel 32 days", V.subs(d, 32) != 25)],
+    )
+
+
+def alg_lf_snow_depth_model():
+    # S(2) = 25 and the depth falls 1.5 cm each hour.
+    m = -Rational(3, 2)
+    S = m * (_b6lf_x - 2) + 25
+    return _b6lf_rhs_matches(sp.expand(S), var=sp.Symbol("h"))
+
+
+def alg_lf_pool_depth_minutes():
+    hours = sp.solve(Eq(Rational(4, 5) * _b6lf_t + Rational(7, 5), Rational(27, 5)), _b6lf_t)[0]
+    return 60 * hours
+
+
+def alg_lf_delivery_truck_point_meaning():
+    f = _b6lf_line((0, 120), (8, 0))
+    rate = sp.diff(f, _b6lf_x)
+    return _b6lf_sentences(
+        "75 packages left 3 hours",
+        f.subs(_b6lf_x, 3) == 75,
+        [("delivers 75 packages during the first 3 hours", f.subs(_b6lf_x, 0) - f.subs(_b6lf_x, 3) != 75),
+         ("delivers 25 packages each hour", -rate != 25),
+         ("3 packages left 75 hours", f.subs(_b6lf_x, 75) != 3)],
+    )
+
+
+def alg_lf_scaled_shifted_x_intercept():
+    f = 4 * _b6lf_x - 6
+    g = -2 * f + 5
+    sol = sp.solve(Eq(g, 0), _b6lf_x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_horizontal_shift_constant():
+    f = lambda v: 6 * v - 5  # noqa: E731
+    sol = sp.solve(Eq(f(4 - _b6lf_k), 1), _b6lf_k)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_intersection_y_coordinate():
+    f = 3 * _b6lf_x + 7
+    g = _b6lf_line((-1, 12), (3, 0))
+    xs = sp.solve(Eq(f, g), _b6lf_x)
+    assert len(xs) == 1
+    return f.subs(_b6lf_x, xs[0])
+
+
+def alg_lf_verbal_rates_double_output():
+    f = 12 - 2 * _b6lf_x
+    g = -3 + 3 * _b6lf_x
+    sol = sp.solve(Eq(f, 2 * g), _b6lf_x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_two_plants_height_gap():
+    w = sp.Symbol("w")
+    A = Rational(5, 2) * w + 18
+    B = 9 + 4 * w
+    sol = sp.solve(Eq(B - A, 3), w)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_sunflower_lagged_height():
+    P = lambda v: Rational(9, 5) * v + 52  # noqa: E731
+    return _b6lf_rhs_matches(sp.expand(P(_b6lf_x - 5)), var=_b6lf_t)
+
+
+def alg_lf_tree_doubles_height():
+    H = _b6lf_line((4, Rational(15, 2)), (10, 12))
+    h0 = H.subs(_b6lf_x, 0)
+    sol = sp.solve(Eq(H, 2 * h0), _b6lf_x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_workshop_mugs_cheaper():
+    A = 14 * _b6lf_x + 300
+    B = _b6lf_line((10, 510), (30, 690))
+    best = max(n for n in range(0, 1000) if A.subs(_b6lf_x, n) < B.subs(_b6lf_x, n))
+    return sp.Integer(best)
+
+
+def alg_lf_scaled_function_from_slope():
+    f = _b6lf_line((2, 7), (6, 19))
+    g = _b6lf_k * f
+    kk = sp.solve(Eq(sp.diff(g, _b6lf_x), -6), _b6lf_k)[0]
+    return g.subs({_b6lf_k: kk, _b6lf_x: 0})
+
+
+def alg_lf_output_equals_input():
+    f = _b6lf_line((-2, 9), (4, -3))
+    sol = sp.solve(Eq(f, _b6lf_x), _b6lf_x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_vertical_shift_through_point():
+    f = _b6lf_line((1, 3), (5, 11))
+    sol = sp.solve(Eq(f.subs(_b6lf_x, 4) + _b6lf_k, 2), _b6lf_k)
+    assert len(sol) == 1
+    return sol[0]
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -3701,6 +3944,35 @@ CHECKS = {
     "psda-double-increase-44": psda_b6pa_double_increase_44,
     "psda-chess-club-girls": psda_b6pa_chess_club_girls,
     "psda-monthly-sales-successive": psda_b6pa_monthly_sales_successive,
+    # batch batch6-lf1
+    "alg-lf-eval-two-thirds-coefficient": alg_lf_eval_two_thirds_coefficient,
+    "alg-lf-input-for-negative-output": alg_lf_input_for_negative_output,
+    "alg-lf-slope-through-two-points": alg_lf_slope_through_two_points,
+    "alg-lf-scaled-output-known-value": alg_lf_scaled_output_known_value,
+    "alg-lf-campsite-temperature-rate": alg_lf_campsite_temperature_rate,
+    "alg-lf-rule-from-slope-and-intercept": alg_lf_rule_from_slope_and_intercept,
+    "alg-lf-combined-outputs-value": alg_lf_combined_outputs_value,
+    "alg-lf-table-x-intercept-spr": alg_lf_table_x_intercept_spr,
+    "alg-lf-two-intercepts-evaluate": alg_lf_two_intercepts_evaluate,
+    "alg-lf-point-slope-form-intercept": alg_lf_point_slope_form_intercept,
+    "alg-lf-input-shift-rule": alg_lf_input_shift_rule,
+    "alg-lf-table-y-intercept": alg_lf_table_y_intercept,
+    "alg-lf-sum-of-constants-two-points": alg_lf_sum_of_constants_two_points,
+    "alg-lf-generator-fuel-factored": alg_lf_generator_fuel_factored,
+    "alg-lf-snow-depth-model": alg_lf_snow_depth_model,
+    "alg-lf-pool-depth-minutes": alg_lf_pool_depth_minutes,
+    "alg-lf-delivery-truck-point-meaning": alg_lf_delivery_truck_point_meaning,
+    "alg-lf-scaled-shifted-x-intercept": alg_lf_scaled_shifted_x_intercept,
+    "alg-lf-horizontal-shift-constant": alg_lf_horizontal_shift_constant,
+    "alg-lf-intersection-y-coordinate": alg_lf_intersection_y_coordinate,
+    "alg-lf-verbal-rates-double-output": alg_lf_verbal_rates_double_output,
+    "alg-lf-two-plants-height-gap": alg_lf_two_plants_height_gap,
+    "alg-lf-sunflower-lagged-height": alg_lf_sunflower_lagged_height,
+    "alg-lf-tree-doubles-height": alg_lf_tree_doubles_height,
+    "alg-lf-workshop-mugs-cheaper": alg_lf_workshop_mugs_cheaper,
+    "alg-lf-scaled-function-from-slope": alg_lf_scaled_function_from_slope,
+    "alg-lf-output-equals-input": alg_lf_output_equals_input,
+    "alg-lf-vertical-shift-through-point": alg_lf_vertical_shift_through_point,
 }
 
 
