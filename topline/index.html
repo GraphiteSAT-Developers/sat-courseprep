@@ -1,0 +1,3252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Topline Grapher</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap">
+<style>
+/* Layout: two-pane instrument. Expression ledger on the left, engineering graph paper on the right; graph stacks above the ledger on phones. */
+:root{
+  --paper:#f4f7fa; --panel:#ffffff; --ink:#18212d; --muted:#5d6979; --rule:#dbe2ea;
+  --accent:#2347a6; --accent-soft:#e7edf9; --danger:#b3261e;
+  --canvas:#ffffff; --grid-minor:#ebf0f5; --grid-major:#cdd7e2; --axis:#384455;
+  --c1:#c8372d; --c2:#2a62c9; --c3:#2b8746; --c4:#7a45b8; --c5:#d4721a; --c6:#202a37;
+  --font-ui:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-math:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-data:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e131a; --panel:#141a22; --ink:#e5eaf0; --muted:#94a1b2; --rule:#26303c;
+    --accent:#93abff; --accent-soft:#1c2640; --danger:#ff8a80;
+    --canvas:#10161e; --grid-minor:#18202a; --grid-major:#29333f; --axis:#a8b5c5;
+    --c1:#ff6a5c; --c2:#6c9bff; --c3:#4cc178; --c4:#bb8dff; --c5:#ffa24a; --c6:#e4e8ee;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e131a; --panel:#141a22; --ink:#e5eaf0; --muted:#94a1b2; --rule:#26303c;
+  --accent:#93abff; --accent-soft:#1c2640; --danger:#ff8a80;
+  --canvas:#10161e; --grid-minor:#18202a; --grid-major:#29333f; --axis:#a8b5c5;
+  --c1:#ff6a5c; --c2:#6c9bff; --c3:#4cc178; --c4:#bb8dff; --c5:#ffa24a; --c6:#e4e8ee;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{height:100%}
+body{height:100%;margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-ui);font-size:14px;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{height:100%;display:grid;grid-template-columns:minmax(300px,390px) minmax(0,1fr);gap:12px;
+  padding-block:12px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.panel{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.stage{position:relative;min-width:0;min-height:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--canvas)}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+canvas.grabbing{cursor:grabbing}
+canvas.on-curve{cursor:pointer}
+
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--rule)}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--font-math);font-style:italic;font-weight:600;font-size:22px;letter-spacing:.01em}
+.brand svg{flex:none}
+.bar-actions{display:flex;gap:6px}
+.chip{font-family:var(--font-data);font-size:11px;letter-spacing:.07em;text-transform:uppercase;padding:6px 8px;border:1px solid var(--rule);border-radius:6px;background:transparent}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.sec{display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--paper);border-bottom:1px solid var(--rule)}
+.sec-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sec-row .grow{flex:1 1 140px;color:var(--muted);font-size:12.5px}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13.5px}
+.set-row small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:7px;overflow:hidden;flex:none}
+.seg button{border:0;background:var(--panel);padding:5px 10px;font-size:12.5px;display:inline-flex;align-items:center;gap:5px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--panel)}
+.switch{appearance:none;-webkit-appearance:none;width:38px;height:22px;border-radius:11px;background:var(--rule);position:relative;cursor:pointer;flex:none;margin:0;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--panel);transition:transform .15s}
+.switch:checked{background:var(--accent)}
+.switch:checked::after{transform:translateX(16px)}
+.btn{padding:6px 11px;border-radius:6px;border:1px solid var(--rule);background:var(--panel);font-weight:500}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:var(--panel)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+
+.keys{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;border-bottom:1px solid var(--rule);scrollbar-width:thin}
+.key{flex:none;min-width:38px;height:40px;padding:0 8px;overflow:hidden;font-family:var(--font-math);font-size:17px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);display:inline-flex;align-items:center;justify-content:center}
+.key:hover{border-color:var(--muted)}
+.key.wide{font-family:var(--font-ui);font-size:13px}
+.key .mstatic{font-size:15px;line-height:1.15;pointer-events:none}
+
+.scroll{flex:1;min-height:0;overflow-y:auto}
+ol.list{list-style:none;margin:0;padding:0}
+li.row{display:grid;grid-template-columns:40px minmax(0,1fr) 34px;border-bottom:1px solid var(--rule);--cc:var(--c1)}
+.gut{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:11px;padding-bottom:6px;background:var(--paper);border-right:1px solid var(--rule)}
+.row.sel .gut{background:var(--accent-soft)}
+.num{font-family:var(--font-data);font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.dot{width:20px;height:20px;border-radius:50%;padding:0;border:2.5px solid var(--cc);background:var(--cc)}
+.dot.off{background:transparent}
+.dot[hidden]{display:block!important;visibility:hidden}
+.dice{width:26px;height:26px;padding:0;border:1px solid var(--rule);border-radius:6px;background:var(--panel);display:grid;place-items:center;color:var(--ink)}
+.main{min-width:0;padding:2px 2px 2px 8px}
+textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:italic;font-size:15px;line-height:1.45;padding:12px 4px;border:0;background:transparent;color:var(--muted);outline:none;resize:none;overflow:hidden}
+.info{padding:0 4px 9px;font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;line-height:1.45}
+.info.err{color:var(--danger);font-family:var(--font-data);font-size:12px}
+.info .val{font-size:17px;color:var(--ink);overflow-x:auto;max-width:100%;scrollbar-width:thin;padding-bottom:2px}
+.info .stat{font-family:var(--font-data);font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums}
+.info .smath{font-size:16px;color:var(--ink)}
+.info .line{flex-basis:100%}
+.add-slider{font-family:var(--font-data);font-size:11.5px;padding:4px 8px;border-radius:5px;border:1px solid var(--accent);color:var(--accent);background:transparent}
+.slider{display:grid;grid-template-columns:28px 56px minmax(0,1fr) 56px;gap:8px;align-items:center;padding:0 4px 10px}
+.slider input:not([type=range]){width:100%;font-family:var(--font-data);font-size:12px;text-align:center;padding:4px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);color:var(--ink)}
+.slider input[type=range]{width:100%;accent-color:var(--cc);margin:0}
+.play{width:28px;height:28px;border-radius:50%;border:1px solid var(--rule);background:var(--paper);display:grid;place-items:center;padding:0}
+.play svg{fill:var(--ink)}
+.opts{display:flex;flex-wrap:wrap;gap:6px;padding:0 4px 10px}
+.opt{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--rule);background:transparent;color:var(--muted)}
+.opt[aria-pressed="true"]{border-color:var(--cc);color:var(--ink);background:var(--paper);box-shadow:inset 0 0 0 1px var(--cc)}
+.del{align-self:start;margin-top:9px;width:30px;height:30px;border:0;background:transparent;color:var(--muted);opacity:.4;display:grid;place-items:center;border-radius:6px}
+.row:hover .del,.row.sel .del{opacity:.9}
+.del:hover{background:var(--paper)}
+.tbl{overflow-x:auto;padding:8px 4px 10px}
+.tbl table{border-collapse:collapse}
+.tbl th,.tbl td{border:1px solid var(--rule);padding:0;vertical-align:middle}
+.tbl th{background:var(--paper);font-weight:400}
+.tbl th.addc,.tbl td.pad{border:0;background:transparent}
+.addcol{width:28px;height:28px;margin-left:4px;border:1px dashed var(--rule);border-radius:6px;background:transparent;color:var(--accent)}
+
+/* ---------- math typesetting ---------- */
+.mf{position:relative;display:block;min-height:46px;padding:10px 6px 8px;font-family:var(--font-math);font-size:20px;line-height:1.3;color:var(--ink);overflow-x:auto;overflow-y:hidden;white-space:nowrap;cursor:text;scrollbar-width:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.mf::-webkit-scrollbar{display:none}
+.mf-ta{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;border:0;padding:0;margin:0;resize:none;overflow:hidden;font-size:16px;pointer-events:none;white-space:pre;color:transparent;background:transparent}
+.mf.mf-empty:not(.mf-focus) .mf-disp::before{content:attr(data-ph);font-family:var(--font-ui);font-size:14px;color:var(--muted)}
+.mstatic{font-family:var(--font-math);white-space:nowrap;display:inline-block;line-height:1.3}
+.mb{display:inline}
+.mb:empty::before{content:"";display:inline-block;width:.5em;height:.78em;background:var(--rule);border-radius:2px;vertical-align:-.06em;margin:0 .04em}
+.mroot:empty::before,.str .mb:empty::before{display:none}
+.v{font-style:italic}
+.n,.fn{font-style:normal}
+.fn-end{margin-right:.12em}
+.op{padding:0 .15em}
+.pu{padding-right:.1em}
+.pr{margin-left:.03em}
+.lit{font-family:var(--font-ui);font-style:normal}
+.str{font-family:var(--font-ui);font-size:.75em;color:var(--muted);padding:0 .3em;vertical-align:.1em}
+.str::before{content:"“"}.str::after{content:"”"}
+.cmd{font-family:var(--font-data);font-size:.72em;color:var(--accent)}
+.cmd .lit{font-family:var(--font-data)}
+.txt{font-family:var(--font-ui);font-size:.8em}
+.sup{display:inline-block;font-size:.72em;vertical-align:.62em;margin-left:.04em}
+.sub{display:inline-block;font-size:.72em;vertical-align:-.34em;margin-left:.02em}
+.frac{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;margin:0 .1em;font-size:.92em;text-align:center}
+.frac>.fnum{display:block;padding:0 .15em .08em}
+.frac>.fden{display:block;padding:.1em .15em 0;border-top:1.2px solid currentColor}
+.sqrt{display:inline-flex;align-items:baseline;margin:0 .04em}
+.rad{align-self:stretch;width:.62em;flex:none;background:currentColor;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.rbody{display:block;border-top:1.2px solid currentColor;padding:.12em .1em 0 .06em}
+.par{display:inline-flex;align-items:baseline}
+.par.matp{align-items:center;vertical-align:middle}
+.dl{align-self:stretch;flex:none;width:.34em;min-height:1.15em;background:currentColor;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.dl.co,.dl.cc{width:.42em}.dl.vb{width:.3em}
+.pbody{display:block;padding:0 .05em}
+.mat{display:inline-grid;column-gap:.7em;row-gap:.1em;padding:.1em .25em;text-align:center}
+.mat>.mb{display:block}
+.big{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .14em 0 .06em}
+.big>.hi,.big>.lo{display:block;font-size:.62em;line-height:1.15;min-height:1em}
+.bsym{font-size:1.45em;line-height:1}
+.big.int{flex-direction:row;align-items:stretch}
+.isym{width:.52em;min-height:2.1em;flex:none;background:currentColor;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.lims{display:flex;flex-direction:column;justify-content:space-between;font-size:.62em;margin-left:.08em;line-height:1.1}
+.lims>.mb{display:block}
+.cur{display:inline-block;width:0;height:1.15em;border-left:1.6px solid var(--accent);margin:0 -.8px;vertical-align:-.24em;animation:mfblink 1.05s step-end infinite}
+@keyframes mfblink{50%{opacity:0}}
+.msel{background:var(--accent-soft);border-radius:2px}
+.cellf{min-height:32px;min-width:76px;padding:6px 8px;font-size:15px;text-align:right}
+.thf{min-height:32px;min-width:76px;padding:6px 8px;font-size:16px;text-align:center}
+.cellf.mf-focus,.thf.mf-focus{background:var(--accent-soft)}
+.dl.po{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M9%200%20C2%2018%202%2082%209%20100%20L10%2098%20C4.6%2080%204.6%2020%2010%202%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M9%200%20C2%2018%202%2082%209%20100%20L10%2098%20C4.6%2080%204.6%2020%2010%202%20Z'/%3E%3C/svg%3E")}
+.dl.pc{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M1%200%20C8%2018%208%2082%201%20100%20L0%2098%20C5.4%2080%205.4%2020%200%202%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M1%200%20C8%2018%208%2082%201%20100%20L0%2098%20C5.4%2080%205.4%2020%200%202%20Z'/%3E%3C/svg%3E")}
+.dl.bo{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M2%200%20H10%20V4%20H5.6%20V96%20H10%20V100%20H2%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M2%200%20H10%20V4%20H5.6%20V96%20H10%20V100%20H2%20Z'/%3E%3C/svg%3E")}
+.dl.bc{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M8%200%20H0%20V4%20H4.4%20V96%20H0%20V100%20H8%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M8%200%20H0%20V4%20H4.4%20V96%20H0%20V100%20H8%20Z'/%3E%3C/svg%3E")}
+.dl.co{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M10%200%20C5%200%204.5%204%204.5%2010%20V40%20C4.5%2046%203%2049%200%2050%20C3%2051%204.5%2054%204.5%2060%20V90%20C4.5%2096%205%20100%2010%20100%20V97%20C7.5%2097%207%2094%207%2089%20V59%20C7%2053%205.5%2051%203.5%2050%20C5.5%2049%207%2047%207%2041%20V11%20C7%206%207.5%203%2010%203%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M10%200%20C5%200%204.5%204%204.5%2010%20V40%20C4.5%2046%203%2049%200%2050%20C3%2051%204.5%2054%204.5%2060%20V90%20C4.5%2096%205%20100%2010%20100%20V97%20C7.5%2097%207%2094%207%2089%20V59%20C7%2053%205.5%2051%203.5%2050%20C5.5%2049%207%2047%207%2041%20V11%20C7%206%207.5%203%2010%203%20Z'/%3E%3C/svg%3E")}
+.dl.cc{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200%20C5%200%205.5%204%205.5%2010%20V40%20C5.5%2046%207%2049%2010%2050%20C7%2051%205.5%2054%205.5%2060%20V90%20C5.5%2096%205%20100%200%20100%20V97%20C2.5%2097%203%2094%203%2089%20V59%20C3%2053%204.5%2051%206.5%2050%20C4.5%2049%203%2047%203%2041%20V11%20C3%206%202.5%203%200%203%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200%20C5%200%205.5%204%205.5%2010%20V40%20C5.5%2046%207%2049%2010%2050%20C7%2051%205.5%2054%205.5%2060%20V90%20C5.5%2096%205%20100%200%20100%20V97%20C2.5%2097%203%2094%203%2089%20V59%20C3%2053%204.5%2051%206.5%2050%20C4.5%2049%203%2047%203%2041%20V11%20C3%206%202.5%203%200%203%20Z'/%3E%3C/svg%3E")}
+.dl.vb{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M3.9%200%20H6.1%20V100%20H3.9%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M3.9%200%20H6.1%20V100%20H3.9%20Z'/%3E%3C/svg%3E")}
+.rad{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2062%20L2.6%2056%20L5.6%2088%20L9%200%20H10%20L5.9%20100%20H4.9%20L1.9%2063.5%20L0.7%2066%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%2062%20L2.6%2056%20L5.6%2088%20L9%200%20H10%20L5.9%20100%20H4.9%20L1.9%2063.5%20L0.7%2066%20Z'/%3E%3C/svg%3E")}
+.isym{-webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M9.6%204.6%20C9%201.6%208%200%206.9%200%20C5%200%204.6%203%204.4%209%20L3.9%2091%20C3.8%2096%203.3%2098.4%202.4%2098.4%20C1.7%2098.4%201.3%2097.4%201%2095.6%20L0.2%2096.2%20C0.8%2099%202%20100%203.3%20100%20C5.3%20100%205.8%2097%205.9%2091%20L6.3%209%20C6.4%204%206.9%201.6%207.8%201.6%20C8.5%201.6%208.9%202.7%209.1%204.9%20Z'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M9.6%204.6%20C9%201.6%208%200%206.9%200%20C5%200%204.6%203%204.4%209%20L3.9%2091%20C3.8%2096%203.3%2098.4%202.4%2098.4%20C1.7%2098.4%201.3%2097.4%201%2095.6%20L0.2%2096.2%20C0.8%2099%202%20100%203.3%20100%20C5.3%20100%205.8%2097%205.9%2091%20L6.3%209%20C6.4%204%206.9%201.6%207.8%201.6%20C8.5%201.6%208.9%202.7%209.1%204.9%20Z'/%3E%3C/svg%3E")}
+
+.zoom{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px}
+.zoom button{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--rule);border-radius:8px;background:var(--panel);color:var(--ink);padding:0}
+.zoom button:hover{border-color:var(--muted)}
+.zoom svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom, 0px));background:var(--ink);color:var(--panel);padding:10px 14px;border-radius:8px;display:flex;gap:14px;align-items:center;font-size:13.5px;z-index:10;max-width:calc(100% - 32px);box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.toast button{background:transparent;border:0;color:var(--panel);font-weight:600;text-decoration:underline;padding:0}
+
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(240px,46%) minmax(0,1fr);gap:10px;padding-block:10px}
+  .stage{grid-row:1}
+  .panel{grid-row:2}
+}
+@media (prefers-reduced-motion: reduce){ .switch,.switch::after{transition:none} .cur{animation:none} }
+</style>
+
+</head>
+<body>
+<div class="app">
+  <aside class="panel" aria-label="Expressions">
+    <header class="bar">
+      <div class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="4" fill="none" stroke="var(--rule)" stroke-width="1.5"/><path d="M4 18 C 8 18, 9 6, 12 9 S 16 16, 20 5" fill="none" stroke="var(--c1)" stroke-width="2.2" stroke-linecap="round"/></svg>
+        Topline
+      </div>
+      <div class="bar-actions">
+        <button id="setBtn" class="chip" type="button" aria-expanded="false" aria-controls="settings">Settings</button>
+        <button id="clearBtn" class="chip" type="button">Clear</button>
+      </div>
+    </header>
+    <div class="sec" id="settings" hidden>
+      <div class="set-row"><span>Theme</span>
+        <div class="seg" role="group" aria-label="Theme">
+          <button type="button" id="thLight"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg>Light</button>
+          <button type="button" id="thDark"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1z"/></svg>Dark</button>
+        </div></div>
+      <div class="set-row"><span>Angles</span>
+        <div class="seg" role="group" aria-label="Angle units"><button type="button" id="angRad">Radians</button><button type="button" id="angDeg">Degrees</button></div></div>
+      <label class="set-row" for="optComplex"><span>Complex numbers<small>Use i, and allow results like √−9 = 3i</small></span><input type="checkbox" class="switch" id="optComplex"></label>
+      <label class="set-row" for="optLogX"><span>Log scale x-axis</span><input type="checkbox" class="switch" id="optLogX"></label>
+      <label class="set-row" for="optLogY"><span>Log scale y-axis</span><input type="checkbox" class="switch" id="optLogY"></label>
+    </div>
+    <div class="sec" id="confirm" hidden>
+      <div class="sec-row"><span class="grow" style="color:var(--ink);font-size:13.5px">Delete every expression?</span>
+        <button class="btn danger" id="confirmYes" type="button">Delete all</button><button class="btn" id="confirmNo" type="button">Keep</button></div>
+    </div>
+    <div class="keys" id="keys" aria-label="Insert math">
+      <button class="key" type="button" data-k="left" aria-label="Move left">←</button>
+      <button class="key" type="button" data-k="right" aria-label="Move right">→</button>
+      <button class="key" type="button" data-k="x" data-m="x"></button>
+      <button class="key" type="button" data-k="y" data-m="y"></button>
+      <button class="key" type="button" data-k="^" data-m="a^{b}" aria-label="Exponent"></button>
+      <button class="key" type="button" data-k="_" data-m="a_{1}" aria-label="Subscript"></button>
+      <button class="key" type="button" data-k="frac" data-m="\frac{a}{b}" aria-label="Fraction"></button>
+      <button class="key" type="button" data-k="sqrt" data-m="\sqrt{x}" aria-label="Square root"></button>
+      <button class="key" type="button" data-k="π" data-m="\pi" aria-label="Pi"></button>
+      <button class="key" type="button" data-k="(" data-m="\left(\right)" aria-label="Parentheses"></button>
+      <button class="key" type="button" data-k="[" data-m="\left[\right]" aria-label="List brackets"></button>
+      <button class="key" type="button" data-k="{" data-m="\left\{\right\}" aria-label="Braces"></button>
+      <button class="key" type="button" data-k="|" data-m="\left|a\right|" aria-label="Absolute value"></button>
+      <button class="key" type="button" data-k="≤" data-m="\le" aria-label="Less than or equal"></button>
+      <button class="key" type="button" data-k="≥" data-m="\ge" aria-label="Greater than or equal"></button>
+      <button class="key" type="button" data-k="~" data-m="\sim" aria-label="Regression tilde"></button>
+      <button class="key" type="button" data-k="'" data-m="f'" aria-label="Prime"></button>
+      <button class="key" type="button" data-k="ddx" data-m="\frac{d}{dx}" aria-label="Derivative"></button>
+      <button class="key" type="button" data-k="int" data-m="\int_{a}^{b}" aria-label="Integral"></button>
+      <button class="key" type="button" data-k="sum" data-m="\sum_{n}^{N}" aria-label="Sum"></button>
+      <button class="key" type="button" data-k="sin(" data-m="\sin"></button>
+      <button class="key" type="button" data-k="cos(" data-m="\cos"></button>
+      <button class="key" type="button" data-k="ln(" data-m="\ln"></button>
+      <button class="key" type="button" data-k="e^" data-m="e^{x}" aria-label="e to the power"></button>
+    </div>
+    <div class="scroll">
+      <ol class="list" id="list"></ol>
+    </div>
+  </aside>
+  <main class="stage">
+    <canvas id="cv" aria-label="Graph"></canvas>
+    <div class="zoom">
+      <button id="zin" type="button" aria-label="Zoom in"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 3v12M3 9h12"/></svg></button>
+      <button id="zout" type="button" aria-label="Zoom out"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 9h12"/></svg></button>
+      <button id="zhome" type="button" aria-label="Reset view"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 8.5 9 3l6 5.5V15H3z"/></svg></button>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast" hidden role="status"><span id="toastMsg"></span><button id="toastUndo" type="button">Undo</button></div>
+
+<script>
+// == ENGINE START ==
+let DEG = false, COMPLEX = false;
+let CTX = { funcs: new Map(), vars: new Map(), seed: 1, rc: 0 };
+const err = m => new Error(m);
+const K = () => (DEG ? Math.PI / 180 : 1);
+const isArr = Array.isArray;
+const isMat = v => isArr(v) && v.length > 0 && isArr(v[0]);
+class Cx { constructor(re, im) { this.re = re; this.im = im; } }
+class Pt { constructor(x, y) { this.x = x; this.y = y; } }
+class Dist { constructor(type, p) { this.type = type; this.p = p; } }
+class Test { constructor(o) { Object.assign(this, o); } }
+class Viz { constructor(type, o) { this.viz = type; Object.assign(this, o); } }
+
+// ---------- special functions ----------
+const SQRTPI = Math.sqrt(Math.PI);
+function erf(x) {
+  if (Math.abs(x) < 3) {
+    let s = 0, t = x, n = 0; const x2 = x * x;
+    while (n < 300) { const term = t / (2 * n + 1); s += term; if (Math.abs(term) < 1e-17 * Math.abs(s) && n > 2) break; n++; t *= -x2 / n; }
+    return 2 / SQRTPI * s;
+  }
+  return x > 0 ? 1 - erfcCF(x) : erfcCF(-x) - 1;
+}
+function erfcCF(x) { let f = 0; for (let k = 80; k >= 1; k--) f = (k / 2) / (x + f); return Math.exp(-x * x) / SQRTPI / (x + f); }
+function erfc(x) { return x < 3 ? 1 - erf(x) : erfcCF(x); }
+const Phi = z => 0.5 * erfc(-z / Math.SQRT2);
+function invPhi(p) {
+  if (!(p > 0 && p < 1)) return p === 0 ? -Infinity : p === 1 ? Infinity : NaN;
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  let q, r, x;
+  if (p < 0.02425) { q = Math.sqrt(-2 * Math.log(p)); x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  else if (p <= 1 - 0.02425) { q = p - 0.5; r = q * q; x = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1); }
+  else { q = Math.sqrt(-2 * Math.log(1 - p)); x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  const e = Phi(x) - p, u = e * Math.sqrt(2 * Math.PI) * Math.exp(x * x / 2);
+  return x - u / (1 + x * u / 2);
+}
+const LG = [676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+function lgamma(x) {
+  if (x < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - lgamma(1 - x);
+  x -= 1; let a = 0.99999999999980993; const t = x + 7.5;
+  for (let i = 0; i < 8; i++) a += LG[i] / (x + i + 1);
+  return 0.5 * Math.log(2 * Math.PI) + (x + 0.5) * Math.log(t) - t + Math.log(a);
+}
+function gammaFn(x) {
+  if (Number.isInteger(x) && x <= 0) return NaN;
+  if (x < 0.5) return Math.PI / (Math.sin(Math.PI * x) * gammaFn(1 - x));
+  return Math.exp(lgamma(x));
+}
+function betacf(a, b, x) {
+  const FP = 1e-300; const qab = a + b, qap = a + 1, qam = a - 1;
+  let c = 1, d = 1 - qab * x / qap; if (Math.abs(d) < FP) d = FP; d = 1 / d; let h = d;
+  for (let m = 1; m <= 400; m++) {
+    const m2 = 2 * m;
+    let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+    d = 1 + aa * d; if (Math.abs(d) < FP) d = FP; c = 1 + aa / c; if (Math.abs(c) < FP) c = FP; d = 1 / d; h *= d * c;
+    aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+    d = 1 + aa * d; if (Math.abs(d) < FP) d = FP; c = 1 + aa / c; if (Math.abs(c) < FP) c = FP; d = 1 / d;
+    const del = d * c; h *= del; if (Math.abs(del - 1) < 3e-16) break;
+  }
+  return h;
+}
+function betai(a, b, x) {
+  if (x <= 0) return 0; if (x >= 1) return 1;
+  const bt = Math.exp(lgamma(a + b) - lgamma(a) - lgamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+  return x < (a + 1) / (a + b + 2) ? bt * betacf(a, b, x) / a : 1 - bt * betacf(b, a, 1 - x) / b;
+}
+function tcdf(t, v) {
+  if (!(v > 0) || Number.isNaN(t)) return NaN;
+  if (t === Infinity) return 1; if (t === -Infinity) return 0;
+  const p = 0.5 * betai(v / 2, 0.5, v / (v + t * t)); return t > 0 ? 1 - p : p;
+}
+function tquant(p, v) {
+  if (!(p > 0 && p < 1) || !(v > 0)) return p === 0 ? -Infinity : p === 1 ? Infinity : NaN;
+  let lo = -1e4, hi = 1e4;
+  for (let k = 0; k < 200; k++) { const m = (lo + hi) / 2; if (tcdf(m, v) < p) lo = m; else hi = m; }
+  return (lo + hi) / 2;
+}
+function nCr(n, k) {
+  if (!Number.isInteger(n) || !Number.isInteger(k) || k < 0 || n < 0 || k > n) return n >= 0 && k > n && Number.isInteger(k) ? 0 : NaN;
+  if (n <= 60) { let r = 1; k = Math.min(k, n - k); for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); }
+  return Math.round(Math.exp(lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1)));
+}
+function nPr(n, k) {
+  if (!Number.isInteger(n) || !Number.isInteger(k) || k < 0 || n < 0 || k > n) return NaN;
+  let r = 1; for (let i = 0; i < k; i++) r *= n - i; return r;
+}
+function pow(a, b) {
+  if (a < 0 && !Number.isInteger(b)) {
+    for (let q = 3; q <= 15; q += 2) {
+      const p = b * q, r = Math.round(p);
+      if (Math.abs(p - r) < 1e-9) { const m = Math.pow(-a, b); return r % 2 === 0 ? m : -m; }
+    }
+    return NaN;
+  }
+  return Math.pow(a, b);
+}
+function fact(n) {
+  if (typeof n !== 'number') return isArr(n) ? n.map(fact) : NaN;
+  if (Number.isInteger(n)) { if (n < 0) return NaN; if (n > 170) return Infinity; let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+  return gammaFn(n + 1);
+}
+
+// ---------- complex ----------
+const C = (re, im) => {
+  if (Math.abs(im) <= 1e-14 * Math.abs(re)) return re;
+  if (Math.abs(re) <= 1e-14 * Math.abs(im)) re = 0;
+  return new Cx(re, im);
+};
+const toC = v => (v instanceof Cx ? v : new Cx(v, 0));
+function clog(z) { return new Cx(Math.log(Math.hypot(z.re, z.im)), Math.atan2(z.im, z.re)); }
+function cexp(z) { const m = Math.exp(z.re); return C(m * Math.cos(z.im), m * Math.sin(z.im)); }
+function cop(op, a, b) {
+  switch (op) {
+    case '+': return C(a.re + b.re, a.im + b.im);
+    case '-': return C(a.re - b.re, a.im - b.im);
+    case '*': return C(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
+    case '/': { const d = b.re * b.re + b.im * b.im; return C((a.re * b.re + a.im * b.im) / d, (a.im * b.re - a.re * b.im) / d); }
+    case '^': return cpow(a, b);
+  }
+  return NaN;
+}
+function cpow(a, b) {
+  if (a.re === 0 && a.im === 0) return b.re > 0 ? 0 : NaN;
+  if (b.im === 0 && Number.isInteger(b.re) && Math.abs(b.re) <= 64) {
+    let r = new Cx(1, 0), base = a, n = Math.abs(b.re);
+    while (n) { if (n & 1) r = toC(cop('*', r, base)); base = toC(cop('*', base, base)); n = Math.floor(n / 2); }
+    return b.re < 0 ? cop('/', new Cx(1, 0), r) : C(r.re, r.im);
+  }
+  return cexp(toC(cop('*', b, clog(a))));
+}
+const csin = z => C(Math.sin(z.re) * Math.cosh(z.im), Math.cos(z.re) * Math.sinh(z.im));
+const ccos = z => C(Math.cos(z.re) * Math.cosh(z.im), -Math.sin(z.re) * Math.sinh(z.im));
+
+// ---------- value arithmetic ----------
+const NUMOP = { '+': (a, b) => a + b, '-': (a, b) => a - b, '*': (a, b) => a * b, '/': (a, b) => a / b };
+function binop(op, a, b) {
+  if (typeof a === 'number' && typeof b === 'number') {
+    if (op === '^') return (COMPLEX && a < 0 && !Number.isInteger(b)) ? cpow(toC(a), toC(b)) : pow(a, b);
+    return NUMOP[op](a, b);
+  }
+  return slowBin(op, a, b);
+}
+function slowBin(op, a, b) {
+  if (isArr(a) || isArr(b)) {
+    if (isMat(a) || isMat(b)) return matOp(op, a, b);
+    if (isArr(a) && isArr(b)) { const n = Math.min(a.length, b.length), r = new Array(n); for (let i = 0; i < n; i++) r[i] = binop(op, a[i], b[i]); return r; }
+    if (isArr(a)) return a.map(v => binop(op, v, b));
+    return b.map(v => binop(op, a, v));
+  }
+  if (a instanceof Pt || b instanceof Pt) {
+    if (a instanceof Pt && b instanceof Pt) { if (op === '+') return new Pt(a.x + b.x, a.y + b.y); if (op === '-') return new Pt(a.x - b.x, a.y - b.y); return NaN; }
+    if (a instanceof Pt && typeof b === 'number') { if (op === '*') return new Pt(a.x * b, a.y * b); if (op === '/') return new Pt(a.x / b, a.y / b); return NaN; }
+    if (b instanceof Pt && typeof a === 'number' && op === '*') return new Pt(a * b.x, a * b.y);
+    return NaN;
+  }
+  if ((a instanceof Cx || typeof a === 'number') && (b instanceof Cx || typeof b === 'number')) return cop(op, toC(a), toC(b));
+  return NaN;
+}
+function neg(a) {
+  if (typeof a === 'number') return -a;
+  if (isArr(a)) return a.map(neg);
+  if (a instanceof Pt) return new Pt(-a.x, -a.y);
+  if (a instanceof Cx) return new Cx(-a.re, -a.im);
+  return NaN;
+}
+function matShape(m) { if (!isMat(m)) return null; const c = m[0].length; if (!m.every(r => isArr(r) && r.length === c)) return null; return [m.length, c]; }
+function matMul(a, b) {
+  const sa = matShape(a), sb = matShape(b); if (!sa || !sb || sa[1] !== sb[0]) return NaN;
+  const r = [];
+  for (let i = 0; i < sa[0]; i++) { r.push([]); for (let j = 0; j < sb[1]; j++) { let s = 0; for (let k = 0; k < sa[1]; k++) s = binop('+', s, binop('*', a[i][k], b[k][j])); r[i].push(s); } }
+  return r;
+}
+function identity(n) { return Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))); }
+function matPow(a, n) {
+  const s = matShape(a); if (!s || s[0] !== s[1] || !Number.isInteger(n)) return NaN;
+  if (n < 0) { const inv = matInv(a); return isMat(inv) ? matPow(inv, -n) : NaN; }
+  let r = identity(s[0]), base = a;
+  while (n) { if (n & 1) r = matMul(r, base); base = matMul(base, base); n = Math.floor(n / 2); }
+  return r;
+}
+function matOp(op, a, b) {
+  const ma = isMat(a), mb = isMat(b);
+  if (op === '*' && ma && mb) return matMul(a, b);
+  if (op === '*' && ma && isArr(b)) { const r = matMul(a, b.map(v => [v])); return isArr(r) ? r.map(row => row[0]) : r; }
+  if (op === '^' && ma && typeof b === 'number') return matPow(a, b);
+  if ((op === '+' || op === '-') && ma && mb) {
+    const sa = matShape(a), sb = matShape(b);
+    if (!sa || !sb || sa[0] !== sb[0] || sa[1] !== sb[1]) return NaN;
+    return a.map((row, i) => row.map((v, j) => binop(op, v, b[i][j])));
+  }
+  if (ma && !isArr(b) && op !== '^') return a.map(row => row.map(v => binop(op, v, b)));
+  if (mb && !isArr(a) && op === '*') return b.map(row => row.map(v => binop(op, a, v)));
+  return NaN;
+}
+function det(m) {
+  const s = matShape(m); if (!s || s[0] !== s[1]) return NaN;
+  const n = s[0], a = m.map(r => r.slice()); let d = 1;
+  for (let c = 0; c < n; c++) {
+    let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(a[r][c]) > Math.abs(a[p][c])) p = r;
+    if (Math.abs(a[p][c]) < 1e-14) return 0;
+    if (p !== c) { [a[p], a[c]] = [a[c], a[p]]; d = -d; }
+    d *= a[c][c];
+    for (let r = c + 1; r < n; r++) { const f = a[r][c] / a[c][c]; for (let k = c; k < n; k++) a[r][k] -= f * a[c][k]; }
+  }
+  return d;
+}
+function matInv(m) {
+  const s = matShape(m); if (!s || s[0] !== s[1]) return NaN;
+  const n = s[0], a = m.map((r, i) => r.concat(identity(n)[i]));
+  for (let c = 0; c < n; c++) {
+    let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(a[r][c]) > Math.abs(a[p][c])) p = r;
+    if (Math.abs(a[p][c]) < 1e-12) return NaN;
+    [a[p], a[c]] = [a[c], a[p]];
+    const pv = a[c][c]; for (let k = 0; k < 2 * n; k++) a[c][k] /= pv;
+    for (let r = 0; r < n; r++) if (r !== c) { const f = a[r][c]; for (let k = 0; k < 2 * n; k++) a[r][k] -= f * a[c][k]; }
+  }
+  return a.map(r => r.slice(n).map(v => (Math.abs(v) < 1e-13 ? 0 : v)));
+}
+function rref(m) {
+  const s = matShape(m); if (!s) return NaN;
+  const a = m.map(r => r.slice()); let lead = 0;
+  for (let r = 0; r < s[0]; r++) {
+    if (lead >= s[1]) break;
+    let i = r; while (Math.abs(a[i][lead]) < 1e-12) { i++; if (i === s[0]) { i = r; lead++; if (lead === s[1]) return clean(a); } }
+    [a[i], a[r]] = [a[r], a[i]];
+    const lv = a[r][lead]; for (let k = 0; k < s[1]; k++) a[r][k] /= lv;
+    for (let j = 0; j < s[0]; j++) if (j !== r) { const f = a[j][lead]; for (let k = 0; k < s[1]; k++) a[j][k] -= f * a[r][k]; }
+    lead++;
+  }
+  return clean(a);
+  function clean(x) { return x.map(r => r.map(v => (Math.abs(v) < 1e-12 ? 0 : v))); }
+}
+function bcast(f, vals) {
+  let n = -1;
+  for (const v of vals) if (isArr(v) && !isMat(v)) n = n < 0 ? v.length : Math.min(n, v.length);
+  if (n < 0) return f(...vals);
+  const out = new Array(n);
+  for (let i = 0; i < n; i++) out[i] = f(...vals.map(v => (isArr(v) ? v[i] : v)));
+  return out;
+}
+
+// ---------- statistics ----------
+const nums = args => args.flat(Infinity).filter(v => typeof v === 'number' && !Number.isNaN(v));
+const total = d => d.reduce((s, v) => s + v, 0);
+const meanOf = d => (d.length ? total(d) / d.length : NaN);
+function medianOf(d) { if (!d.length) return NaN; const s = d.slice().sort((a, b) => a - b), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+function svar(d) { const n = d.length; if (n < 2) return NaN; const m = meanOf(d); return d.reduce((s, v) => s + (v - m) ** 2, 0) / (n - 1); }
+function pvar(d) { const n = d.length; if (!n) return NaN; const m = meanOf(d); return d.reduce((s, v) => s + (v - m) ** 2, 0) / n; }
+function quartileOf(d, q) {
+  if (!d.length || !Number.isInteger(q) || q < 0 || q > 4) return NaN;
+  const s = d.slice().sort((a, b) => a - b);
+  if (q === 0) return s[0]; if (q === 4) return s[s.length - 1]; if (q === 2) return medianOf(s);
+  const h = s.length >> 1;
+  return q === 1 ? medianOf(s.slice(0, h)) : medianOf(s.slice(s.length - h));
+}
+function quantileOf(d, p) {
+  if (!d.length || !(p >= 0 && p <= 1)) return NaN;
+  const s = d.slice().sort((a, b) => a - b), h = (s.length - 1) * p, lo = Math.floor(h);
+  return lo + 1 < s.length ? s[lo] + (h - lo) * (s[lo + 1] - s[lo]) : s[lo];
+}
+function pairs(A, B) { const xs = [], ys = []; if (!isArr(A) || !isArr(B)) return [xs, ys]; const n = Math.min(A.length, B.length); for (let i = 0; i < n; i++) if (typeof A[i] === 'number' && typeof B[i] === 'number' && isFinite(A[i]) && isFinite(B[i])) { xs.push(A[i]); ys.push(B[i]); } return [xs, ys]; }
+function covOf(A, B) { const [x, y] = pairs(A, B); const n = x.length; if (n < 2) return NaN; const mx = meanOf(x), my = meanOf(y); let s = 0; for (let i = 0; i < n; i++) s += (x[i] - mx) * (y[i] - my); return s / (n - 1); }
+function corrOf(A, B) { const [x, y] = pairs(A, B); return covOf(x, y) / Math.sqrt(svar(x) * svar(y)); }
+function fiveNum(d) { return [quartileOf(d, 0), quartileOf(d, 1), quartileOf(d, 2), quartileOf(d, 3), quartileOf(d, 4)]; }
+function niceWidth(d) {
+  const lo = Math.min(...d), hi = Math.max(...d); if (hi === lo) return 1;
+  const raw = (hi - lo) / Math.max(1, Math.ceil(Math.log2(d.length) + 1)), e = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / e;
+  return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * e;
+}
+function gcd2(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a; }
+function ttest(L, mu = 0) {
+  const d = nums([L]), n = d.length; if (n < 2 || typeof mu !== 'number') return NaN;
+  const m = meanOf(d), s = Math.sqrt(svar(d)), t = (m - mu) / (s / Math.sqrt(n)), df = n - 1, pl = tcdf(t, df);
+  return new Test({ title: 'One-sample t-test', t, df, pleft: pl, pright: 1 - pl, p: 2 * Math.min(pl, 1 - pl), mean: m, n });
+}
+function ittest(A, B) {
+  const a = nums([A]), b = nums([B]); if (a.length < 2 || b.length < 2) return NaN;
+  const va = svar(a) / a.length, vb = svar(b) / b.length, t = (meanOf(a) - meanOf(b)) / Math.sqrt(va + vb);
+  const df = (va + vb) ** 2 / (va * va / (a.length - 1) + vb * vb / (b.length - 1)), pl = tcdf(t, df);
+  return new Test({ title: 'Two-sample t-test', t, df, pleft: pl, pright: 1 - pl, p: 2 * Math.min(pl, 1 - pl) });
+}
+
+// ---------- distributions ----------
+function binpmf(k, n, p) {
+  if (!Number.isInteger(k) || k < 0 || k > n) return 0;
+  if (p === 0) return k === 0 ? 1 : 0; if (p === 1) return k === n ? 1 : 0;
+  return Math.exp(lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1) + k * Math.log(p) + (n - k) * Math.log(1 - p));
+}
+const poipmf = (k, l) => (Number.isInteger(k) && k >= 0 ? Math.exp(k * Math.log(l) - l - lgamma(k + 1)) : 0);
+function discCdf(pmf, k, max) { k = Math.floor(k); if (k < 0) return 0; let s = 0; const top = Math.min(k, max); for (let i = 0; i <= top; i++) s += pmf(i); return Math.min(1, s); }
+function discQ(pmf, p, max) { if (!(p >= 0 && p <= 1)) return NaN; let s = 0; for (let k = 0; k <= max; k++) { s += pmf(k); if (s >= p - 1e-12) return k; } return max; }
+const DIST = {
+  normal: { title: 'Normal', cont: true, ok: ([m, s]) => isFinite(m) && s > 0, pdf: (x, [m, s]) => Math.exp(-0.5 * ((x - m) / s) ** 2) / (s * Math.sqrt(2 * Math.PI)), cdf: (x, [m, s]) => Phi((x - m) / s), q: (p, [m, s]) => m + s * invPhi(p), mean: ([m]) => m, sd: ([, s]) => s },
+  t: { title: 't', cont: true, ok: ([v]) => v > 0, pdf: (x, [v]) => Math.exp(lgamma((v + 1) / 2) - lgamma(v / 2) - 0.5 * Math.log(v * Math.PI) - (v + 1) / 2 * Math.log(1 + x * x / v)), cdf: (x, [v]) => tcdf(x, v), q: (p, [v]) => tquant(p, v), mean: ([v]) => (v > 1 ? 0 : NaN), sd: ([v]) => (v > 2 ? Math.sqrt(v / (v - 2)) : NaN) },
+  binomial: { title: 'Binomial', cont: false, ok: ([n, p]) => Number.isInteger(n) && n >= 0 && n <= 1e5 && p >= 0 && p <= 1, pdf: (k, [n, p]) => binpmf(k, n, p), cdf: (k, [n, p]) => discCdf(i => binpmf(i, n, p), k, n), q: (x, [n, p]) => discQ(i => binpmf(i, n, p), x, n), mean: ([n, p]) => n * p, sd: ([n, p]) => Math.sqrt(n * p * (1 - p)) },
+  poisson: { title: 'Poisson', cont: false, ok: ([l]) => l > 0 && l < 1e5, pdf: (k, [l]) => poipmf(k, l), cdf: (k, [l]) => discCdf(i => poipmf(i, l), k, Math.ceil(l + 40 * Math.sqrt(l) + 40)), q: (x, [l]) => discQ(i => poipmf(i, l), x, Math.ceil(l + 40 * Math.sqrt(l) + 40)), mean: ([l]) => l, sd: ([l]) => Math.sqrt(l) },
+  uniform: { title: 'Uniform', cont: true, ok: ([a, b]) => a < b, pdf: (x, [a, b]) => (x >= a && x <= b ? 1 / (b - a) : 0), cdf: (x, [a, b]) => Math.min(1, Math.max(0, (x - a) / (b - a))), q: (p, [a, b]) => (p >= 0 && p <= 1 ? a + p * (b - a) : NaN), mean: ([a, b]) => (a + b) / 2, sd: ([a, b]) => (b - a) / Math.sqrt(12) },
+};
+function makeDist(type, p) { const D = DIST[type]; return p.every(v => typeof v === 'number') && D.ok(p) ? new Dist(type, p) : NaN; }
+function distMethod(d, name, args, rng) {
+  const D = DIST[d.type], p = d.p;
+  switch (name) {
+    case 'pdf': case 'pmf': return args.length ? bcast(x => D.pdf(x, p), [args[0]]) : NaN;
+    case 'cdf':
+      if (args.length >= 2) return bcast((a, b) => (D.cont ? D.cdf(b, p) - D.cdf(a, p) : D.cdf(b, p) - D.cdf(Math.ceil(a) - 1, p)), [args[0], args[1]]);
+      return args.length ? bcast(x => D.cdf(x, p), [args[0]]) : NaN;
+    case 'inversecdf': case 'quantile': return args.length ? bcast(q => D.q(q, p), [args[0]]) : NaN;
+    case 'random': {
+      if (!rng) return NaN;
+      if (!args.length) return D.q(rng(), p);
+      const n = Math.floor(args[0]); if (!(n >= 0 && n <= 10000)) return NaN;
+      return Array.from({ length: n }, () => D.q(rng(), p));
+    }
+    case 'mean': return D.mean(p);
+    case 'stdev': case 'sd': return D.sd(p);
+    case 'var': return D.sd(p) ** 2;
+  }
+  return NaN;
+}
+
+// ---------- randomness ----------
+function mulberry(a) {
+  return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function makeRng() { return mulberry(((CTX.seed * 2654435761) ^ ((CTX.rc++ + 1) * 40503)) >>> 0); }
+function randomFn(args, rng) {
+  if (!args.length) return rng();
+  const a0 = args[0];
+  if (a0 instanceof Dist) return distMethod(a0, 'random', args.slice(1), rng);
+  if (isArr(a0)) {
+    if (!a0.length) return NaN;
+    if (args.length >= 2) { const n = Math.floor(args[1]); if (!(n >= 0 && n <= 10000)) return NaN; return Array.from({ length: n }, () => a0[Math.floor(rng() * a0.length)]); }
+    return a0[Math.floor(rng() * a0.length)];
+  }
+  const n = Math.floor(a0); if (!(n >= 0 && n <= 10000)) return NaN;
+  return Array.from({ length: n }, rng);
+}
+function shuffleFn(args, rng) {
+  const a = isArr(args[0]) ? args[0].slice() : null; if (!a) return NaN;
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+// ---------- builtins ----------
+const BUILTIN = {};
+const s1 = (list, f, c) => list.split(' ').forEach(n => (BUILTIN[n] = { k: 's1', f, c }));
+const sn = (name, min, max, f) => (BUILTIN[name] = { k: 'sn', min, max, f });
+const raw = (list, f) => list.split(' ').forEach(n => (BUILTIN[n] = { k: 'raw', f }));
+const rnd = (name, f) => (BUILTIN[name] = { k: 'rand', f });
+s1('sin', x => Math.sin(x * K()), z => csin(z));
+s1('cos', x => Math.cos(x * K()), z => ccos(z));
+s1('tan', x => Math.tan(x * K()), z => cop('/', toC(csin(z)), toC(ccos(z))));
+s1('sec', x => 1 / Math.cos(x * K())); s1('csc', x => 1 / Math.sin(x * K())); s1('cot', x => 1 / Math.tan(x * K()));
+s1('arcsin asin', x => Math.asin(x) / K()); s1('arccos acos', x => Math.acos(x) / K());
+s1('sinh', Math.sinh); s1('cosh', Math.cosh); s1('tanh', Math.tanh);
+s1('ln', Math.log, z => { const l = clog(z); return C(l.re, l.im); });
+s1('log', Math.log10, z => { const l = clog(z); return C(l.re / Math.LN10, l.im / Math.LN10); });
+s1('exp', Math.exp, cexp);
+s1('sqrt', Math.sqrt, z => cpow(z, new Cx(0.5, 0)));
+s1('abs', Math.abs, z => Math.hypot(z.re, z.im));
+s1('floor', Math.floor); s1('ceil', Math.ceil); s1('sign', Math.sign); s1('erf', erf); s1('gamma', gammaFn);
+s1('real', x => x, z => z.re); s1('imag', () => 0, z => z.im); s1('conj', x => x, z => C(z.re, -z.im));
+s1('arg', x => (x < 0 ? Math.PI : 0) / K(), z => Math.atan2(z.im, z.re) / K());
+sn('arctan', 1, 2, (y, x) => (x === undefined ? Math.atan(y) : Math.atan2(y, x)) / K()); BUILTIN.atan = BUILTIN.arctan;
+sn('round', 1, 2, (x, d = 0) => { const m = Math.pow(10, d); return Math.round(x * m) / m; });
+sn('mod', 2, 2, (a, b) => ((a % b) + b) % b);
+sn('nCr', 2, 2, nCr); sn('nPr', 2, 2, nPr);
+sn('normalpdf', 1, 3, (x, m = 0, s = 1) => (s > 0 ? DIST.normal.pdf(x, [m, s]) : NaN));
+sn('normalcdf', 2, 4, (lo, hi, m = 0, s = 1) => (s > 0 ? Phi((hi - m) / s) - Phi((lo - m) / s) : NaN));
+sn('invnorm', 1, 3, (p, m = 0, s = 1) => (s > 0 ? m + s * invPhi(p) : NaN));
+sn('tpdf', 2, 2, (x, v) => (v > 0 ? DIST.t.pdf(x, [v]) : NaN));
+sn('tcdf', 3, 3, (lo, hi, v) => tcdf(hi, v) - tcdf(lo, v));
+sn('invt', 2, 2, (p, v) => tquant(p, v));
+sn('binompdf', 3, 3, (n, p, k) => (DIST.binomial.ok([n, p]) ? binpmf(k, n, p) : NaN));
+sn('binomcdf', 3, 3, (n, p, k) => (DIST.binomial.ok([n, p]) ? DIST.binomial.cdf(k, [n, p]) : NaN));
+sn('poissonpdf', 2, 2, (l, k) => (l > 0 ? poipmf(k, l) : NaN));
+sn('poissoncdf', 2, 2, (l, k) => (l > 0 ? DIST.poisson.cdf(k, [l]) : NaN));
+raw('min', a => (a.every(v => typeof v === 'number') ? Math.min(...a) : (d => (d.length ? Math.min(...d) : NaN))(nums(a))));
+raw('max', a => (a.every(v => typeof v === 'number') ? Math.max(...a) : (d => (d.length ? Math.max(...d) : NaN))(nums(a))));
+raw('total', a => total(nums(a)));
+raw('length', a => (a.length === 1 && isArr(a[0]) ? a[0].length : a.length));
+raw('mean', a => meanOf(nums(a)));
+raw('median', a => medianOf(nums(a)));
+raw('stdev stddev', a => Math.sqrt(svar(nums(a))));
+raw('stdevp', a => Math.sqrt(pvar(nums(a))));
+raw('var', a => svar(nums(a))); raw('varp', a => pvar(nums(a)));
+raw('mad', a => { const d = nums(a), m = meanOf(d); return meanOf(d.map(v => Math.abs(v - m))); });
+raw('quartile', a => quartileOf(nums([a[0]]), a[1]));
+raw('quantile', a => quantileOf(nums([a[0]]), a[1]));
+raw('cov', a => covOf(a[0], a[1])); raw('corr', a => corrOf(a[0], a[1]));
+raw('sort', a => {
+  if (!isArr(a[0])) return NaN;
+  if (isArr(a[1])) { const idx = a[0].map((_, i) => i).filter(i => i < a[1].length).sort((i, j) => a[1][i] - a[1][j]); return idx.map(i => a[0][i]); }
+  return a[0].slice().sort((x, y) => (typeof x === 'number' && typeof y === 'number' ? x - y : 0));
+});
+raw('unique', a => (isArr(a[0]) ? a[0].filter((v, i, arr) => arr.findIndex(w => w === v || (w instanceof Pt && v instanceof Pt && w.x === v.x && w.y === v.y)) === i) : NaN));
+raw('join', a => a.flatMap(v => (isArr(v) ? v : [v])));
+raw('gcd', a => { const d = nums(a); return d.length && d.every(Number.isInteger) ? d.reduce(gcd2) : NaN; });
+raw('lcm', a => { const d = nums(a); return d.length && d.every(Number.isInteger) ? d.reduce((x, y) => (x && y ? Math.abs(x * y) / gcd2(x, y) : 0)) : NaN; });
+raw('ttest', a => ttest(a[0], a.length > 1 ? a[1] : 0));
+raw('ittest', a => ittest(a[0], a[1]));
+raw('det', a => det(a[0])); raw('inv', a => matInv(a[0])); raw('rref', a => rref(a[0]));
+raw('transpose', a => (matShape(a[0]) ? a[0][0].map((_, j) => a[0].map(r => r[j])) : isArr(a[0]) ? a[0].map(v => [v]) : NaN));
+raw('trace', a => { const s = matShape(a[0]); if (!s || s[0] !== s[1]) return NaN; let t = 0; for (let i = 0; i < s[0]; i++) t += a[0][i][i]; return t; });
+raw('normaldist', a => makeDist('normal', [a[0] ?? 0, a[1] ?? 1]));
+raw('tdist', a => makeDist('t', [a[0]]));
+raw('binomialdist', a => makeDist('binomial', [a[0], a[1] ?? 0.5]));
+raw('poissondist', a => makeDist('poisson', [a[0]]));
+raw('uniformdist', a => makeDist('uniform', [a[0] ?? 0, a[1] ?? 1]));
+raw('histogram', a => { const d = nums([a[0]]); if (!d.length) return NaN; const w = typeof a[1] === 'number' && a[1] > 0 ? a[1] : niceWidth(d); return new Viz('hist', { data: d, w }); });
+raw('dotplot', a => { const d = nums([a[0]]); if (!d.length) return NaN; return new Viz('dot', { data: d, w: typeof a[1] === 'number' && a[1] > 0 ? a[1] : 0 }); });
+raw('boxplot', a => { const d = nums([a[0]]); if (!d.length) return NaN; return new Viz('box', { data: d, five: fiveNum(d), off: typeof a[1] === 'number' ? a[1] : 1 }); });
+raw('polygon', a => {
+  let pts = null;
+  if (a.length === 1 && isArr(a[0])) pts = a[0];
+  else if (a.length === 2 && isArr(a[0]) && isArr(a[1])) pts = a[0].map((x, i) => new Pt(x, a[1][i]));
+  else pts = a;
+  pts = pts.filter(p => p instanceof Pt);
+  return pts.length >= 2 ? new Viz('poly', { pts }) : NaN;
+});
+rnd('random', randomFn); rnd('shuffle', shuffleFn);
+const ALIAS = { invNorm: 'invnorm', invT: 'invt', ncr: 'nCr', npr: 'nPr' };
+const BIG = { sum: 'Write sums as sum(n, 1, 10, n^2)', prod: 'Write products as prod(n, 1, 10, n)', int: 'Write integrals as int(t, 0, x, t^2)' };
+const INV = { sin: 'arcsin', cos: 'arccos', tan: 'arctan' };
+const NAMES = Object.keys(BUILTIN).concat(Object.keys(ALIAS), Object.keys(BIG), ['pi']).sort((a, b) => b.length - a.length);
+
+// ---------- LaTeX input ----------
+const TEXCMD = {
+  cdot: '*', times: '*', div: '/', le: '<=', leq: '<=', ge: '>=', geq: '>=', lt: '<', gt: '>', pi: 'pi', sim: '~', left: '', right: '',
+  mid: '|', vert: '|', lvert: '|', rvert: '|', lfloor: ' floor(', rfloor: ')', lceil: ' ceil(', rceil: ')', ldots: '...', cdots: '...', dots: '...',
+  '{': '{', '}': '}', '|': '|', lbrace: '{', rbrace: '}', lbrack: '[', rbrack: ']', mathrm: '', ',': ' ', ';': ' ', '!': '', ' ': ' ', ':': ' ', '.': '', quad: ' ', qquad: ' ', displaystyle: '', infty: 'INF',
+};
+function delatex(s) {
+  let out = '', i = 0;
+  const group = () => {
+    while (s[i] === ' ') i++;
+    if (s[i] === '{') {
+      let d = 1, j = i + 1;
+      while (j < s.length && d) { if (s[j] === '\\') { j += 2; continue; } if (s[j] === '{') d++; else if (s[j] === '}') d--; j++; }
+      if (d) throw err('A closing } is missing');
+      const inner = s.slice(i + 1, j - 1); i = j; return delatex(inner);
+    }
+    if (s[i] === '\\') { const m = /^\\([a-zA-Z]+)/.exec(s.slice(i)); if (m) { i += m[0].length; return delatex(m[0]); } }
+    const c = s[i++]; if (c === undefined) throw err('Something is missing after a LaTeX command'); return c;
+  };
+  while (i < s.length) {
+    const c = s[i];
+    if (c === '"') { const j = s.indexOf('"', i + 1); const e = j < 0 ? s.length : j + 1; out += s.slice(i, e); i = e; continue; }
+    if (c === '\\') {
+      const m = /^\\([a-zA-Z]+|.)/.exec(s.slice(i)); i += m[0].length;
+      const name = m[1];
+      if (name === 'frac' || name === 'dfrac' || name === 'tfrac') {
+        const a = group(), b = group();
+        if (a.trim() === 'd' && /^d[a-zA-Z]$/.test(b.trim())) out += ` d/d${b.trim()[1]} `;
+        else out += `((${a})/(${b}))`;
+        continue;
+      }
+      if (name === 'sqrt') {
+        let n = null;
+        if (s[i] === '[') { const j = s.indexOf(']', i); if (j < 0) throw err('A closing ] is missing'); n = delatex(s.slice(i + 1, j)); i = j + 1; }
+        const a = group(); out += n ? `((${a})^(1/(${n})))` : ` sqrt(${a})`; continue;
+      }
+      if (name === 'operatorname' || name === 'mathrm' || name === 'text') { out += (out.endsWith('.') ? '' : ' ') + group() + ' '; continue; }
+      if (name === 'begin') {
+        const env = group().trim(), endTag = `\\end{${env}}`, j = s.indexOf(endTag, i);
+        if (j < 0) throw err(`\\begin{${env}} needs a matching \\end{${env}}`);
+        if (!/^[pbvB]?matrix$/.test(env)) throw err(`The ${env} environment isn't supported`);
+        const body = s.slice(i, j); i = j + endTag.length;
+        const rowsT = body.split('\\\\').map(r => r.trim()).filter(Boolean);
+        out += '[' + rowsT.map(r => '[' + r.split('&').map(cell => delatex(cell)).join(',') + ']').join(',') + ']';
+        continue;
+      }
+      if (name === 'int' || name === 'sum' || name === 'prod') {
+        let lo = null, hi = null;
+        for (let t = 0; t < 2; t++) { while (s[i] === ' ') i++; if (s[i] === '_') { i++; lo = group(); } else if (s[i] === '^') { i++; hi = group(); } }
+        if (lo === null || hi === null) throw err(`Give \\${name} both limits, like \\${name}_{0}^{1}`);
+        let v, body;
+        if (name === 'int') {
+          let depth = 0, found = -1;
+          for (let j = i; j < s.length; j++) {
+            const ch = s[j];
+            if ('({['.includes(ch)) depth++;
+            else if (')}]'.includes(ch)) { if (depth === 0) break; depth--; }
+            else if (depth === 0 && ch === 'd' && /[a-zA-Z]/.test(s[j + 1] || '') && !/[a-zA-Z]/.test(s[j + 2] || '')) {
+              let k = j; while (k > i && /[a-zA-Z]/.test(s[k - 1])) k--;
+              if (s[k - 1] !== '\\') found = j;
+            }
+          }
+          if (found < 0) throw err('End the integral with dx, dt, or similar');
+          v = s[found + 1]; body = delatex(s.slice(i, found)); i = found + 2;
+        } else {
+          const mm = /^\s*([a-zA-Z](?:_[a-zA-Z0-9]+)?)\s*=(.*)$/.exec(lo);
+          if (!mm) throw err(`Write the lower limit like \\${name}_{n=1}`);
+          v = mm[1]; lo = mm[2];
+          let depth = 0, j = i; while (s[j] === ' ') j++; const start = j;
+          for (; j < s.length; j++) {
+            const ch = s[j];
+            if ('({['.includes(ch)) depth++;
+            else if (')}]'.includes(ch)) { if (depth === 0) break; depth--; }
+            else if (depth === 0 && (ch === '+' || ch === '-') && j > start) break;
+          }
+          body = delatex(s.slice(i, j)); i = j;
+        }
+        out += ` ${name}(${v},(${lo}),(${hi}),(${body})) `;
+        continue;
+      }
+      if (name in TEXCMD) { out += TEXCMD[name]; continue; }
+      if (BUILTIN[name] || ALIAS[name]) { out += ' ' + name; continue; }
+      throw err(`\\${name} isn't supported here`);
+    }
+    if (c === '{') { out += '('; i++; continue; }
+    if (c === '}') { out += ')'; i++; continue; }
+    if (c === '_' && s[i + 1] === '{') { i++; out += '_' + group().trim(); continue; }
+    out += c; i++;
+  }
+  return out.replace(/INF/g, '(1/0)');
+}
+
+// ---------- tokenizer ----------
+function braceGroups(s) {
+  // ^{...} becomes ^(...) and _{...} becomes a plain subscript, so LaTeX-style exponents work without backslashes
+  let out = '';
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if ((c === '^' || c === '_') && s[i + 1] === '{') {
+      let d = 1, j = i + 2; while (j < s.length && d) { if (s[j] === '{') d++; else if (s[j] === '}') d--; j++; }
+      if (d) { out += c; continue; }
+      const inner = braceGroups(s.slice(i + 2, j - 1));
+      out += c === '^' ? `^(${inner})` : `_${inner.trim()}`; i = j - 1; continue;
+    }
+    out += c;
+  }
+  return out;
+}
+function tokenize(src) {
+  if (src.includes('\\')) src = delatex(src);
+  if (src.includes('{')) src = braceGroups(src);
+  const s = src.replace(/[−–]/g, '-').replace(/[·×]/g, '*').replace(/÷/g, '/').replace(/≤/g, '<=').replace(/≥/g, '>=')
+    .replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/[′’]/g, "'").replace(/…/g, '...').replace(/∑/g, 'sum').replace(/∫/g, 'int');
+  const T = []; let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if (c === '"') { const j = s.indexOf('"', i + 1); const v = j < 0 ? s.slice(i + 1) : s.slice(i + 1, j); T.push({ t: 'str', v }); i = j < 0 ? s.length : j + 1; continue; }
+    if (s.startsWith('...', i)) { T.push({ t: '...' }); i += 3; continue; }
+    if (c === '.' && /[a-zA-Z]/.test(s[i + 1] || '')) { const m = /^\.([a-zA-Z]+)/.exec(s.slice(i)); T.push({ t: 'dot', v: m[1] }); i += m[0].length; continue; }
+    if (/[0-9.]/.test(c)) {
+      const m = /^(\d+(?:\.(?!\.)\d*)?|\.\d+)/.exec(s.slice(i));
+      if (!m) throw err('A "." needs digits next to it');
+      T.push({ t: 'num', v: parseFloat(m[0]), raw: m[0] }); i += m[0].length; continue;
+    }
+    if (/[a-zA-Z]/.test(c)) {
+      const rest = s.slice(i);
+      const dd = /^d\s*\/\s*d([a-zA-Z])(?![a-zA-Z])/.exec(rest);
+      if (dd) { T.push({ t: 'ddx', v: dd[1] }); i += dd[0].length; continue; }
+      const kw = /^(for|with)(?![a-zA-Z])/.exec(rest);
+      if (kw) { T.push({ t: kw[1] }); i += kw[1].length; continue; }
+      let name = null;
+      for (const n of NAMES) if (s.startsWith(n, i)) { name = n; break; }
+      if (name) {
+        i += name.length;
+        if (name === 'pi') { T.push({ t: 'num', v: Math.PI, src: 'pi' }); continue; }
+        const tok = { t: 'fn', v: ALIAS[name] || name };
+        if (name === 'log' && s[i] === '_') { const m = /^_([a-zA-Z0-9.]+)/.exec(s.slice(i)); if (m) { tok.base = m[1]; i += m[0].length; } }
+        T.push(tok); continue;
+      }
+      let id = c; i++;
+      if (s[i] === '_') { const m = /^_([a-zA-Z0-9]+)/.exec(s.slice(i)); if (m) { id += '_' + m[1]; i += m[0].length; } }
+      let primes = 0; while (s[i] === "'") { primes++; i++; }
+      if (id === 'e' && !primes) { T.push({ t: 'num', v: Math.E, src: 'e' }); continue; }
+      T.push({ t: 'id', v: id, primes }); continue;
+    }
+    if (s.startsWith('<=', i) || s.startsWith('>=', i)) { T.push({ t: 'cmp', v: s.substr(i, 2) }); i += 2; continue; }
+    if ('<>=~'.includes(c)) { T.push({ t: 'cmp', v: c }); i++; continue; }
+    if ('+-*/^()[]{},|!:'.includes(c)) { T.push({ t: c }); i++; continue; }
+    throw err(`"${c}" isn't something I can read`);
+  }
+  return T;
+}
+
+// ---------- parser ----------
+const MISSING = { ')': 'A closing parenthesis is missing', ']': 'A closing ] is missing', '}': 'A closing } is missing', '|': 'A closing | is missing' };
+function parse(tokens) {
+  let p = 0, absDepth = 0;
+  const peek = () => tokens[p], next = () => tokens[p++];
+  const is = t => !!tokens[p] && tokens[p].t === t;
+  const show = k => (k.t === 'num' ? (k.raw || (k.src === 'pi' ? 'π' : 'e')) : k.t === 'str' ? `"${k.v}"` : k.v !== undefined ? String(k.v) : k.t);
+  const expect = t => { if (!is(t)) throw err(MISSING[t] || `Expected "${t}"`); return next(); };
+  const nested = fn => { const sv = absDepth; absDepth = 0; const r = fn(); absDepth = sv; return r; };
+  function startsPrimary() {
+    const k = peek(); if (!k) return false;
+    return k.t === 'num' || k.t === 'id' || k.t === 'fn' || k.t === '(' || k.t === '[' || k.t === '{' || k.t === 'ddx' || (k.t === '|' && absDepth === 0);
+  }
+  function expr() {
+    let a = term();
+    while (is('+') || is('-')) { const op = next().t; a = { k: 'b', op, a, b: term() }; }
+    return a;
+  }
+  function term() {
+    let a = unary();
+    for (;;) {
+      if (is('*') || is('/')) { const op = next().t; a = { k: 'b', op, a, b: unary() }; }
+      else if (startsPrimary()) a = { k: 'b', op: '*', a, b: power(), imp: true };
+      else break;
+    }
+    return a;
+  }
+  function unary() {
+    if (is('-')) { next(); return { k: 'u', a: unary() }; }
+    if (is('+')) { next(); return unary(); }
+    return power();
+  }
+  function power() {
+    const b = postfix();
+    if (is('^')) { next(); return { k: 'b', op: '^', a: b, b: unary() }; }
+    return b;
+  }
+  function chainFrom(e) {
+    const parts = [e], ops = [];
+    while (is('cmp')) { const op = next().v; if (op === '~') throw err('~ is only for regressions, like y_1 ~ m x_1 + b'); ops.push(op); parts.push(expr()); }
+    return { k: 'cond', parts, ops };
+  }
+  function postfix() {
+    let a = primary();
+    for (;;) {
+      if (is('!')) { next(); a = { k: 'fact', a }; }
+      else if (is('[')) { next(); const i = nested(() => { const e = expr(); return is('cmp') ? chainFrom(e) : e; }); expect(']'); a = { k: 'idx', a, i }; }
+      else if (is('dot')) { const nm = next().v; let args = null; if (is('(')) { next(); args = nested(argList); } a = { k: 'dot', a, name: nm, args }; }
+      else break;
+    }
+    return a;
+  }
+  function argList() {
+    if (is(')')) { next(); return []; }
+    const out = [expr()];
+    while (is(',')) { next(); out.push(expr()); }
+    expect(')'); return out;
+  }
+  function fnArg() {
+    let a = is('-') ? (next(), { k: 'u', a: power() }) : power();
+    while (startsPrimary() && !is('fn')) a = { k: 'b', op: '*', a, b: power(), imp: true };
+    return a;
+  }
+  function bindList() {
+    const out = [];
+    for (;;) {
+      const id = next();
+      if (!id || id.t !== 'id') throw err('Name each variable, like n = [1...10]');
+      if (!is('cmp') || peek().v !== '=') throw err(`Give ${id.v} a value with =`);
+      next(); out.push({ name: id.v, e: expr() });
+      if (is(',')) { next(); continue; }
+      return out;
+    }
+  }
+  function listLit() {
+    if (is(']')) { next(); return { k: 'list', items: [] }; }
+    const first = expr();
+    const rangeEnd = (items) => {
+      next(); if (is(',')) next();
+      const b = expr(); expect(']');
+      if (items.length === 1) return { k: 'range', a: items[0], b };
+      if (items.length === 2) return { k: 'range', a: items[0], second: items[1], b };
+      throw err('Write ranges like [1...10] or [1, 3, ..., 11]');
+    };
+    if (is('...')) return rangeEnd([first]);
+    if (is('for')) { next(); const binds = bindList(); expect(']'); return { k: 'comp', body: first, binds }; }
+    const items = [first];
+    while (is(',')) {
+      next();
+      if (is('...')) return rangeEnd(items);
+      items.push(expr());
+      if (is('...')) return rangeEnd(items);
+    }
+    expect(']'); return { k: 'list', items };
+  }
+  function piecewise() {
+    const branches = []; let els = null;
+    for (;;) {
+      const e = expr();
+      if (els) throw err('The "otherwise" value has to come last');
+      if (is('cmp')) {
+        const cond = chainFrom(e); let val = null;
+        if (is(':')) { next(); val = expr(); }
+        branches.push({ cond, val });
+      } else els = e;
+      if (is(',')) { next(); continue; }
+      expect('}'); break;
+    }
+    if (!branches.length) throw err('Braces need a condition, like {x > 0} or {x > 0: 1, -1}');
+    return { k: 'pw', branches, els };
+  }
+  function primary() {
+    const k = peek();
+    if (!k) throw err('The expression ends too soon');
+    switch (k.t) {
+      case 'num': next(); return { k: 'n', v: k.v, raw: k.raw, src: k.src };
+      case '(': next(); return nested(() => {
+        const a = expr();
+        if (is(',')) { next(); const b = expr(); expect(')'); return { k: 'pt', a, b }; }
+        expect(')'); return a;
+      });
+      case '[': next(); return nested(listLit);
+      case '{': next(); return nested(piecewise);
+      case '|': { next(); absDepth++; const a = expr(); absDepth--; expect('|'); return { k: 'call', name: 'abs', args: [a] }; }
+      case 'ddx': { next(); if (!peek()) throw err('d/dx needs something to differentiate'); return { k: 'ddx', v: k.v, a: fnArg() }; }
+      case 'fn': {
+        next(); let ex = null;
+        if (is('^')) { next(); ex = unary(); }
+        let args, bare = false;
+        if (is('(')) { next(); args = nested(argList); }
+        else { if (!startsPrimary() && !is('-')) throw err(`${k.v} needs an input, like ${k.v}(x)`); args = [fnArg()]; bare = true; }
+        if (BIG[k.v]) {
+          if (args.length !== 4 || args[0].k !== 'v') throw err(BIG[k.v]);
+          return { k: 'big', op: k.v, v: args[0].name, lo: args[1], hi: args[2], body: args[3] };
+        }
+        let node = { k: 'call', name: k.v, args, bare };
+        if (k.base) node.base = /^[0-9.]+$/.test(k.base) ? { k: 'n', v: parseFloat(k.base), raw: k.base } : { k: 'v', name: k.base };
+        if (ex) {
+          if (ex.k === 'u' && ex.a.k === 'n' && ex.a.v === 1 && INV[k.v]) node.name = INV[k.v];
+          else node = { k: 'b', op: '^', a: node, b: ex, fnPow: true };
+        }
+        return node;
+      }
+      case 'id': {
+        next();
+        if (is('(')) { next(); const args = nested(argList); return { k: 'app', name: k.v, args, primes: k.primes }; }
+        if (k.primes) throw err(`${k.v}′ needs an input, like ${k.v}′(x)`);
+        return { k: 'v', name: k.v };
+      }
+    }
+    throw err(`Unexpected "${show(k)}"`);
+  }
+  if (!tokens.length) return null;
+  let lhs = expr(), op = null, rhs = null, label = null, chain = null;
+  if (is(',')) { const items = [lhs]; while (is(',')) { next(); items.push(expr()); } lhs = { k: 'list', items, bare: true }; }
+  if (is('cmp')) {
+    op = next().v; rhs = expr();
+    if (is('cmp')) {
+      if (op === '~' || op === '=') throw err('Use only one = per line');
+      const c = chainFrom(rhs); chain = { parts: [lhs, ...c.parts], ops: [op, ...c.ops] };
+      if (chain.ops.some(o => o === '=')) throw err('Chained comparisons can only use < > ≤ ≥');
+    }
+  }
+  if (is('with')) {
+    next(); const binds = bindList();
+    if (chain) throw err('"with" works on a single expression');
+    if (rhs) rhs = { k: 'with', body: rhs, binds }; else lhs = { k: 'with', body: lhs, binds };
+  }
+  if (is('str')) label = next().v;
+  if (p < tokens.length) throw err(`Unexpected "${show(tokens[p])}"`);
+  return chain ? { chain, label } : { lhs, op, rhs, label };
+}
+
+// ---------- free variables ----------
+function freeVars(n, out = new Set(), bound = new Set()) {
+  const add = nm => { if (!bound.has(nm)) out.add(nm); };
+  const rec = m => freeVars(m, out, bound);
+  const withBound = (nms, m) => { const b2 = new Set(bound); nms.forEach(x => b2.add(x)); freeVars(m, out, b2); };
+  switch (n.k) {
+    case 'v': add(n.name); break;
+    case 'b': rec(n.a); rec(n.b); break;
+    case 'u': case 'fact': rec(n.a); break;
+    case 'call': n.args.forEach(rec); if (n.base) rec(n.base); break;
+    case 'app': if (!bound.has(n.name)) out.add('@' + n.name); n.args.forEach(rec); break;
+    case 'pt': rec(n.a); rec(n.b); break;
+    case 'list': n.items.forEach(rec); break;
+    case 'range': rec(n.a); rec(n.b); if (n.second) rec(n.second); break;
+    case 'comp': n.binds.forEach(b => rec(b.e)); withBound(n.binds.map(b => b.name), n.body); break;
+    case 'idx': rec(n.a); rec(n.i); break;
+    case 'cond': n.parts.forEach(rec); break;
+    case 'pw': n.branches.forEach(b => { rec(b.cond); if (b.val) rec(b.val); }); if (n.els) rec(n.els); break;
+    case 'dot': rec(n.a); (n.args || []).forEach(rec); break;
+    case 'ddx': add(n.v); rec(n.a); break;
+    case 'big': rec(n.lo); rec(n.hi); withBound([n.v], n.body); break;
+    case 'with': n.binds.forEach(b => rec(b.e)); withBound(n.binds.map(b => b.name), n.body); break;
+  }
+  return out;
+}
+function names(...nodes) {
+  const out = new Set();
+  for (const n of nodes) for (const v of freeVars(n)) {
+    if (v[0] === '@') { const nm = v.slice(1); if (!CTX.funcs.has(nm)) out.add(nm); } else out.add(v);
+  }
+  return out;
+}
+
+// ---------- evaluation ----------
+let depth = 0;
+function callF(F, a) {
+  if (!F.body || depth > 600) return NaN;
+  let key = null;
+  if (a.length === 1) { const v = a[0]; if (typeof v === 'number' && Number.isInteger(v) && Math.abs(v) < 1e7) { key = v; const c = F.memo.get(key); if (c !== undefined) return c; } }
+  else if (a.length && a.every(v => typeof v === 'number' && Number.isInteger(v))) { key = a.join(','); const c = F.memo.get(key); if (c !== undefined) return c; }
+  const L = {}; for (let i = 0; i < a.length; i++) L[F.params[i]] = a[i];
+  depth++; let r; try { r = F.body(L); } finally { depth--; }
+  if (key !== null && F.memo.size < 200000) F.memo.set(key, r);
+  return r;
+}
+function deriv(F, n, x) {
+  if (typeof x !== 'number') return isArr(x) ? x.map(v => deriv(F, n, v)) : NaN;
+  const f = t => callF(F, [t]);
+  const d = (a, b, h) => binop('/', binop('-', a, b), h);
+  if (n === 1) { const h = 1e-5 * Math.max(1, Math.abs(x)); return d(f(x + h), f(x - h), 2 * h); }
+  if (n === 2) { const h = 1e-4 * Math.max(1, Math.abs(x)); return binop('/', binop('+', binop('-', f(x + h), binop('*', 2, f(x))), f(x - h)), h * h); }
+  const h = 1e-3 * Math.max(1, Math.abs(x));
+  return d(deriv(F, n - 1, x + h), deriv(F, n - 1, x - h), 2 * h);
+}
+function getVar(name) {
+  const V = CTX.vars.get(name);
+  if (!V || !V.fn) return NaN;
+  if (V.state === 2) return V.value;
+  if (V.state === 1) return NaN;
+  V.state = 1;
+  try { V.value = V.fn({}); } catch (e) { V.value = NaN; }
+  V.state = 2; return V.value;
+}
+function varRef(name, locals) {
+  if (locals.includes(name)) return L => L[name];
+  if (name === 'i' && COMPLEX && !CTX.vars.has('i')) { const I = new Cx(0, 1); return () => I; }
+  return () => getVar(name);
+}
+function apply1(B, v) {
+  if (typeof v === 'number') {
+    const r = B.f(v);
+    if (COMPLEX && B.c && Number.isNaN(r) && !Number.isNaN(v)) return B.c(new Cx(v, 0));
+    return r;
+  }
+  if (isArr(v)) return v.map(x => apply1(B, x));
+  if (v instanceof Cx) return B.c ? B.c(v) : NaN;
+  return NaN;
+}
+function cmpv(op, a, b) {
+  if (typeof a === 'number' && typeof b === 'number') {
+    switch (op) {
+      case '<': return a < b; case '>': return a > b; case '<=': return a <= b; case '>=': return a >= b;
+      default: return Math.abs(a - b) <= 1e-12 * Math.max(1, Math.abs(a), Math.abs(b));
+    }
+  }
+  if (isArr(a) || isArr(b)) return bcast((x, y) => cmpv(op, x, y), [a, b]);
+  return false;
+}
+function andv(x, y) {
+  if (x === true) return y; if (x === false) return isArr(y) ? y.map(() => false) : false;
+  if (isArr(x) && isArr(y)) return x.map((v, i) => v && !!y[i]);
+  if (isArr(x)) return x.map(v => v && !!y);
+  return false;
+}
+function indexInto(a, i) {
+  if (!isArr(a)) return NaN;
+  if (typeof i === 'number') { const k = Math.round(i); return Math.abs(i - k) < 1e-9 && k >= 1 && k <= a.length ? a[k - 1] : NaN; }
+  if (typeof i === 'boolean') return i ? a : [];
+  if (isArr(i)) {
+    if (i.length && typeof i[0] === 'boolean') return a.filter((_, k) => k < i.length && i[k]);
+    return i.map(j => indexInto(a, j));
+  }
+  return NaN;
+}
+const GLX = [0.1488743389816312, 0.4333953941292472, 0.6794095682990244, 0.8650633666889845, 0.9739065285171717];
+const GLW = [0.2955242247147529, 0.2692667193099963, 0.2190863625159820, 0.1494513491505806, 0.0666713443086881];
+function gaussInt(f, a, b) {
+  if (a === b) return 0;
+  const m = 12, hw = (b - a) / m / 2; let s = 0;
+  for (let k = 0; k < m; k++) {
+    const c = a + (2 * k + 1) * hw;
+    for (let j = 0; j < 5; j++) {
+      const f1 = f(c + hw * GLX[j]), f2 = f(c - hw * GLX[j]);
+      if (typeof f1 !== 'number' || typeof f2 !== 'number') return NaN;
+      s += GLW[j] * (f1 + f2) * hw;
+    }
+  }
+  return s;
+}
+function pwList(cs, vs, ev) {
+  let n = Infinity;
+  cs.concat(vs, [ev]).forEach(v => { if (isArr(v)) n = Math.min(n, v.length); });
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    let r, found = false;
+    for (let k = 0; k < cs.length; k++) { const c = isArr(cs[k]) ? cs[k][i] : cs[k]; if (c) { r = isArr(vs[k]) ? vs[k][i] : vs[k]; found = true; break; } }
+    if (!found) r = isArr(ev) ? ev[i] : ev;
+    out.push(r);
+  }
+  return out;
+}
+function compile(n, locals) {
+  switch (n.k) {
+    case 'n': { const v = n.v; return () => v; }
+    case 'v': return varRef(n.name, locals);
+    case 'u': { const a = compile(n.a, locals); return L => neg(a(L)); }
+    case 'fact': { const a = compile(n.a, locals); return L => fact(a(L)); }
+    case 'b': { const a = compile(n.a, locals), b = compile(n.b, locals), op = n.op; return L => binop(op, a(L), b(L)); }
+    case 'pt': {
+      const a = compile(n.a, locals), b = compile(n.b, locals);
+      return L => { const x = a(L), y = b(L); return isArr(x) || isArr(y) ? bcast((p, q) => new Pt(p, q), [x, y]) : new Pt(x, y); };
+    }
+    case 'list': { const items = n.items.map(x => compile(x, locals)); return L => items.map(g => g(L)); }
+    case 'range': {
+      const a = compile(n.a, locals), b = compile(n.b, locals), st = n.second ? compile(n.second, locals) : null;
+      return L => {
+        const s = a(L), e = b(L); if (typeof s !== 'number' || typeof e !== 'number' || !isFinite(s) || !isFinite(e)) return NaN;
+        const d = st ? st(L) - s : (e >= s ? 1 : -1);
+        if (!isFinite(d) || d === 0) return NaN;
+        const cnt = Math.floor((e - s) / d + 1e-9) + 1;
+        if (cnt <= 0) return []; if (cnt > 10000) return NaN;
+        const out = new Array(cnt); for (let i = 0; i < cnt; i++) out[i] = Math.round((s + i * d) * 1e12) / 1e12; return out;
+      };
+    }
+    case 'comp': {
+      const lists = n.binds.map(b => compile(b.e, locals)), nm = n.binds.map(b => b.name);
+      const body = compile(n.body, locals.concat(nm));
+      return L => {
+        const ls = lists.map(g => { const v = g(L); return isArr(v) ? v : [v]; });
+        const old = nm.map(k => L[k]), out = [];
+        const rec = d => { if (out.length > 10000) return; if (d === nm.length) { out.push(body(L)); return; } for (const v of ls[d]) { L[nm[d]] = v; rec(d + 1); } };
+        rec(0); nm.forEach((k, i) => (L[k] = old[i])); return out;
+      };
+    }
+    case 'idx': { const a = compile(n.a, locals), i = compile(n.i, locals); return L => indexInto(a(L), i(L)); }
+    case 'cond': {
+      const parts = n.parts.map(x => compile(x, locals)), ops = n.ops;
+      return L => { const v = parts.map(g => g(L)); let r = true; for (let i = 0; i < ops.length; i++) r = andv(r, cmpv(ops[i], v[i], v[i + 1])); return r; };
+    }
+    case 'pw': {
+      const brs = n.branches.map(b => ({ c: compile(b.cond, locals), v: b.val ? compile(b.val, locals) : null }));
+      const els = n.els ? compile(n.els, locals) : null;
+      return L => {
+        for (let i = 0; i < brs.length; i++) {
+          const c = brs[i].c(L);
+          if (isArr(c)) return pwList(brs.map(b => b.c(L)), brs.map(b => (b.v ? b.v(L) : 1)), els ? els(L) : NaN);
+          if (c) return brs[i].v ? brs[i].v(L) : 1;
+        }
+        return els ? els(L) : NaN;
+      };
+    }
+    case 'dot': {
+      const a = compile(n.a, locals), args = (n.args || []).map(x => compile(x, locals)), name = n.name;
+      if (name === 'random') { const rng = makeRng(); let done = false, val; return L => { if (!done) { done = true; val = dotCall(a(L), name, args.map(g => g(L)), rng); } return val; }; }
+      return L => dotCall(a(L), name, args.map(g => g(L)));
+    }
+    case 'ddx': {
+      const a = compile(n.a, locals), v = n.v;
+      if (!locals.includes(v)) throw err(`d/d${v} needs ${v} to be the variable being graphed`);
+      return L => {
+        const x0 = L[v]; if (typeof x0 !== 'number') return NaN;
+        const h = 1e-5 * Math.max(1, Math.abs(x0));
+        L[v] = x0 + h; const f1 = a(L); L[v] = x0 - h; const f2 = a(L); L[v] = x0;
+        return binop('/', binop('-', f1, f2), 2 * h);
+      };
+    }
+    case 'big': {
+      const lo = compile(n.lo, locals), hi = compile(n.hi, locals), v = n.v, body = compile(n.body, locals.concat(v));
+      if (n.op === 'int') return L => {
+        const a = lo(L), b = hi(L);
+        if (typeof a !== 'number' || typeof b !== 'number' || !isFinite(a) || !isFinite(b)) return NaN;
+        const old = L[v]; const r = gaussInt(t => { L[v] = t; return body(L); }, a, b); L[v] = old; return r;
+      };
+      const op = n.op === 'sum' ? '+' : '*';
+      return L => {
+        const a = lo(L), b = hi(L); if (typeof a !== 'number' || typeof b !== 'number' || !isFinite(a) || !isFinite(b)) return NaN;
+        const s = Math.ceil(a - 1e-9), e = Math.floor(b + 1e-9); if (e - s > 1e5) return NaN;
+        const old = L[v]; let acc = op === '+' ? 0 : 1;
+        for (let k = s; k <= e; k++) { L[v] = k; acc = binop(op, acc, body(L)); }
+        L[v] = old; return acc;
+      };
+    }
+    case 'with': {
+      const binds = n.binds.map(b => ({ name: b.name, e: compile(b.e, locals) }));
+      const body = compile(n.body, locals.concat(n.binds.map(b => b.name)));
+      return L => {
+        const vals = binds.map(b => b.e(L)), old = binds.map(b => L[b.name]);
+        binds.forEach((b, i) => (L[b.name] = vals[i])); const r = body(L); binds.forEach((b, i) => (L[b.name] = old[i])); return r;
+      };
+    }
+    case 'call': {
+      const B = BUILTIN[n.name];
+      const args = n.args.map(x => compile(x, locals));
+      if (n.base) {
+        const a0 = args[0], b = compile(n.base, locals);
+        if (args.length !== 1) throw err('log takes 1 input');
+        return L => bcast((x, y) => Math.log(x) / Math.log(y), [a0(L), b(L)]);
+      }
+      if (B.k === 's1') {
+        if (args.length !== 1) throw err(`${n.name} takes 1 input`);
+        const a0 = args[0]; return L => apply1(B, a0(L));
+      }
+      if (B.k === 'sn') {
+        if (args.length < B.min || args.length > B.max) throw err(`${n.name} takes ${B.min === B.max ? B.min : `${B.min} to ${B.max}`} inputs`);
+        const f = B.f;
+        if (args.length === 1) { const a0 = args[0]; return L => { const x = a0(L); return typeof x === 'number' ? f(x) : bcast(f, [x]); }; }
+        return L => bcast(f, args.map(g => g(L)));
+      }
+      if (B.k === 'rand') { const rng = makeRng(), f = B.f; let done = false, val; return L => { if (!done) { done = true; val = f(args.map(g => g(L)), rng); } return val; }; }
+      const f = B.f; return L => f(args.map(g => g(L)));
+    }
+    case 'app': {
+      const F = CTX.funcs.get(n.name);
+      if (F && !locals.includes(n.name)) {
+        if (n.args.length !== F.params.length) throw err(`${n.name} takes ${F.params.length} input${F.params.length > 1 ? 's' : ''}`);
+        const a = n.args.map(x => compile(x, locals));
+        if (n.primes) {
+          if (F.params.length !== 1) throw err('Derivatives need a function of one input');
+          const pr = n.primes, a0 = a[0]; return L => deriv(F, pr, a0(L));
+        }
+        if (a.length === 1) { const a0 = a[0]; return L => callF(F, [a0(L)]); }
+        return L => callF(F, a.map(g => g(L)));
+      }
+      if (n.primes || n.args.length !== 1) throw err(`${n.name} isn't defined as a function`);
+      const v = varRef(n.name, locals), a = compile(n.args[0], locals);
+      return L => binop('*', v(L), a(L));
+    }
+  }
+  throw err('Something in this expression is unreadable');
+}
+function dotCall(v, name, args, rng) {
+  if (isArr(v) && !isMat(v) && (name === 'x' || name === 'y')) return v.map(p => (p instanceof Pt ? p[name] : NaN));
+  if (v instanceof Pt) return name === 'x' ? v.x : name === 'y' ? v.y : NaN;
+  if (v instanceof Dist) return distMethod(v, name, args, rng);
+  if (v instanceof Test) return typeof v[name] === 'number' ? v[name] : NaN;
+  if (v instanceof Cx) return name === 'real' ? v.re : name === 'imag' ? v.im : NaN;
+  const B = BUILTIN[name];
+  if (B && B.k === 'raw') return B.f([v, ...args]);
+  if (B && B.k === 's1' && !args.length) return apply1(B, v);
+  return NaN;
+}
+
+// ---------- rows ----------
+const SLIDER_RE = /^([a-zA-Z](?:_[a-zA-Z0-9]+)?)\s*=\s*(-?(?:\d+\.?\d*|\.\d+))$/;
+const IDRE = /^[a-zA-Z](_[a-zA-Z0-9]+)?$/;
+const FLIP = { '<': '>', '>': '<', '<=': '>=', '>=': '<=', '=': '=' };
+function classify(text, R) {
+  const s = text.trim();
+  if (!s) { R.kind = 'empty'; return; }
+  if (s[0] === '"') { R.kind = 'note'; return; }
+  const ast = parse(tokenize(s));
+  R.ast = ast; R.label = ast.label || null;
+  if (ast.chain) { R.kind = 'imp'; R.chain = ast.chain; return; }
+  const { lhs, op, rhs } = ast;
+  if (!op) { R.kind = 'expr'; R.e = lhs; return; }
+  if (op === '~') { R.kind = 'reg'; R.l = lhs; R.r = rhs; return; }
+  const isV = (n, nm) => n.k === 'v' && n.name === nm;
+  if (op === '=') {
+    if (lhs.k === 'app' && !lhs.primes && lhs.args.length && lhs.args.every(a => a.k === 'v') && lhs.name !== 'x' && lhs.name !== 'y') {
+      const params = lhs.args.map(a => a.name);
+      if (new Set(params).size !== params.length) throw err('Each input needs its own name');
+      R.kind = 'fdef'; R.name = lhs.name; R.params = params; R.body = rhs; return;
+    }
+    if (lhs.k === 'v' && lhs.name !== 'x' && lhs.name !== 'y') { R.kind = 'vdef'; R.name = lhs.name; R.rhs = rhs; R.isSlider = SLIDER_RE.test(s); return; }
+  }
+  if (isV(lhs, 'y')) { R.kind = 'yx'; R.op = op; R.e = rhs; return; }
+  if (isV(rhs, 'y')) { R.kind = 'yx'; R.op = FLIP[op]; R.e = lhs; return; }
+  if (isV(lhs, 'x')) { R.kind = 'xy'; R.op = op; R.e = rhs; return; }
+  if (isV(rhs, 'x')) { R.kind = 'xy'; R.op = FLIP[op]; R.e = lhs; return; }
+  R.kind = 'imp'; R.chain = { parts: [lhs, rhs], ops: [op] };
+}
+function checkKnown(R, set, locals) {
+  const missing = [];
+  for (const v of set) if (!locals.includes(v) && !CTX.vars.has(v) && !(v === 'i' && COMPLEX)) missing.push(v);
+  if (missing.length) {
+    R.missing = missing.filter(v => v !== 'x' && v !== 'y');
+    const list = missing.join(', ');
+    throw err(missing.length === 1 ? `${list} isn't defined yet` : `${list} aren't defined yet`);
+  }
+}
+function compileRow(R) {
+  CTX.seed = R.seed || 1; CTX.rc = 0;
+  if (R.kind === 'expr') {
+    const S = names(R.e), hx = S.has('x'), hy = S.has('y');
+    if (hy && !hx) throw err('To graph with y, write an equation like x = y^2');
+    if (hx && hy) throw err('Write this as an equation, for example … = 0');
+    if (hx) { R.kind = 'yx'; R.op = '='; } else R.kind = 'val';
+  }
+  if (R.kind === 'yx' && names(R.e).has('y')) { R.kind = 'imp'; R.chain = { parts: [{ k: 'v', name: 'y' }, R.e], ops: [R.op] }; }
+  if (R.kind === 'xy' && names(R.e).has('x')) { R.kind = 'imp'; R.chain = { parts: [{ k: 'v', name: 'x' }, R.e], ops: [R.op] }; }
+  switch (R.kind) {
+    case 'yx': case 'xy': {
+      const v = R.kind === 'yx' ? 'x' : 'y';
+      checkKnown(R, names(R.e), [v]);
+      const fn = compile(R.e, [v]), L = {};
+      R.f = t => { L[v] = t; return fn(L); }; break;
+    }
+    case 'imp': {
+      const { parts, ops } = R.chain;
+      checkKnown(R, names(...parts), ['x', 'y']);
+      const fs = parts.map(q => compile(q, ['x', 'y'])), L = { x: 0, y: 0 };
+      R.conds = ops.map((op, i) => ({ op, G: (x, y) => { L.x = x; L.y = y; const a = fs[i](L), b = fs[i + 1](L); return typeof a === 'number' && typeof b === 'number' ? a - b : NaN; } }));
+      break;
+    }
+    case 'val': { checkKnown(R, names(R.e), []); R.fv = compile(R.e, []); break; }
+    case 'fdef': {
+      checkKnown(R, names(R.body), R.params);
+      const F = CTX.funcs.get(R.name);
+      if (F.R === R) F.body = compile(R.body, R.params);
+      if (R.params.length === 1 && R.params[0] === 'x') { R.op = '='; R.f = x => callF(F, [x]); R.plotsFn = true; }
+      break;
+    }
+    case 'vdef': {
+      const S = names(R.rhs);
+      if (S.has('x') || S.has('y')) throw err(`Variables can't use x or y. For a function, write ${R.name}(x) = …`);
+      checkKnown(R, S, []);
+      const V = CTX.vars.get(R.name);
+      if (V.R === R) V.fn = compile(R.rhs, []);
+      break;
+    }
+    case 'reg': {
+      const P = R.params;
+      if (!P.length) throw err('Add an unknown letter to fit, like y_1 ~ m x_1 + b');
+      const S = names(R.l, R.r);
+      if (S.has('x') || S.has('y')) throw err('Regressions use list data, like y_1 ~ m x_1 + b');
+      checkKnown(R, S, P);
+      R.fl = compile(R.l, P); R.fr = compile(R.r, P);
+      break;
+    }
+  }
+}
+function solveLin(M, b) {
+  const n = b.length, a = M.map((r, i) => r.concat(b[i]));
+  for (let c = 0; c < n; c++) {
+    let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(a[r][c]) > Math.abs(a[p][c])) p = r;
+    if (!(Math.abs(a[p][c]) > 1e-300)) return null;
+    [a[p], a[c]] = [a[c], a[p]];
+    for (let r = c + 1; r < n; r++) { const f = a[r][c] / a[c][c]; for (let k = c; k <= n; k++) a[r][k] -= f * a[c][k]; }
+  }
+  const x = new Array(n);
+  for (let r = n - 1; r >= 0; r--) { let s = a[r][n]; for (let k = r + 1; k < n; k++) s -= a[r][k] * x[k]; x[r] = s / a[r][r]; }
+  return x.every(isFinite) ? x : null;
+}
+const ssq = r => r.reduce((s, v) => s + v * v, 0);
+function lm(resid, p0) {
+  let p = p0.slice(), r = resid(p); if (!r) return null; let sse = ssq(r); if (!isFinite(sse)) return null;
+  let lam = 1e-3; const np = p.length, m = r.length;
+  for (let it = 0; it < 400; it++) {
+    const J = Array.from({ length: m }, () => new Array(np));
+    for (let k = 0; k < np; k++) {
+      const h = 1e-7 * Math.max(1, Math.abs(p[k])), q = p.slice(); q[k] += h;
+      const rk = resid(q); if (!rk) return { p, sse };
+      for (let i = 0; i < m; i++) J[i][k] = (rk[i] - r[i]) / h;
+    }
+    const A = Array.from({ length: np }, (_, i) => Array.from({ length: np }, (_, j) => { let s = 0; for (let t = 0; t < m; t++) s += J[t][i] * J[t][j]; return s; }));
+    const g = Array.from({ length: np }, (_, i) => { let s = 0; for (let t = 0; t < m; t++) s += J[t][i] * r[t]; return s; });
+    let improved = false;
+    while (lam < 1e16) {
+      const M = A.map((row, i) => row.map((v, j) => (i === j ? v * (1 + lam) + lam * 1e-9 : v)));
+      const d = solveLin(M, g.map(v => -v));
+      if (!d) { lam *= 10; continue; }
+      const pn = p.map((v, i) => v + d[i]), rn = resid(pn), sn = rn ? ssq(rn) : NaN;
+      if (isFinite(sn) && sn < sse) {
+        const rel = (sse - sn) / Math.max(sse, 1e-300);
+        p = pn; r = rn; sse = sn; lam = Math.max(lam / 5, 1e-15); improved = true;
+        if (rel < 1e-13) return { p, sse };
+        break;
+      }
+      lam *= 5;
+    }
+    if (!improved || sse < 1e-30) break;
+  }
+  return { p, sse };
+}
+function fitReg(R) {
+  if (R.res) return R.res;
+  if (R.fitting) return null;
+  R.fitting = true;
+  try {
+    const P = R.params, np = P.length;
+    const evalAt = p => { const L = {}; for (let i = 0; i < np; i++) L[P[i]] = p[i]; return [R.fl(L), R.fr(L)]; };
+    const [y0] = evalAt(P.map(() => 1));
+    const ys = isArr(y0) ? y0 : [y0];
+    const mask = ys.map(v => typeof v === 'number' && isFinite(v));
+    const resid = p => {
+      const [a, b] = evalAt(p), out = [];
+      const n = isArr(a) ? a.length : isArr(b) ? b.length : 1;
+      for (let i = 0; i < n; i++) {
+        if (i < mask.length && !mask[i]) continue;
+        const ai = isArr(a) ? a[i] : a, bi = isArr(b) ? b[i] : b;
+        out.push(typeof ai === 'number' && typeof bi === 'number' ? ai - bi : NaN);
+      }
+      return out;
+    };
+    const data = ys.filter((_, i) => mask[i]);
+    if (data.length < 1) return (R.res = { error: 'This regression has no data yet' });
+    const rng = mulberry(12345);
+    const starts = [P.map(() => 1), P.map(() => 0.5), P.map(() => -1), P.map(() => 2), P.map(() => 0.1), P.map(() => 0)];
+    for (let k = 0; k < 6; k++) starts.push(P.map(() => (rng() - 0.5) * 6));
+    let best = null;
+    for (const s of starts) { const r = lm(resid, s); if (r && isFinite(r.sse) && (!best || r.sse < best.sse * (1 - 1e-12))) best = r; }
+    if (!best || best.p.some(v => !isFinite(v))) return (R.res = { error: "These parameters can't be found from this data. Try fewer unknowns or a simpler model." });
+    const n = resid(best.p).length, my = meanOf(data), sst = data.reduce((s, v) => s + (v - my) ** 2, 0);
+    return (R.res = { p: best.p, sse: best.sse, n, r2: sst > 0 ? 1 - best.sse / sst : NaN, rmse: Math.sqrt(best.sse / n) });
+  } finally { R.fitting = false; }
+}
+function evalCells(R, col) {
+  if (!col.compiled) col.compiled = col.cells.map(cell => {
+    const t = String(cell || '').trim(); if (!t) return null;
+    if (/^-?(\d+\.?\d*|\.\d+)$/.test(t)) { const v = parseFloat(t); return () => v; }
+    try { const a = parse(tokenize(t)); if (!a || a.op || a.chain) return () => NaN; return compile(a.lhs, []); } catch (e) { return () => NaN; }
+  });
+  let n = col.compiled.length; while (n > 0 && !col.compiled[n - 1]) n--;
+  const out = [];
+  for (let i = 0; i < n; i++) { const g = col.compiled[i]; let v = g ? g({}) : NaN; if (typeof v !== 'number') v = NaN; out.push(v); }
+  return out;
+}
+
+function analyzeAll(items) {
+  CTX = { funcs: new Map(), vars: new Map(), seed: 1, rc: 0 };
+  const out = items.map(it => {
+    const R = { kind: 'empty', seed: it.seed || 1 };
+    if (it.table) { R.kind = 'table'; R.cols = it.table.cols.map(c => ({ name: String(c.name || '').trim(), cells: c.cells.slice(), ok: false })); return R; }
+    try { classify(it.text || '', R); } catch (e) { R.kind = 'err'; R.error = e.message; }
+    return R;
+  });
+  const taken = nm => BUILTIN[nm] || ALIAS[nm] || CTX.funcs.has(nm) || CTX.vars.has(nm) || nm === 'x' || nm === 'y' || nm === 'e';
+  for (const R of out) {
+    if (R.kind === 'table') {
+      const bad = [];
+      for (const c of R.cols) {
+        if (!c.name) continue;
+        if (!IDRE.test(c.name)) { bad.push(`"${c.name}" isn't a valid column name. Use a letter, like x_1`); continue; }
+        if (taken(c.name)) { bad.push(`${c.name} is already defined`); continue; }
+        c.ok = true;
+        CTX.vars.set(c.name, { fn: () => evalCells(R, c), state: 0, value: NaN, R });
+      }
+      if (bad.length) R.error = bad[0];
+      continue;
+    }
+    if (R.kind !== 'fdef' && R.kind !== 'vdef') continue;
+    if (taken(R.name)) { R.dupError = `${R.name} is already defined`; continue; }
+    if (R.kind === 'fdef') CTX.funcs.set(R.name, { params: R.params, body: null, R, memo: new Map() });
+    else CTX.vars.set(R.name, { fn: null, state: 0, value: NaN, R });
+  }
+  for (const R of out) {
+    if (R.kind !== 'reg') continue;
+    try {
+      R.params = [...names(R.l, R.r)].filter(v => !CTX.vars.has(v) && v !== 'x' && v !== 'y' && !(v === 'i' && COMPLEX));
+      for (const nm of R.params) if (taken(nm)) throw err(`${nm} is already defined`);
+      R.params.forEach((nm, k) => CTX.vars.set(nm, { fn: () => { const res = fitReg(R); return res && !res.error ? res.p[k] : NaN; }, state: 0, value: NaN, R }));
+    } catch (e) { R.kind = 'err'; R.error = e.message; }
+  }
+  for (const R of out) {
+    if (R.kind === 'table') continue;
+    if (R.dupError) { R.kind = 'err'; R.error = R.dupError; continue; }
+    try { compileRow(R); } catch (e) { R.kind = 'err'; R.error = e.message; }
+  }
+  for (const name of CTX.vars.keys()) getVar(name);
+  for (const R of out) {
+    try {
+      if (R.kind === 'vdef') R.value = getVar(R.name);
+      else if (R.kind === 'val') { CTX.seed = R.seed; R.value = R.fv({}); }
+      else if (R.kind === 'table') R.colVals = R.cols.map(c => (c.ok ? getVar(c.name) : null));
+      else if (R.kind === 'reg') {
+        const res = fitReg(R);
+        if (!res || res.error) { R.kind = 'err'; R.error = res ? res.error : 'This regression depends on itself'; continue; }
+        R.res = res;
+        const xs = [...names(R.r)].filter(nm => !R.params.includes(nm) && CTX.vars.has(nm) && isArr(getVar(nm)) && !isMat(getVar(nm)));
+        if (xs.length === 1) {
+          const xn = xs[0], fp = compile(R.r, R.params.concat(xn)), L = {};
+          R.params.forEach((nm, i) => (L[nm] = res.p[i]));
+          R.f = x => { L[xn] = x; return fp(L); }; R.op = '='; R.xName = xn;
+        }
+      }
+    } catch (e) { R.kind = 'err'; R.error = e instanceof RangeError ? 'This recursion goes too deep' : e.message; }
+  }
+  return out;
+}
+function evalText(t) {
+  try { const a = parse(tokenize(t)); if (!a || a.op || a.chain) return NaN; return compile(a.lhs, [])({}); } catch (e) { return NaN; }
+}
+
+// ---------- formatting ----------
+const minus = s => s.replace(/-/g, '−');
+function fmtNum(v, digits = 6) {
+  if (typeof v !== 'number' || !isFinite(v)) return v === Infinity ? '∞' : v === -Infinity ? '−∞' : 'undefined';
+  if (Math.abs(v) < 1e-10) return '0';
+  const a = Math.abs(v);
+  if (a >= 1e9 || a < 1e-4) return minus(v.toExponential(digits - 3).replace(/\.?0+e/, 'e').replace('e+', 'e'));
+  return minus(String(Number(v.toPrecision(digits))));
+}
+function fmtVal(v, digits = 6) {
+  if (typeof v === 'number') return fmtNum(v, digits);
+  if (typeof v === 'boolean') return v ? 'true' : 'false';
+  if (v instanceof Cx) {
+    const re = Math.abs(v.re) < 1e-12 * Math.abs(v.im) ? 0 : v.re, im = v.im;
+    const ims = Math.abs(Math.abs(im) - 1) < 1e-14 ? '' : fmtNum(Math.abs(im), digits);
+    return (re ? fmtNum(re, digits) + (im < 0 ? ' − ' : ' + ') : im < 0 ? '−' : '') + ims + 'i';
+  }
+  if (v instanceof Pt) return `(${fmtNum(v.x, digits)}, ${fmtNum(v.y, digits)})`;
+  if (isMat(v)) return '[' + v.map(r => '[' + r.map(x => fmtVal(x, digits)).join(', ') + ']').join(', ') + ']';
+  if (isArr(v)) return '[' + v.slice(0, 30).map(x => fmtVal(x, digits)).join(', ') + (v.length > 30 ? ', …' : '') + ']';
+  if (v instanceof Dist) return `${DIST[v.type].title} distribution`;
+  return 'undefined';
+}
+function numTex(v, digits = 6) {
+  if (typeof v !== 'number' || !isFinite(v)) return v === Infinity ? '\\infty' : v === -Infinity ? '-\\infty' : '\\text{undefined}';
+  if (Math.abs(v) < 1e-10) return '0';
+  const a = Math.abs(v);
+  if (a >= 1e9 || a < 1e-4) { const [m, e] = v.toExponential(digits - 3).split('e'); return `${Number(m)}\\times10^{${Number(e)}}`; }
+  return String(Number(v.toPrecision(digits)));
+}
+function vTex(v) {
+  if (typeof v === 'number') return numTex(v);
+  if (typeof v === 'boolean') return `\\text{${v}}`;
+  if (v instanceof Cx) {
+    const re = Math.abs(v.re) < 1e-12 * Math.abs(v.im) ? 0 : v.re, im = v.im;
+    const ims = Math.abs(Math.abs(im) - 1) < 1e-14 ? '' : numTex(Math.abs(im));
+    return (re ? numTex(re) + (im < 0 ? '-' : '+') : im < 0 ? '-' : '') + ims + 'i';
+  }
+  if (v instanceof Pt) return `\\left(${numTex(v.x)},${numTex(v.y)}\\right)`;
+  if (isMat(v)) return `\\begin{bmatrix}${v.map(r => r.map(vTex).join('&')).join('\\\\')}\\end{bmatrix}`;
+  if (isArr(v)) return `\\left[${v.slice(0, 30).map(vTex).join(',')}${v.length > 30 ? ',\\ldots' : ''}\\right]`;
+  return null;
+}
+
+// ---------- LaTeX output ----------
+const OPTEX = { '=': '=', '<': '<', '>': '>', '<=': '\\le ', '>=': '\\ge ', '~': '\\sim ' };
+const FN_TEX = {
+  sin: '\\sin', cos: '\\cos', tan: '\\tan', sec: '\\sec', csc: '\\csc', cot: '\\cot', arcsin: '\\arcsin', arccos: '\\arccos', arctan: '\\arctan',
+  asin: '\\sin^{-1}', acos: '\\cos^{-1}', atan: '\\tan^{-1}', sinh: '\\sinh', cosh: '\\cosh', tanh: '\\tanh', ln: '\\ln', log: '\\log', exp: '\\exp',
+  min: '\\min', max: '\\max', det: '\\det', gcd: '\\gcd', arg: '\\arg',
+};
+const P = s => `\\left(${s}\\right)`;
+function idTex(nm) { const i = nm.indexOf('_'); return i < 0 ? nm : `${nm.slice(0, i)}_{${nm.slice(i + 1)}}`; }
+const isSum = n => n.k === 'b' && (n.op === '+' || n.op === '-');
+function isAtomic(n) { return ['n', 'v', 'app', 'pt', 'list', 'range', 'comp', 'idx', 'pw'].includes(n.k) || (n.k === 'call' && !n.bare) || n.k === 'dot'; }
+function simpleArg(n) { return n.k === 'n' || n.k === 'v' || (n.k === 'b' && n.op === '*' && n.imp && simpleArg(n.a) && simpleArg(n.b)) || (n.k === 'b' && n.op === '^' && isAtomic(n.a)); }
+const atom = n => (isAtomic(n) ? T(n) : P(T(n)));
+function callTex(n, sup = '') {
+  const a = n.args, nm = n.name; sup = sup ? `^{${sup}}` : '';
+  if (nm === 'abs') return `\\left|${T(a[0])}\\right|${sup}`;
+  if (nm === 'sqrt') return `\\sqrt{${T(a[0])}}${sup}`;
+  if (nm === 'floor') return `\\left\\lfloor ${T(a[0])}\\right\\rfloor${sup}`;
+  if (nm === 'ceil') return `\\left\\lceil ${T(a[0])}\\right\\rceil${sup}`;
+  const cmd = n.base ? `\\log_{${T(n.base)}}` : FN_TEX[nm] || `\\operatorname{${nm}}`;
+  if (n.bare && a.length === 1 && simpleArg(a[0])) return `${cmd}${sup} ${T(a[0])}`;
+  return `${cmd}${sup}${P(a.map(T).join(','))}`;
+}
+const bindsTex = bs => bs.map(b => `${idTex(b.name)}=${T(b.e)}`).join(',');
+function T(n) {
+  switch (n.k) {
+    case 'n': return n.src === 'pi' ? '\\pi ' : n.src === 'e' ? 'e' : (n.raw ?? String(n.v));
+    case 'v': return idTex(n.name);
+    case 'u': return '-' + (isSum(n.a) || n.a.k === 'u' ? P(T(n.a)) : T(n.a));
+    case 'fact': return atom(n.a) + '!';
+    case 'pt': return P(`${T(n.a)},${T(n.b)}`);
+    case 'call': return callTex(n);
+    case 'app': return `${idTex(n.name)}${"'".repeat(n.primes || 0)}${P(n.args.map(T).join(','))}`;
+    case 'list':
+      if (n.items.length && n.items.every(it => it.k === 'list')) return `\\begin{bmatrix}${n.items.map(r => r.items.map(T).join('&')).join('\\\\')}\\end{bmatrix}`;
+      return n.bare ? n.items.map(T).join(',') : `\\left[${n.items.map(T).join(',')}\\right]`;
+    case 'range': return `\\left[${T(n.a)},${n.second ? T(n.second) + ',' : ''}...,${T(n.b)}\\right]`;
+    case 'comp': return `\\left[${T(n.body)}\\ \\operatorname{for}\\ ${bindsTex(n.binds)}\\right]`;
+    case 'idx': return `${atom(n.a)}\\left[${T(n.i)}\\right]`;
+    case 'cond': return n.parts.map((q, i) => (i ? OPTEX[n.ops[i - 1]] : '') + T(q)).join('');
+    case 'pw': return `\\left\\{${n.branches.map(b => T(b.cond) + (b.val ? ':' + T(b.val) : '')).concat(n.els ? [T(n.els)] : []).join(',')}\\right\\}`;
+    case 'dot': if ((n.name === 'x' || n.name === 'y') && !n.args) return `${atom(n.a)}.${n.name}`;
+      return `${atom(n.a)}.\\operatorname{${n.name}}${n.args ? P(n.args.map(T).join(',')) : ''}`;
+    case 'ddx': return `\\frac{d}{d${n.v}}${isSum(n.a) || n.a.k === 'u' ? P(T(n.a)) : T(n.a)}`;
+    case 'big': {
+      const b = isSum(n.body) ? P(T(n.body)) : T(n.body);
+      if (n.op === 'int') return `\\int_{${T(n.lo)}}^{${T(n.hi)}}${b}\\,d${n.v}`;
+      return `\\${n.op}_{${idTex(n.v)}=${T(n.lo)}}^{${T(n.hi)}}${b}`;
+    }
+    case 'with': return `${T(n.body)}\\ \\operatorname{with}\\ ${bindsTex(n.binds)}`;
+    case 'b': {
+      const { a, b } = n;
+      if (n.op === '+' || n.op === '-') { const needs = b.k === 'u' || (n.op === '-' && isSum(b)); return `${T(a)}${n.op}${needs ? P(T(b)) : T(b)}`; }
+      if (n.op === '/') return `\\frac{${T(a)}}{${T(b)}}`;
+      if (n.op === '^') {
+        if (n.fnPow) return callTex(a, T(b));
+        const base = isAtomic(a) && !(a.k === 'call' && a.name === 'sqrt') ? T(a) : P(T(a));
+        return `${base}^{${T(b)}}`;
+      }
+      const l = isSum(a) ? P(T(a)) : T(a), r = isSum(b) || b.k === 'u' ? P(T(b)) : T(b);
+      if (n.imp && !/^[0-9.]/.test(r)) return `${l} ${r}`;
+      return `${l}\\cdot ${r}`;
+    }
+  }
+  return '';
+}
+function texOf(R) {
+  if (!R.ast) return null;
+  const a = R.ast;
+  if (a.chain) return a.chain.parts.map((q, i) => (i ? OPTEX[a.chain.ops[i - 1]] : '') + T(q)).join('');
+  return T(a.lhs) + (a.op ? OPTEX[a.op] + T(a.rhs) : '');
+}
+// == ENGINE END ==
+
+// == MATHFIELD START ==
+const MF_MARK = NAMES.filter(n => !['pi', 'asin', 'acos', 'atan'].includes(n)).concat(['for', 'with']).sort((a, b) => b.length - a.length);
+const LATEX_FN = new Set(['sin', 'cos', 'tan', 'sec', 'csc', 'cot', 'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh', 'ln', 'log', 'exp', 'min', 'max', 'det', 'gcd', 'arg']);
+const OPCH = '+-=<>≤≥~·×:';
+const CH_TEX = { '·': '\\cdot ', '×': '\\times ', '≤': '\\le ', '≥': '\\ge ', '~': '\\sim ', 'π': '\\pi ', '∞': '\\infty ', '…': '...' };
+const isLetter = c => /^[a-zA-Z]$/.test(c);
+function mkNode(t, nb, extra) { const n = { t, blocks: [], ...(extra || {}) }; for (let k = 0; k < nb; k++) n.blocks.push({ nodes: [], parent: n }); return n; }
+const mkChar = v => ({ t: 'c', v });
+function put(b, i, nodes) { nodes.forEach(n => (n.pb = b)); b.nodes.splice(i, 0, ...nodes); }
+function take(b, i, j) { return b.nodes.splice(i, j - i); }
+const isCont = n => n.t !== 'c' && n.t !== 'txt' && n.t !== 'mat';
+
+function fnMarks(nodes) {
+  const m = new Array(nodes.length).fill(0);
+  let i = 0;
+  while (i < nodes.length) {
+    if (nodes[i].t === 'c' && isLetter(nodes[i].v)) {
+      let j = i, s = '';
+      while (j < nodes.length && nodes[j].t === 'c' && isLetter(nodes[j].v)) { s += nodes[j].v; j++; }
+      const prev = nodes[i - 1];
+      if (prev && prev.t === 'c' && prev.v === '.' && j - i > 1) { for (let q = i; q < j; q++) m[q] = 1; m[j - 1] = 2; i = j; continue; }
+      let k = 0;
+      while (k < s.length) {
+        let name = null;
+        for (const n of MF_MARK) if (s.startsWith(n, k)) { name = n; break; }
+        if (name) { for (let q = 0; q < name.length; q++) m[i + k + q] = 1; m[i + k + name.length - 1] = 2; k += name.length; }
+        else k++;
+      }
+      i = j;
+    } else i++;
+  }
+  return m;
+}
+
+// where a fraction's numerator starts when / is typed at index i
+function numStart(nodes, i) {
+  const m = fnMarks(nodes); let k = i;
+  while (k > 0) {
+    const n = nodes[k - 1];
+    if (n.t === 'big') break;
+    if (n.t === 'c' && m[k - 1]) {
+      const nx = nodes[k];
+      if (m[k - 1] === 2 && nx && nx.t === 'paren' && k < i) { while (k > 0 && nodes[k - 1].t === 'c' && m[k - 1]) k--; continue; }
+      break;
+    }
+    if (n.t === 'c' && (OPCH.includes(n.v) || n.v === ',')) break;
+    k--;
+  }
+  return k;
+}
+
+// ---------- tree -> LaTeX ----------
+function serBlock(b) {
+  const nodes = b.nodes, m = b.literal ? null : fnMarks(nodes);
+  let s = '';
+  for (let i = 0; i < nodes.length; i++) {
+    const n = nodes[i];
+    if (n.t === 'c') {
+      if (b.literal) { s += n.v; continue; }
+      if (m[i]) {
+        let j = i, name = '';
+        while (m[j] === 1) { name += nodes[j].v; j++; }
+        name += nodes[j].v; i = j;
+        if (name === 'for' || name === 'with') s += `\\ \\operatorname{${name}}\\ `;
+        else if (LATEX_FN.has(name)) { s += '\\' + name; const nx = nodes[i + 1]; if (nx && nx.t === 'c' && /[a-zA-Z0-9.]/.test(nx.v)) s += ' '; }
+        else s += `\\operatorname{${name}}`;
+        continue;
+      }
+      s += CH_TEX[n.v] ?? n.v;
+      continue;
+    }
+    const B = n.blocks ? n.blocks.map(serBlock) : [];
+    switch (n.t) {
+      case 'sup': s += `^{${B[0]}}`; break;
+      case 'sub': s += `_{${B[0]}}`; break;
+      case 'frac': s += `\\frac{${B[0]}}{${B[1]}}`; break;
+      case 'sqrt': s += `\\sqrt{${B[0]}}`; break;
+      case 'paren': s += { '(': `\\left(${B[0]}\\right)`, '[': `\\left[${B[0]}\\right]`, '{': `\\left\\{${B[0]}\\right\\}`, '|': `\\left|${B[0]}\\right|` }[n.open]; break;
+      case 'big': s += `\\${n.op}_{${B[0]}}^{${B[1]}}`; break;
+      case 'str': s += `"${B[0]}"`; break;
+      case 'cmd': s += `\\${B[0]}`; break;
+      case 'txt': s += `\\text{${n.v}}`; break;
+      case 'mat': s += `\\begin{bmatrix}${n.rows.map(r => r.map(serBlock).join('&')).join('\\\\')}\\end{bmatrix}`; break;
+    }
+  }
+  return s;
+}
+
+// ---------- text or LaTeX -> tree ----------
+function parseMath(src) {
+  const s = String(src || '').replace(/[−–]/g, '-').replace(/​/g, '');
+  const latex = s.includes('\\');
+  let i = 0;
+  const skipSp = () => { while (s[i] === ' ') i++; };
+  const nameAt = k => { for (const n of NAMES) if (s.startsWith(n, k)) return n; return null; };
+  const paren = (open, nodes) => { const n = mkNode('paren', 1, { open }); put(n.blocks[0], 0, nodes); return n; };
+  const unwrapParen = nodes => (nodes.length === 1 && nodes[0].t === 'paren' && nodes[0].open === '(' ? nodes[0].blocks[0].nodes.slice() : nodes);
+  const make = (t, blocksNodes, extra) => { const n = mkNode(t, blocksNodes.length, extra); blocksNodes.forEach((ns, k) => put(n.blocks[k], 0, ns)); return n; };
+  function readBraced() { // after '{' : raw group as nodes
+    const nodes = readSeq(c => c === '}'); if (s[i] === '}') i++; return nodes;
+  }
+  function readArg() {
+    skipSp();
+    if (s[i] === '{') { i++; return readBraced(); }
+    if (s[i] === '\\') { const m = /^\\([a-zA-Z]+|.)/.exec(s.slice(i)); i += m[0].length; return command(m[1]); }
+    const c = s[i]; if (c === undefined) return [];
+    i++; return [mkChar(c)];
+  }
+  function readRawBraced() { skipSp(); if (s[i] !== '{') return ''; let d = 1, j = i + 1; while (j < s.length && d) { if (s[j] === '{') d++; else if (s[j] === '}') d--; j++; } const r = s.slice(i + 1, j - 1); i = j; return r; }
+  function readOperand() { // the next single operand, with its trailing scripts
+    skipSp();
+    const c = s[i]; let out;
+    if (c === undefined) return [];
+    if (c === '{') { i++; out = latex ? readBraced() : [paren('{', readBraced())]; }
+    else if (c === '-' || c === '+') { i++; return [mkChar(c), ...readOperand()]; }
+    else if (/[0-9.]/.test(c)) { out = []; while (i < s.length && /[0-9.]/.test(s[i]) && !s.startsWith('...', i)) out.push(mkChar(s[i++])); }
+    else out = readItem();
+    while (i < s.length && (s[i] === '^' || s[i] === '_' || s[i] === '!' || s[i] === "'")) out.push(...readItem());
+    return out;
+  }
+  function command(name) {
+    switch (name) {
+      case 'frac': case 'dfrac': case 'tfrac': { const a = readArg(), b = readArg(); return [make('frac', [a, b])]; }
+      case 'sqrt': {
+        skipSp();
+        if (s[i] === '[') { const j = s.indexOf(']', i); const idx = parseMath(s.slice(i + 1, j)); i = j + 1; const body = readArg(); return [paren('(', body), make('sup', [[make('frac', [[mkChar('1')], idx])]])]; }
+        return [make('sqrt', [readArg()])];
+      }
+      case 'left': {
+        skipSp(); let d = s[i];
+        if (s.startsWith('\\{', i)) { d = '{'; i += 2; } else if (s.startsWith('\\lbrace', i)) { d = '{'; i += 7; } else if (s.startsWith('\\lbrack', i)) { d = '['; i += 7; } else if (s.startsWith('\\vert', i) || s.startsWith('\\lvert', i)) { d = '|'; i += s.startsWith('\\vert', i) ? 5 : 6; } else i++;
+        const body = readSeq((c, k) => s.startsWith('\\right', k));
+        if (s.startsWith('\\right', i)) { i += 6; skipSp(); if (s[i] === '\\') { const m = /^\\([a-zA-Z]+|.)/.exec(s.slice(i)); i += m[0].length; } else i++; }
+        return [paren('([{|'.includes(d) ? d : '(', body)];
+      }
+      case 'right': return [];
+      case 'sum': case 'prod': case 'int': {
+        let lo = [], hi = [];
+        for (let t = 0; t < 2; t++) { skipSp(); if (s[i] === '_') { i++; lo = readArg(); } else if (s[i] === '^') { i++; hi = readArg(); } }
+        return [make('big', [lo, hi], { op: name })];
+      }
+      case 'operatorname': case 'mathrm': case 'mathit': return readArg();
+      case 'text': case 'textrm': return [{ t: 'txt', v: readRawBraced() }];
+      case 'begin': {
+        const env = readRawBraced(), end = `\\end{${env}}`, j = s.indexOf(end, i);
+        const body = j < 0 ? s.slice(i) : s.slice(i, j); i = j < 0 ? s.length : j + end.length;
+        const rows = body.split('\\\\').map(r => r.trim()).filter(Boolean).map(r => r.split('&').map(cell => { const b = { nodes: [], parent: null }; put(b, 0, parseMath(cell)); return b; }));
+        const n = { t: 'mat', rows, blocks: [] }; rows.forEach(r => r.forEach(b => (b.parent = n)));
+        return [n];
+      }
+      case '{': case 'lbrace': return [paren('{', readSeq((c, k) => s.startsWith('\\}', k) || s.startsWith('\\rbrace', k)))].concat((() => { if (s.startsWith('\\}', i)) i += 2; else if (s.startsWith('\\rbrace', i)) i += 7; return []; })());
+      case '}': case 'rbrace': return [];
+    }
+    const sym = { pi: 'π', cdot: '·', times: '×', le: '≤', leq: '≤', ge: '≥', geq: '≥', lt: '<', gt: '>', sim: '~', infty: '∞', ldots: '…', cdots: '…', dots: '…', mid: '|', vert: '|', lbrack: '[', rbrack: ']' }[name];
+    if (sym) return [mkChar(sym)];
+    if ([',', ';', ' ', ':', '!', 'quad', 'qquad', 'displaystyle', '.'].includes(name)) return [];
+    if (BUILTIN[name] || ALIAS[name]) return name.split('').map(mkChar);
+    return name.split('').map(mkChar);
+  }
+  function splitTop(nodes) { const parts = [[]]; nodes.forEach(n => { if (n.t === 'c' && n.v === ',') parts.push([]); else parts[parts.length - 1].push(n); }); return parts; }
+  const hasSum = nodes => nodes.some(n => n.t === 'c' && (n.v === '+' || n.v === '-'));
+  function readItem() {
+    const c = s[i];
+    if (c === '\\') { const m = /^\\([a-zA-Z]+|.)/.exec(s.slice(i)); i += m[0].length; return command(m[1]); }
+    if (c === '^') { i++; return [make('sup', [readScript()])]; }
+    if (c === '_') { i++; skipSp(); if (s[i] === '{') { i++; return [make('sub', [readBraced()])]; } const out = []; while (i < s.length && /[a-zA-Z0-9]/.test(s[i])) out.push(mkChar(s[i++])); return [make('sub', [out])]; }
+    if (c === '(' || c === '[') { i++; const close = c === '(' ? ')' : ']'; const body = readSeq(ch => ch === close); if (s[i] === close) i++; return [paren(c, body)]; }
+    if (c === '{') { i++; const body = readBraced(); return latex ? body : [paren('{', body)]; }
+    if (c === '|') { i++; const body = readSeq(ch => ch === '|'); if (s[i] === '|') i++; return [paren('|', body)]; }
+    if (c === '"') { const j = s.indexOf('"', i + 1), raw = j < 0 ? s.slice(i + 1) : s.slice(i + 1, j); i = j < 0 ? s.length : j + 1; const n = mkNode('str', 1); n.blocks[0].literal = true; put(n.blocks[0], 0, raw.split('').map(mkChar)); return [n]; }
+    if (isLetter(c)) {
+      const dd = /^d\s*\/\s*d([a-zA-Z])(?![a-zA-Z])/.exec(s.slice(i));
+      if (dd) { i += dd[0].length; return [make('frac', [[mkChar('d')], [mkChar('d'), mkChar(dd[1])]])]; }
+      const nm = nameAt(i);
+      if (nm === 'pi') { i += 2; return [mkChar('π')]; }
+      if (nm === 'sqrt') { i += 4; skipSp(); if (s[i] === '(') { i++; const body = readSeq(ch => ch === ')'); if (s[i] === ')') i++; return [make('sqrt', [body])]; } return [make('sqrt', [readOperand()])]; }
+      if ((nm === 'sum' || nm === 'prod' || nm === 'int') && s[i + nm.length] === '(') {
+        const save = i; i += nm.length + 1;
+        const inner = readSeq(ch => ch === ')'); if (s[i] === ')') i++;
+        const parts = splitTop(inner);
+        if (parts.length === 4 && parts[0].length === 1 && parts[0][0].t === 'c' && isLetter(parts[0][0].v)) {
+          const v = parts[0][0].v, body = hasSum(parts[3]) ? [paren('(', parts[3])] : parts[3];
+          const lo = nm === 'int' ? parts[1] : [mkChar(v), mkChar('='), ...parts[1]];
+          const out = [make('big', [lo, parts[2]], { op: nm }), ...body];
+          if (nm === 'int') out.push(mkChar('d'), mkChar(v));
+          return out;
+        }
+        i = save;
+      }
+      if (nm) { i += nm.length; return nm.split('').map(mkChar); }
+      if (s.startsWith('for', i) && !isLetter(s[i + 3] || '')) { i += 3; return 'for'.split('').map(mkChar); }
+      if (s.startsWith('with', i) && !isLetter(s[i + 4] || '')) { i += 4; return 'with'.split('').map(mkChar); }
+      i++; return [mkChar(c)];
+    }
+    if (c === '*') { i++; return [mkChar('·')]; }
+    if (c === '<' && s[i + 1] === '=') { i += 2; return [mkChar('≤')]; }
+    if (c === '>' && s[i + 1] === '=') { i += 2; return [mkChar('≥')]; }
+    if (s.startsWith('...', i)) { i += 3; return [mkChar('…')]; }
+    i++;
+    const map = { '≤': '≤', '≥': '≥', '·': '·', '×': '×', 'π': 'π', '′': "'", '’': "'" };
+    return [mkChar(map[c] || c)];
+  }
+  function readScript() { skipSp(); if (s[i] === '{') { i++; return readBraced(); } if (s[i] === '(') { i++; const inner = readSeq(ch => ch === ')'); if (s[i] === ')') i++; return inner; } return readOperand(); }
+  function readSeq(stop) {
+    const out = [];
+    while (i < s.length) {
+      const c = s[i];
+      if (stop && stop(c, i)) break;
+      if (c === ' ') { i++; continue; }
+      if (c === '/') {
+        i++;
+        const k = numStart(out, out.length);
+        const num = unwrapParen(out.splice(k)), den = unwrapParen(readOperand());
+        out.push(make('frac', [num, den])); continue;
+      }
+      out.push(...readItem());
+    }
+    return out;
+  }
+  return readSeq(null);
+}
+
+// ---------- rendering ----------
+const OP_SPACED = new Set(['+', '-', '=', '<', '>', '≤', '≥', '~', '·', '×', ':']);
+function renderBlock(b) {
+  const el = document.createElement('span'); el.className = 'mb'; el._blk = b; b._el = el;
+  const marks = b.literal ? null : fnMarks(b.nodes);
+  b.nodes.forEach((n, i) => { const ne = renderNode(n, b, i, marks); ne._node = n; n._el = ne; el.appendChild(ne); });
+  return el;
+}
+function renderNode(n, b, i, marks) {
+  const sp = (cls, kids) => { const e = document.createElement('span'); e.className = cls; (kids || []).forEach(k => e.appendChild(k)); return e; };
+  const blk = (k, cls) => { const e = renderBlock(n.blocks[k]); if (cls) e.classList.add(cls); return e; };
+  switch (n.t) {
+    case 'c': {
+      const e = sp('');
+      const v = n.v;
+      if (b.literal) { e.className = 'lit'; e.textContent = v === ' ' ? ' ' : v; return e; }
+      if (marks[i]) { const nx = b.nodes[i + 1]; e.className = 'fn' + (marks[i] === 2 && nx && nx.t === 'c' && !OP_SPACED.has(nx.v) && nx.v !== ',' ? ' fn-end' : ''); e.textContent = v; return e; }
+      if (isLetter(v)) { e.className = 'v'; e.textContent = v; return e; }
+      if (OP_SPACED.has(v)) {
+        const prev = b.nodes[i - 1];
+        const unary = (v === '-' || v === '+') && (!prev || (prev.t === 'c' && (OP_SPACED.has(prev.v) || prev.v === ',' || prev.v === '(')) || prev.t === 'big');
+        e.className = unary ? 'n' : 'op'; e.textContent = v === '-' ? '−' : v; return e;
+      }
+      if (v === ',') { e.className = 'pu'; e.textContent = ','; return e; }
+      if (v === "'") { e.className = 'pr'; e.textContent = '′'; return e; }
+      if (v === 'π') { e.className = 'v'; e.textContent = 'π'; return e; }
+      e.className = 'n'; e.textContent = v; return e;
+    }
+    case 'sup': return sp('sup', [blk(0)]);
+    case 'sub': return sp('sub', [blk(0)]);
+    case 'frac': return sp('frac', [blk(0, 'fnum'), blk(1, 'fden')]);
+    case 'sqrt': return sp('sqrt', [sp('rad'), blk(0, 'rbody')]);
+    case 'paren': {
+      const d = { '(': ['po', 'pc'], '[': ['bo', 'bc'], '{': ['co', 'cc'], '|': ['vb', 'vb'] }[n.open];
+      return sp('par', [sp('dl ' + d[0]), blk(0, 'pbody'), sp('dl ' + d[1])]);
+    }
+    case 'big': {
+      if (n.op === 'int') return sp('big int', [sp('isym'), sp('lims', [blk(1, 'hi'), blk(0, 'lo')])]);
+      const sym = sp('bsym'); sym.textContent = n.op === 'sum' ? 'Σ' : 'Π';
+      return sp('big', [blk(1, 'hi'), sym, blk(0, 'lo')]);
+    }
+    case 'str': return sp('str', [blk(0)]);
+    case 'cmd': { const e = sp('cmd'); const bs = sp('cmdbs'); bs.textContent = '\\'; e.appendChild(bs); e.appendChild(blk(0)); return e; }
+    case 'txt': { const e = sp('txt'); e.textContent = n.v; return e; }
+    case 'mat': {
+      const g = sp('mat'); g.style.gridTemplateColumns = `repeat(${Math.max(1, ...n.rows.map(r => r.length))}, auto)`;
+      n.rows.forEach(r => r.forEach(cb => g.appendChild(renderBlock(cb))));
+      return sp('par', [sp('dl bo'), g, sp('dl bc')]);
+    }
+  }
+  return sp('');
+}
+function renderStatic(container, text) {
+  const b = { nodes: [], parent: null };
+  try { put(b, 0, parseMath(text)); } catch (e) { container.textContent = text; return; }
+  const el = renderBlock(b); el.classList.add('mroot');
+  container.replaceChildren(el);
+}
+
+// ---------- the editor ----------
+class MathField {
+  constructor(host, o = {}) {
+    this.host = host; this.o = o; this.root = { nodes: [], parent: null };
+    this.cur = { b: this.root, i: 0 }; this.sel = null; this.anc = null; this.focused = false; this.src = '';
+    host.classList.add('mf');
+    const ta = this.ta = document.createElement('textarea');
+    ta.className = 'mf-ta'; ta.rows = 1; ta.spellcheck = false;
+    ['autocapitalize', 'autocomplete', 'autocorrect'].forEach(a => ta.setAttribute(a, 'off'));
+    ta.setAttribute('aria-label', o.label || 'Math input');
+    if (o.id) ta.id = o.id;
+    this.disp = document.createElement('span'); this.disp.className = 'mf-disp';
+    if (o.placeholder) host.dataset.ph = o.placeholder;
+    host.append(ta, this.disp);
+    this.resetTa();
+    this.bind();
+    this.render();
+  }
+  resetTa() { this.ta.value = '​'; try { this.ta.setSelectionRange(1, 1); } catch (e) { /* not focused */ } }
+  bind() {
+    const ta = this.ta, host = this.host;
+    host.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      const pos = this.posAt(e.clientX, e.clientY);
+      if (pos) { this.finishCmd(); this.cur = pos; this.sel = null; this.drag = pos; }
+      try { host.setPointerCapture(e.pointerId); } catch (er) { /* ignore */ }
+      if (document.activeElement !== ta) ta.focus(); else this.render();
+    });
+    host.addEventListener('pointermove', e => {
+      if (!this.drag || !(e.buttons & 1)) return;
+      const pos = this.posAt(e.clientX, e.clientY);
+      if (pos && pos.b === this.drag.b && pos.i !== this.drag.i) { this.sel = { b: pos.b, a: Math.min(pos.i, this.drag.i), z: Math.max(pos.i, this.drag.i) }; this.cur = pos; this.render(); }
+    });
+    host.addEventListener('pointerup', () => { this.drag = null; });
+    host.addEventListener('click', () => { if (document.activeElement !== ta) ta.focus(); });
+    ta.addEventListener('focus', () => { this.focused = true; this.resetTa(); this.render(); this.o.onFocus && this.o.onFocus(this); });
+    ta.addEventListener('blur', () => {
+      const before = this.latex();
+      this.finishCmd(); this.focused = false; this.sel = null; this.render();
+      if (this.latex() !== before) this.emit();
+      this.o.onBlur && this.o.onBlur(this);
+    });
+    ta.addEventListener('keydown', e => this.onKey(e));
+    ta.addEventListener('beforeinput', e => {
+      if (e.isComposing) return;
+      const t = e.inputType;
+      if (t === 'insertText' || t === 'insertReplacementText') { e.preventDefault(); if (e.data) this.input(e.data); }
+      else if (t === 'deleteContentBackward' || t === 'deleteWordBackward') { e.preventDefault(); this.edit(() => this.backspace()); }
+      else if (t === 'deleteContentForward') { e.preventDefault(); this.edit(() => this.del()); }
+      else if (t === 'insertLineBreak' || t === 'insertParagraph') { e.preventDefault(); this.o.onEnter && this.o.onEnter(this); }
+    });
+    ta.addEventListener('input', e => {
+      if (e.isComposing) return;
+      const v = ta.value;
+      if (v === '​') return;
+      if (v === '') { this.edit(() => this.backspace()); }
+      else { const txt = v.replace(/​/g, ''); if (txt) this.input(txt); }
+      this.resetTa();
+    });
+    ta.addEventListener('compositionend', () => { const txt = ta.value.replace(/​/g, ''); this.resetTa(); if (txt) this.input(txt); });
+    ta.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData)?.getData('text') || '';
+      if (this.o.onPaste && this.o.onPaste(this, text)) return;
+      if (text) this.edit(() => this.insertParsed(text.replace(/\s*\n\s*/g, ' ')));
+    });
+    ta.addEventListener('copy', e => { if (this.sel) { e.preventDefault(); e.clipboardData.setData('text/plain', this.selLatex()); } });
+    ta.addEventListener('cut', e => { if (this.sel) { e.preventDefault(); e.clipboardData.setData('text/plain', this.selLatex()); this.edit(() => this.deleteSel()); } });
+  }
+  input(txt) {
+    for (const c of txt) if (this.typeChar(c) === 'stop') return;
+    this.render(); this.emit(); this.resetTa();
+  }
+  edit(fn) { fn(); this.render(); this.emit(); }
+  emit() { this.src = this.latex(); this.label(); this.o.onChange && this.o.onChange(this.src, this); }
+  label() { this.ta.setAttribute('aria-label', (this.o.label || 'Math input') + (this.src ? ': ' + this.src : '')); }
+  onKey(e) {
+    const k = e.key, mod = e.ctrlKey || e.metaKey;
+    if (mod && (k === 'a' || k === 'A')) { e.preventDefault(); if (this.root.nodes.length) { this.sel = { b: this.root, a: 0, z: this.root.nodes.length }; this.cur = { b: this.root, i: this.root.nodes.length }; this.render(); } return; }
+    if (mod) return;
+    switch (k) {
+      case 'ArrowLeft': e.preventDefault(); this.finishCmd(); this.left(e.shiftKey); this.render(); return;
+      case 'ArrowRight': e.preventDefault(); this.finishCmd(); this.right(e.shiftKey); this.render(); return;
+      case 'ArrowUp': case 'ArrowDown': {
+        e.preventDefault(); this.finishCmd(); this.sel = null;
+        if (this.vert(k === 'ArrowUp' ? -1 : 1)) this.render(); else if (this.o.onUpDown) this.o.onUpDown(k === 'ArrowUp' ? -1 : 1, this);
+        return;
+      }
+      case 'Home': e.preventDefault(); this.sel = null; this.cur = { b: this.root, i: 0 }; this.render(); return;
+      case 'End': e.preventDefault(); this.sel = null; this.cur = { b: this.root, i: this.root.nodes.length }; this.render(); return;
+      case 'Backspace':
+        e.preventDefault();
+        if (!this.root.nodes.length) { this.o.onBackspaceEmpty && this.o.onBackspaceEmpty(this); return; }
+        this.edit(() => this.backspace()); return;
+      case 'Delete': e.preventDefault(); this.edit(() => this.del()); return;
+      case 'Enter': e.preventDefault(); this.finishCmd(); this.o.onEnter && this.o.onEnter(this); return;
+      case 'Escape': this.ta.blur(); return;
+    }
+  }
+  // --- public API ---
+  latex() { return serBlock(this.root); }
+  setLatex(text) {
+    this.root.nodes = [];
+    try { put(this.root, 0, parseMath(text)); } catch (e) { put(this.root, 0, String(text).split('').map(mkChar)); }
+    this.cur = { b: this.root, i: this.root.nodes.length }; this.sel = null; this.src = text; this.label(); this.render();
+  }
+  focus(where) {
+    this.cur = { b: this.root, i: where === 'start' ? 0 : this.root.nodes.length }; this.sel = null;
+    this.ta.focus({ preventScroll: true }); this.render();
+  }
+  keypad(a) {
+    this.edit(() => {
+      switch (a) {
+        case 'left': this.finishCmd(); this.left(false); break;
+        case 'right': this.finishCmd(); this.right(false); break;
+        case 'frac': this.fraction(); break;
+        case 'sqrt': this.container('sqrt'); break;
+        case 'sum': case 'int': this.bigOp(a); break;
+        case 'ddx': { if (this.sel) this.deleteSel(); const f = mkNode('frac', 2); put(f.blocks[0], 0, [mkChar('d')]); put(f.blocks[1], 0, [mkChar('d'), mkChar('x')]); put(this.cur.b, this.cur.i, [f]); this.cur.i++; this.openParen('('); break; }
+        case 'bs': this.backspace(); break;
+        default: for (const c of a) this.typeChar(c);
+      }
+    });
+  }
+  insertParsed(text) {
+    if (this.sel) this.deleteSel();
+    const nodes = parseMath(text);
+    put(this.cur.b, this.cur.i, nodes); this.cur.i += nodes.length;
+  }
+  selLatex() { const s = this.sel; return serBlock({ nodes: s.b.nodes.slice(s.a, s.z), parent: null }); }
+  // --- editing ---
+  insertChar(v) { put(this.cur.b, this.cur.i, [mkChar(v)]); this.cur.i++; }
+  after(P) { this.cur = { b: P.pb, i: P.pb.nodes.indexOf(P) + 1 }; }
+  deleteSel() { const s = this.sel; if (!s) return; take(s.b, s.a, s.z); this.cur = { b: s.b, i: s.a }; this.sel = null; }
+  typeChar(c) {
+    const b = this.cur.b;
+    if (b.literal) {
+      const P = b.parent;
+      if (P.t === 'cmd') { if (isLetter(c)) { this.insertChar(c); return; } this.finishCmd(); if (c === ' ') return; return this.typeChar(c); }
+      if (c === '"') { this.after(P); return; }
+      this.insertChar(c); return;
+    }
+    if (this.sel && !'([{|/'.includes(c)) this.deleteSel();
+    switch (c) {
+      case ' ': { const P = b.parent; if (P && (P.t === 'sup' || P.t === 'sub')) this.after(P); return; }
+      case '^': return this.container('sup');
+      case '_': return this.container('sub');
+      case '/': case '÷': return this.fraction();
+      case '(': case '[': case '{': return this.openParen(c);
+      case ')': case ']': case '}': return this.closeParen({ ')': '(', ']': '[', '}': '{' }[c]);
+      case '|': { const P = b.parent; if (P && P.t === 'paren' && P.open === '|' && this.cur.i === b.nodes.length) { this.after(P); return; } return this.openParen('|'); }
+      case '"': if (!this.root.nodes.length && this.o.onNote) { this.o.onNote(this); return 'stop'; } return this.container('str');
+      case '\\': return this.container('cmd');
+      case '*': return this.insertChar('·');
+      case '−': case '–': return this.insertChar('-');
+      case '√': return this.container('sqrt');
+      case '=': { const p = b.nodes[this.cur.i - 1]; if (p && p.t === 'c' && (p.v === '<' || p.v === '>')) { p.v = p.v === '<' ? '≤' : '≥'; return; } return this.insertChar('='); }
+      case '\n': case '\r': case '\t': case '​': return;
+      case '’': case '′': return this.insertChar("'");
+      case '…': return this.insertChar('…');
+    }
+    this.insertChar(c);
+    if (c === '.') { const n = b.nodes, i = this.cur.i; if (i >= 3 && n[i - 2].t === 'c' && n[i - 2].v === '.' && n[i - 3].t === 'c' && n[i - 3].v === '.') { take(b, i - 3, i); this.cur.i = i - 3; this.insertChar('…'); } }
+    if (isLetter(c)) {
+      const P = b.parent;
+      if (P && P.t === 'frac' && b === P.blocks[1] && b.nodes.length === 2 && this.cur.i === 2 && b.nodes[0].v === 'd' && P.blocks[0].nodes.length === 1 && P.blocks[0].nodes[0].v === 'd') { this.after(P); return; }
+      return this.autoCmd();
+    }
+  }
+  autoCmd() {
+    const b = this.cur.b, i = this.cur.i; let s = '', k = i;
+    while (k > 0 && b.nodes[k - 1].t === 'c' && isLetter(b.nodes[k - 1].v) && s.length < 8) { s = b.nodes[k - 1].v + s; k--; }
+    const cut = n => { take(b, i - n, i); this.cur.i = i - n; };
+    if (b === this.root && s === 'table' && k === 0 && i === b.nodes.length && this.o.onTable) { this.o.onTable(this); return 'stop'; }
+    if (s.endsWith('sqrt')) { cut(4); return this.container('sqrt'); }
+    if (s.endsWith('pi')) { cut(2); return this.insertChar('π'); }
+    for (const w of ['sum', 'prod', 'int']) if (s.endsWith(w)) { cut(w.length); return this.bigOp(w); }
+  }
+  container(t) {
+    const n = mkNode(t, 1); if (t === 'str' || t === 'cmd') n.blocks[0].literal = true;
+    if (this.sel && t === 'sqrt') { const s = this.sel; put(n.blocks[0], 0, take(s.b, s.a, s.z)); this.cur = { b: s.b, i: s.a }; this.sel = null; put(this.cur.b, this.cur.i, [n]); this.after(n); return; }
+    put(this.cur.b, this.cur.i, [n]); this.cur = { b: n.blocks[0], i: 0 };
+  }
+  bigOp(op) { if (this.sel) this.deleteSel(); const n = mkNode('big', 2, { op }); put(this.cur.b, this.cur.i, [n]); this.cur = { b: n.blocks[0], i: 0 }; }
+  openParen(o) {
+    const n = mkNode('paren', 1, { open: o });
+    if (this.sel) { const s = this.sel; put(n.blocks[0], 0, take(s.b, s.a, s.z)); this.cur = { b: s.b, i: s.a }; this.sel = null; put(this.cur.b, this.cur.i, [n]); this.after(n); return; }
+    put(this.cur.b, this.cur.i, [n]); this.cur = { b: n.blocks[0], i: 0 };
+  }
+  closeParen(o) {
+    let blk = this.cur.b, P = null;
+    while (blk && blk.parent) { if (blk.parent.t === 'paren' && blk.parent.open === o) { P = blk.parent; break; } blk = blk.parent.pb; }
+    if (P) {
+      if (this.cur.b === P.blocks[0]) { const rest = take(P.blocks[0], this.cur.i, P.blocks[0].nodes.length); const at = P.pb.nodes.indexOf(P); put(P.pb, at + 1, rest); }
+      this.after(P); return;
+    }
+    const b = this.cur.b, n = mkNode('paren', 1, { open: o });
+    put(n.blocks[0], 0, take(b, 0, this.cur.i)); put(b, 0, [n]); this.cur = { b, i: 1 };
+  }
+  fraction() {
+    const b = this.cur.b; let num;
+    if (this.sel) { const s = this.sel; num = take(b, s.a, s.z); this.cur.i = s.a; this.sel = null; }
+    else {
+      const k = numStart(b.nodes, this.cur.i);
+      num = take(b, k, this.cur.i); this.cur.i = k;
+    }
+    if (num.length === 1 && num[0].t === 'paren' && num[0].open === '(') num = num[0].blocks[0].nodes.slice();
+    const f = mkNode('frac', 2); put(f.blocks[0], 0, num); put(b, this.cur.i, [f]);
+    this.cur = num.length ? { b: f.blocks[1], i: 0 } : { b: f.blocks[0], i: 0 };
+  }
+  finishCmd() {
+    const b = this.cur.b, P = b.parent; if (!P || P.t !== 'cmd') return;
+    const name = P.blocks[0].nodes.map(n => n.v).join(''), pb = P.pb, at = pb.nodes.indexOf(P);
+    pb.nodes.splice(at, 1); this.cur = { b: pb, i: at };
+    const sym = { pi: 'π', cdot: '·', times: '·', le: '≤', leq: '≤', ge: '≥', geq: '≥', sim: '~', infty: '∞', lt: '<', gt: '>' }[name];
+    if (sym) return this.insertChar(sym);
+    if (name === 'frac' || name === 'dfrac') { const f = mkNode('frac', 2); put(pb, at, [f]); this.cur = { b: f.blocks[0], i: 0 }; return; }
+    if (name === 'sqrt') return this.container('sqrt');
+    if (name === 'sum' || name === 'prod' || name === 'int') return this.bigOp(name);
+    if (name === 'left' || name === 'right' || !name) return;
+    for (const ch of name) this.insertChar(ch);
+  }
+  unwrap(P, from) {
+    const pb = P.pb, at = pb.nodes.indexOf(P), content = []; let pos = at;
+    P.blocks.forEach(bl => { if (bl === from) pos = at + content.length; content.push(...bl.nodes); });
+    pb.nodes.splice(at, 1); put(pb, at, content); this.cur = { b: pb, i: pos };
+  }
+  backspace() {
+    if (this.sel) return this.deleteSel();
+    const { b, i } = this.cur;
+    if (i > 0) {
+      const n = b.nodes[i - 1];
+      if (isCont(n)) { const last = n.blocks[n.blocks.length - 1]; this.cur = { b: last, i: last.nodes.length }; return; }
+      take(b, i - 1, i); this.cur.i--; return;
+    }
+    if (b.parent) {
+      const P = b.parent, k = P.blocks.indexOf(b);
+      if (P.t === 'big' && k === 1) { this.cur = { b: P.blocks[0], i: P.blocks[0].nodes.length }; return; }
+      this.unwrap(P, b);
+    }
+  }
+  del() {
+    if (this.sel) return this.deleteSel();
+    const { b, i } = this.cur;
+    if (i < b.nodes.length) { const n = b.nodes[i]; if (isCont(n)) { this.cur = { b: n.blocks[0], i: 0 }; return; } take(b, i, i + 1); return; }
+    if (b.parent) this.after(b.parent);
+  }
+  extend(j) {
+    const b = this.cur.b;
+    if (!this.sel) this.anc = this.cur.i;
+    this.cur.i = j;
+    this.sel = j === this.anc ? null : { b, a: Math.min(j, this.anc), z: Math.max(j, this.anc) };
+  }
+  right(shift) {
+    const { b, i } = this.cur;
+    if (shift) { if (i < b.nodes.length) this.extend(i + 1); return; }
+    if (this.sel) { this.cur = { b: this.sel.b, i: this.sel.z }; this.sel = null; return; }
+    if (i < b.nodes.length) { const n = b.nodes[i]; if (isCont(n)) this.cur = { b: n.blocks[0], i: 0 }; else this.cur.i++; }
+    else if (b.parent) { const P = b.parent, k = P.blocks.indexOf(b); if (k < P.blocks.length - 1) this.cur = { b: P.blocks[k + 1], i: 0 }; else this.after(P); }
+  }
+  left(shift) {
+    const { b, i } = this.cur;
+    if (shift) { if (i > 0) this.extend(i - 1); return; }
+    if (this.sel) { this.cur = { b: this.sel.b, i: this.sel.a }; this.sel = null; return; }
+    if (i > 0) { const n = b.nodes[i - 1]; if (isCont(n)) { const last = n.blocks[n.blocks.length - 1]; this.cur = { b: last, i: last.nodes.length }; } else this.cur.i--; }
+    else if (b.parent) { const P = b.parent, k = P.blocks.indexOf(b); if (k > 0) { const pb = P.blocks[k - 1]; this.cur = { b: pb, i: pb.nodes.length }; } else this.cur = { b: P.pb, i: P.pb.nodes.indexOf(P) }; }
+  }
+  vert(dir) {
+    let b = this.cur.b;
+    while (b.parent) {
+      const P = b.parent, k = P.blocks.indexOf(b);
+      if ((P.t === 'frac' || P.t === 'big') && ((P.t === 'frac' ? (dir < 0 ? k === 1 : k === 0) : (dir < 0 ? k === 0 : k === 1)))) {
+        const nb = P.blocks[1 - k]; this.cur = { b: nb, i: nb.nodes.length }; return true;
+      }
+      b = P.pb;
+    }
+    return false;
+  }
+  posAt(x, y) {
+    let best = null, bd = Infinity;
+    this.disp.querySelectorAll('.mb').forEach(el => {
+      const b = el._blk; if (!b) return;
+      const r = el.getBoundingClientRect();
+      const dy = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
+      const n = b.nodes.length;
+      for (let i = 0; i <= n; i++) {
+        let px;
+        if (i < n) px = b.nodes[i]._el.getBoundingClientRect().left;
+        else px = n ? b.nodes[n - 1]._el.getBoundingClientRect().right : r.left + r.width / 2;
+        const d = Math.abs(px - x) + dy * 3;
+        if (d < bd - 0.01) { bd = d; best = { b, i }; }
+      }
+    });
+    return best;
+  }
+  render() {
+    const el = renderBlock(this.root); el.classList.add('mroot');
+    this.disp.replaceChildren(el);
+    this.host.classList.toggle('mf-empty', !this.root.nodes.length);
+    this.host.classList.toggle('mf-focus', this.focused);
+    if (!this.focused) return;
+    if (this.sel) { for (let k = this.sel.a; k < this.sel.z; k++) this.sel.b.nodes[k]._el.classList.add('msel'); return; }
+    const c = document.createElement('span'); c.className = 'cur';
+    const b = this.cur.b, ref = b.nodes[this.cur.i];
+    if (!b._el) return;
+    b._el.insertBefore(c, ref ? ref._el : null);
+    const hr = this.host.getBoundingClientRect(), cr = c.getBoundingClientRect();
+    if (cr.right > hr.right - 10) this.host.scrollLeft += cr.right - hr.right + 24;
+    else if (cr.left < hr.left + 4) this.host.scrollLeft -= hr.left - cr.left + 24;
+  }
+}
+// == MATHFIELD END ==
+
+
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const cv = $('#cv'), ctx = cv.getContext('2d'), listEl = $('#list');
+  const STORE = 'plotline-state-v1';
+
+  let rows = [], nextId = 1, colorCounter = 0, selected = null;
+  const settings = { deg: false, complex: false, logX: false, logY: false, theme: null };
+  let RES = [], CURVES = [], POIS = [];
+  let W = 0, H = 0, dpr = 1;
+  const view = { cx: 0, cy: 0, sx: 50, sy: 50, ready: false };
+  let trace = null, pinned = null, lastField = null;
+  const fields = new Map();
+  const isNote = t => typeof t === 'string' && t.trim().startsWith('"');
+  const kindOf = r => (r.type === 'table' ? 'table' : isNote(r.text) ? 'note' : 'math');
+
+  // ---------- rows ----------
+  function newRow(text = '', o = {}) {
+    return {
+      id: nextId++, type: o.type || 'expr', text, color: o.color ?? (isNote(text) ? 0 : colorCounter++ % 6),
+      hidden: !!o.hidden, slider: o.slider || null, playing: false, dir: 1,
+      seed: o.seed || (Math.random() * 1e9) | 0, style: { dash: false, label: false, connect: false, ...(o.style || {}) },
+      table: o.table || null,
+    };
+  }
+  function usedNames() {
+    const s = new Set();
+    rows.forEach(r => {
+      if (r.type === 'table' && r.table) r.table.cols.forEach(c => s.add(c.name.trim()));
+      else { const m = /^\s*([a-zA-Z])(?:_\{?([a-zA-Z0-9]+)\}?)?\s*(?:\\left\(|\(|=)/.exec(r.text); if (m) s.add(m[2] ? `${m[1]}_${m[2]}` : m[1]); }
+    });
+    return s;
+  }
+  function freshCols() { const u = usedNames(); let k = 1; while (u.has(`x_${k}`) || u.has(`y_${k}`)) k++; return [{ name: `x_${k}`, cells: [] }, { name: `y_${k}`, cells: [] }]; }
+  function freshColName() { const u = usedNames(); let k = 1; while (u.has(`y_${k}`)) k++; return `y_${k}`; }
+  function rowFromSpec(sp) {
+    if (typeof sp === 'string') return newRow(sp);
+    if (sp.table) return newRow('', { type: 'table', table: JSON.parse(JSON.stringify(sp.table)), style: sp.style });
+    return newRow(sp.text, { style: sp.style, slider: sp.slider, hidden: sp.hidden });
+  }
+  function serialize() {
+    return { rows: rows.map(r => ({ type: r.type, text: r.text, color: r.color, hidden: r.hidden, slider: r.slider, seed: r.seed, style: r.style, table: r.table })), colorCounter, settings: { ...settings }, view: { cx: view.cx, cy: view.cy, sx: view.sx, sy: view.sy } };
+  }
+  function restore(st) {
+    rows = st.rows.map(r => ({
+      id: nextId++, type: r.type === 'table' ? 'table' : 'expr', text: String(r.text || ''), color: (r.color | 0) % 6, hidden: !!r.hidden,
+      slider: r.slider || null, playing: false, dir: 1, seed: r.seed || ((Math.random() * 1e9) | 0),
+      style: { dash: false, label: false, connect: false, ...(r.style || {}) },
+      table: r.type === 'table' && r.table && Array.isArray(r.table.cols) ? { cols: r.table.cols.map(c => ({ name: String(c.name || ''), cells: (c.cells || []).map(String) })) } : null,
+    }));
+    rows.forEach(r => { if (r.type === 'table' && !r.table) r.table = { cols: freshCols() }; });
+    if (!rows.length) rows = [newRow('')];
+    colorCounter = st.colorCounter | 0;
+    const s = st.settings || {};
+    settings.deg = !!(s.deg ?? st.deg); settings.complex = !!s.complex; settings.logX = !!s.logX; settings.logY = !!s.logY;
+    settings.theme = s.theme === 'light' || s.theme === 'dark' ? s.theme : null;
+    const v = st.view;
+    if (v && isFinite(v.cx) && isFinite(v.cy)) {
+      view.cx = v.cx; view.cy = v.cy; view.sx = v.sx || v.s; view.sy = v.sy || v.s;
+      view.ready = isFinite(view.sx) && isFinite(view.sy) && view.sx > 0 && view.sy > 0;
+    } else view.ready = false;
+  }
+  function exampleRows() {
+    colorCounter = 0;
+    const r = [
+      newRow('"Example: the tangent line to f at x = a. Drag the a slider, or replace any line with your own.'),
+      newRow('f(x) = x^3 - 3x', { color: 0 }),
+      newRow("f'(x)", { color: 1 }),
+      newRow("y = f'(a)(x - a) + f(a)", { color: 2 }),
+      newRow('(a, f(a))', { color: 3 }),
+      newRow('a = 1.5', { color: 4, slider: { min: -3, max: 3 } }),
+    ];
+    colorCounter = 5; r.push(newRow(''));
+    return r;
+  }
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE); if (!raw) return false;
+      const st = JSON.parse(raw); if (!st || !Array.isArray(st.rows) || !st.rows.length) return false;
+      restore(st); return true;
+    } catch (e) { return false; }
+  }
+  let saveTimer = 0;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { try { localStorage.setItem(STORE, JSON.stringify(serialize())); } catch (e) { /* storage unavailable */ } }, 300);
+  }
+
+  // ---------- theme ----------
+  function applyTheme() {
+    if (settings.theme) document.documentElement.dataset.theme = settings.theme;
+    else document.documentElement.removeAttribute('data-theme');
+    const dark = settings.theme ? settings.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    $('#thLight').setAttribute('aria-pressed', String(!dark));
+    $('#thDark').setAttribute('aria-pressed', String(dark));
+  }
+  $('#thLight').addEventListener('click', () => { settings.theme = 'light'; applyTheme(); save(); });
+  $('#thDark').addEventListener('click', () => { settings.theme = 'dark'; applyTheme(); save(); });
+
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  function renderKeys() {
+    document.querySelectorAll('.key[data-m]').forEach(el => { const s = document.createElement('span'); s.className = 'mstatic'; el.appendChild(s); renderStatic(s, el.dataset.m); });
+  }
+  // shrink tall keypad symbols (fractions, sums, integrals) so they sit inside their buttons
+  function fitKeys() {
+    document.querySelectorAll('.key .mstatic').forEach(m => {
+      m.style.fontSize = '';
+      const room = m.parentElement.clientHeight - 6, h = m.getBoundingClientRect().height;
+      if (h > room && h > 0) m.style.fontSize = (15 * room / h).toFixed(2) + 'px';
+    });
+  }
+
+  // ---------- toast ----------
+  let toastTimer = 0, toastUndo = null;
+  function toast(msg, undo) {
+    $('#toastMsg').textContent = msg; toastUndo = undo; $('#toastUndo').hidden = !undo; $('#toast').hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('#toast').hidden = true; toastUndo = null; }, 7000);
+  }
+  $('#toastUndo').addEventListener('click', () => { if (toastUndo) toastUndo(); toastUndo = null; $('#toast').hidden = true; });
+
+  // ---------- canvas theme ----------
+  let TH = {};
+  function readTheme() {
+    const cs = getComputedStyle(document.documentElement), g = n => cs.getPropertyValue(n).trim();
+    TH = {
+      canvas: g('--canvas'), minor: g('--grid-minor'), major: g('--grid-major'), axis: g('--axis'),
+      ink: g('--ink'), muted: g('--muted'), panel: g('--panel'), rule: g('--rule'),
+      c: [1, 2, 3, 4, 5, 6].map(i => g('--c' + i)), data: g('--font-data'), ui: g('--font-ui'), math: g('--font-math'),
+    };
+    TH.rgb = TH.c.map(h => { const m = /^#?([0-9a-f]{6})$/i.exec(h); if (!m) return [128, 128, 128]; const n = parseInt(m[1], 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; });
+  }
+  const rgba = (rgb, a) => `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`;
+
+  // ---------- recompute ----------
+  function probeArray(f) {
+    const a = wx(0), b = wx(W || 400);
+    for (const t of [(a + b) / 2, a + (b - a) * 0.31, a + (b - a) * 0.77, 1, 2]) {
+      let v; try { v = f(t); } catch (e) { return 0; }
+      if (isArr(v)) return Math.min(v.length, 60);
+      if (typeof v === 'number' && isFinite(v)) return 0;
+    }
+    return 0;
+  }
+  function valueCurves(v, base, out) {
+    if (v instanceof Pt) out.push({ ...base, type: 'pts', pts: [v] });
+    else if (v instanceof Cx) out.push({ ...base, type: 'pts', pts: [new Pt(v.re, v.im)] });
+    else if (v instanceof Dist) out.push({ ...base, type: 'dist', d: v });
+    else if (v instanceof Viz) out.push({ ...base, type: 'viz', v });
+    else if (isArr(v) && !isMat(v) && v.length) {
+      if (v.every(p => p instanceof Pt || p instanceof Cx)) out.push({ ...base, type: 'pts', pts: v.map(p => (p instanceof Cx ? new Pt(p.re, p.im) : p)) });
+      else if (v.every(p => p instanceof Viz)) v.forEach((z, k) => out.push({ ...base, type: 'viz', v: z, key: base.key + ':' + k }));
+    }
+  }
+  function buildCurves(R, row) {
+    const out = [], base = { R, row, color: row.color, key: String(row.id) };
+    const fn = (type, f, op) => {
+      const n = probeArray(f);
+      if (n) for (let k = 0; k < n; k++) out.push({ ...base, type, op, key: base.key + ':' + k, f: t => { const v = f(t); return isArr(v) ? v[k] : v; } });
+      else out.push({ ...base, type, op, f });
+    };
+    switch (R.kind) {
+      case 'yx': case 'reg': if (R.f) fn('fx', R.f, R.op || '='); break;
+      case 'fdef': if (R.plotsFn) fn('fx', R.f, '='); break;
+      case 'xy': if (R.f) fn('fy', R.f, R.op); break;
+      case 'imp': out.push({ ...base, type: 'imp', conds: R.conds }); break;
+      case 'val': case 'vdef': valueCurves(R.value, base, out); break;
+      case 'table': {
+        const c0 = R.colVals && R.colVals[0]; if (!c0) break;
+        for (let k = 1; k < R.colVals.length; k++) {
+          const ys = R.colVals[k]; if (!ys) continue;
+          const pts = []; for (let i = 0; i < Math.min(c0.length, ys.length); i++) if (isFinite(c0[i]) && isFinite(ys[i])) pts.push(new Pt(c0[i], ys[i]));
+          out.push({ ...base, type: 'pts', pts, color: (row.color + k - 1) % 6, key: base.key + ':c' + k, table: true });
+        }
+        break;
+      }
+    }
+    return out;
+  }
+  function recompute() {
+    DEG = settings.deg; COMPLEX = settings.complex;
+    RES = analyzeAll(rows.map(r => (r.type === 'table' ? { table: r.table, seed: r.seed } : { text: r.text, seed: r.seed })));
+    CURVES = [];
+    RES.forEach((R, i) => {
+      const row = rows[i]; R.row = row;
+      try { R.tex = R.kind === 'table' ? null : texOf(R); } catch (e) { R.tex = null; }
+      let made = [];
+      try { made = buildCurves(R, row); } catch (e) { made = []; }
+      R.drawable = made.length > 0;
+      R.hasLines = made.some(c => c.type !== 'pts');
+      R.hasPts = made.some(c => c.type === 'pts');
+      if (R.label) R.labelText = R.label.replace(/\$\{([^}]*)\}/g, (_, e) => fmtVal(evalText(e)));
+      if (!row.hidden) CURVES.push(...made);
+    });
+    if (pinned && pinned.kind === 'poi') pinned = null;
+  }
+  function ensureTrailing() {
+    const last = rows[rows.length - 1];
+    if (last && kindOf(last) === 'math' && !last.text.trim()) return false;
+    const r = newRow(''); rows.push(r);
+    if (listEl.children.length) listEl.appendChild(buildRow(r));
+    return true;
+  }
+  function changed() { ensureTrailing(); recompute(); syncRows(); requestDraw(); save(); }
+
+  // ---------- list UI ----------
+  const rowEls = new Map();
+  const ICON_PLAY = '<svg width="10" height="12" viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg>';
+  const ICON_PAUSE = '<svg width="10" height="12" viewBox="0 0 10 12"><path d="M0 0h3.5v12H0zM6.5 0H10v12H6.5z"/></svg>';
+  const ICON_DICE = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="12" height="12" rx="2.5"/><circle cx="4.5" cy="4.5" r=".9" fill="currentColor"/><circle cx="9.5" cy="9.5" r=".9" fill="currentColor"/><circle cx="7" cy="7" r=".9" fill="currentColor"/></svg>';
+  const ICON_DEL = '<svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l8 8M11 3l-8 8"/></svg>';
+
+  function rowNav(row, d) {
+    const idx = rows.findIndex(r => r.id === row.id), t = rows[idx + d];
+    if (t) focusRow(t.id, d < 0 ? 'end' : 'end');
+  }
+  function buildRow(row) {
+    const li = document.createElement('li');
+    const kind = kindOf(row);
+    li.className = 'row' + (kind === 'note' ? ' note' : ''); li.dataset.id = row.id; li.dataset.kind = kind;
+    const gut = `<div class="gut"><span class="num"></span><button class="dot" type="button" aria-label="Show or hide this graph"></button><button class="dice" type="button" aria-label="New random values" hidden>${ICON_DICE}</button></div>`;
+    const opts = `<div class="opts" hidden><button class="opt" type="button" data-opt="dash" aria-pressed="false">Dashed</button><button class="opt" type="button" data-opt="label" aria-pressed="false">Label</button><button class="opt" type="button" data-opt="connect" aria-pressed="false">Connect</button></div>`;
+    const del = `<button class="del" type="button" aria-label="Delete">${ICON_DEL}</button>`;
+    fields.delete(row.id);
+    if (kind === 'table') {
+      li.innerHTML = `${gut}<div class="main"><div class="tbl"></div><div class="info" hidden></div>${opts}</div>${del}`;
+      buildTable(li, row);
+    } else if (kind === 'note') {
+      li.innerHTML = `${gut}<div class="main"><textarea class="note-in" id="note-${row.id}" rows="1" aria-label="Note" placeholder="Write a note"></textarea></div>${del}`;
+      li.querySelector('.note-in').value = row.text.trim().slice(1);
+      requestAnimationFrame(() => fitNote(li.querySelector('.note-in')));
+    } else {
+      li.innerHTML = `${gut}<div class="main">
+        <div class="mfhost"></div>
+        <div class="info" hidden></div>
+        <div class="slider" hidden>
+          <button class="play" type="button" aria-label="Animate slider">${ICON_PLAY}</button>
+          <input class="smin" id="smin-${row.id}" aria-label="Slider minimum">
+          <input type="range" class="srange" id="srange-${row.id}" aria-label="Slider value">
+          <input class="smax" id="smax-${row.id}" aria-label="Slider maximum">
+        </div>${opts}</div>${del}`;
+      const f = new MathField(li.querySelector('.mfhost'), {
+        id: `expr-${row.id}`, label: 'Expression', placeholder: 'Type math, “table”, or " for a note',
+        onChange: tex => { row.text = tex; changed(); },
+        onFocus: fld => { lastField = fld; selectRow(row.id); },
+        onEnter: () => { const r = insertRowAfter(row.id); focusRow(r.id); },
+        onBackspaceEmpty: () => { if (rows.length > 1) { const prev = deleteRow(row.id); if (prev) focusRow(prev.id, 'end'); } },
+        onUpDown: d => rowNav(row, d),
+        onNote: () => { row.text = '"'; rebuildRow(row); changed(); focusRow(row.id); },
+        onTable: () => { const cols = freshCols(); row.type = 'table'; row.text = ''; row.table = { cols }; rebuildRow(row); selected = row.id; changed(); focusRow(row.id); },
+      });
+      f.setLatex(row.text);
+      fields.set(row.id, f);
+    }
+    rowEls.set(row.id, li);
+    return li;
+  }
+  function fitNote(t) { if (!t) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
+  function rebuildRow(row) {
+    const old = rowEls.get(row.id); const li = buildRow(row);
+    if (old && old.parentNode) old.replaceWith(li); else renderList();
+  }
+  const lastFilled = cells => { let n = cells.length; while (n > 0 && !String(cells[n - 1] || '').trim()) n--; return n; };
+  function makeCell(li, row, r, c) {
+    const host = document.createElement('div'); host.className = 'cellf';
+    const f = new MathField(host, {
+      id: `td-${row.id}-${r}-${c}`, label: `Row ${r + 1}, column ${c + 1}`,
+      onChange: tex => {
+        const col = row.table.cols[c]; while (col.cells.length <= r) col.cells.push('');
+        col.cells[r] = tex;
+        const tbody = li.querySelector('tbody');
+        if (r === tbody.rows.length - 1 && tex.trim()) appendTableRow(li, row, r + 1);
+        changed();
+      },
+      onFocus: fld => { lastField = fld; selectRow(row.id); },
+      onEnter: () => cellAt(li, r + 1, c, true),
+      onUpDown: d => cellAt(li, r + d, c, false) || (d < 0 && r === 0 && headAt(li, c)),
+      onPaste: (fld, text) => { if (!/[\t\n]/.test(text.trim())) return false; pasteGrid(li, row, r, c, text); return true; },
+    });
+    f.setLatex(row.table.cols[c].cells[r] ?? '');
+    li._cells[r] = li._cells[r] || []; li._cells[r][c] = f;
+    return host;
+  }
+  function cellAt(li, r, c, create) { const f = li._cells[r] && li._cells[r][c]; if (f) { f.focus('end'); return true; } return false; }
+  function headAt(li, c) { const f = li._heads[c]; if (f) { f.focus('end'); return true; } return false; }
+  function appendTableRow(li, row, r) {
+    const tr = document.createElement('tr');
+    row.table.cols.forEach((_, c) => { const td = document.createElement('td'); td.appendChild(makeCell(li, row, r, c)); tr.appendChild(td); });
+    const pad = document.createElement('td'); pad.className = 'pad'; tr.appendChild(pad);
+    li.querySelector('tbody').appendChild(tr);
+  }
+  function buildTable(li, row) {
+    const cols = row.table.cols, nr = Math.max(0, ...cols.map(c => lastFilled(c.cells))) + 1;
+    li._cells = []; li._heads = [];
+    const wrap = li.querySelector('.tbl');
+    wrap.innerHTML = '<table><thead><tr></tr></thead><tbody></tbody></table>';
+    const htr = wrap.querySelector('thead tr');
+    cols.forEach((col, c) => {
+      const th = document.createElement('th'), host = document.createElement('div'); host.className = 'thf';
+      const f = new MathField(host, {
+        id: `th-${row.id}-${c}`, label: `Column ${c + 1} name`,
+        onChange: tex => { col.name = tex.replace(/[{}\s]/g, ''); changed(); },
+        onFocus: fld => { lastField = fld; selectRow(row.id); },
+        onEnter: () => cellAt(li, 0, c),
+        onUpDown: d => { if (d > 0) cellAt(li, 0, c); },
+        onBlur: () => { if (!col.name.trim() && !lastFilled(col.cells) && row.table.cols.length > 1) { row.table.cols.splice(c, 1); buildTable(li, row); changed(); } },
+      });
+      f.setLatex(col.name); li._heads[c] = f;
+      th.appendChild(host); htr.appendChild(th);
+    });
+    const add = document.createElement('th'); add.className = 'addc'; add.innerHTML = '<button class="addcol" type="button" aria-label="Add a column">+</button>'; htr.appendChild(add);
+    for (let r = 0; r < nr; r++) appendTableRow(li, row, r);
+  }
+  function pasteGrid(li, row, r0, c0, text) {
+    const grid = text.replace(/\r/g, '').split('\n').filter((l, i, a) => l.trim() || i < a.length - 1).map(l => l.split(/\t|,(?=\s*-?\d)/));
+    grid.forEach((line, i) => line.forEach((cell, j) => {
+      const c = c0 + j;
+      while (row.table.cols.length <= c) row.table.cols.push({ name: freshColName(), cells: [] });
+      const col = row.table.cols[c]; while (col.cells.length <= r0 + i) col.cells.push('');
+      col.cells[r0 + i] = cell.trim();
+    }));
+    buildTable(li, row); changed();
+  }
+  function renderList() {
+    listEl.innerHTML = ''; rowEls.clear(); fields.clear();
+    rows.forEach(r => listEl.appendChild(buildRow(r)));
+    syncRows();
+  }
+
+  function renderInfo(el, R) {
+    let key = '', build = null, cls = 'info', after = null;
+    const val = R.value;
+    if (R.kind === 'err' || (R.kind === 'table' && R.error)) {
+      cls = 'info err';
+      const miss = (R.missing || []).filter(n => /^[a-zA-Z](_[a-zA-Z0-9]+)?$/.test(n));
+      key = 'err:' + R.error + miss.join(',');
+      build = () => `<span>${esc(R.error)}</span>` + miss.map(n => `<button type="button" class="add-slider" data-name="${esc(n)}">add slider: ${esc(n)}</button>`).join('');
+    } else if (R.kind === 'reg' && R.res) {
+      const r = R.res;
+      key = 'reg:' + r.p.join(',') + r.r2 + r.rmse;
+      const maths = R.params.map((p, i) => `${idTex(p)}=${numTex(r.p[i], 5)}`).concat([`R^{2}=${numTex(r.r2, 5)}`]);
+      build = () => maths.map((_, i) => `<span class="mstatic smath" data-i="${i}"></span>`).join('') + `<span class="stat">RMSE ${fmtNum(r.rmse, 4)}</span><span class="stat">n = ${r.n}</span>` +
+        (r.r2 < 0 ? '<span class="line">R² is negative: this model fits worse than a flat line at the mean of the data.</span>' : '');
+      after = () => el.querySelectorAll('.smath').forEach(s => renderStatic(s, maths[+s.dataset.i]));
+    } else if (R.kind === 'val' || (R.kind === 'vdef' && !R.isSlider)) {
+      if (val instanceof Test) {
+        key = 'test:' + val.t + val.p;
+        const maths = [`t=${numTex(val.t, 4)}`, `\\text{df}=${numTex(val.df, 4)}`, `p=${numTex(val.p, 4)}`];
+        build = () => `<span class="line">${esc(val.title)}</span>` + maths.map((_, i) => `<span class="mstatic smath" data-i="${i}"></span>`).join('') + `<span class="line">p is two-sided. One-sided: p left ${fmtNum(val.pleft, 4)}, p right ${fmtNum(val.pright, 4)}</span>`;
+        after = () => el.querySelectorAll('.smath').forEach(s => renderStatic(s, maths[+s.dataset.i]));
+      } else if (val instanceof Dist) {
+        const D = DIST[val.type];
+        key = 'dist:' + val.type + val.p.join(',');
+        const maths = [`\\mu=${numTex(D.mean(val.p), 5)}`, `\\sigma=${numTex(D.sd(val.p), 5)}`];
+        build = () => `<span>${D.title} distribution</span>` + maths.map((_, i) => `<span class="mstatic smath" data-i="${i}"></span>`).join('');
+        after = () => el.querySelectorAll('.smath').forEach(s => renderStatic(s, maths[+s.dataset.i].replace('\\mu', 'μ').replace('\\sigma', 'σ')));
+      } else if (val instanceof Viz) {
+        if (val.viz === 'box') { const f = val.five; key = 'box:' + f.join(','); build = () => ['Min', 'Q1', 'Median', 'Q3', 'Max'].map((l, i) => `<span class="stat">${l} ${fmtNum(f[i], 5)}</span>`).join(''); }
+        else if (val.viz === 'hist') { key = 'hist:' + val.data.length + ':' + val.w; build = () => `<span class="stat">n = ${val.data.length}</span><span class="stat">bin width ${fmtNum(val.w, 4)}</span>`; }
+        else if (val.viz === 'dot') { key = 'dot:' + val.data.length; build = () => `<span class="stat">n = ${val.data.length}</span>`; }
+      } else if (!(val instanceof Pt) && !(isArr(val) && val.length && val.every(p => p instanceof Pt))) {
+        const tex = vTex(val);
+        if (tex !== null) { key = 'v:' + tex; build = () => '<span class="val mstatic"></span>'; after = () => renderStatic(el.firstChild, '=' + tex); }
+      }
+    }
+    if (el._k === key && el.className === cls) return;
+    el._k = key; el.className = cls;
+    if (!build) { el.hidden = true; el.innerHTML = ''; return; }
+    el.hidden = false; el.innerHTML = build(); if (after) after();
+  }
+  function syncRows() {
+    rows.forEach((row, i) => {
+      let li = rowEls.get(row.id); if (!li) return;
+      if (li.dataset.kind !== kindOf(row)) { rebuildRow(row); li = rowEls.get(row.id); }
+      const R = RES[i] || { kind: 'empty' };
+      li.style.setProperty('--cc', `var(--c${row.color + 1})`);
+      li.querySelector('.num').textContent = i + 1;
+      li.classList.toggle('sel', selected === row.id);
+      const dot = li.querySelector('.dot'); dot.hidden = !R.drawable; dot.classList.toggle('off', row.hidden);
+      li.querySelector('.dice').hidden = !(row.type === 'expr' && /random|shuffle/.test(row.text));
+      const kind = li.dataset.kind;
+      if (kind === 'note') {
+        const inp = li.querySelector('.note-in'), v = row.text.trim().slice(1);
+        if (document.activeElement !== inp && inp.value !== v) inp.value = v;
+        return;
+      }
+      if (kind === 'math') {
+        const f = fields.get(row.id);
+        if (f && !f.focused && f.src !== row.text) f.setLatex(row.text);
+        const sl = li.querySelector('.slider');
+        if (R.kind === 'vdef' && R.isSlider && typeof R.value === 'number') {
+          const v = R.value;
+          if (!row.slider) row.slider = { min: Math.min(-10, Math.floor(v)), max: Math.max(10, Math.ceil(v)) };
+          if (v < row.slider.min) row.slider.min = Math.floor(v);
+          if (v > row.slider.max) row.slider.max = Math.ceil(v);
+          sl.hidden = false;
+          const rg = sl.querySelector('.srange'), d = sliderDecimals(row);
+          rg.min = row.slider.min; rg.max = row.slider.max; rg.step = Math.pow(10, -d);
+          if (document.activeElement !== rg) rg.value = v;
+          const mn = sl.querySelector('.smin'), mx = sl.querySelector('.smax');
+          if (document.activeElement !== mn) mn.value = minus(String(row.slider.min));
+          if (document.activeElement !== mx) mx.value = minus(String(row.slider.max));
+          const pl = sl.querySelector('.play'); pl.innerHTML = row.playing ? ICON_PAUSE : ICON_PLAY;
+          pl.setAttribute('aria-label', row.playing ? 'Pause slider' : 'Animate slider');
+        } else { sl.hidden = true; row.playing = false; }
+      }
+      renderInfo(li.querySelector('.info'), R);
+      const opts = li.querySelector('.opts');
+      opts.hidden = !(selected === row.id && R.drawable);
+      if (!opts.hidden) {
+        opts.querySelector('[data-opt=dash]').hidden = !R.hasLines;
+        opts.querySelector('[data-opt=label]').hidden = !R.hasPts;
+        opts.querySelector('[data-opt=connect]').hidden = !R.hasPts;
+        opts.querySelectorAll('.opt').forEach(b => b.setAttribute('aria-pressed', String(!!row.style[b.dataset.opt])));
+      }
+    });
+  }
+  function sliderDecimals(row) { return Math.max(0, Math.min(6, Math.ceil(-Math.log10((row.slider.max - row.slider.min) / 200)))); }
+
+  const rowById = id => rows.find(r => r.id === id);
+  function focusRow(id, where) {
+    const li = rowEls.get(id); if (!li) return;
+    const kind = li.dataset.kind;
+    if (kind === 'math') { const f = fields.get(id); if (f) f.focus(where); return; }
+    if (kind === 'note') { const inp = li.querySelector('.note-in'); inp.focus(); const n = inp.value.length; inp.setSelectionRange(n, n); return; }
+    if (li._cells && li._cells[0] && li._cells[0][0]) li._cells[0][0].focus('end');
+  }
+  function insertRowAfter(id, text = '', extra = {}) {
+    let idx = id == null ? -1 : rows.findIndex(r => r.id === id);
+    if (idx < 0) { idx = rows.length - 1; if (rows[idx] && kindOf(rows[idx]) === 'math' && !rows[idx].text.trim()) idx--; }
+    const r = newRow(text, extra);
+    rows.splice(idx + 1, 0, r);
+    renderList(); changed();
+    return r;
+  }
+  function deleteRow(id) {
+    const idx = rows.findIndex(r => r.id === id); if (idx < 0) return null;
+    rows.splice(idx, 1);
+    if (!rows.length) rows.push(newRow(''));
+    if (selected === id) selected = null;
+    renderList(); changed();
+    return rows[Math.max(0, idx - 1)];
+  }
+  function selectRow(id) { if (selected !== id) { selected = id; syncRows(); requestDraw(); } }
+
+  listEl.addEventListener('input', e => {
+    const li = e.target.closest('.row'); if (!li) return;
+    const row = rowById(+li.dataset.id), t = e.target;
+    if (t.classList.contains('note-in')) { row.text = '"' + t.value.replace(/\n/g, ' '); fitNote(t); changed(); }
+    else if (t.classList.contains('srange')) {
+      const m = SLIDER_RE.exec(row.text.trim()); if (!m) return;
+      row.text = `${m[1]} = ${String(Number((+t.value).toFixed(sliderDecimals(row))))}`;
+      changed();
+    }
+  });
+  listEl.addEventListener('change', e => {
+    const li = e.target.closest('.row'); if (!li) return;
+    const row = rowById(+li.dataset.id), t = e.target;
+    if (t.classList.contains('smin') || t.classList.contains('smax')) {
+      const v = parseFloat(t.value.replace('−', '-')), isMin = t.classList.contains('smin');
+      if (isFinite(v) && row.slider) { if (isMin && v < row.slider.max) row.slider.min = v; if (!isMin && v > row.slider.min) row.slider.max = v; }
+      changed();
+    }
+  });
+  listEl.addEventListener('click', e => {
+    const li = e.target.closest('.row'); if (!li) return;
+    const id = +li.dataset.id, row = rowById(id);
+    if (e.target.closest('.dot')) { row.hidden = !row.hidden; changed(); return; }
+    if (e.target.closest('.dice')) { row.seed = (row.seed * 1103515245 + 12345) >>> 0; changed(); return; }
+    if (e.target.closest('.del')) { const prev = deleteRow(id); if (prev) focusRow(prev.id, 'end'); return; }
+    if (e.target.closest('.play')) { row.playing = !row.playing; syncRows(); if (row.playing) startAnim(); return; }
+    const opt = e.target.closest('.opt');
+    if (opt) { row.style[opt.dataset.opt] = !row.style[opt.dataset.opt]; changed(); return; }
+    if (e.target.closest('.addcol')) { row.table.cols.push({ name: freshColName(), cells: [] }); buildTable(li, row); changed(); li._heads[li._heads.length - 1].focus('end'); return; }
+    const add = e.target.closest('.add-slider');
+    if (add) { insertRowAfter(id, `${add.dataset.name} = 1`, { slider: { min: -10, max: 10 } }); selected = id; syncRows(); return; }
+    if (!e.target.closest('input,button,.mf')) selectRow(id);
+  });
+  listEl.addEventListener('focusin', e => {
+    const li = e.target.closest('.row'); if (!li) return;
+    selectRow(+li.dataset.id);
+  });
+  listEl.addEventListener('keydown', e => {
+    const t = e.target; if (!t.classList.contains('note-in')) return;
+    const li = t.closest('.row'), row = rowById(+li.dataset.id);
+    if (e.key === 'Enter') { e.preventDefault(); const r = insertRowAfter(row.id); focusRow(r.id); }
+    else if (e.key === 'Backspace' && t.value === '') { e.preventDefault(); row.text = ''; rebuildRow(row); changed(); focusRow(row.id); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); rowNav(row, -1); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); rowNav(row, 1); }
+  });
+  // keypad
+  const keys = $('#keys');
+  keys.addEventListener('pointerdown', e => { if (e.target.closest('.key')) e.preventDefault(); });
+  keys.addEventListener('click', e => {
+    const k = e.target.closest('.key'); if (!k) return;
+    let f = lastField && document.body.contains(lastField.host) ? lastField : null;
+    if (!f) { const last = rows.filter(r => kindOf(r) === 'math').pop(); if (!last) { const r = insertRowAfter(null); f = fields.get(r.id); } else f = fields.get(last.id); }
+    if (!f) return;
+    if (!f.focused) f.focus('end');
+    f.keypad(k.dataset.k);
+  });
+
+  // ---------- header panels ----------
+  function togglePanel(btn, panel, open) {
+    const show = open ?? panel.hidden;
+    ['#settings', '#confirm'].forEach(s => { $(s).hidden = true; });
+    $('#setBtn').setAttribute('aria-expanded', 'false');
+    panel.hidden = !show; if (btn) btn.setAttribute('aria-expanded', String(show));
+    return show;
+  }
+  $('#setBtn').addEventListener('click', () => togglePanel($('#setBtn'), $('#settings')));
+  $('#clearBtn').addEventListener('click', () => { togglePanel(null, $('#confirm'), true); $('#confirmYes').focus(); });
+  $('#confirmNo').addEventListener('click', () => { $('#confirm').hidden = true; });
+  $('#confirmYes').addEventListener('click', () => {
+    const snap = serialize();
+    $('#confirm').hidden = true; colorCounter = 0;
+    rows = [newRow('')]; selected = null; trace = null; pinned = null;
+    renderList(); changed(); focusRow(rows[0].id);
+    toast('All expressions deleted.', () => { restore(snap); renderList(); syncSettings(); changed(); });
+  });
+  function syncSettings() {
+    $('#angRad').setAttribute('aria-pressed', String(!settings.deg));
+    $('#angDeg').setAttribute('aria-pressed', String(settings.deg));
+    $('#optComplex').checked = settings.complex; $('#optLogX').checked = settings.logX; $('#optLogY').checked = settings.logY;
+    applyTheme();
+  }
+  $('#angRad').addEventListener('click', () => { settings.deg = false; syncSettings(); changed(); });
+  $('#angDeg').addEventListener('click', () => { settings.deg = true; syncSettings(); changed(); });
+  $('#optComplex').addEventListener('change', e => { settings.complex = e.target.checked; changed(); });
+  $('#optLogX').addEventListener('change', e => { settings.logX = e.target.checked; defaultView(); changed(); });
+  $('#optLogY').addEventListener('change', e => { settings.logY = e.target.checked; defaultView(); changed(); });
+
+  // slider animation
+  let animOn = false, lastT = 0;
+  function startAnim() { if (animOn) return; animOn = true; lastT = performance.now(); requestAnimationFrame(tick); }
+  function tick(t) {
+    const dt = Math.min(0.05, (t - lastT) / 1000); lastT = t;
+    let any = false;
+    rows.forEach(row => {
+      if (!row.playing || !row.slider) return;
+      const m = SLIDER_RE.exec(row.text.trim()); if (!m) { row.playing = false; return; }
+      any = true;
+      const { min, max } = row.slider;
+      let v = parseFloat(m[2]) + row.dir * (max - min) * dt / 4;
+      if (v >= max) { v = max; row.dir = -1; } else if (v <= min) { v = min; row.dir = 1; }
+      row.text = `${m[1]} = ${String(Number(v.toFixed(sliderDecimals(row))))}`;
+    });
+    if (any) { changed(); requestAnimationFrame(tick); } else { animOn = false; syncRows(); }
+  }
+
+  // ---------- coordinates ----------
+  const tX = x => (settings.logX ? (x > 0 ? Math.log10(x) : NaN) : x);
+  const tY = y => (settings.logY ? (y > 0 ? Math.log10(y) : NaN) : y);
+  const iX = u => (settings.logX ? Math.pow(10, u) : u);
+  const iY = u => (settings.logY ? Math.pow(10, u) : u);
+  const px = x => W / 2 + (tX(x) - view.cx) * view.sx;
+  const py = y => H / 2 - (tY(y) - view.cy) * view.sy;
+  const wx = p => iX(view.cx + (p - W / 2) / view.sx);
+  const wy = p => iY(view.cy - (p - H / 2) / view.sy);
+  const clampP = v => Math.max(-1e4, Math.min(1e4 + Math.max(W, H), v));
+  const clampS = s => Math.max(1e-6, Math.min(1e10, s));
+  function defaultView() {
+    const base = Math.max(4, Math.min(W / 10, H / 8));
+    view.cx = settings.logX ? 1 : 0; view.cy = settings.logY ? 1 : 0;
+    view.sx = settings.logX ? W / 5 : base; view.sy = settings.logY ? H / 5 : base;
+    if (!settings.logX && !settings.logY) view.sx = view.sy = base;
+  }
+  function setRange(xr, yr) {
+    if (!W || !H) { view.pending = [xr, yr]; return; }
+    const a = tX(xr[0]), b = tX(xr[1]), c = tY(yr[0]), d = tY(yr[1]);
+    view.cx = (a + b) / 2; view.sx = W / (b - a); view.cy = (c + d) / 2; view.sy = H / (d - c); view.ready = true;
+  }
+  function zoomAt(mx, my, f) {
+    const ux = view.cx + (mx - W / 2) / view.sx, uy = view.cy - (my - H / 2) / view.sy;
+    view.sx = clampS(view.sx * f); view.sy = clampS(view.sy * f);
+    view.cx = ux - (mx - W / 2) / view.sx; view.cy = uy + (my - H / 2) / view.sy;
+    requestDraw(); save();
+  }
+
+  // ---------- drawing ----------
+  let drawQueued = false;
+  function requestDraw() { if (!drawQueued) { drawQueued = true; requestAnimationFrame(draw); } }
+  function steps(s) {
+    const raw = 90 / s, e = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / e;
+    const k = m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10;
+    const major = k * e; return { major, minor: major / (k === 2 ? 4 : 5) };
+  }
+  function fmtTick(v, major) {
+    if (Math.abs(v) < major * 1e-6) v = 0;
+    if (major >= 1e6 || major < 1e-5) return v === 0 ? '0' : minus(Number(v.toPrecision(3)).toExponential().replace('e+', 'e'));
+    const d = Math.max(0, -Math.floor(Math.log10(major) + 1e-9));
+    return minus(String(Number(v.toFixed(d))));
+  }
+  const SUP = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
+  function logLabel(v) { const k = Math.round(Math.log10(v)); return k >= -3 && k <= 4 ? String(Number(Math.pow(10, k).toPrecision(1))) : '10' + String(k).split('').map(c => SUP[c]).join(''); }
+  function ticks(isLog, lo, hi, s) {
+    if (!isLog) {
+      const { major, minor } = steps(s), maj = [], min = [];
+      for (let k = Math.ceil(lo / minor); k * minor <= hi; k++) min.push(k * minor);
+      for (let k = Math.ceil(lo / major); k * major <= hi; k++) maj.push(k * major);
+      return { maj, min, label: v => fmtTick(v, major), zeroSkip: true };
+    }
+    const u0 = Math.log10(lo), u1 = Math.log10(hi), every = s >= 34 ? 1 : Math.ceil(34 / s), maj = [], min = [];
+    for (let k = Math.floor(u0); k <= Math.ceil(u1); k++) {
+      if (k % every === 0) maj.push(Math.pow(10, k));
+      if (s > 60) for (let m = 2; m <= 9; m++) min.push(m * Math.pow(10, k));
+    }
+    return { maj, min, label: logLabel, zeroSkip: false };
+  }
+  function drawGrid() {
+    const tx = ticks(settings.logX, wx(0), wx(W), view.sx), ty = ticks(settings.logY, wy(H), wy(0), view.sy);
+    const lines = (xs, ys, color) => {
+      ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.beginPath();
+      for (const x of xs) { const p = Math.round(px(x)) + 0.5; if (isFinite(p)) { ctx.moveTo(p, 0); ctx.lineTo(p, H); } }
+      for (const y of ys) { const p = Math.round(py(y)) + 0.5; if (isFinite(p)) { ctx.moveTo(0, p); ctx.lineTo(W, p); } }
+      ctx.stroke();
+    };
+    lines(tx.min, ty.min, TH.minor); lines(tx.maj, ty.maj, TH.major);
+    const ax = settings.logX ? NaN : px(0), ay = settings.logY ? NaN : py(0);
+    ctx.strokeStyle = TH.axis; ctx.lineWidth = 1.5; ctx.beginPath();
+    if (ax >= 0 && ax <= W) { ctx.moveTo(Math.round(ax) + 0.5, 0); ctx.lineTo(Math.round(ax) + 0.5, H); }
+    if (ay >= 0 && ay <= H) { ctx.moveTo(0, Math.round(ay) + 0.5); ctx.lineTo(W, Math.round(ay) + 0.5); }
+    ctx.stroke();
+    ctx.font = `11.5px ${TH.data}`; ctx.lineJoin = 'round';
+    const label = (t, x, y, align, base) => {
+      ctx.textAlign = align; ctx.textBaseline = base;
+      ctx.strokeStyle = TH.canvas; ctx.lineWidth = 4; ctx.strokeText(t, x, y);
+      ctx.fillStyle = TH.muted; ctx.fillText(t, x, y);
+    };
+    const ly = isFinite(ay) ? Math.max(4, Math.min(H - 18, ay + 5)) : H - 18;
+    for (const x of tx.maj) { if (tx.zeroSkip && Math.abs(x) < 1e-12) continue; const p = px(x); if (p < 12 || p > W - 12) continue; label(tx.label(x), p, ly, 'center', 'top'); }
+    let lx = 6, al = 'left';
+    if (isFinite(ax) && ax >= 30) { lx = Math.min(ax, W) - 6; al = 'right'; }
+    for (const y of ty.maj) { if (ty.zeroSkip && Math.abs(y) < 1e-12) continue; const p = py(y); if (p < 10 || p > H - 10) continue; label(ty.label(y), lx, p, al, 'middle'); }
+    if (ax >= 0 && ax <= W && ay >= 0 && ay <= H) label('0', ax - 6, ay + 5, 'right', 'top');
+  }
+  const numOk = v => typeof v === 'number' && isFinite(v);
+  function edge(f, bad, good, ok) {
+    for (let k = 0; k < 30; k++) { const m = (bad + good) / 2; if (ok(f(m))) good = m; else bad = m; }
+    return good;
+  }
+  function isJump(f, a, b, fa, fb, toP, ok) {
+    for (let k = 0; k < 14; k++) {
+      const m = (a + b) / 2, fm = f(m);
+      if (!ok(fm)) return true;
+      if (Math.abs(toP(fm) - toP(fa)) > Math.abs(toP(fb) - toP(fm))) { b = m; fb = fm; } else { a = m; fa = fm; }
+    }
+    return Math.abs(toP(fb) - toP(fa)) > 4;
+  }
+  function pathFn(f, axis) {
+    const N = axis === 'x' ? W : H, T = axis === 'x' ? wx : wy, toP = axis === 'x' ? py : px, along = axis === 'x' ? px : py;
+    const ok = v => numOk(v) && isFinite(toP(v));
+    const P = (t, v) => (axis === 'x' ? [along(t), clampP(toP(v))] : [clampP(toP(v)), along(t)]);
+    ctx.beginPath();
+    let pen = false, pt = 0, pv = NaN, pok = false;
+    for (let i = -2; i <= N + 2; i++) {
+      const t = T(i), v = f(t), isOk = ok(v);
+      if (isOk) {
+        if (!pok && i > -2) { const bt = edge(f, pt, t, ok), bv = f(bt); if (ok(bv)) { const q = P(bt, bv); ctx.moveTo(q[0], q[1]); pen = true; } }
+        if (pok && pen && Math.abs(toP(v) - toP(pv)) > 20 && isJump(f, pt, t, pv, v, toP, ok)) pen = false;
+        const q = P(t, v);
+        if (pen) ctx.lineTo(q[0], q[1]); else { ctx.moveTo(q[0], q[1]); pen = true; }
+      } else if (pok) {
+        const bt = edge(f, t, pt, ok), bv = f(bt);
+        if (ok(bv) && pen) { const q = P(bt, bv); ctx.lineTo(q[0], q[1]); }
+        pen = false;
+      }
+      pt = t; pv = v; pok = isOk;
+    }
+  }
+  const off = document.createElement('canvas'), octx = off.getContext('2d');
+  function gridEval(G) {
+    const cell = W * H > 600000 ? 4 : 3, nx = Math.ceil(W / cell) + 1, ny = Math.ceil(H / cell) + 1, vals = new Float64Array(nx * ny);
+    const xs = Array.from({ length: nx }, (_, i) => wx(i * cell));
+    for (let j = 0; j < ny; j++) { const y = wy(j * cell); for (let i = 0; i < nx; i++) vals[j * nx + i] = G(xs[i], y); }
+    return { nx, ny, vals, cell };
+  }
+  function test(op, v) { return op === '<' ? v < 0 : op === '>' ? v > 0 : op === '<=' ? v <= 0 : op === '>=' ? v >= 0 : false; }
+  function testInc(op, v) { return op === '<' || op === '<=' ? v <= 1e-9 : op === '>' || op === '>=' ? v >= -1e-9 : true; }
+  function shade(grids, conds, rgb) {
+    const { nx, ny, cell } = grids[0];
+    off.width = nx; off.height = ny;
+    const img = octx.createImageData(nx, ny), d = img.data;
+    for (let k = 0; k < nx * ny; k++) {
+      let ok = true;
+      for (let c = 0; c < conds.length; c++) { const v = grids[c].vals[k]; if (!(isFinite(v) && test(conds[c].op, v))) { ok = false; break; } }
+      if (ok) { d[k * 4] = rgb[0]; d[k * 4 + 1] = rgb[1]; d[k * 4 + 2] = rgb[2]; d[k * 4 + 3] = 60; }
+    }
+    octx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(off, 0, 0, nx, ny, -cell / 2, -cell / 2, nx * cell, ny * cell);
+  }
+  function contour(grid, G, mask) {
+    const { nx, ny, vals, cell } = grid;
+    ctx.beginPath();
+    const cross = (i0, j0, v0, i1, j1, v1) => {
+      if (!(isFinite(v0) && isFinite(v1)) || (v0 < 0) === (v1 < 0)) return null;
+      const t = v0 / (v0 - v1), X = (i0 + (i1 - i0) * t) * cell, Y = (j0 + (j1 - j0) * t) * cell;
+      const gm = G(wx(X), wy(Y));
+      if (!isFinite(gm) || Math.abs(gm) > Math.max(Math.abs(v0), Math.abs(v1))) return null;
+      return [X, Y];
+    };
+    const seg = (a, b) => { if (mask && !mask(wx((a[0] + b[0]) / 2), wy((a[1] + b[1]) / 2))) return; ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); };
+    for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {
+      const a = vals[j * nx + i], b = vals[j * nx + i + 1], c = vals[(j + 1) * nx + i + 1], d = vals[(j + 1) * nx + i];
+      if ((a < 0) === (b < 0) && (b < 0) === (c < 0) && (c < 0) === (d < 0)) continue;
+      const top = cross(i, j, a, i + 1, j, b), right = cross(i + 1, j, b, i + 1, j + 1, c), bot = cross(i, j + 1, d, i + 1, j + 1, c), left = cross(i, j, a, i, j + 1, d);
+      const pts = [top, right, bot, left].filter(Boolean);
+      if (pts.length === 2) seg(pts[0], pts[1]);
+      else if (pts.length === 4) {
+        const center = G(wx((i + 0.5) * cell), wy((j + 0.5) * cell));
+        if ((center < 0) === (a < 0)) { seg(top, right); seg(bot, left); } else { seg(top, left); seg(right, bot); }
+      }
+    }
+  }
+  function drawViz(c, col, rgb) {
+    const z = c.v;
+    ctx.lineWidth = 1.5; ctx.strokeStyle = col; ctx.fillStyle = rgba(rgb, 0.3);
+    if (z.viz === 'hist') {
+      const w = z.w, counts = new Map();
+      for (const v of z.data) { const k = Math.floor(v / w + 1e-9); counts.set(k, (counts.get(k) || 0) + 1); }
+      for (const [k, n] of counts) {
+        const x0 = px(k * w), x1 = px((k + 1) * w), y0 = py(0), y1 = py(n);
+        if (![x0, x1, y0, y1].every(isFinite)) continue;
+        ctx.beginPath(); ctx.rect(x0, y1, x1 - x0, y0 - y1); ctx.fill(); ctx.stroke();
+      }
+    } else if (z.viz === 'dot') {
+      const w = z.w, stacks = new Map();
+      for (const v of z.data) { const k = w ? Math.round(v / w) * w : Math.round(v * 1e9) / 1e9; const n = (stacks.get(k) || 0) + 1; stacks.set(k, n); dot(px(k), py(n), col, false, 4.5); }
+    } else if (z.viz === 'box') {
+      const [mn, q1, md, q3, mx] = z.five, o = z.off, top = py(o + 0.4), bot = py(o - 0.4), mid = py(o);
+      ctx.beginPath(); ctx.rect(px(q1), top, px(q3) - px(q1), bot - top); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px(md), top); ctx.lineTo(px(md), bot);
+      ctx.moveTo(px(mn), mid); ctx.lineTo(px(q1), mid); ctx.moveTo(px(q3), mid); ctx.lineTo(px(mx), mid);
+      const cap = (bot - top) / 4;
+      ctx.moveTo(px(mn), mid - cap); ctx.lineTo(px(mn), mid + cap); ctx.moveTo(px(mx), mid - cap); ctx.lineTo(px(mx), mid + cap);
+      ctx.lineWidth = 2; ctx.stroke();
+    } else if (z.viz === 'poly') {
+      ctx.beginPath(); z.pts.forEach((p, i) => (i ? ctx.lineTo(px(p.x), py(p.y)) : ctx.moveTo(px(p.x), py(p.y)))); ctx.closePath();
+      ctx.fillStyle = rgba(rgb, 0.25); ctx.fill(); ctx.lineWidth = 2.5; ctx.stroke();
+    }
+  }
+  function drawDist(c, col, rgb) {
+    const D = DIST[c.d.type], p = c.d.p;
+    if (D.cont) { pathFn(x => D.pdf(x, p), 'x'); ctx.stroke(); return; }
+    const k0 = Math.max(0, Math.ceil(wx(0))), k1 = Math.min(Math.floor(wx(W)), k0 + 3000);
+    ctx.fillStyle = rgba(rgb, 0.35); ctx.lineWidth = 1.5;
+    for (let k = k0; k <= k1; k++) {
+      const v = D.pdf(k, p); if (!(v > 1e-12)) continue;
+      const x0 = px(k - 0.4), x1 = px(k + 0.4), y0 = py(0), y1 = py(v);
+      if (![x0, x1, y0, y1].every(isFinite)) continue;
+      ctx.beginPath(); ctx.rect(x0, y1, x1 - x0, y0 - y1); ctx.fill(); ctx.stroke();
+    }
+  }
+
+  // ---------- points of interest ----------
+  function bisect(f, a, b) {
+    let fa = f(a);
+    for (let k = 0; k < 60; k++) { const m = (a + b) / 2, fm = f(m); if (fm === 0) return m; if ((fm < 0) === (fa < 0)) { a = m; fa = fm; } else b = m; }
+    return (a + b) / 2;
+  }
+  function golden(f, a, b, isMax) {
+    const g = (Math.sqrt(5) - 1) / 2, better = (p, q) => (isMax ? p > q : p < q);
+    let c = b - g * (b - a), d = a + g * (b - a), fc = f(c), fd = f(d);
+    for (let k = 0; k < 60; k++) {
+      if (better(fc, fd)) { b = d; d = c; fd = fc; c = b - g * (b - a); fc = f(c); }
+      else { a = c; c = d; fc = fd; d = a + g * (b - a); fd = f(d); }
+    }
+    return (a + b) / 2;
+  }
+  function findPOIs(curve) {
+    const f = curve.f, out = [];
+    const push = (x, y, title) => {
+      if (!numOk(x) || !numOk(y)) return;
+      const X = px(x), Y = py(y);
+      if (!(X >= -2 && X <= W + 2 && Y >= -2 && Y <= H + 2)) return;
+      if (out.some(q => Math.hypot(px(q.x) - X, py(q.y) - Y) < 3)) return;
+      out.push({ x, y, title, color: curve.color });
+    };
+    const N = Math.ceil(W / 2), xs = [], ys = [];
+    for (let i = 0; i <= N; i++) { const x = wx(i * 2); xs.push(x); const v = f(x); ys.push(numOk(v) ? v : NaN); }
+    for (let i = 0; i < N && out.length < 80; i++) {
+      const a = ys[i], b = ys[i + 1];
+      if (!isFinite(a) || !isFinite(b)) continue;
+      if (a === 0) push(xs[i], 0, 'x-intercept');
+      else if (a * b < 0) { const r = bisect(f, xs[i], xs[i + 1]), fr = f(r); if (numOk(fr) && Math.abs(fr) <= Math.min(Math.abs(a), Math.abs(b))) push(r, 0, 'x-intercept'); }
+      if (i > 0 && isFinite(ys[i - 1])) {
+        const d0 = ys[i] - ys[i - 1], d1 = ys[i + 1] - ys[i];
+        if ((d0 > 0 && d1 < 0) || (d0 < 0 && d1 > 0)) {
+          const isMax = d0 > 0, xe = golden(f, xs[i - 1], xs[i + 1], isMax), ye = f(xe);
+          if (numOk(ye) && Math.abs(py(ye) - py(ys[i])) < 40) push(xe, ye, isMax ? 'Local maximum' : 'Local minimum');
+        }
+      }
+    }
+    if (!settings.logX) { const y0 = f(0); if (numOk(y0)) push(0, y0, 'y-intercept'); }
+    for (const o of CURVES) {
+      if (o === curve || o.type !== 'fx' || o.op !== '=') continue;
+      const g = o.f, h = x => f(x) - g(x);
+      let prev = NaN;
+      for (let i = 0; i <= N && out.length < 120; i++) {
+        const gv = g(xs[i]), hv = isFinite(ys[i]) && numOk(gv) ? ys[i] - gv : NaN;
+        if (isFinite(prev) && isFinite(hv) && prev * hv < 0) {
+          const r = bisect(h, xs[i - 1], xs[i]), hr = h(r);
+          if (numOk(hr) && Math.abs(hr) <= Math.min(Math.abs(prev), Math.abs(hv))) push(r, f(r), 'Intersection');
+        } else if (hv === 0) push(xs[i], ys[i], 'Intersection');
+        prev = hv;
+      }
+    }
+    return out;
+  }
+
+  function tag(X, Y, title, text) {
+    ctx.font = `500 12.5px ${TH.data}`; let tw = ctx.measureText(text).width;
+    if (title) { ctx.font = `11px ${TH.ui}`; tw = Math.max(tw, ctx.measureText(title).width); }
+    const h = title ? 40 : 26, w = tw + 18;
+    let bx = X + 12, by = Y - h - 10;
+    if (bx + w > W - 50) bx = X - w - 12;
+    if (by < 4) by = Y + 12;
+    if (bx < 4) bx = 4;
+    ctx.fillStyle = TH.panel; ctx.strokeStyle = TH.rule; ctx.lineWidth = 1;
+    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, w, h, 6); else ctx.rect(bx, by, w, h); ctx.fill(); ctx.stroke();
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    if (title) { ctx.font = `11px ${TH.ui}`; ctx.fillStyle = TH.muted; ctx.fillText(title, bx + 9, by + 12); }
+    ctx.font = `500 12.5px ${TH.data}`; ctx.fillStyle = TH.ink;
+    ctx.fillText(text, bx + 9, by + (title ? 28 : 13));
+  }
+  function dot(X, Y, color, hollow, r) {
+    if (!isFinite(X) || !isFinite(Y)) return;
+    ctx.beginPath(); ctx.arc(X, Y, r || (hollow ? 4.5 : 5.5), 0, Math.PI * 2);
+    ctx.fillStyle = hollow ? TH.canvas : color; ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = hollow ? color : TH.canvas; ctx.stroke();
+  }
+  const coord = (x, y) => `(${fmtNum(x, 5)}, ${fmtNum(y, 5)})`;
+  function textLabel(X, Y, text) {
+    if (!isFinite(X) || !isFinite(Y)) return;
+    ctx.font = `500 13px ${TH.ui}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = TH.canvas; ctx.lineWidth = 4; ctx.strokeText(text, X + 9, Y - 7);
+    ctx.fillStyle = TH.ink; ctx.fillText(text, X + 9, Y - 7);
+  }
+
+  function drawCurve(c) {
+    const col = TH.c[c.color], rgb = TH.rgb[c.color], sel = selected === c.row.id;
+    const strict = c.op === '<' || c.op === '>';
+    const dash = strict ? [8, 6] : c.row.style.dash ? [10, 7] : [];
+    ctx.strokeStyle = col; ctx.lineWidth = sel ? 3.5 : 2.5; ctx.setLineDash([]);
+    switch (c.type) {
+      case 'fx': case 'fy': {
+        if (c.op && c.op !== '=') {
+          const f = c.f, G = c.type === 'fx' ? (x, y) => { const v = f(x); return numOk(v) ? y - v : NaN; } : (x, y) => { const v = f(y); return numOk(v) ? x - v : NaN; };
+          shade([gridEval(G)], [{ op: c.op }], rgb);
+        }
+        ctx.setLineDash(dash); pathFn(c.f, c.type === 'fx' ? 'x' : 'y'); ctx.stroke(); break;
+      }
+      case 'imp': {
+        const grids = c.conds.map(k => gridEval(k.G));
+        if (c.conds.every(k => k.op !== '=')) shade(grids, c.conds, rgb);
+        c.conds.forEach((k, i) => {
+          const others = c.conds.filter((_, j) => j !== i);
+          const mask = others.length ? (x, y) => others.every(o => { const v = o.G(x, y); return isFinite(v) && testInc(o.op, v); }) : null;
+          ctx.setLineDash(k.op === '<' || k.op === '>' ? [8, 6] : c.row.style.dash ? [10, 7] : []);
+          contour(grids[i], k.G, mask); ctx.stroke();
+        });
+        break;
+      }
+      case 'pts': if (c.row.style.connect && c.pts.length > 1) { ctx.setLineDash(c.row.style.dash ? [10, 7] : []); ctx.beginPath(); let pen = false; for (const p of c.pts) { const X = px(p.x), Y = py(p.y); if (!isFinite(X) || !isFinite(Y)) { pen = false; continue; } if (pen) ctx.lineTo(X, Y); else { ctx.moveTo(X, Y); pen = true; } } ctx.stroke(); } break;
+      case 'dist': ctx.setLineDash(dash); drawDist(c, col, rgb); break;
+      case 'viz': drawViz(c, col, rgb); break;
+    }
+    ctx.setLineDash([]);
+  }
+  function draw() {
+    drawQueued = false;
+    if (!W || !H) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = TH.canvas; ctx.fillRect(0, 0, W, H);
+    drawGrid();
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    for (const c of CURVES) { try { drawCurve(c); } catch (e) { ctx.setLineDash([]); } }
+    POIS = [];
+    const selCurve = CURVES.find(c => c.row.id === selected && c.type === 'fx' && c.op === '=');
+    if (selCurve) { try { POIS = findPOIs(selCurve); } catch (e) { POIS = []; } for (const p of POIS) dot(px(p.x), py(p.y), TH.c[p.color], true); }
+    for (const c of CURVES) {
+      if (c.type !== 'pts') continue;
+      const col = TH.c[c.color];
+      for (const p of c.pts) dot(px(p.x), py(p.y), col, false);
+      const custom = c.R.labelText;
+      if (custom || c.row.style.label) c.pts.slice(0, 200).forEach(p => textLabel(px(p.x), py(p.y), custom || coord(p.x, p.y)));
+    }
+    if (trace) {
+      const c = CURVES.find(k => k.key === trace.key);
+      if (c) {
+        const v = c.f(trace.t);
+        if (numOk(v)) { const [x, y] = c.type === 'fx' ? [trace.t, v] : [v, trace.t]; dot(px(x), py(y), TH.c[c.color], false); tag(px(x), py(y), '', coord(x, y)); }
+      } else trace = null;
+    }
+    if (pinned) {
+      if (pinned.kind === 'pt') {
+        const c = CURVES.find(k => k.key === pinned.key), p = c && c.pts[pinned.idx];
+        if (p) tag(px(p.x), py(p.y), c.table ? 'Table point' : 'Point', coord(p.x, p.y)); else pinned = null;
+      } else { dot(px(pinned.x), py(pinned.y), TH.c[pinned.color], false); tag(px(pinned.x), py(pinned.y), pinned.title, coord(pinned.x, pinned.y)); }
+    }
+  }
+
+  // ---------- interaction ----------
+  function hitTest(X, Y) {
+    for (const c of CURVES) if (c.type === 'pts') for (let i = 0; i < c.pts.length; i++) { const p = c.pts[i]; if (Math.hypot(px(p.x) - X, py(p.y) - Y) < 12) return { type: 'pt', c, i }; }
+    for (const p of POIS) if (Math.hypot(px(p.x) - X, py(p.y) - Y) < 10) return { type: 'poi', p };
+    let best = null, bd = 14;
+    for (const c of CURVES) {
+      let d = Infinity;
+      try {
+        if (c.type === 'fx') { const v = c.f(wx(X)); if (numOk(v)) d = Math.abs(py(v) - Y); }
+        else if (c.type === 'fy') { const v = c.f(wy(Y)); if (numOk(v)) d = Math.abs(px(v) - X); }
+      } catch (e) { d = Infinity; }
+      if (d < bd) { bd = d; best = { type: 'curve', c }; }
+    }
+    return best;
+  }
+  const ptrs = new Map(); let drag = null;
+  const local = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  function beginPan(X, Y) { drag = { mode: 'pan', sx: X, sy: Y, cx: view.cx, cy: view.cy, moved: false }; cv.classList.add('grabbing'); }
+  cv.addEventListener('pointerdown', e => {
+    cv.setPointerCapture(e.pointerId);
+    const [X, Y] = local(e); ptrs.set(e.pointerId, [X, Y]);
+    if (ptrs.size === 2) {
+      const [a, b] = [...ptrs.values()], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+      drag = { mode: 'pinch', d0: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, sx0: view.sx, sy0: view.sy, ux: view.cx + (mx - W / 2) / view.sx, uy: view.cy - (my - H / 2) / view.sy };
+      return;
+    }
+    if (ptrs.size > 2) return;
+    const hit = hitTest(X, Y);
+    if (hit && hit.type === 'curve') {
+      selectRow(hit.c.row.id); pinned = null;
+      trace = { key: hit.c.key, t: hit.c.type === 'fx' ? wx(X) : wy(Y) };
+      drag = { mode: 'trace', c: hit.c }; requestDraw();
+    } else if (hit && hit.type === 'pt') {
+      selectRow(hit.c.row.id); trace = null; pinned = { kind: 'pt', key: hit.c.key, idx: hit.i }; drag = { mode: 'tap' }; requestDraw();
+    } else if (hit && hit.type === 'poi') {
+      trace = null; pinned = { kind: 'poi', ...hit.p }; drag = { mode: 'tap' }; requestDraw();
+    } else beginPan(X, Y);
+  });
+  cv.addEventListener('pointermove', e => {
+    const [X, Y] = local(e);
+    if (!ptrs.has(e.pointerId)) { if (e.pointerType === 'mouse') cv.classList.toggle('on-curve', !!hitTest(X, Y)); return; }
+    ptrs.set(e.pointerId, [X, Y]);
+    if (!drag) return;
+    if (drag.mode === 'pinch' && ptrs.size >= 2) {
+      const [a, b] = [...ptrs.values()], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      view.sx = clampS(drag.sx0 * d / drag.d0); view.sy = clampS(drag.sy0 * d / drag.d0);
+      view.cx = drag.ux - (mx - W / 2) / view.sx; view.cy = drag.uy + (my - H / 2) / view.sy;
+      requestDraw();
+    } else if (drag.mode === 'pan') {
+      if (Math.hypot(X - drag.sx, Y - drag.sy) > 3) drag.moved = true;
+      view.cx = drag.cx - (X - drag.sx) / view.sx; view.cy = drag.cy + (Y - drag.sy) / view.sy;
+      requestDraw();
+    } else if (drag.mode === 'trace') { trace.t = drag.c.type === 'fx' ? wx(X) : wy(Y); requestDraw(); }
+  });
+  function endPtr(e) {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.delete(e.pointerId);
+    if (drag && drag.mode === 'pan' && !drag.moved && ptrs.size === 0) { trace = null; pinned = null; requestDraw(); }
+    if (drag && drag.mode === 'pinch' && ptrs.size === 1) { const [p] = [...ptrs.values()]; beginPan(p[0], p[1]); drag.moved = true; return; }
+    if (ptrs.size === 0) { if (drag && (drag.mode === 'pan' || drag.mode === 'pinch')) save(); drag = null; cv.classList.remove('grabbing'); }
+  }
+  cv.addEventListener('pointerup', endPtr);
+  cv.addEventListener('pointercancel', endPtr);
+  cv.addEventListener('wheel', e => {
+    e.preventDefault();
+    const [X, Y] = local(e), dy = e.deltaY * (e.deltaMode === 1 ? 30 : 1);
+    zoomAt(X, Y, Math.exp(-dy * 0.0015));
+  }, { passive: false });
+  $('#zin').addEventListener('click', () => zoomAt(W / 2, H / 2, 1.5));
+  $('#zout').addEventListener('click', () => zoomAt(W / 2, H / 2, 1 / 1.5));
+  $('#zhome').addEventListener('click', () => { defaultView(); requestDraw(); save(); });
+
+  // ---------- size & theme ----------
+  function resize() {
+    const r = cv.getBoundingClientRect();
+    W = Math.max(1, r.width); H = Math.max(1, r.height); dpr = window.devicePixelRatio || 1;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    if (view.pending) { const [a, b] = view.pending; view.pending = null; setRange(a, b); }
+    if (!view.ready) { defaultView(); view.ready = true; }
+    requestDraw();
+  }
+  new ResizeObserver(resize).observe($('.stage'));
+  const themeChanged = () => { readTheme(); applyTheme(); requestDraw(); };
+  try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', themeChanged); } catch (e) { /* older browsers */ }
+  new MutationObserver(() => { readTheme(); requestDraw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { themeChanged(); fitKeys(); });
+
+  // ---------- boot ----------
+  if (!load()) rows = exampleRows();
+  ensureTrailing();
+  applyTheme();
+  readTheme();
+  renderKeys();
+  fitKeys();
+  syncSettings();
+  recompute();
+  renderList();
+  resize();
+})();
+</script>
+
+</body>
+</html>

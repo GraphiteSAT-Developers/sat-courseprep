@@ -7,6 +7,7 @@ Start here: [`HANDOFF.md`](HANDOFF.md)
 ## Contents
 
 - [`reports/AI Desmos SAT math course plan.md`](reports/AI%20Desmos%20SAT%20math%20course%20plan.md): the full planning report, with the recommended architecture, a phased roadmap, the decisions the owner needs to make, and a list of facts still to verify.
+- [`topline/`](topline/): Topline, a standalone browser graphing calculator with a live math editor. Open `topline/index.html` in a browser.
 - [`docs/desmos-integration.md`](docs/desmos-integration.md): calculator design decision (student-operated embed, OnePrep-style) and how the AI reads it
 - `research_notes/AI Desmos SAT math course plan/`: the notes behind the report, with sources:
   - `sat_math_format.md`: Digital SAT Math format, scoring, and the Desmos calculator in Bluebook
