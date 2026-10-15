@@ -6563,6 +6563,260 @@ def alg_parallel_through_point_which_point():
     return check
 
 
+# ----- Batch batch9-psdaD -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch9-psdaD.ts (batch batch9-psdaD).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch9_psdaD.py --only-extra
+
+Numeric items return the exact SymPy value. Items with sentence or interval
+choices return a callable (choices, answer_index) -> (ok, detail) that derives
+the decision (interval, overlap, design flags) from the stem's givens and then
+checks that exactly the key choice states it.
+"""
+
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, Eq, sqrt
+
+x, y, k, a, b, c, p, s, r, n, t = symbols("x y k a b c p s r n t")
+
+
+def _b9pd_pick(predicate, label):
+    """Callable that accepts the item when exactly the key choice satisfies predicate."""
+
+    def check(choices, idx):
+        hits = [i for i, ch in enumerate(choices) if predicate(ch)]
+        return hits == [idx], f"{label}; matching choices {hits}"
+
+    return check
+
+
+def _b9pd_interval(est, moe):
+    return est - moe, est + moe
+
+
+def _b9pd_fmt(v):
+    """Format a whole number with thousands separators, as in the choice text."""
+    return f"{int(v):,}"
+
+
+# ----- Inference from sample statistics and margin of error -----
+
+
+def _b9pd_library_overdue():
+    return Integer(3600) * Rational(18, 120)
+
+
+def _b9pd_bolts_not_defective():
+    return Integer(12500) * (1 - Rational(6, 250))
+
+
+def _b9pd_ev_upper_total():
+    lo, hi = _b9pd_interval(Rational(30, 100), Rational(4, 100))
+    return Integer(84000) * hi
+
+
+def _b9pd_occupants_total():
+    return Integer(3500) * Rational(24, 10)
+
+
+def _b9pd_orchard_least_total():
+    lo, hi = _b9pd_interval(Integer(42), Integer(3))
+    return Integer(650) * lo
+
+
+def _b9pd_plausible_proportion():
+    lo, hi = _b9pd_interval(Rational(62, 100), Rational(4, 100))
+
+    def check(choices, idx):
+        vals = [sp.nsimplify(latex_to_sympy(ch)) for ch in choices]
+        hits = [i for i, v in enumerate(vals) if lo <= v <= hi]
+        return hits == [idx], f"interval [{lo}, {hi}]; choices inside {hits}"
+
+    return check
+
+
+def _b9pd_smaller_margin():
+    import re
+
+    n0 = 250
+
+    def ok(ch):
+        m = re.search(r"random sample of ([\d,]+) visitors", ch)
+        return bool(m) and int(m.group(1).replace(",", "")) > n0
+
+    return _b9pd_pick(ok, "larger random sample than 250 lowers the margin of error")
+
+
+def _b9pd_commute_intervals():
+    a_lo, a_hi = _b9pd_interval(Rational(245, 10), Rational(12, 10))
+    b_lo, b_hi = _b9pd_interval(Rational(279, 10), Rational(15, 10))
+    if b_lo > a_hi:
+        phrase = "mean commute time of all adults in town B is greater"
+    elif a_lo > b_hi:
+        phrase = "mean commute time of all adults in town A is greater"
+    else:
+        phrase = "no convincing evidence"
+    return _b9pd_pick(lambda ch: phrase in ch and "every adult" not in ch,
+                      f"A [{a_lo}, {a_hi}], B [{b_lo}, {b_hi}] -> '{phrase}'")
+
+
+def _b9pd_greenhouse_overlap():
+    p_lo, p_hi = _b9pd_interval(Integer(48), Integer(3))
+    q_lo, q_hi = _b9pd_interval(Integer(41), Integer(5))
+    overlap = max(p_lo, q_lo) <= min(p_hi, q_hi)
+    phrase = "no convincing evidence" if overlap else "greater percentage of all seeds planted in greenhouse P"
+    return _b9pd_pick(lambda ch: phrase in ch,
+                      f"P [{p_lo}, {p_hi}], Q [{q_lo}, {q_hi}], overlap={overlap} -> '{phrase}'")
+
+
+def _b9pd_dog_park():
+    lo, hi = _b9pd_interval(Integer(53), Integer(4))
+    below_half_plausible = lo < 50
+
+    def ok(ch):
+        if "plausible that less than 50% of all residents" in ch:
+            return below_half_plausible
+        if "certainly" in ch:
+            return lo > 50
+        return False  # "exactly" and statements about the 600 surveyed are never supported
+
+    return _b9pd_pick(ok, f"interval [{lo}, {hi}]; below 50 plausible={below_half_plausible}")
+
+
+def _b9pd_garden_interval():
+    lo, hi = _b9pd_interval(Rational(35, 100), Rational(3, 100))
+    lo_n, hi_n = Integer(9200) * lo, Integer(9200) * hi
+    target = f"From {_b9pd_fmt(lo_n)} to {_b9pd_fmt(hi_n)}"
+    return _b9pd_pick(lambda ch: ch.strip() == target, f"plausible counts {target}")
+
+
+def _b9pd_bus_delay():
+    import re
+
+    lo, hi = _b9pd_interval(Rational(48, 10), Rational(6, 10))
+
+    def ok(ch):
+        m = re.search(r"plausibly ([\d.]+) minutes", ch)
+        if m:
+            v = sp.nsimplify(m.group(1))
+            return lo <= v <= hi
+        return False  # "exactly" the sample mean, and claims about every trip, are not supported
+
+    return _b9pd_pick(ok, f"interval [{lo}, {hi}]")
+
+
+def _b9pd_books_larger_sample():
+    return Rational(18, 10) * sqrt(Rational(400, 1600))
+
+
+# ----- Evaluating statistical claims -----
+
+
+def _b9pd_online_poll():
+    self_selected = True
+    return _b9pd_pick(lambda ch: self_selected and "selected themselves" in ch,
+                      "respondents chose to respond -> voluntary response bias")
+
+
+def _b9pd_plant_food_assignment():
+    return _b9pd_pick(lambda ch: "attributed to the plant food" in ch,
+                      "random assignment balances other variables so the effect is attributable to the treatment")
+
+
+def _b9pd_study(random_selection: bool, random_assignment: bool, population: str):
+    causal = "causes" if random_assignment else "is associated with"
+
+    def ok(ch):
+        if not ch.startswith("Daily walking " + causal):
+            return False
+        if random_selection:
+            return population in ch and "all adults" not in ch
+        return "all adults" not in ch and population not in ch
+
+    return _b9pd_pick(ok, f"random selection={random_selection}, random assignment={random_assignment}")
+
+
+def _b9pd_walking():
+    return _b9pd_study(random_selection=True, random_assignment=False, population="adults in the county")
+
+
+def _b9pd_green_tea_change():
+    return _b9pd_pick(lambda ch: "Randomly assigning" in ch,
+                      "only random assignment supports a causal conclusion")
+
+
+def _b9pd_placebo():
+    return _b9pd_pick(lambda ch: "effect of the ingredient from the effect of simply applying" in ch,
+                      "placebo control isolates the active ingredient")
+
+
+def _b9pd_weekday_shoppers():
+    sampled = "All customers who shopped at the store on weekday mornings during that month"
+    return _b9pd_pick(lambda ch: ch.strip() == sampled, "generalize to the sampled population only")
+
+
+def _b9pd_fitness_bias():
+    # Sample drawn where exercise is above average -> estimate biased upward.
+    direction = "too high"
+    return _b9pd_pick(lambda ch: direction in ch, f"convenience sample at a fitness center -> {direction}")
+
+
+def _b9pd_screen_time():
+    random_selection, random_assignment = False, False
+
+    def ok(ch):
+        claims_cause = "causes" in ch
+        claims_general = "all people" in ch or "people like those" in ch
+        return claims_cause == random_assignment and claims_general == random_selection
+
+    return _b9pd_pick(ok, "no random selection, no random assignment")
+
+
+def _b9pd_hens():
+    population = 900
+    return _b9pd_pick(lambda ch: f"All {population} hens on the farm" in ch,
+                      "random selection from the farm's 900 hens + random assignment")
+
+
+def _b9pd_practice_app():
+    return _b9pd_pick(lambda ch: "chose to use the app may differ" in ch,
+                      "self-selected treatment -> confounding")
+
+
+# ----- Probability and conditional probability -----
+
+
+def _b9pd_red_cards():
+    return Rational(15, 40)
+
+
+def _b9pd_seed_varieties():
+    sprouted = symbols("sprouted", positive=True)
+    total_sprouted = sp.solve(Eq(Rational(5, 8) * sprouted, 40), sprouted)[0]
+    b_sprouted = total_sprouted - 40
+    return Integer(40) - b_sprouted
+
+
+def _b9pd_museum():
+    no_tour = 300 - 180
+    audio_no_tour = 110 - 65
+    return Rational(audio_no_tour, no_tour)
+
+
+def _b9pd_shelter():
+    dogs = 120 - 45
+    young_dogs = Rational(40, 100) * dogs
+    u = symbols("u", positive=True)
+    young_total = sp.solve(Eq(Rational(3, 5) * u, young_dogs), u)[0]
+    return (young_total - young_dogs) / 45
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -7258,6 +7512,34 @@ CHECKS = {
     "alg-ribbon-pieces-unit-equation": alg_ribbon_pieces_unit_equation,
     "alg-fudge-toffee-intercepts-difference": alg_fudge_toffee_intercepts_difference,
     "alg-parallel-through-point-which-point": alg_parallel_through_point_which_point,
+    # batch batch9-psdaD
+    "psda-infer-library-overdue-estimate": _b9pd_library_overdue,
+    "psda-infer-bolts-not-defective-total": _b9pd_bolts_not_defective,
+    "psda-infer-ev-households-upper-total": _b9pd_ev_upper_total,
+    "psda-infer-apartment-occupants-total": _b9pd_occupants_total,
+    "psda-infer-orchard-yield-least-total": _b9pd_orchard_least_total,
+    "psda-infer-plausible-proportion-value": _b9pd_plausible_proportion,
+    "psda-infer-park-visit-smaller-margin": _b9pd_smaller_margin,
+    "psda-infer-two-towns-commute-intervals": _b9pd_commute_intervals,
+    "psda-infer-greenhouse-sprout-overlap": _b9pd_greenhouse_overlap,
+    "psda-infer-dog-park-majority": _b9pd_dog_park,
+    "psda-infer-garden-households-interval": _b9pd_garden_interval,
+    "psda-infer-bus-delay-plausible-mean": _b9pd_bus_delay,
+    "psda-infer-books-read-larger-sample": _b9pd_books_larger_sample,
+    "psda-claims-online-poll-self-selected": _b9pd_online_poll,
+    "psda-claims-plant-food-random-assignment": _b9pd_plant_food_assignment,
+    "psda-claims-walking-blood-pressure": _b9pd_walking,
+    "psda-claims-green-tea-design-change": _b9pd_green_tea_change,
+    "psda-claims-muscle-cream-placebo": _b9pd_placebo,
+    "psda-claims-weekday-morning-shoppers": _b9pd_weekday_shoppers,
+    "psda-claims-fitness-center-exercise-bias": _b9pd_fitness_bias,
+    "psda-claims-screen-time-website": _b9pd_screen_time,
+    "psda-claims-hens-supplement-extend": _b9pd_hens,
+    "psda-claims-practice-app-self-chosen": _b9pd_practice_app,
+    "psda-prob-red-cards-letter": _b9pd_red_cards,
+    "psda-prob-seed-varieties-not-sprouted": _b9pd_seed_varieties,
+    "psda-prob-museum-audio-no-tour": _b9pd_museum,
+    "psda-prob-shelter-young-cats": _b9pd_shelter,
 }
 
 
