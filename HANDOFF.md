@@ -46,13 +46,18 @@ These are listed in the report's decisions table:
 2. ~~Scaffold the repo~~ Done for the site: Next.js app with the Desmos embed, KaTeX, the SPR grader and the tutor seam (`web/`). Still open:
    - first run against the real Desmos API with a key (only a mock was tested)
    - the headless Desmos verification service (Playwright) and SymPy verifier (AI collaborator)
-3. Build the technique library: 30–60 Desmos moves, each with a by-hand route.
-4. Build an original benchmark of 300–500 items with a held-out split.
+3. ~~Build the technique library~~ T1–T13 done (`web/content/techniques.ts`); T14/T15 proposed pending the Bluebook audit.
+4. Build the item bank: 55 original items so far, all SymPy-verified. Target 300–500 with a held-out split. **Decision (2026-10-15): every item goes into Firestore first; the site serves from it and the AI side trains/retrieves from its export. All items must pass the style lint derived from the College Board framework.**
 
 ## Where things are
 | Path | What |
 |---|---|
 | `web/` | Course site (Next.js). Start with `web/README.md` |
+| `docs/item-style-guide.md` | **The generation framework.** Derived from the official College Board Assessment Framework (Math chapter). Every item batch follows it |
+| `web/content/skills.ts` | The 19 official Math skills and testing points, with the question distribution; items are tested against it |
+| `docs/framework-design-notes.md` | Adaptive design, scoring, calculator rationale, timing; includes corrections to earlier assumptions (notably: "one miss for 800" has no official basis; plan for zero) |
+| `docs/hard-question-map.md` | Hard question types for the 700–800 band with Desmos/hand routes and bank coverage |
+| `docs/item-writing.md` | Checklist and commands every item must pass before entering the database |
 | `reports/AI Desmos SAT math course plan.md` | Full planning report: architecture, 5-phase roadmap, decision table, verification list |
 | `docs/desmos-integration.md` | Calculator design decision (OnePrep-style embed) |
 | `research_notes/AI Desmos SAT math course plan/sat_math_format.md` | Test format, scoring, Bluebook Desmos, typed-answer rules |
