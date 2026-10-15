@@ -11,6 +11,7 @@ cp .env.example .env.local   # then set NEXT_PUBLIC_DESMOS_API_KEY
 npm run dev                  # http://localhost:3000
 npm test                     # grading + guardrail tests
 npm run typecheck
+npm run items:export         # regenerate ../data for the AI side
 ```
 
 Without a Desmos key the page still works; the calculator pane shows a setup message instead.
@@ -20,7 +21,7 @@ Without a Desmos key the page still works; the calculator pane shows a setup mes
 | Path | What | Owner |
 |---|---|---|
 | `content/types.ts` | Item schema: MC / SPR, domain, techniques (T1–T13), route (Desmos-primary / hand-primary / either), Desmos lines, by-hand route, provenance | Course |
-| `content/items.ts` | The item bank (27 original items; keys checked by `scripts/verify_items.py`). Server-only, so keys never reach the browser | Course |
+| `content/items.ts` | The item bank (55 original items; keys checked by `scripts/verify_items.py`). Server-only, so keys never reach the browser | Course |
 | `lib/grading/` | Deterministic grader. `spr.ts` implements Bluebook's typed-answer rules (5/6 characters, fractions, full-width truncated or rounded decimals) | Site |
 | `lib/desmos/config.ts` | College Board–style calculator options. **Unverified until the Phase 0 Bluebook audit** | Site |
 | `lib/desmos/snapshot.ts` | Compact, serializable view of the student's calculator that the tutor reads | Contract |
@@ -30,6 +31,10 @@ Without a Desmos key the page still works; the calculator pane shows a setup mes
 | `lib/tutor/provider.ts` | Picks the Anthropic provider or, with no key, a stub that answers from the item's stored routes | Site |
 | `app/api/grade`, `app/api/tutor` | Server routes. The browser only ever sees `PublicItem` | Site |
 | `components/` | `DesmosCalculator`, `PracticeView`, `MathText` (KaTeX), `SatFootnote` | Site |
+
+## Data store
+
+Items live in `content/items.ts` (server-only; the site reads it directly). `npm run items:export` writes the AI-side feed to `../data/` (`items.jsonl`, `skills.json`, `techniques.json`; see `data/README.md`) and that directory is committed, so re-run it after any content change. A database (Firebase Auth + Firestore was the pick on 2026-10-15) is deferred; when it arrives, items should be pushed there first and the export generated from it.
 
 ## For the AI side
 
