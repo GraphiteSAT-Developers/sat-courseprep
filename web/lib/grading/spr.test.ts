@@ -48,6 +48,21 @@ describe("gradeSpr", () => {
     expect(gradeSpr("-1", [{ num: -1, den: 1 }]).status).toBe("correct");
   });
 
+  it("lets a long terminating decimal be truncated or rounded to fill the box", () => {
+    const key = { num: 1, den: 32 }; // 0.03125 needs 6 characters
+    for (const ok of ["1/32", ".0312", ".0313", "0.031"]) expect(gradeSpr(ok, [key]).status, ok).toBe("correct");
+    expect(gradeSpr(".031", [key])).toMatchObject({ status: "incorrect", hint: "rounded-too-early" });
+    expect(acceptedEntries(key).sort()).toEqual(["0.031", ".0312", ".0313", "1/32"].sort());
+  });
+
+  it("handles multi-digit whole parts and alternative fraction forms", () => {
+    expect(gradeSpr("14.28", [{ num: 100, den: 7 }]).status).toBe("correct");
+    expect(gradeSpr("14.29", [{ num: 100, den: 7 }]).status).toBe("correct");
+    expect(gradeSpr("411.3", [{ num: 1234, den: 3 }]).status).toBe("correct");
+    expect(gradeSpr("31/2", [{ num: 7, den: 2 }]).status).toBe("incorrect");
+    expect(gradeSpr("-0", [{ num: 0, den: 1 }]).status).toBe("correct");
+  });
+
   it("accepts any of several keys", () => {
     const keys = [{ num: 3, den: 1 }, { num: -1, den: 2 }];
     expect(gradeSpr("3", keys).status).toBe("correct");

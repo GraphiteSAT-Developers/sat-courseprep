@@ -15,7 +15,7 @@ const items: Item[] = [
   {
     id: "sample-tangent-system",
     format: "mc",
-    domain: "algebra",
+    domain: "advanced-math",
     skill: "Nonlinear equations in one variable and systems of equations in two variables",
     difficulty: "medium",
     stem: "How many solutions does the system $y = x^2 - 6x + 11$ and $y = 2x - 5$ have?",

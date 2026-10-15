@@ -74,6 +74,20 @@ function scaledCandidates(key: Rational, places: number): { truncated: bigint; r
   return { truncated: n / d, rounded: (2n * n + d) / (2n * d) };
 }
 
+/** True when the exact decimal form of |key| fits the box (so no truncation is allowed). */
+function exactDecimalFits(key: Rational): boolean {
+  if (!terminates(key)) return false;
+  const negative = key.num < 0;
+  const limit = negative ? MAX_NEGATIVE_LENGTH : MAX_POSITIVE_LENGTH;
+  const g = gcd(abs(BigInt(key.num)), BigInt(key.den));
+  const n = abs(BigInt(key.num)) / g;
+  const d = BigInt(key.den) / g;
+  if (d === 1n) return true;
+  const whole = n / d;
+  const exact = exactDecimal(n, d, whole === 0n ? "" : whole.toString());
+  return exact !== null && (negative ? "-" : "").length + exact.length <= limit;
+}
+
 function terminates(key: Rational): boolean {
   let d = BigInt(key.den) / gcd(abs(BigInt(key.num)), BigInt(key.den));
   while (d % 2n === 0n) d /= 2n;
@@ -104,7 +118,7 @@ export function gradeSpr(raw: string, keys: Rational[]): SprResult {
 
   for (const key of keys) {
     if (matchesExactly(parsed, key)) return { status: "correct", entry };
-    if (parsed.kind !== "decimal" || terminates(key)) continue;
+    if (parsed.kind !== "decimal" || exactDecimalFits(key)) continue;
     if (key.num !== 0 && parsed.negative !== key.num < 0) continue;
 
     const { truncated, rounded } = scaledCandidates(key, parsed.places);
@@ -141,7 +155,7 @@ export function acceptedEntries(key: Rational): string[] {
   for (const lead of whole === 0n ? ["", "0"] : [wholePart]) {
     const room = limit - sign.length - lead.length - 1;
     if (room < 1) continue;
-    if (terminates(key)) {
+    if (exactDecimalFits(key)) {
       const exact = exactDecimal(n, d, lead);
       if (exact && `${sign}${exact}`.length <= limit) out.add(`${sign}${exact}`);
       continue;
@@ -159,7 +173,7 @@ function exactDecimal(n: bigint, d: bigint, lead: string): string | null {
   if (n % d === 0n) return null;
   let rem = n % d;
   let frac = "";
-  while (rem !== 0n && frac.length < 6) {
+  while (rem !== 0n && frac.length < 12) {
     rem *= 10n;
     frac += (rem / d).toString();
     rem %= d;

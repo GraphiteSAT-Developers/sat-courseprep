@@ -1,0 +1,295 @@
+// Math-section skill taxonomy, transcribed from College Board's "Assessment
+// Framework for the Digital SAT Suite", Appendix A (Table A31) and Appendix B
+// (Tables A35–A38). Skill names are the framework's exact wording as printed in
+// Table A31; testing points are the SAT column of Tables A35–A38 (not the PSAT
+// columns). Where the framework nests sub-bullets, they are flattened here with
+// the parent clause repeated so each string reads on its own.
+
+import type { Domain } from "./types";
+
+export interface SkillSpec<D extends Domain = Domain> {
+  domain: D;
+  /** Exact skill/knowledge testing point name from Table A31. */
+  name: string;
+  /** Optional framing sentence the framework prints before the bullet list. */
+  summary?: string;
+  /** Detailed testing points from Appendix B (SAT column). */
+  testingPoints: string[];
+}
+
+/** Operational question distribution per domain, from Table A31 (44-question SAT Math section). */
+export const QUESTION_DISTRIBUTION: Record<Domain, { share: number; min: number; max: number }> = {
+  algebra: { share: 0.35, min: 13, max: 15 },
+  "advanced-math": { share: 0.35, min: 13, max: 15 },
+  psda: { share: 0.15, min: 5, max: 7 },
+  "geometry-trig": { share: 0.15, min: 5, max: 7 },
+};
+
+/** Framework domain titles, for display. */
+export const DOMAIN_TITLES: Record<Domain, string> = {
+  algebra: "Algebra",
+  "advanced-math": "Advanced Math",
+  psda: "Problem-Solving and Data Analysis",
+  "geometry-trig": "Geometry and Trigonometry",
+};
+
+export const SKILLS = [
+  // ---------------------------------------------------------------- Algebra (Table A35)
+  {
+    domain: "algebra",
+    name: "Linear equations in one variable",
+    testingPoints: [
+      "Create and use linear equations in one variable to solve problems in a variety of contexts.",
+      "Identify or create a linear equation in one variable that represents a context.",
+      "For a linear equation in one variable, interpret a constant, variable, factor, term, or the solution in a context.",
+      "Solve a linear equation in one variable, making strategic use of algebraic structure.",
+      "For a linear equation in one variable, determine the conditions under which the equation has no solution, a unique solution, or infinitely many solutions.",
+      "Fluently solve a linear equation in one variable.",
+    ],
+  },
+  {
+    domain: "algebra",
+    name: "Linear functions",
+    summary:
+      "Algebraically, a linear function can be defined by a linear expression in one variable or by a linear equation in two variables. In the first case, the variable is the input and the value of the expression is the output. In the second case, one of the variables is designated as the input and determines a unique value of the other variable, which is the output.",
+    testingPoints: [
+      "Create and use linear functions to solve problems in a variety of contexts.",
+      "Identify or create a linear function to model a relationship between two quantities.",
+      "For a linear function that represents a context, interpret the meaning of an input/output pair, constant, variable, factor, or term based on the context, including situations where seeing structure provides an advantage.",
+      "Interpret the graph of a linear function in a context.",
+      "Make connections between a table, an algebraic representation, or a graph of a linear function not in context.",
+      "Make connections between a table, an algebraic representation, or a graph of a linear function in context.",
+      "For a linear function that represents a context, given an input value, find and interpret the output value using the given representation, or given an output value, find and interpret the input value using the given representation, if it exists.",
+      "Write the rule for a linear function given two input/output pairs or one input/output pair and the rate of change.",
+      "Evaluate a linear function given an input value, or find the input value for a corresponding output.",
+    ],
+  },
+  {
+    domain: "algebra",
+    name: "Linear equations in two variables",
+    summary:
+      "A linear equation in two variables can be used to represent a constraint or condition on two variable quantities in situations where neither of the variables is regarded as an input or an output. A linear equation can also be used to represent a straight line in the coordinate plane.",
+    testingPoints: [
+      "Create and use a linear equation in two variables to solve problems in a variety of contexts.",
+      "Identify or create a linear equation in two variables to model a constraint or condition on two quantities.",
+      "For a linear equation in two variables that represents a context, interpret a solution, constant, variable, factor, or term based on the context, including situations where seeing structure provides an advantage.",
+      "Interpret the graph of a linear equation in the form Ax + By = C in a context.",
+      "Make connections between an algebraic representation and a graph of a linear equation in two variables not in context.",
+      "Make connections between a table and an algebraic representation or between a table and a graph of a linear equation in two variables not in context.",
+      "Make connections between a table, an algebraic representation, or a graph of a linear equation in two variables in a context.",
+      "For a linear equation in two variables that represents a context, given a value of one quantity in the relationship, find a value of the other, if it exists.",
+      "Write an equation for a line given two points on the line, one point and the slope of the line, or one point and a parallel or perpendicular line.",
+    ],
+  },
+  {
+    domain: "algebra",
+    name: "Systems of two linear equations in two variables",
+    testingPoints: [
+      "Create and use a system of two linear equations in two variables to solve problems in a variety of contexts.",
+      "Identify or create a system of linear equations in two variables to model constraints or conditions on two quantities.",
+      "Solve a system of two linear equations in two variables, making strategic use of algebraic structure.",
+      "For a system of linear equations in two variables, determine the conditions under which the system has no solution, a unique solution, or infinitely many solutions.",
+      "Make connections between an algebraic representation and a graph of a system of linear equations in two variables not in context.",
+      "Make connections between an algebraic representation and a graph of a system of linear equations in two variables in a context.",
+      "Fluently solve a system of linear equations in two variables.",
+    ],
+  },
+  {
+    domain: "algebra",
+    name: "Linear inequalities in one or two variables",
+    testingPoints: [
+      "Create and use linear inequalities in one or two variables to solve problems in a variety of contexts.",
+      "Identify or create linear inequalities in one or two variables to model constraints or conditions on two quantities.",
+      "For linear inequalities in one or two variables, interpret a constant, variable, factor, term, or solution, including situations where seeing structure provides an advantage.",
+      "Given a linear inequality or system of linear inequalities, interpret a point in the xy-plane in terms of the solution set.",
+      "Make connections between tabular, algebraic, and graphical representations of linear inequalities in one or two variables by deriving one from the other.",
+    ],
+  },
+
+  // ---------------------------------------------------------- Advanced Math (Table A36)
+  {
+    domain: "advanced-math",
+    name: "Equivalent expressions",
+    testingPoints: [
+      "Make strategic use of algebraic structure and the properties of operations to identify and create equivalent expressions by factoring polynomials limited to finding a common factor, rewriting binomials that represent a difference of two squares, and rewriting trinomials as the product of two binomials.",
+      "Make strategic use of algebraic structure and the properties of operations to identify and create equivalent expressions, including rewriting simple rational expressions, rewriting expressions with rational exponents in radical form, and factoring polynomials not included in the preceding bullet.",
+      "Fluently add, subtract, and multiply polynomials.",
+    ],
+  },
+  {
+    domain: "advanced-math",
+    name: "Nonlinear equations in one variable and systems of equations in two variables",
+    testingPoints: [
+      "Make strategic use of algebraic structure, the properties of operations, and/or reasoning about equality to solve quadratic equations in one variable presented in a wide variety of forms.",
+      "Make strategic use of algebraic structure, the properties of operations, and/or reasoning about equality to solve linear absolute value equations in one variable or simple rational and radical equations in one variable.",
+      "Make strategic use of algebraic structure, the properties of operations, and/or reasoning about equality to solve polynomial equations in one variable that are written in factored form.",
+      "Make strategic use of algebraic structure, the properties of operations, and reasoning about equality to solve systems of linear and nonlinear equations in two variables.",
+      "Determine the conditions under which a quadratic equation has no real solutions, one real solution, or two real solutions.",
+      "Relate the solutions of a system of a linear and a nonlinear equation in two variables to the graphs of the equations in the system.",
+      "Given an equation or formula in two or more variables, view it as an equation in a single variable of interest where the other variables are parameters, and solve for the variable of interest.",
+      "Fluently solve quadratic equations in one variable, written as a quadratic expression in standard form, where using the quadratic formula or completing the square is the most efficient method for solving the equation.",
+    ],
+  },
+  {
+    domain: "advanced-math",
+    name: "Nonlinear functions",
+    testingPoints: [
+      "Create and use quadratic or exponential functions to solve problems in a variety of contexts.",
+      "Identify or create an appropriate quadratic or exponential function to model a relationship between quantities.",
+      "For a quadratic or exponential function that represents a context, interpret the meaning of an input/output pair including an intercept or initial value, including situations where seeing structure provides an advantage.",
+      "For a quadratic or exponential function that represents a context, interpret the meaning of a constant, variable, factor, or term based on the context, including situations where seeing structure provides an advantage.",
+      "For a quadratic or exponential function in a context, interpret a point on the graph.",
+      "For a quadratic or exponential function in a context, interpret parts of the graph (other than a point or intercept).",
+      "Make connections between a table, an algebraic representation, or a graph of a quadratic or exponential function that does not involve a transformation, not in context.",
+      "Make connections between a table, an algebraic representation, or a graph of a polynomial function, simple rational function, or quadratic or exponential function that involves a transformation, not in context.",
+      "Make connections between a table, an algebraic representation, or a graph of a quadratic or exponential function that does not involve a transformation, in a context.",
+      "Make connections between a table, an algebraic representation, or a graph of a polynomial function, simple rational function, or other nonlinear function in a context, or a quadratic or exponential function that involves a transformation in a context.",
+      "Determine the most suitable form of the expression representing the output of the function to display key features for a quadratic function.",
+      "Determine the most suitable form of the expression representing the output of the function to display key features for an exponential function.",
+      "Understand and use the fact that for the graph of y = f(x), the solutions to f(x) = 0 correspond to x-intercepts of the graph and f(0) corresponds to the y-intercept of the graph; make connections between the input/output pairs and points on a graph; interpret this information in a context.",
+      "Use function notation to represent and interpret input/output pairs: evaluate a nonlinear function given an input value; or, for a quadratic function, find the input value for a corresponding output.",
+      "Use function notation to represent and interpret input/output pairs: for exponential, polynomial, radical, and rational functions, find the input value for a corresponding output.",
+    ],
+  },
+
+  // ------------------------------------- Problem-Solving and Data Analysis (Table A37)
+  {
+    domain: "psda",
+    name: "Ratios, rates, proportional relationships, and units",
+    summary:
+      "Questions will require students to solve problems by using a proportional relationship between quantities, calculating or using a ratio or rate, and/or using units, derived units, and unit conversion.",
+    testingPoints: [
+      "Apply proportional relationships, ratios, and rates in a wide variety of contexts. Examples include, but are not limited to, scale drawings and problems in the natural and social sciences.",
+      "Solve problems involving derived units, including those that arise from products (e.g., kilowatt-hours) and quotients (e.g., population per square kilometer).",
+      "Solve problems involving a one-step unit conversion.",
+      "Solve problems involving a multistep or multidimensional unit conversion.",
+      "Understand and use the fact that when two quantities are in a proportional relationship, if one changes by a scale factor, then the other also changes by the same scale factor.",
+    ],
+  },
+  {
+    domain: "psda",
+    name: "Percentages",
+    testingPoints: [
+      "Use percentages to solve problems in a variety of contexts, including, but not limited to, discounts, interest, taxes, and tips.",
+      "Use percentages to solve problems in a variety of contexts, including those that involve percent increases and decreases for many different quantities.",
+      "Understand and use the relationship between percent change and growth factor (5% and 1.05, for example); include percentages greater than or equal to 100%.",
+    ],
+  },
+  {
+    domain: "psda",
+    name: "One-variable data: distributions and measures of center and spread",
+    testingPoints: [
+      "Analyze and interpret numerical data distributions represented with frequency tables, histograms, dot plots, and box plots.",
+      "For quantitative variables, calculate, compare, and interpret mean, median, and range.",
+      "Compare distributions using measures of center and spread, including distributions with different means and the same standard deviations.",
+      "Compare distributions using measures of center and spread, including distributions with different standard deviations.",
+      "Understand and describe the effect of outliers on mean and median.",
+    ],
+  },
+  {
+    domain: "psda",
+    name: "Two-variable data: models and scatterplots",
+    testingPoints: [
+      "Analyze and interpret data represented in a scatterplot, but do not make predictions.",
+      "Analyze and interpret data represented in a scatterplot to make predictions.",
+      "Fit linear models to data represented in a scatterplot.",
+      "Fit quadratic and exponential models to data represented in a scatterplot.",
+      "Given a relationship between two quantities, read and interpret graphs modeling the relationship.",
+      "Compare linear and exponential growth.",
+    ],
+  },
+  {
+    domain: "psda",
+    name: "Probability and conditional probability",
+    summary:
+      "Use one- and two-way tables, area models, and other representations to find relative frequency, probabilities, and conditional probabilities.",
+    testingPoints: [
+      "Calculate, express, or interpret the probability or conditional probability of an event using a data display showing frequencies for a single variable, a two-way table, an area model, or a description of a situation.",
+      "Infrequently, given a probability, determine an unknown number in a data display showing frequencies for a single variable, a two-way table, or a description of a situation, including using a probability to determine the frequency of an event.",
+    ],
+  },
+  {
+    domain: "psda",
+    name: "Inference from sample statistics and margin of error",
+    testingPoints: [
+      "Use sample mean and sample proportion to estimate population mean and population proportion.",
+      "Interpret margin of error. Understand that a larger sample size generally leads to a smaller margin of error.",
+    ],
+  },
+  {
+    domain: "psda",
+    name: "Evaluating statistical claims: observational studies and experiments",
+    testingPoints: [
+      "With random samples, identify or describe which population the results can be extended to. Given a description of a study with or without random assignment, determine whether there is evidence for a causal relationship.",
+      "Understand why random assignment provides evidence for a causal relationship in an experimental study.",
+      "Understand issues related to sampling methods and why a result can be extended only to the population from which the sample was selected.",
+    ],
+  },
+
+  // ---------------------------------------------- Geometry and Trigonometry (Table A38)
+  {
+    domain: "geometry-trig",
+    name: "Area and volume",
+    testingPoints: [
+      "Solve real-world and mathematical problems about the area or perimeter of a geometric figure or an object that can be modeled by a geometric figure using given information.",
+      "Solve real-world and mathematical problems about the surface area or volume of a geometric figure or an object that can be modeled by a geometric figure using given information such as length, area, surface area, or volume.",
+      "Apply knowledge that changing by a scale factor of k changes all lengths by a factor of k, changes all areas by a factor of k^2, and changes all volumes by a factor of k^3.",
+      "Demonstrate procedural fluency by selecting the correct area formula and correctly calculating a specified value.",
+      "Demonstrate procedural fluency by selecting the correct surface area or volume formula and correctly calculating a specified value.",
+    ],
+  },
+  {
+    domain: "geometry-trig",
+    name: "Lines, angles, and triangles",
+    testingPoints: [
+      "Use concepts and theorems relating to congruence and similarity of triangles to solve problems.",
+      "Determine which statements may be required to prove certain relationships or to satisfy a given theorem.",
+      "Apply knowledge that changing by a scale factor of k changes all lengths by a factor of k, but angle measures remain unchanged.",
+      "Know and directly apply relevant theorems such as the triangle angle sum theorem.",
+      "Know and directly apply relevant theorems such as the vertical angle theorem and the relationship of angles formed when a transversal cuts parallel lines.",
+    ],
+  },
+  {
+    domain: "geometry-trig",
+    name: "Right triangles and trigonometry",
+    testingPoints: [
+      "Solve problems in a variety of contexts using the Pythagorean theorem.",
+      "Solve problems in a variety of contexts using properties of special right triangles.",
+      "Solve problems in a variety of contexts using right triangle trigonometry.",
+      "Use similarity to calculate values of sine, cosine, and tangent.",
+      "Solve problems using the relationship between sine and cosine of complementary angles.",
+    ],
+  },
+  {
+    domain: "geometry-trig",
+    name: "Circles",
+    testingPoints: [
+      "Use definitions, properties, and theorems relating to circles and parts of circles such as radii, diameters, tangents, angles, arc lengths, and sector areas to solve problems.",
+      "Solve problems using either radian measure or trigonometric ratios in the unit circle.",
+      "Create an equation to represent a circle in the xy-plane.",
+      "Describe how a change to the equation representing a circle affects the graph of the circle in the xy-plane or how a change to the graph of a circle affects the equation that represents the circle.",
+      "Understand that the ordered pairs that satisfy an equation of the form (x - h)^2 + (y - k)^2 = r^2 form a circle when plotted in the xy-plane.",
+      "Convert between angle measures in degrees and radians.",
+      "Complete the square in an equation representing a circle to determine properties of the circle when it is graphed in the xy-plane and use the distance formula in problems related to circles.",
+    ],
+  },
+] as const satisfies readonly SkillSpec[];
+
+/** Exact framework skill names; `Item.skill` values must be one of these. */
+export type SkillName = (typeof SKILLS)[number]["name"];
+
+export const SKILL_NAMES: readonly SkillName[] = SKILLS.map((s) => s.name);
+
+export function isSkillName(name: string): name is SkillName {
+  return (SKILL_NAMES as readonly string[]).includes(name);
+}
+
+export function skillsForDomain<D extends Domain>(domain: D): Extract<(typeof SKILLS)[number], { domain: D }>[] {
+  return SKILLS.filter((s): s is Extract<(typeof SKILLS)[number], { domain: D }> => s.domain === domain);
+}
+
+export function getSkill(name: SkillName): (typeof SKILLS)[number] {
+  const found = SKILLS.find((s) => s.name === name);
+  if (!found) throw new Error(`Unknown skill: ${name}`);
+  return found;
+}
