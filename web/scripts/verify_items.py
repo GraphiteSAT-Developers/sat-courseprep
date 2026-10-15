@@ -3816,6 +3816,206 @@ def adv_radical_perfect_square_negative_x():
     return _b6ee_expr_check(expr, samples, label="sqrt((x+3)^2) = -x - 3 for x < -3")
 
 
+# ----- Batch batch6-av -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch6-av.ts (batch batch6-av, Area and volume).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch6_av.py --only-extra
+
+Each function derives the key from the stem's givens and returns it as an exact
+SymPy object (or a callable for choices the base parser cannot read). Values stay
+exact (pi, sqrt) until a stem asks for rounding.
+"""
+
+
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, pi, sqrt, symbols
+
+_b6av_x, _b6av_h, _b6av_r, _b6av_w, _b6av_A = symbols("_b6av_x _b6av_h _b6av_r _b6av_w _b6av_A", positive=True)
+
+
+def _b6av_pos_root(eq, var):
+    sols = [v for v in sp.solve(eq, var) if v.is_real and v > 0]
+    assert len(sols) == 1, sols
+    return sols[0]
+
+
+def _b6av_cone_volume(r, h):
+    return Rational(1, 3) * pi * r**2 * h
+
+
+def _b6av_cyl_volume(r, h):
+    return pi * r**2 * h
+
+
+def geo_trapezoid_parallel_sides_area():
+    return Rational(1, 2) * (7 + 13) * 6
+
+
+def geo_parallelogram_slanted_side_area():
+    base, height = 15, 8  # the 9-unit side is slanted and unused
+    return Integer(base * height)
+
+
+def geo_triangle_altitude_from_area():
+    return _b6av_pos_root(Eq(Rational(1, 2) * 12 * _b6av_h, 54), _b6av_h)
+
+
+def geo_sphere_volume_from_diameter():
+    r = Rational(6, 2)
+    return Rational(4, 3) * pi * r**3
+
+
+def geo_rectangular_pyramid_volume():
+    return Rational(1, 3) * (5 * 8) * 9
+
+
+def geo_cone_cylinder_equal_volume_height():
+    return _b6av_pos_root(Eq(_b6av_cone_volume(_b6av_r, _b6av_h), _b6av_cyl_volume(_b6av_r, 5)), _b6av_h)
+
+
+def geo_square_inscribed_circle_region():
+    side = 10
+    r = Rational(side, 2)
+    return side**2 - pi * r**2
+
+
+def geo_cylinder_total_surface_area():
+    r, h = 3, 7
+    return 2 * pi * r**2 + 2 * pi * r * h
+
+
+def geo_cone_height_from_diameter_volume():
+    return _b6av_pos_root(Eq(_b6av_cone_volume(Rational(12, 2), _b6av_h), 96 * pi), _b6av_h)
+
+
+def geo_cone_half_radius_triple_height():
+    new = _b6av_cone_volume(_b6av_r / 2, 3 * _b6av_h)
+    return sp.simplify(new / _b6av_cone_volume(_b6av_r, _b6av_h))
+
+
+def geo_cylinder_height_equals_diameter():
+    r = _b6av_pos_root(Eq(_b6av_cyl_volume(_b6av_r, 2 * _b6av_r), 500), _b6av_r)
+    assert abs(float(r) - 4.301) < 0.001
+    return _nearest(r, 1)
+
+
+def geo_square_corners_octagon_area():
+    return Integer(12**2) - 4 * Rational(1, 2) * 4 * 4
+
+
+def geo_hollow_tube_material_volume():
+    return _b6av_cyl_volume(5, 10) - _b6av_cyl_volume(3, 10)
+
+
+def geo_hemisphere_dome_volume():
+    v = Rational(1, 2) * Rational(4, 3) * pi * 15**3
+    return _nearest(v, 0)
+
+
+def geo_tank_fill_time_minutes():
+    v = _b6av_cyl_volume(Rational(3, 2), 4)
+    return _nearest(v / Rational(1, 5), 0)
+
+
+def geo_stage_area_square_centimeters():
+    return Rational(45, 10) * 100 * 6 * 100
+
+
+def geo_wall_paint_quarts():
+    return Rational(14 * 9 - 5 * 3, 37)
+
+
+def geo_channel_trapezoid_volume():
+    return Rational(1, 2) * (3 + 1) * Rational(3, 2) * 50
+
+
+def geo_cylinder_percent_volume_change():
+    ratio = _b6av_cyl_volume(Rational(3, 2) * _b6av_r, Rational(4, 5) * _b6av_h) / _b6av_cyl_volume(_b6av_r, _b6av_h)
+    return sp.simplify((ratio - 1) * 100)
+
+
+def geo_equilateral_perimeter_area():
+    side = Rational(18, 3)
+    altitude = sqrt(side**2 - (side / 2) ** 2)
+    expected = Rational(1, 2) * side * altitude
+
+    def check(choices, idx):
+        vals = [latex_to_sympy_ext(ch) for ch in choices]
+        good = [i for i, v in enumerate(vals) if sp.simplify(v - expected) == 0]
+        return good == [idx], f"expected {expected}; matching choices {good}"
+
+    return check
+
+
+def geo_square_pyramid_total_surface():
+    side, height = 10, 12
+    slant = sqrt(height**2 + Rational(side, 2) ** 2)
+    return side**2 + 4 * Rational(1, 2) * side * slant
+
+
+def geo_cylinder_volume_lateral_radius():
+    sol = sp.solve([Eq(_b6av_cyl_volume(_b6av_r, _b6av_h), 245 * pi), Eq(2 * pi * _b6av_r * _b6av_h, 70 * pi)],
+                   [_b6av_r, _b6av_h], dict=True)
+    assert len(sol) == 1, sol
+    return sol[0][_b6av_r]
+
+
+def geo_cylinder_volume_27_surface_area():
+    k = _b6av_pos_root(Eq(_b6av_x**3, 27), _b6av_x)
+    return k**2 * 96 * pi
+
+
+def geo_rectangle_scaled_area_difference():
+    return _b6av_pos_root(Eq(Rational(3, 2) ** 2 * _b6av_A - _b6av_A, 54), _b6av_A)
+
+
+def geo_triangle_two_altitudes_side():
+    area = Rational(1, 2) * 15 * 8
+    bc = _b6av_pos_root(Eq(Rational(1, 2) * _b6av_x * 12, area), _b6av_x)
+    # The triangle exists: place A=(0,0), B=(15,0), C=(xc, 8) with BC = bc.
+    xc = 15 - sqrt(bc**2 - 8**2)
+    ac_line_dist = sp.Abs(8 * 0 - 8 * 15 + 0) / sqrt(8**2 + (xc - 15) ** 2)  # distance from A to line BC
+    assert sp.simplify(ac_line_dist - 12) == 0
+    return bc
+
+
+def geo_open_box_greatest_volume():
+    xx = sp.Symbol("_b6av_xx", real=True)
+    v = xx * (16 - 2 * xx) * (10 - 2 * xx)
+    crit = [c for c in sp.solve(sp.diff(v, xx), xx) if 0 < c < 5]
+    candidates = [v.subs(xx, c) for c in crit]
+    best = max(candidates)
+    assert sp.factor(sp.expand(v - best)) == 4 * (xx - 2) ** 2 * (xx - 9)
+    return best
+
+
+def geo_salt_pile_cone_circumference():
+    r = _b6av_pos_root(Eq(2 * pi * _b6av_r, 40), _b6av_r)
+    return _nearest(_b6av_cone_volume(r, 6), 0)
+
+
+def geo_garden_path_uniform_width():
+    w = _b6av_pos_root(Eq(pi * (6 + _b6av_w) ** 2 - pi * 6**2, 40), _b6av_w)
+    assert abs(float(w) - 0.981) < 0.001
+    return _nearest(w, 1)
+
+
+def geo_similar_candles_wax():
+    k = _b6av_pos_root(Eq(_b6av_x**2, Rational(9, 4)), _b6av_x)
+    return k**3 * 16
+
+
+def geo_planter_soil_bags():
+    vol_ft3 = 4 * Rational(30, 12) * Rational(18, 12)
+    bags = vol_ft3 / Rational(5, 4)
+    return sp.ceiling(bags)
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -4210,6 +4410,37 @@ CHECKS = {
     "adv-rational-product-four-factors": adv_rational_product_four_factors,
     "adv-exponent-difference-squares-a-minus-b": adv_exponent_difference_squares_a_minus_b,
     "adv-radical-perfect-square-negative-x": adv_radical_perfect_square_negative_x,
+    # batch batch6-av
+    "geo-trapezoid-parallel-sides-area": geo_trapezoid_parallel_sides_area,
+    "geo-parallelogram-slanted-side-area": geo_parallelogram_slanted_side_area,
+    "geo-triangle-altitude-from-area": geo_triangle_altitude_from_area,
+    "geo-sphere-volume-from-diameter": geo_sphere_volume_from_diameter,
+    "geo-rectangular-pyramid-volume": geo_rectangular_pyramid_volume,
+    "geo-cone-cylinder-equal-volume-height": geo_cone_cylinder_equal_volume_height,
+    "geo-square-inscribed-circle-region": geo_square_inscribed_circle_region,
+    "geo-cylinder-total-surface-area": geo_cylinder_total_surface_area,
+    "geo-cone-height-from-diameter-volume": geo_cone_height_from_diameter_volume,
+    "geo-cone-half-radius-triple-height": geo_cone_half_radius_triple_height,
+    "geo-cylinder-height-equals-diameter": geo_cylinder_height_equals_diameter,
+    "geo-square-corners-octagon-area": geo_square_corners_octagon_area,
+    "geo-hollow-tube-material-volume": geo_hollow_tube_material_volume,
+    "geo-hemisphere-dome-volume": geo_hemisphere_dome_volume,
+    "geo-tank-fill-time-minutes": geo_tank_fill_time_minutes,
+    "geo-stage-area-square-centimeters": geo_stage_area_square_centimeters,
+    "geo-wall-paint-quarts": geo_wall_paint_quarts,
+    "geo-channel-trapezoid-volume": geo_channel_trapezoid_volume,
+    "geo-cylinder-percent-volume-change": geo_cylinder_percent_volume_change,
+    "geo-equilateral-perimeter-area": geo_equilateral_perimeter_area,
+    "geo-square-pyramid-total-surface": geo_square_pyramid_total_surface,
+    "geo-cylinder-volume-lateral-radius": geo_cylinder_volume_lateral_radius,
+    "geo-cylinder-volume-27-surface-area": geo_cylinder_volume_27_surface_area,
+    "geo-rectangle-scaled-area-difference": geo_rectangle_scaled_area_difference,
+    "geo-triangle-two-altitudes-side": geo_triangle_two_altitudes_side,
+    "geo-open-box-greatest-volume": geo_open_box_greatest_volume,
+    "geo-salt-pile-cone-circumference": geo_salt_pile_cone_circumference,
+    "geo-garden-path-uniform-width": geo_garden_path_uniform_width,
+    "geo-similar-candles-wax": geo_similar_candles_wax,
+    "geo-planter-soil-bags": geo_planter_soil_bags,
 }
 
 
