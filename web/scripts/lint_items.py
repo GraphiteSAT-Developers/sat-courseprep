@@ -239,6 +239,11 @@ SINGLE_LETTER = re.compile(r"(?<![A-Za-z\\])([a-z])(?![A-Za-z(])")
 FUNCTION_LETTER = re.compile(r"(?<![A-Za-z\\])([a-z])\(")
 
 
+DECL_LIST = re.compile(
+    r"(?:\b(?:where|let)\s+)?\$[a-z]\$(?:\s*,\s*\$[a-z]\$)*(?:\s*,?\s*and\s+\$[a-z]\$)?\s+(?:is|are)\b"
+)
+
+
 def undeclared_letters(stem: str) -> set[str]:
     """Lower-case single letters in math spans that are neither x/y, a function name, nor declared."""
     letters: set[str] = set()
@@ -250,6 +255,10 @@ def undeclared_letters(stem: str) -> set[str]:
     letters -= {"x", "y"} | functions
     prose = stem.lower()
     declared = set()
+    # Lists such as "$a$, $b$, and $c$ are constants" or "where $p$ and $q$ are ..." declare every
+    # letter in the list (with or without the serial comma).
+    for m in DECL_LIST.finditer(prose):
+        declared |= set(re.findall(r"\$([a-z])\$", m.group(0)))
     for letter in letters:
         patterns = [
             rf"\${letter}\$\s*(is|are|and \$[a-z]\$ are|, \$[a-z]\$,? and \$[a-z]\$ are)\b",
