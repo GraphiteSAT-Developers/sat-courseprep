@@ -21,7 +21,7 @@ Without a Desmos key the page still works; the calculator pane shows a setup mes
 | Path | What | Owner |
 |---|---|---|
 | `content/types.ts` | Item schema: MC / SPR, domain, techniques (T1–T13), route (Desmos-primary / hand-primary / either), Desmos lines, by-hand route, provenance | Course |
-| `content/items.ts` | The item bank (55 original items; keys checked by `scripts/verify_items.py`). Server-only, so keys never reach the browser | Course |
+| `content/items.ts` | The item bank (1,000 original items; keys checked by `scripts/verify_items.py`). Server-only, so keys never reach the browser | Course |
 | `lib/grading/` | Deterministic grader. `spr.ts` implements Bluebook's typed-answer rules (5/6 characters, fractions, full-width truncated or rounded decimals) | Site |
 | `lib/desmos/config.ts` | College Board–style calculator options. **Unverified until the Phase 0 Bluebook audit** | Site |
 | `lib/desmos/snapshot.ts` | Compact, serializable view of the student's calculator that the tutor reads | Contract |

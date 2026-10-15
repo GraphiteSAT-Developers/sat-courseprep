@@ -9615,6 +9615,344 @@ def adv_ne3_exponential_system_sum():
     return s0[xr] + s0[yr]
 
 
+# ----- Batch batch13-nf3 -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch13-nf3.ts (batch batch13-nf3).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch13_nf3.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+
+import re
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, sqrt, Eq
+
+_b13nf_x = Symbol("x")
+_b13nf_t = Symbol("t")
+_b13nf_k = Symbol("k")
+_b13nf_c = Symbol("c")
+
+
+def _b13nf_hits(choices, idx, predicate, label=""):
+    hits = [i for i, ch in enumerate(choices) if predicate(ch)]
+    return hits == [idx], f"{label}; matching choices {hits}"
+
+
+def _b13nf_point(text):
+    s = text.strip().strip("$").strip()
+    m = re.fullmatch(r"\(\s*([^,]+?)\s*,\s*([^)]+?)\s*\)", s)
+    return (latex_to_sympy(m.group(1)), latex_to_sympy(m.group(2)))
+
+
+# ------------------------------------------------------------------ easy
+
+
+def adv_nf_quadratic_evaluate_at_negative_two():
+    X = _b13nf_x
+    return (X**2 - 4 * X + 7).subs(X, -2)
+
+
+def adv_nf_downward_vertex_form_vertex_point():
+    X = _b13nf_x
+    f = -2 * (X - 7) ** 2 + 3
+    xv = sp.solve(sp.diff(f, X), X)[0]
+    vertex = (xv, f.subs(X, xv))
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, lambda ch: _b13nf_point(ch) == vertex, f"vertex {vertex}")
+
+    return check
+
+
+def adv_nf_shifted_exponential_y_intercept():
+    X = _b13nf_x
+    point = (Integer(0), (5 * 3**X - 2).subs(X, 0))
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, lambda ch: _b13nf_point(ch) == point, f"y-intercept {point}")
+
+    return check
+
+
+def adv_nf_quilt_width_rule_area():
+    X = _b13nf_x
+    A = X * (X + 2)  # length is 2 feet more than the width x
+    return A.subs(X, 6)
+
+
+def adv_nf_cubic_negative_leading_term_right_end():
+    X = _b13nf_x
+    lim = sp.limit(2 * X - 3 * X**3, X, sp.oo)
+
+    def claim(ch):
+        if "decrease without bound" in ch:
+            return -sp.oo
+        if "increase without bound" in ch:
+            return sp.oo
+        m = re.search(r"approach \$(-?\d+)\$", ch)
+        return Integer(m.group(1))
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, lambda ch: claim(ch) == lim, f"limit {lim}")
+
+    return check
+
+
+def adv_nf_fireworks_height_gap_one_second():
+    T = _b13nf_t
+    A = -5 * T**2 + 40 * T + 2
+    B = -5 * T**2 + 34 * T + 6
+    return (A - B).subs(T, 1)
+
+
+# ------------------------------------------------------------------ medium
+
+
+def adv_nf_two_quadratics_difference_at_input():
+    X = _b13nf_x
+    f = (X - 4) ** 2 - 3
+    g = -X**2 + 6 * X
+    return (f - g).subs(X, -1)
+
+
+def adv_nf_canoe_average_cost_long_run():
+    q = Symbol("q", positive=True)
+    lim = sp.limit((18000 + 400 * q) / q, q, sp.oo)
+
+    def value(ch):
+        m = re.search(r"closer to ([\d,]+\.\d\d) dollars", ch)
+        return sp.nsimplify(m.group(1).replace(",", ""))
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, lambda ch: value(ch) == lim, f"limit {lim}")
+
+    return check
+
+
+def adv_nf_syrup_fraction_long_run():
+    X = _b13nf_x
+    return sp.limit((20 + X) / (100 + X), X, sp.oo)
+
+
+def adv_nf_quadratic_c_single_intercept():
+    X, C = _b13nf_x, _b13nf_c
+    sols = sp.solve(Eq(sp.discriminant(2 * X**2 + 12 * X + C, X), 0), C)
+    assert len(sols) == 1
+    # confirm exactly one real root at that c
+    assert len(set(sp.solve(2 * X**2 + 12 * X + sols[0], X))) == 1
+    return sols[0]
+
+
+def adv_nf_same_leading_coefficient_equal_input():
+    X = _b13nf_x
+    sols = sp.solve(Eq(2 * (X - 3) ** 2 + 1, 2 * (X + 1) ** 2 - 7), X)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_cubic_plus_constant_end_behavior():
+    X = _b13nf_x
+    f = 4 + X**2 * (5 - X)
+    word = lambda v: "increases" if v == sp.oo else "decreases"
+    left = word(sp.limit(f, X, -sp.oo))
+    right = word(sp.limit(f, X, sp.oo))
+
+    def pred(ch):
+        m = re.fullmatch(
+            r"As \$x\$ decreases without bound, \$f\(x\)\$ (\w+) without bound, "
+            r"and as \$x\$ increases without bound, \$f\(x\)\$ (\w+) without bound\.", ch)
+        return m.group(1) == left and m.group(2) == right
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, pred, f"left {left}, right {right}")
+
+    return check
+
+
+def adv_nf_podcast_linear_vs_percent():
+    m = Symbol("m")
+    A = 2000 + 300 * m
+    B = 2000 * Rational(11, 10) ** m
+    diff = (B - A).subs(m, 12)
+    return Integer(sp.floor(diff + Rational(1, 2)))
+
+
+def adv_nf_linear_exponential_increase_gap():
+    X = _b13nf_x
+    f = 12 * X + 5
+    g = 5 * 2**X
+    return (g.subs(X, 5) - g.subs(X, 0)) - (f.subs(X, 5) - f.subs(X, 0))
+
+
+def adv_nf_compare_maxima_vertex_standard():
+    X = _b13nf_x
+    maxima = {}
+    for name, fn in (("f", -(X - 3) ** 2 + 10), ("g", -2 * X**2 + 8 * X + 3)):
+        xv = sp.solve(sp.diff(fn, X), X)[0]
+        maxima[name] = fn.subs(X, xv)
+    winner = max(maxima, key=lambda n: maxima[n])
+    gap = abs(maxima["f"] - maxima["g"])
+
+    def pred(ch):
+        m = re.fullmatch(r"The maximum value of \$(\w)\$ is greater, by (\d+)\.", ch)
+        return m.group(1) == winner and Integer(m.group(2)) == gap
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, pred, f"maxima {maxima}")
+
+    return check
+
+
+def adv_nf_square_side_two_more_expression():
+    X = _b13nf_x
+    expected = sp.expand((X + 2) ** 2)  # side is 2 more than x
+
+    def check(choices, idx):
+        return _b13nf_hits(
+            choices, idx,
+            lambda ch: sp.expand(latex_to_sympy(ch).subs(Symbol("x"), X) - expected) == 0,
+            f"expected {expected}")
+
+    return check
+
+
+# ------------------------------------------------------------------ hard
+
+
+def adv_nf_divers_maximum_height_gap():
+    T = _b13nf_t
+    tops = []
+    for h in (-5 * T**2 + 6 * T + 3, -5 * T**2 + 4 * T + 10):
+        tv = sp.solve(sp.diff(h, T), T)[0]
+        tops.append(h.subs(T, tv))
+    return tops[1] - tops[0]
+
+
+def adv_nf_quadratic_greater_than_interval():
+    X = sp.Symbol("x", real=True)
+    f = X**2 + 2 * X - 3
+    g = -X**2 + 4 * X + 9
+    sol = sp.solve_univariate_inequality(f - g > 0, X, relational=False)
+
+    def parse(ch):
+        s = ch.replace("$", "")
+        m = re.fullmatch(r"(-?\d+) < x < (-?\d+)", s)
+        if m:
+            return sp.Interval.open(int(m.group(1)), int(m.group(2)))
+        m = re.fullmatch(r"x < (-?\d+) or x > (-?\d+)", s)
+        return sp.Union(sp.Interval.open(-sp.oo, int(m.group(1))), sp.Interval.open(int(m.group(2)), sp.oo))
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, lambda ch: parse(ch) == sol, f"solution set {sol}")
+
+    return check
+
+
+def adv_nf_rational_approach_find_a():
+    X = _b13nf_x
+    a_ = Symbol("a")
+    f = (a_ * X + 3) / (X - 2)
+    sols = sp.solve(Eq(sp.limit(f, X, sp.oo), 5), a_)
+    assert len(sols) == 1
+    return f.subs(a_, sols[0]).subs(X, 4)
+
+
+def adv_nf_ski_pass_ten_percent_above():
+    d = Symbol("d", positive=True)
+    A = (120 + 30 * d) / d
+    target = Rational(11, 10) * sp.limit(A, d, sp.oo)
+    sols = sp.solve(Eq(A, target), d)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_coral_linear_vs_exponential_midpoint():
+    T = _b13nf_t
+    A = 200 + (260 - 200) * T / 6
+    B = 200 * (Rational(260, 200)) ** (T / 6)
+    diff = (A - B).subs(T, 3)
+    assert diff > 0
+    return Integer(sp.floor(diff + Rational(1, 2)))
+
+
+def adv_nf_intercepts_six_apart_k():
+    X, K = _b13nf_x, Symbol("k", negative=True)
+    roots = sp.solve((X - 4) ** 2 + K, X)
+    gap = sp.Abs(roots[0] - roots[1])
+    sols = sp.solve(Eq(gap, 6), K)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_no_intercepts_greatest_b():
+    X = _b13nf_x
+    good = [bv for bv in range(1, 50) if not [r for r in sp.solve(X**2 + bv * X + 16, X) if r.is_real]]
+    assert good == list(range(1, good[-1] + 1))
+    return Integer(max(good))
+
+
+def adv_nf_cubic_end_behavior_sign_of_a():
+    X = _b13nf_x
+    a_ = Symbol("a")
+    f = a_ * (X - 1) * (X + 2) * (X - 4)
+    f0 = sp.expand(f.subs(X, 0))  # 8a
+
+    def possible(ch):
+        v = latex_to_sympy(ch)
+        av = sp.solve(Eq(f0, v), a_)
+        if not av or av[0] == 0:
+            return False
+        return sp.limit(f.subs(a_, av[0]), X, sp.oo) == -sp.oo
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, possible, f"f(0) = {f0} with a < 0")
+
+    return check
+
+
+def adv_nf_square_perimeter_rule_area():
+    X = _b13nf_x
+    A = ((X + 8) / 4) ** 2
+    return A.subs(X, 12)
+
+
+def adv_nf_equal_at_four_compare_at_six():
+    X, K = _b13nf_x, _b13nf_k
+    f = X**2 + K * X
+    g = 2 * X**2 - 3 * X
+    ks = sp.solve(Eq(f.subs(X, 4), g.subs(X, 4)), K)
+    assert len(ks) == 1
+    return (g - f).subs(K, ks[0]).subs(X, 6)
+
+
+def adv_nf_linear_vs_exponential_two_intervals():
+    X = _b13nf_x
+    fns = {"f": 100 + 30 * X, "g": 100 * Rational(5, 4) ** X}
+    inc = {n: (fn.subs(X, 2) - fn.subs(X, 0), fn.subs(X, 4) - fn.subs(X, 2)) for n, fn in fns.items()}
+    first = "f" if inc["f"][0] > inc["g"][0] else "g"
+    second = "f" if inc["f"][1] > inc["g"][1] else "g"
+
+    def pred(ch):
+        m = re.fullmatch(
+            r"From \$x = 0\$ to \$x = 2\$, \$(\w)\(x\)\$ increases more; "
+            r"from \$x = 2\$ to \$x = 4\$, \$(\w)\(x\)\$ increases more\.", ch)
+        return m.group(1) == first and m.group(2) == second
+
+    def check(choices, idx):
+        return _b13nf_hits(choices, idx, pred, f"increases {inc}")
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -10626,6 +10964,34 @@ CHECKS = {
     "adv-ne3-quartic-substitution-product": adv_ne3_quartic_substitution_product,
     "adv-ne3-root-difference-squared": adv_ne3_root_difference_squared,
     "adv-ne3-exponential-system-sum": adv_ne3_exponential_system_sum,
+    # batch batch13-nf3
+    "adv-nf-quadratic-evaluate-at-negative-two": adv_nf_quadratic_evaluate_at_negative_two,
+    "adv-nf-downward-vertex-form-vertex-point": adv_nf_downward_vertex_form_vertex_point,
+    "adv-nf-shifted-exponential-y-intercept": adv_nf_shifted_exponential_y_intercept,
+    "adv-nf-quilt-width-rule-area": adv_nf_quilt_width_rule_area,
+    "adv-nf-cubic-negative-leading-term-right-end": adv_nf_cubic_negative_leading_term_right_end,
+    "adv-nf-fireworks-height-gap-one-second": adv_nf_fireworks_height_gap_one_second,
+    "adv-nf-two-quadratics-difference-at-input": adv_nf_two_quadratics_difference_at_input,
+    "adv-nf-canoe-average-cost-long-run": adv_nf_canoe_average_cost_long_run,
+    "adv-nf-syrup-fraction-long-run": adv_nf_syrup_fraction_long_run,
+    "adv-nf-quadratic-c-single-intercept": adv_nf_quadratic_c_single_intercept,
+    "adv-nf-same-leading-coefficient-equal-input": adv_nf_same_leading_coefficient_equal_input,
+    "adv-nf-cubic-plus-constant-end-behavior": adv_nf_cubic_plus_constant_end_behavior,
+    "adv-nf-podcast-linear-vs-percent": adv_nf_podcast_linear_vs_percent,
+    "adv-nf-linear-exponential-increase-gap": adv_nf_linear_exponential_increase_gap,
+    "adv-nf-compare-maxima-vertex-standard": adv_nf_compare_maxima_vertex_standard,
+    "adv-nf-square-side-two-more-expression": adv_nf_square_side_two_more_expression,
+    "adv-nf-divers-maximum-height-gap": adv_nf_divers_maximum_height_gap,
+    "adv-nf-quadratic-greater-than-interval": adv_nf_quadratic_greater_than_interval,
+    "adv-nf-rational-approach-find-a": adv_nf_rational_approach_find_a,
+    "adv-nf-ski-pass-ten-percent-above": adv_nf_ski_pass_ten_percent_above,
+    "adv-nf-coral-linear-vs-exponential-midpoint": adv_nf_coral_linear_vs_exponential_midpoint,
+    "adv-nf-intercepts-six-apart-k": adv_nf_intercepts_six_apart_k,
+    "adv-nf-no-intercepts-greatest-b": adv_nf_no_intercepts_greatest_b,
+    "adv-nf-cubic-end-behavior-sign-of-a": adv_nf_cubic_end_behavior_sign_of_a,
+    "adv-nf-square-perimeter-rule-area": adv_nf_square_perimeter_rule_area,
+    "adv-nf-equal-at-four-compare-at-six": adv_nf_equal_at_four_compare_at_six,
+    "adv-nf-linear-vs-exponential-two-intervals": adv_nf_linear_vs_exponential_two_intervals,
 }
 
 

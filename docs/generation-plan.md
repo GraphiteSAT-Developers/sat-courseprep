@@ -1,6 +1,6 @@
 # Item generation plan: to 1,000
 
-_2026-10-15, bank at 301 after batch 5 (first milestone reached). Storage decision: items live in `web/content/items.ts` and are exported to `data/items.jsonl` for the AI side (Sonnet tutor, retrieval, evals). Firebase is deferred._
+_2026-10-16: **bank complete at 1,000 items** (phase 2 finished). Earlier milestone: 301 after batch 5. Storage decision: items live in `web/content/items.ts` and are exported to `data/items.jsonl` for the AI side (Sonnet tutor, retrieval, evals). Firebase is deferred._
 
 ## Targets
 
@@ -95,3 +95,20 @@ Scale changes from phase 1:
 - Agents read `python3 web/scripts/bank_index.py --skill "<name>"` (one line per existing item) instead of the whole bank, to avoid setups already used.
 - Two batches of the same skill never run in the same wave; the second one sees the first's items in the index.
 - Waves of 5 agents, merged and committed as each finishes (`merge_batch.py`, verify, lint, export).
+
+### Phase 2 result (2026-10-16)
+
+1,000 items; every key recomputed with SymPy (0 failing); style lint 0 errors, 17 warnings (all reviewed: wording-level, or distractor rationales written in words the checker can't parse).
+
+| | Bank | Official target |
+|---|---|---|
+| Algebra / Advanced Math / PSDA / Geometry-Trig | 350 / 350 / 150 / 150 | 35 / 35 / 15 / 15 % |
+| MC / SPR | 751 / 249 (25% SPR) | ≈25% SPR |
+| In context | 350 (35%) | ≈30% |
+| Easy / medium / hard | 196 / 393 / 411 | lean hard for a 700–800 audience |
+| Route: desmos-primary / hand-primary / either | 314 / 391 / 295 | |
+| Key position A / B / C / D | 178 / 199 / 202 / 172 | spread |
+
+Per skill: every skill at its target except Right triangles and trigonometry 37 (target 40) and Circles 33 (target 30): three radian / unit-circle items were moved to Circles, where the official taxonomy lists them. Geometry stays at its 150 total.
+
+Process notes from phase 2: generation rules in `docs/generation-agent-brief.md`; stems state any formula not on the SAT reference sheet; lint fixes along the way (`\left(` misread as `\le`, serial-comma declaration lists, distractor matching for fractions, radicals and inequalities).
