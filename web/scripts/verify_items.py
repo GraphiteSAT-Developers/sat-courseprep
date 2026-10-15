@@ -8111,6 +8111,177 @@ def alg_sys_puppies_weight_weeks_units():
     return _b10sy_solve(Eq(p, 18 + 2 * w), Eq(p, 6 + R(1, 2) * 7 * w), [w, p])[0]
 
 
+# ----- Batch batch11-le1v2 -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch11-le1v2.ts (batch batch11-le1v2).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch11_le1v2.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+
+
+import sympy as sp
+from sympy import Eq, Rational, symbols
+
+x, y, k, a, b, c, p, n, m, d = symbols("x y k a b c p n m d")
+
+
+# ----- helpers (prefix _b11l1_) -----
+
+
+def _b11l1_solve_one(eq, var=x):
+    """The unique solution of a linear equation in var (asserts exactly one)."""
+    sols = sp.solve(eq, var)
+    assert len(sols) == 1, f"expected one solution, got {sols}"
+    return sp.nsimplify(sols[0])
+
+
+def _b11l1_identity_constants(lhs, rhs, unknowns, var=x):
+    """Constants that make lhs = rhs an identity in var (asserts a unique choice)."""
+    coeffs = sp.Poly(sp.expand(lhs - rhs), var).all_coeffs()
+    sols = sp.solve(coeffs, unknowns, dict=True)
+    assert len(sols) == 1, f"expected one set of constants, got {sols}"
+    sol = sols[0]
+    assert sp.expand((lhs - rhs).subs(sol)) == 0  # genuinely infinitely many solutions
+    return sol
+
+
+def _b11l1_split(text):
+    lhs, rhs = text.strip().strip("$").split("=")
+    return latex_to_sympy(lhs), latex_to_sympy(rhs)
+
+
+# ----- items -----
+
+
+def alg_le_x_fourths_sixths_sum():
+    return _b11l1_solve_one(Eq(x / 4 + x / 6, 15))
+
+
+def alg_le_proportion_two_numerators():
+    return _b11l1_solve_one(Eq((x + 4) / 6, (2 * x - 1) / 9))
+
+
+def alg_le_proportion_fraction_key_spr():
+    return _b11l1_solve_one(Eq((5 - x) / 4, (x + 7) / 10))
+
+
+def alg_le_proportion_k_from_solution():
+    kk = _b11l1_solve_one(Eq((26 - 2 * k) / 3, (26 + k) / 5), k)
+    # x = 26 is then the (only) solution of the equation in x
+    assert _b11l1_solve_one(Eq((x - 2 * kk) / 3, (x + kk) / 5)) == 26
+    return kk
+
+
+def alg_le_shifted_constant_new_solution():
+    kk = _b11l1_solve_one(Eq(3 * (2 * 15 - k), 5 * 15 + 2 * k), k)
+    return _b11l1_solve_one(Eq(3 * (2 * x - kk), 5 * x + 2 * kk + 10))
+
+
+def alg_le_nested_bracket_solve():
+    return _b11l1_solve_one(Eq(2 * (3 - (x - 4)), x + 5))
+
+
+def alg_le_nested_bracket_fraction_spr():
+    return _b11l1_solve_one(Eq(4 - 3 * (2 * x - (5 - x)), 2 * (x + 1) - 6 * x))
+
+
+def alg_le_value_x_plus_5():
+    xx = _b11l1_solve_one(Eq(7 * (x + 5), 56))
+    return xx + 5
+
+
+def alg_le_value_6_minus_x():
+    xx = _b11l1_solve_one(Eq((x - 6) / 4, 3))
+    return 6 - xx
+
+
+def alg_le_consecutive_twice_greatest():
+    least = _b11l1_solve_one(Eq(2 * (n + 2), 3 * (n + (n + 1)) - 23), n)
+    assert least.is_integer
+    return least + 2
+
+
+def alg_le_oak_maple_ages():
+    return _b11l1_solve_one(Eq(4 * m + 18, 2 * (m + 18)), m)
+
+
+def alg_le_ladder_discount_delivery():
+    return _b11l1_solve_one(Eq(p * (1 - Rational(20, 100)) + Rational("9.00"), Rational("105.00")), p)
+
+
+def alg_le_ticket_discount_service_fee_spr():
+    discounted = p * (1 - Rational(25, 100))
+    with_fee = discounted * (1 + Rational(8, 100))
+    return _b11l1_solve_one(Eq(with_fee + Rational("4.50"), Rational("85.50")), p)
+
+
+def alg_le_identity_two_constants_sum():
+    sol = _b11l1_identity_constants(a * (2 * x - 3) + 4 * x, 10 * x + b, [a, b])
+    return sol[a] + sol[b]
+
+
+def alg_le_flower_shop_bouquets_equation():
+    target = sp.expand(12 * b + 36 - 240)  # stems in bouquets + leftover = total
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = _b11l1_split(ch)
+            diff = sp.expand(lhs - rhs)
+            ratio = sp.simplify(diff / target)
+            if ratio.is_number and ratio != 0:
+                hits.append(i)
+        return hits == [idx], f"equivalent to {target} = 0: choices {hits}"
+
+    return check
+
+
+def alg_le_greenhouse_term_meaning():
+    # 1,260 - 90d = 450: 1,260 start, 90 per day, so 90d is the number shipped in d days.
+    rate = sp.Integer(90)
+    assert sp.solve(Eq(1260 - rate * d, 450), d) == [9]
+    expected = "The number of seedlings shipped in $d$ days."
+
+    def check(choices, idx):
+        return choices[idx] == expected and choices.count(expected) == 1, f"expected {expected!r}"
+
+    return check
+
+
+def alg_le_club_mugs_profit_spr():
+    profit = 14 * m - (150 + Rational("5.50") * m)
+    return _b11l1_solve_one(Eq(profit, 445), m)
+
+
+def alg_le_both_sides_easy_solve():
+    return _b11l1_solve_one(Eq(8 - 3 * x, 2 * x - 17))
+
+
+def alg_le_x_over_20_structure():
+    xx = _b11l1_solve_one(Eq(x / 4 - x / 10, 9))
+    return xx / 20
+
+
+def alg_le_identity_coefficient_match_spr():
+    sol = _b11l1_identity_constants(3 * (x - 2 * a) + b * x, 7 * x - 12, [a, b])
+    return sol[a] + sol[b]
+
+
+def alg_le_five_even_sum_greatest():
+    terms = [n + 2 * i for i in range(5)]
+    least = _b11l1_solve_one(Eq(sum(terms), 6 * n), n)
+    assert least.is_integer and least % 2 == 0
+    return terms[-1].subs(n, least)
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -8969,6 +9140,28 @@ CHECKS = {
     "alg-sys-bridges-ages-future": alg_sys_bridges_ages_future,
     "alg-sys-courier-van-unloaded-type-b-spr": alg_sys_courier_van_unloaded_type_b_spr,
     "alg-sys-puppies-weight-weeks-units": alg_sys_puppies_weight_weeks_units,
+    # batch batch11-le1v2
+    "alg-le-x-fourths-sixths-sum": alg_le_x_fourths_sixths_sum,
+    "alg-le-proportion-two-numerators": alg_le_proportion_two_numerators,
+    "alg-le-proportion-fraction-key-spr": alg_le_proportion_fraction_key_spr,
+    "alg-le-proportion-k-from-solution": alg_le_proportion_k_from_solution,
+    "alg-le-shifted-constant-new-solution": alg_le_shifted_constant_new_solution,
+    "alg-le-nested-bracket-solve": alg_le_nested_bracket_solve,
+    "alg-le-nested-bracket-fraction-spr": alg_le_nested_bracket_fraction_spr,
+    "alg-le-value-x-plus-5": alg_le_value_x_plus_5,
+    "alg-le-value-6-minus-x": alg_le_value_6_minus_x,
+    "alg-le-consecutive-twice-greatest": alg_le_consecutive_twice_greatest,
+    "alg-le-oak-maple-ages": alg_le_oak_maple_ages,
+    "alg-le-ladder-discount-delivery": alg_le_ladder_discount_delivery,
+    "alg-le-ticket-discount-service-fee-spr": alg_le_ticket_discount_service_fee_spr,
+    "alg-le-identity-two-constants-sum": alg_le_identity_two_constants_sum,
+    "alg-le-flower-shop-bouquets-equation": alg_le_flower_shop_bouquets_equation,
+    "alg-le-greenhouse-term-meaning": alg_le_greenhouse_term_meaning,
+    "alg-le-club-mugs-profit-spr": alg_le_club_mugs_profit_spr,
+    "alg-le-both-sides-easy-solve": alg_le_both_sides_easy_solve,
+    "alg-le-x-over-20-structure": alg_le_x_over_20_structure,
+    "alg-le-identity-coefficient-match-spr": alg_le_identity_coefficient_match_spr,
+    "alg-le-five-even-sum-greatest": alg_le_five_even_sum_greatest,
 }
 
 
