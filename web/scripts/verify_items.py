@@ -4779,6 +4779,281 @@ def alg_ineq_lattice_points_count():
     return Integer(sum(1 for i in range(1, 30) for j in range(1, 30) if 3 * i + 4 * j <= 20))
 
 
+# ----- Batch batch7-sys1 -----
+import sympy as sp
+from sympy import Rational, Eq
+
+_b7sy_x, _b7sy_y = sp.symbols("x y")
+_b7sy_k, _b7sy_a, _b7sy_b, _b7sy_c = sp.symbols("k a b c")
+
+
+def _b7sy_solve(e1, e2):
+    """Unique solution (x, y) of two equations given as SymPy Eq objects."""
+    sol = sp.solve([e1, e2], [_b7sy_x, _b7sy_y], dict=True)
+    assert len(sol) == 1 and not any(v.free_symbols for v in sol[0].values())
+    return sol[0][_b7sy_x], sol[0][_b7sy_y]
+
+
+def _b7sy_count(e1, e2):
+    s = sp.linsolve([e1.lhs - e1.rhs, e2.lhs - e2.rhs], [_b7sy_x, _b7sy_y])
+    if s == sp.S.EmptySet:
+        return 0
+    pt = next(iter(s))
+    return "inf" if any(v.free_symbols for v in pt) else 1
+
+
+def _b7sy_words(n):
+    return {0: "Zero", 1: "Exactly one", "inf": "Infinitely many"}[n]
+
+
+X, Y = _b7sy_x, _b7sy_y
+
+
+def alg_sys_elim_subtract_y():
+    return _b7sy_solve(Eq(4 * X + 3 * Y, 25), Eq(4 * X - Y, 1))[1]
+
+
+def alg_sys_substitute_linear_y_x_spr():
+    return _b7sy_solve(Eq(Y, 4 * X - 9), Eq(3 * X + 2 * Y, 37))[0]
+
+
+def alg_sys_count_equal_slopes_zero():
+    word = _b7sy_words(_b7sy_count(Eq(Y, 4 * X - 1), Eq(Y, 4 * X + 6)))
+
+    def check(choices, idx):
+        return choices[idx] == word, f"count -> {word}"
+
+    return check
+
+
+def alg_sys_intersection_standard_and_slope_form_x():
+    return _b7sy_solve(Eq(2 * X + 5 * Y, 1), Eq(Y, X - 4))[0]
+
+
+def alg_sys_add_equations_for_sum():
+    sx, sy = _b7sy_solve(Eq(5 * X + 2 * Y, 31), Eq(3 * X + 6 * Y, 25))
+    return sx + sy
+
+
+def alg_sys_difference_gives_2x_minus_y_spr():
+    sx, sy = _b7sy_solve(Eq(3 * X + Y, 17), Eq(X + 2 * Y, 9))
+    return 2 * sx - sy
+
+
+def alg_sys_decimal_coefficients_y_spr():
+    R = Rational
+    return _b7sy_solve(Eq(R(4, 10) * X + R(15, 10) * Y, R(73, 10)), Eq(R(12, 10) * X - R(5, 10) * Y, R(29, 10)))[1]
+
+
+def alg_sys_fraction_coefficients_x_minus_y():
+    R = Rational
+    sx, sy = _b7sy_solve(Eq(R(1, 3) * X - R(1, 2) * Y, 1), Eq(R(3, 4) * X + R(1, 4) * Y, 5))
+    return sx - sy
+
+
+def _b7sy_line_through(p1, p2):
+    (x1, y1), (x2, y2) = p1, p2
+    m = Rational(y2 - y1, x2 - x1)
+    return m * X + (y1 - m * x1)
+
+
+def alg_sys_two_tables_intersection_b():
+    f = _b7sy_line_through((1, 5), (3, 11))
+    g = _b7sy_line_through((-1, 24), (2, 18))
+    assert f.subs(X, 6) == 20 and g.subs(X, 5) == 12  # third table rows are consistent
+    return _b7sy_solve(Eq(Y, f), Eq(Y, g))[1]
+
+
+def alg_sys_verbal_lines_point_slope_x():
+    return _b7sy_solve(Eq(Y - 3, 2 * (X - 1)), Eq(Y, -X + 9))[0]
+
+
+def alg_sys_no_solution_fraction_slope_a():
+    vals = [av for av in range(-20, 21)] + [Rational(2, 5), Rational(-2, 5)]
+    none = [av for av in vals if _b7sy_count(Eq(Y, -Rational(2, 5) * X + 3), Eq(av * X + 5 * Y, 10)) == 0]
+    assert len(none) == 1
+    # Confirm algebraically: parallel condition.
+    sol = sp.solve(Eq(-_b7sy_a / 5, -Rational(2, 5)), _b7sy_a)
+    assert sol == none
+    return sol[0]
+
+
+def alg_sys_infinite_shifted_constants_ab_spr():
+    a, b = _b7sy_a, _b7sy_b
+    # Infinitely many: (a-1, 4, 10) proportional to (3, b+2, 15).
+    sol = sp.solve([Eq((a - 1) * 15, 3 * 10), Eq(4 * 15, (b + 2) * 10)], [a, b], dict=True)[0]
+    assert _b7sy_count(Eq((sol[a] - 1) * X + 4 * Y, 10), Eq(3 * X + (sol[b] + 2) * Y, 15)) == "inf"
+    return sol[a] * sol[b]
+
+
+def alg_sys_decimal_equation_infinite_partner():
+    given = Eq(Rational(2, 5) * X - Rational(6, 5) * Y, 2)
+
+    def check(choices, idx):
+        inf = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = _split_equation(ch)
+            if _b7sy_count(given, Eq(lhs, rhs)) == "inf":
+                inf.append(i)
+        return inf == [idx], f"choices with infinitely many: {inf}"
+
+    return check
+
+
+def alg_sys_half_k_coefficient_no_solution_spr():
+    k = _b7sy_k
+    cand = sp.solve(sp.Matrix([[k / 2, -3], [5, 9]]).det(), k)
+    none = [kv for kv in cand if _b7sy_count(Eq(kv / 2 * X - 3 * Y, 4), Eq(5 * X + 9 * Y, 2)) == 0]
+    assert len(none) == 1
+    return none[0]
+
+
+def alg_sys_symmetric_coefficients_difference_of_squares():
+    sx, sy = _b7sy_solve(Eq(13 * X + 7 * Y, 47), Eq(7 * X + 13 * Y, 13))
+    return sp.expand(sx**2 - sy**2)
+
+
+def alg_sys_slider_k_meet_on_x_axis():
+    k = _b7sy_k
+    xi = sp.solve(Eq(3 * X - 2 * 0, 8), X)[0]
+    return sp.solve(Eq(0, k * xi + 2), k)[0]
+
+
+def alg_sys_exactly_one_solution_condition():
+    k, c = _b7sy_k, _b7sy_c
+    bad_k = sp.solve(sp.Matrix([[4, -6], [6, k]]).det(), k)[0]  # -9
+    samples = [(kv, cv) for kv in range(-15, 6) for cv in [Rational(9, 2), 0, 3, -7]]
+
+    def unique(kv, cv):
+        return _b7sy_count(Eq(4 * X - 6 * Y, 3), Eq(6 * X + kv * Y, cv)) == 1
+
+    def holds(stmt, kv, cv):
+        body = stmt.strip().strip("$")
+        neq = "\\neq" in body
+        lhs, rhs = body.split("\\neq") if neq else body.split("=")
+        val = {"k": kv, "c": cv}[lhs.strip()]
+        target = latex_to_sympy(rhs)
+        return (val != target) if neq else (val == target)
+
+    def check(choices, idx):
+        must = []
+        for i, ch in enumerate(choices):
+            if all(holds(ch, kv, cv) for kv, cv in samples if unique(kv, cv)):
+                must.append(i)
+        # The key's statement is equivalent to uniqueness.
+        equiv = all(holds(choices[idx], kv, cv) == unique(kv, cv) for kv, cv in samples)
+        return must == [idx] and equiv, f"k bad at {bad_k}; must-be-true choices {must}; equivalent={equiv}"
+
+    return check
+
+
+def alg_sys_parallel_line_through_point():
+    given = Eq(3 * X - 4 * Y, 12)
+
+    def check(choices, idx):
+        ok = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = _split_equation(ch)
+            through = (lhs - rhs).subs({X: 2, Y: 5}) == 0
+            if through and _b7sy_count(given, Eq(lhs, rhs)) == 0:
+                ok.append(i)
+        return ok == [idx], f"choices through (2,5) with no solution: {ok}"
+
+    return check
+
+
+def alg_sys_functions_intersection_then_evaluate():
+    f = lambda t: 3 * t - 7  # noqa: E731
+    a = sp.solve(Eq(f(X), -Rational(1, 2) * X + 7), X)[0]
+    return f(2 * a)
+
+
+def alg_sys_line_through_intercepts_coordinate_sum():
+    q = _b7sy_line_through((0, -2), (4, 0))
+    sx, sy = _b7sy_solve(Eq(3 * X + 4 * Y, 20), Eq(Y, q))
+    return sx + sy
+
+
+def alg_sys_soap_sales_interpret_constant():
+    sx, sy = _b7sy_solve(Eq(X + Y, 50), Eq(4 * X + 7 * Y, 275))
+    quantities = {
+        "total revenue": 4 * sx + 7 * sy,
+        "total number of bars": sx + sy,
+        "revenue, in dollars, from large": 7 * sy,
+        "number of large bars": sy,
+    }
+
+    def check(choices, idx):
+        true = []
+        for i, ch in enumerate(choices):
+            for phrase, val in quantities.items():
+                if phrase in ch.lower():
+                    if val == 275:
+                        true.append(i)
+                    break
+        return true == [idx], f"quantities {quantities}; choices equal to 275: {true}"
+
+    return check
+
+
+def alg_sys_pottery_studio_equal_cost_hours():
+    return _b7sy_solve(Eq(Y, 18 + 6 * X), Eq(Y, 30 + 4 * X))[0]
+
+
+def alg_sys_coffee_blend_pricier_beans():
+    return _b7sy_solve(Eq(X + Y, 40), Eq(12 * X + 20 * Y, 15 * 40))[1]
+
+
+def alg_sys_cyclists_catch_up_distance_spr():
+    R = Rational
+    return _b7sy_solve(Eq(Y, 18 * X), Eq(Y, 24 * (X - R(1, 2))))[1]
+
+
+def alg_sys_nursery_shrubs_trees_model():
+    s, t = sp.symbols("s t")
+    truth = sp.solve([Eq(s + t, 87), Eq(s, 2 * t + 12)], [s, t], dict=True)[0]
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            parts = [p.strip().strip("$") for p in ch.split(" and ")]
+            eqs = []
+            for p in parts:
+                lhs, rhs = p.split("=")
+                eqs.append(Eq(latex_to_sympy(lhs), latex_to_sympy(rhs)))
+            sol = sp.solve(eqs, [s, t], dict=True)
+            if sol and sol[0] == truth:
+                hits.append(i)
+        return hits == [idx], f"truth {truth}; matching systems {hits}"
+
+    return check
+
+
+def alg_sys_car_rental_six_dollars_less():
+    m = sp.Symbol("m")
+    R = Rational
+    return sp.solve(Eq((30 + R(1, 4) * m) - (45 + R(1, 5) * m), 6), m)[0]
+
+
+def alg_sys_bagels_juices_combined_price():
+    R = Rational
+    sx, sy = _b7sy_solve(Eq(3 * X + 2 * Y, R(27, 2)), Eq(5 * X + 4 * Y, R(49, 2)))
+    return sx + sy
+
+
+def alg_sys_two_clubs_members_table_weeks_spr():
+    a = _b7sy_line_through((0, 54), (3, 63))
+    b = _b7sy_line_through((0, 102), (3, 93))
+    assert a.subs(X, 6) == 72 and b.subs(X, 6) == 84  # third table column is consistent
+    return _b7sy_solve(Eq(Y, a), Eq(Y, b))[0]
+
+
+def alg_sys_boat_current_speed():
+    b, c = _b7sy_b, _b7sy_c
+    sol = sp.solve([Eq(2 * (b + c), 36), Eq(3 * (b - c), 36)], [b, c], dict=True)[0]
+    return sol[c]
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -5287,6 +5562,36 @@ CHECKS = {
     "alg-ineq-wedge-greatest-x": alg_ineq_wedge_greatest_x,
     "alg-ineq-difference-bounds": alg_ineq_difference_bounds,
     "alg-ineq-lattice-points-count": alg_ineq_lattice_points_count,
+    # batch batch7-sys1
+    "alg-sys-elim-subtract-y": alg_sys_elim_subtract_y,
+    "alg-sys-substitute-linear-y-x-spr": alg_sys_substitute_linear_y_x_spr,
+    "alg-sys-count-equal-slopes-zero": alg_sys_count_equal_slopes_zero,
+    "alg-sys-intersection-standard-and-slope-form-x": alg_sys_intersection_standard_and_slope_form_x,
+    "alg-sys-add-equations-for-sum": alg_sys_add_equations_for_sum,
+    "alg-sys-difference-gives-2x-minus-y-spr": alg_sys_difference_gives_2x_minus_y_spr,
+    "alg-sys-decimal-coefficients-y-spr": alg_sys_decimal_coefficients_y_spr,
+    "alg-sys-fraction-coefficients-x-minus-y": alg_sys_fraction_coefficients_x_minus_y,
+    "alg-sys-two-tables-intersection-b": alg_sys_two_tables_intersection_b,
+    "alg-sys-verbal-lines-point-slope-x": alg_sys_verbal_lines_point_slope_x,
+    "alg-sys-no-solution-fraction-slope-a": alg_sys_no_solution_fraction_slope_a,
+    "alg-sys-infinite-shifted-constants-ab-spr": alg_sys_infinite_shifted_constants_ab_spr,
+    "alg-sys-decimal-equation-infinite-partner": alg_sys_decimal_equation_infinite_partner,
+    "alg-sys-half-k-coefficient-no-solution-spr": alg_sys_half_k_coefficient_no_solution_spr,
+    "alg-sys-symmetric-coefficients-difference-of-squares": alg_sys_symmetric_coefficients_difference_of_squares,
+    "alg-sys-slider-k-meet-on-x-axis": alg_sys_slider_k_meet_on_x_axis,
+    "alg-sys-exactly-one-solution-condition": alg_sys_exactly_one_solution_condition,
+    "alg-sys-parallel-line-through-point": alg_sys_parallel_line_through_point,
+    "alg-sys-functions-intersection-then-evaluate": alg_sys_functions_intersection_then_evaluate,
+    "alg-sys-line-through-intercepts-coordinate-sum": alg_sys_line_through_intercepts_coordinate_sum,
+    "alg-sys-soap-sales-interpret-constant": alg_sys_soap_sales_interpret_constant,
+    "alg-sys-pottery-studio-equal-cost-hours": alg_sys_pottery_studio_equal_cost_hours,
+    "alg-sys-coffee-blend-pricier-beans": alg_sys_coffee_blend_pricier_beans,
+    "alg-sys-cyclists-catch-up-distance-spr": alg_sys_cyclists_catch_up_distance_spr,
+    "alg-sys-nursery-shrubs-trees-model": alg_sys_nursery_shrubs_trees_model,
+    "alg-sys-car-rental-six-dollars-less": alg_sys_car_rental_six_dollars_less,
+    "alg-sys-bagels-juices-combined-price": alg_sys_bagels_juices_combined_price,
+    "alg-sys-two-clubs-members-table-weeks-spr": alg_sys_two_clubs_members_table_weeks_spr,
+    "alg-sys-boat-current-speed": alg_sys_boat_current_speed,
 }
 
 
