@@ -8282,6 +8282,309 @@ def alg_le_five_even_sum_greatest():
     return terms[-1].subs(n, least)
 
 
+# ----- Batch batch11-ineq2 -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch11-ineq2.ts (batch batch11-ineq2).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch11_ineq2.py --only-extra
+
+Each function derives the answer from the stem's givens: a numeric result for
+numeric keys, or a callable (choices, answer_index) -> (ok, detail) for items
+whose choices are inequalities, systems, points or sentences.
+"""
+
+import re
+
+
+import sympy as sp
+from sympy import Rational, Integer, symbols
+
+_b11iq_x, _b11iq_y = symbols("x y")
+_b11iq_syms = {name: sp.Symbol(name) for name in "abcdghLpq"}
+
+_B11IQ_OPS = {"\\le": sp.Le, "\\ge": sp.Ge, "<": sp.Lt, ">": sp.Gt}
+
+
+def _b11iq_rel(text: str):
+    """One math span ('$3 \\le x < 6$', '$y > \\frac{1}{2}x + 4$') -> SymPy relational (And for chains)."""
+    body = text.strip().strip("$").replace("{,}", "")
+    parts = re.split(r"(\\le|\\ge|<|>)", body)
+    exprs = [latex_to_sympy(e) for e in parts[0::2]]
+    ops = parts[1::2]
+    rels = [_B11IQ_OPS[op](lhs, rhs) for op, lhs, rhs in zip(ops, exprs, exprs[1:])]
+    return sp.And(*rels)
+
+
+def _b11iq_system(text: str):
+    """'$A$ and $B$' -> And(A, B)."""
+    spans = re.findall(r"\$[^$]+\$", text)
+    return sp.And(*[_b11iq_rel(sp_) for sp_ in spans])
+
+
+def _b11iq_point(text: str):
+    inner = text.strip().strip("$").strip().strip("()")
+    xs, ys = inner.split(",")
+    return sp.nsimplify(xs.strip()), sp.nsimplify(ys.strip())
+
+
+def _b11iq_match(expected, parse, grid, var_list):
+    """Callable: the choices whose parsed relation agrees with `expected` at every grid point."""
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rel = parse(ch)
+            if all(bool(rel.subs(dict(zip(var_list, pt)))) == bool(expected.subs(dict(zip(var_list, pt)))) for pt in grid):
+                matches.append(i)
+        return matches == [idx], f"expected {expected}; matching choices {matches}"
+
+    return check
+
+
+_B11IQ_GRID_1D = [(Rational(i, 4),) for i in range(-80, 81)]
+_B11IQ_GRID_2D = [(Rational(i, 2), Rational(j, 2)) for i in range(-24, 25) for j in range(-24, 25)]
+
+
+def _b11iq_corners(lines, feasible):
+    """Corners of a region: pairwise intersections of boundary lines (a, b, c means a*x + b*y = c) that are feasible."""
+    pts = []
+    for i in range(len(lines)):
+        for j in range(i + 1, len(lines)):
+            (a1, b1, c1), (a2, b2, c2) = lines[i], lines[j]
+            det = a1 * b2 - a2 * b1
+            if det == 0:
+                continue
+            px = Rational(c1 * b2 - c2 * b1, det)
+            py = Rational(a1 * c2 - a2 * c1, det)
+            if feasible(px, py):
+                pts.append((px, py))
+    return pts
+
+
+# ----- easy -----
+
+
+def alg_ineq_dashed_boundary_shaded_below():
+    X, Y = _b11iq_x, _b11iq_y
+    expected = sp.Lt(Y, 4 * X - 3)  # dashed -> strict; below -> less than
+    return _b11iq_match(expected, _b11iq_rel, _B11IQ_GRID_2D, [X, Y])
+
+
+def alg_ineq_describe_graph_solid_above():
+    op = ">="  # y >= -3x + 6
+    style = "solid" if op in ("<=", ">=") else "dashed"
+    side = "above" if op in (">", ">=") else "below"
+    target = f"The boundary line is {style}, and the region {side} it is shaded."
+
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices) if ch == target]
+        return good == [idx], f"expected {target!r}; matching {good}"
+
+    return check
+
+
+def alg_ineq_pin_length_tolerance():
+    L = _b11iq_syms["L"]
+    center, tol = 12, Rational(3, 10)
+    expected = sp.And(sp.Le(center - tol, L), sp.Le(L, center + tol))
+    grid = [(Rational(i, 20),) for i in range(200, 300)]
+    return _b11iq_match(expected, _b11iq_rel, grid, [L])
+
+
+def alg_ineq_dashed_boundary_y_axis():
+    X, Y = _b11iq_x, _b11iq_y
+    yint = sp.solve(sp.Eq((3 * X - 4 * Y).subs(X, 0), 24), Y)[0]
+    target = (Integer(0), yint)
+
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices) if _b11iq_point(ch) == target]
+        return good == [idx], f"boundary meets y-axis at {target}; matching {good}"
+
+    return check
+
+
+def alg_ineq_data_plan_music_hours():
+    m = sp.Symbol("m")
+    sol = sp.solve_univariate_inequality(sp.Le(Rational(3, 2) * 4 + Rational(1, 10) * m, 8), m, relational=False)
+    return sol.sup
+
+
+# ----- medium -----
+
+
+def alg_ineq_day_camp_staff_system():
+    c, g = _b11iq_syms["c"], _b11iq_syms["g"]
+    expected = sp.And(sp.Ge(c + g, 8), sp.Le(100 * c + 120 * g, 960))
+    grid = [(i, j) for i in range(0, 15) for j in range(0, 15)]
+    return _b11iq_match(expected, _b11iq_system, grid, [c, g])
+
+
+def alg_ineq_recycling_credits_point_outside():
+    a_pt, g_pt = 30, 15
+    assert not (2 * a_pt + 5 * g_pt >= 150)  # the point really is outside
+
+    def truth(ch):
+        mt = re.match(r"Recycling (\d+) bags of cans and (\d+) bags of glass earns (fewer than|exactly|more than) (\d+) credits\.", ch)
+        cans, glass, rel, val = int(mt.group(1)), int(mt.group(2)), mt.group(3), int(mt.group(4))
+        total = 2 * cans + 5 * glass
+        return {"fewer than": total < val, "exactly": total == val, "more than": total > val}[rel]
+
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices) if truth(ch)]
+        return good == [idx], f"true statements {good}"
+
+    return check
+
+
+def alg_ineq_tank_heater_hours():
+    h = sp.Symbol("h")
+    temp = 14 + 2 * h
+    expected = sp.And(sp.Le(22, temp), sp.Le(temp, 28))
+    grid = [(Rational(i, 4),) for i in range(0, 80)]
+    return _b11iq_match(expected, _b11iq_rel, grid, [h])
+
+
+def alg_ineq_shifted_compound_same_set():
+    X = _b11iq_x
+    expected = sp.And(sp.Le(-4, X), sp.Le(X, 10))
+    return _b11iq_match(expected, _b11iq_rel, _B11IQ_GRID_1D, [X])
+
+
+def alg_ineq_compound_two_constants_sum():
+    X = _b11iq_x
+    a_val = (3 * X - 6).subs(X, 2)  # 3x - 6 is increasing, so its least value on [2, 9] is at x = 2
+    b_val = (3 * X - 6).subs(X, 9)
+    sol = sp.solve_univariate_inequality(sp.Le(a_val, 3 * X - 6), X, relational=False).intersect(
+        sp.solve_univariate_inequality(sp.Le(3 * X - 6, b_val), X, relational=False))
+    assert sol == sp.Interval(2, 9)
+    return a_val + b_val
+
+
+def alg_ineq_region_greatest_y():
+    X = _b11iq_x
+    xv = sp.solve(sp.Eq(10 - X, 2 * X + 1), X)[0]
+    best = 10 - xv
+    # confirm: the bound min(10 - x, 2x + 1) never exceeds best on a fine grid
+    assert all(min(10 - Rational(i, 8), 2 * Rational(i, 8) + 1) <= best for i in range(-200, 200))
+    return best
+
+
+def alg_ineq_intercepts_solid_above():
+    X, Y = _b11iq_x, _b11iq_y
+    slope = Rational(-4 - 0, 0 - 6)
+    expected = sp.Ge(Y, slope * X - 4)  # solid -> inclusive; above
+    return _b11iq_match(expected, _b11iq_rel, _B11IQ_GRID_2D, [X, Y])
+
+
+def alg_ineq_table_boundary_least_k():
+    pts = [(-1, 7), (2, 1), (4, -3)]
+    m = Rational(pts[1][1] - pts[0][1], pts[1][0] - pts[0][0])
+    b = pts[0][1] - m * pts[0][0]
+    assert all(py == m * px + b for px, py in pts)
+    k = sp.Symbol("k")
+    sol = sp.solve_univariate_inequality(sp.Gt(k, m * 0 + b), k, relational=False)
+    return Integer(min(i for i in range(-50, 50) if sol.contains(i)))
+
+
+def alg_ineq_function_values_compare():
+    X = _b11iq_x
+    expected = sp.Gt(3 * X - 8, 12 - X)
+    return _b11iq_match(expected, _b11iq_rel, _B11IQ_GRID_1D, [X])
+
+
+def alg_ineq_boundary_intercepts_constants():
+    a_, b_ = _b11iq_syms["a"], _b11iq_syms["b"]
+    sol = sp.solve([sp.Eq(a_ * 4 + b_ * 0, 12), sp.Eq(a_ * 0 + b_ * -3, 12)], [a_, b_], dict=True)[0]
+    return sol[a_] + sol[b_]
+
+
+# ----- hard -----
+
+
+def alg_ineq_hike_distance_time_system():
+    d, h = _b11iq_syms["d"], _b11iq_syms["h"]
+    expected = sp.And(sp.Ge(d + h, 16), sp.Le(d / 4 + h / 2, 6))
+    grid = [(Rational(i, 2), Rational(j, 2)) for i in range(0, 61) for j in range(0, 41)]
+    return _b11iq_match(expected, _b11iq_system, grid, [d, h])
+
+
+def alg_ineq_bakery_greatest_batches():
+    best = max(i + j for i in range(0, 40) for j in range(0, 40) if 2 * i + 3 * j <= 30 and 4 * i + 3 * j <= 48)
+    return Integer(best)
+
+
+def alg_ineq_stable_feed_least_cost():
+    # cost in cents: 30 per kg hay, 50 per kg oats; integer kilograms suffice (corners are integers)
+    best = min(30 * hay + 50 * oats for hay in range(0, 351) for oats in range(200, 701) if hay + oats >= 600)
+    return Rational(best, 100)
+
+
+def alg_ineq_signs_of_constants():
+    X = _b11iq_x
+    target = sp.Interval.open(3, sp.oo)
+    vals = [Rational(i, 2) for i in range(-12, 13) if i != 0]
+    good_pq = [(pv, qv) for pv in vals for qv in vals
+               if sp.solve_univariate_inequality(sp.Lt(pv * X + qv, 0), X, relational=False) == target]
+    assert good_pq
+    p_, q_ = _b11iq_syms["p"], _b11iq_syms["q"]
+
+    def check(choices, idx):
+        must = [i for i, ch in enumerate(choices)
+                if all(bool(_b11iq_system(ch).subs({p_: pv, q_: qv})) for pv, qv in good_pq)]
+        return must == [idx], f"(p, q) giving x > 3: {good_pq}; choices always true {must}"
+
+    return check
+
+
+def alg_ineq_four_constraints_greatest_sum():
+    lines = [(1, 0, 0), (0, 1, 0), (3, 1, 18), (1, 2, 16)]
+
+    def feasible(px, py):
+        return px >= 0 and py >= 0 and 3 * px + py <= 18 and px + 2 * py <= 16
+
+    return max(px + py for px, py in _b11iq_corners(lines, feasible))
+
+
+def alg_ineq_point_not_in_system_c():
+    c = _b11iq_syms["c"]
+    px, py = 2, 1
+    not_solution = sp.Not(sp.And(sp.Ge(py, 3 * px + c), sp.Le(py, -px + 4)))
+    grid = [(Rational(i, 4),) for i in range(-60, 21)]
+    return _b11iq_match(not_solution, _b11iq_rel, grid, [c])
+
+
+def alg_ineq_two_inequalities_given_interval():
+    X = _b11iq_x
+    a_, b_ = _b11iq_syms["a"], _b11iq_syms["b"]
+    # 5 - 2x >= a  <=>  x <= (5 - a)/2 (closed end 4); 3x + b > 0  <=>  x > -b/3 (open end -2)
+    a_val = sp.solve(sp.Eq((5 - a_) / 2, 4), a_)[0]
+    b_val = sp.solve(sp.Eq(-b_ / 3, -2), b_)[0]
+    sol = sp.solve_univariate_inequality(sp.Ge(5 - 2 * X, a_val), X, relational=False).intersect(
+        sp.solve_univariate_inequality(sp.Gt(3 * X + b_val, 0), X, relational=False))
+    assert sol == sp.Interval.Lopen(-2, 4)
+    return b_val - a_val
+
+
+def alg_ineq_region_greatest_2x_plus_y():
+    lines = [(1, 1, 8), (-1, 1, -2), (1, 0, 0)]  # y = 8 - x, y = x - 2, x = 0
+
+    def feasible(px, py):
+        return py <= 8 - px and py >= px - 2 and px >= 0
+
+    return max(2 * px + py for px, py in _b11iq_corners(lines, feasible))
+
+
+def alg_ineq_region_lines_through_points():
+    X, Y = _b11iq_x, _b11iq_y
+    m1 = Rational(4 - 0, 0 - (-2))
+    m2 = Rational(1 - 4, 6 - 0)
+    expected = sp.And(sp.Gt(Y, m1 * X + 4), sp.Le(Y, m2 * X + 4))
+    return _b11iq_match(expected, _b11iq_system, _B11IQ_GRID_2D, [X, Y])
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -9162,6 +9465,31 @@ CHECKS = {
     "alg-le-x-over-20-structure": alg_le_x_over_20_structure,
     "alg-le-identity-coefficient-match-spr": alg_le_identity_coefficient_match_spr,
     "alg-le-five-even-sum-greatest": alg_le_five_even_sum_greatest,
+    # batch batch11-ineq2
+    "alg-ineq-dashed-boundary-shaded-below": alg_ineq_dashed_boundary_shaded_below,
+    "alg-ineq-describe-graph-solid-above": alg_ineq_describe_graph_solid_above,
+    "alg-ineq-pin-length-tolerance": alg_ineq_pin_length_tolerance,
+    "alg-ineq-dashed-boundary-y-axis": alg_ineq_dashed_boundary_y_axis,
+    "alg-ineq-data-plan-music-hours": alg_ineq_data_plan_music_hours,
+    "alg-ineq-day-camp-staff-system": alg_ineq_day_camp_staff_system,
+    "alg-ineq-recycling-credits-point-outside": alg_ineq_recycling_credits_point_outside,
+    "alg-ineq-hike-distance-time-system": alg_ineq_hike_distance_time_system,
+    "alg-ineq-tank-heater-hours": alg_ineq_tank_heater_hours,
+    "alg-ineq-shifted-compound-same-set": alg_ineq_shifted_compound_same_set,
+    "alg-ineq-compound-two-constants-sum": alg_ineq_compound_two_constants_sum,
+    "alg-ineq-region-greatest-y": alg_ineq_region_greatest_y,
+    "alg-ineq-intercepts-solid-above": alg_ineq_intercepts_solid_above,
+    "alg-ineq-table-boundary-least-k": alg_ineq_table_boundary_least_k,
+    "alg-ineq-function-values-compare": alg_ineq_function_values_compare,
+    "alg-ineq-bakery-greatest-batches": alg_ineq_bakery_greatest_batches,
+    "alg-ineq-stable-feed-least-cost": alg_ineq_stable_feed_least_cost,
+    "alg-ineq-signs-of-constants": alg_ineq_signs_of_constants,
+    "alg-ineq-four-constraints-greatest-sum": alg_ineq_four_constraints_greatest_sum,
+    "alg-ineq-boundary-intercepts-constants": alg_ineq_boundary_intercepts_constants,
+    "alg-ineq-point-not-in-system-c": alg_ineq_point_not_in_system_c,
+    "alg-ineq-two-inequalities-given-interval": alg_ineq_two_inequalities_given_interval,
+    "alg-ineq-region-greatest-2x-plus-y": alg_ineq_region_greatest_2x_plus_y,
+    "alg-ineq-region-lines-through-points": alg_ineq_region_lines_through_points,
 }
 
 
