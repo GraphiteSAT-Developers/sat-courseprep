@@ -6,6 +6,7 @@ Start here: [`HANDOFF.md`](HANDOFF.md)
 
 ## Contents
 
+- [`web/`](web/README.md): the course site (Next.js, embedded Desmos, Bluebook-rule grading, tutor interface)
 - [`reports/AI Desmos SAT math course plan.md`](reports/AI%20Desmos%20SAT%20math%20course%20plan.md): the full planning report, with the recommended architecture, a phased roadmap, the decisions the owner needs to make, and a list of facts still to verify.
 - [`docs/desmos-integration.md`](docs/desmos-integration.md): calculator design decision (student-operated embed, OnePrep-style) and how the AI reads it
 - `research_notes/AI Desmos SAT math course plan/`: the notes behind the report, with sources:

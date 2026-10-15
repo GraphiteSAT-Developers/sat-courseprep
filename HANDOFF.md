@@ -1,9 +1,15 @@
 # Handoff: SAT Math 800 course (Desmos-first, AI tutor)
 
-_Last updated 2026-10-15. Status: the research phase is done and no code exists yet._
+_Last updated 2026-10-15. Status: research done; the site is scaffolded in `web/` (see `web/README.md`)._
 
 ## Project goal
 Build an AI-powered SAT Math course site aimed at an 800. It teaches **Desmos first** and **by-hand methods second**. The planned tutor AI is the **Google Gemini API**. The owner wants the AI trained to be reliably good at Desmos **before** launch.
+
+## Who does what
+This is a collaborative project.
+- **Owner (site and courses):** the course content, the item bank, the site in `web/`, grading, the calculator embed, and the tutoring guardrails.
+- **AI collaborator:** everything behind the `TutorProvider` interface (`web/lib/tutor/types.ts`): model vendor, prompts, technique retrieval, the Solver/Tutor split, the headless Desmos verification service, and evals.
+- **Shared contract:** the item schema (`web/content/types.ts`), the calculator snapshot (`web/lib/desmos/snapshot.ts`), and the College Board calculator options (`web/lib/desmos/config.ts`), which both instances must use.
 
 ## Decisions made so far
 1. **Calculator UX follows OnePrep/Bluebook.** A Desmos graphing calculator is embedded next to each question through the official Desmos API (`Desmos.GraphingCalculator`), configured to match the College Board version. The **student** uses it.
@@ -35,17 +41,16 @@ These are listed in the report's decisions table:
 
 ## Recommended next steps
 1. Phase 0 gating: counsel and Google on the age clause; email Desmos about licensing; audit Bluebook's Desmos features by hand.
-2. Scaffold the repo:
-   - Next.js app with the Desmos embed and KaTeX
-   - a headless Desmos verification service (Playwright)
-   - SymPy verifier
-   - a formatter for typed-in (SPR) answers
+2. ~~Scaffold the repo~~ Done for the site: Next.js app with the Desmos embed, KaTeX, the SPR grader and the tutor seam (`web/`). Still open:
+   - first run against the real Desmos API with a key (only a mock was tested)
+   - the headless Desmos verification service (Playwright) and SymPy verifier (AI collaborator)
 3. Build the technique library: 30–60 Desmos moves, each with a by-hand route.
 4. Build an original benchmark of 300–500 items with a held-out split.
 
 ## Where things are
 | Path | What |
 |---|---|
+| `web/` | Course site (Next.js). Start with `web/README.md` |
 | `reports/AI Desmos SAT math course plan.md` | Full planning report: architecture, 5-phase roadmap, decision table, verification list |
 | `docs/desmos-integration.md` | Calculator design decision (OnePrep-style embed) |
 | `research_notes/AI Desmos SAT math course plan/sat_math_format.md` | Test format, scoring, Bluebook Desmos, typed-answer rules |
