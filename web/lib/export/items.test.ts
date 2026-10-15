@@ -9,8 +9,9 @@ import { EXPORTED_ITEM_FIELDS, itemsToJsonl, skillsExport, techniquesExport, toE
 describe("items export", () => {
   const lines = itemsToJsonl(listItems()).trimEnd().split("\n");
 
-  it("writes one line per item in the bank (55)", () => {
-    expect(lines).toHaveLength(55);
+  it("writes one line per item in the bank", () => {
+    expect(lines).toHaveLength(listItems().length);
+    expect(lines.length).toBeGreaterThanOrEqual(55);
     expect(lines).toHaveLength(listItems().length);
   });
 

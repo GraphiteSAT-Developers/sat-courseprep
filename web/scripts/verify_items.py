@@ -549,6 +549,745 @@ def geo_congruence_sufficiency():
     return check
 
 
+# ----- Batch batch3-geo -----
+import sympy as sp
+from sympy import Integer, Rational, pi, sqrt, sin, cos, tan, atan, asin, acos, Eq, symbols
+
+
+x, y, s, w, c, theta, h = symbols("x y s w c theta h")
+
+
+def _nearest(value, places: int):
+    """Round an exact SymPy number to `places` decimals, asserting it is not a rounding tie."""
+    scaled = value * 10**places
+    assert abs(scaled - sp.floor(scaled) - Rational(1, 2)) > Rational(1, 100), "rounding tie"
+    return Rational(int(sp.floor(scaled + Rational(1, 2))), 10**places)
+
+
+# ----- Area and volume -----------------------------------------------------
+
+
+def geo_prism_to_cube_edge():
+    volume = 4 * 6 * 9
+    edge = [v for v in sp.solve(Eq(s**3, volume), s) if v.is_real][0]
+    return edge
+
+
+def geo_rectangle_perimeter_to_area():
+    sol = sp.solve([Eq(2 * w + 2 * (3 * w), 56)], [w])
+    width = sol[w]
+    return width * (3 * width)
+
+
+def geo_scale_model_floor_area():
+    k = Rational(25)  # warehouse length / model length
+    return 18 * k**2
+
+
+def geo_cylinder_tank_radius_decimal():
+    r = [v for v in sp.solve(Eq(pi * s**2 * 8, 2000), s) if v > 0][0]
+    assert abs(float(r) - 8.92) < 0.01
+    return _nearest(r, 1)
+
+
+def geo_prism_cubic_volume_s():
+    sols = [v for v in sp.solve(Eq(s**2 * (s + 3), 200), s) if v.is_real and v > 0]
+    assert len(sols) == 1
+    return sols[0]
+
+
+def geo_cone_cut_volume_ratio():
+    k = Rational(4, 12)  # scale factor small cone : whole cone
+    small = k**3
+    rest = 1 - small
+    return small / rest
+
+
+# ----- Lines, angles, and triangles ----------------------------------------
+
+
+def geo_parallel_obtuse_angle():
+    acute = Integer(54)  # corresponding angles are congruent; obtuse is the supplement
+    return 180 - acute
+
+
+def geo_exterior_angle_x():
+    A, B, ext = 2 * x, 3 * x - 12, 6 * x - 20
+    xx = sp.solve(Eq(ext, A + B), x)[0]
+    assert A.subs(x, xx) > 0 and B.subs(x, xx) > 0 and 0 < ext.subs(x, xx) < 180
+    assert A.subs(x, xx) + B.subs(x, xx) + (180 - ext.subs(x, xx)) == 180
+    return xx
+
+
+def geo_similar_triangle_perimeter():
+    k = Rational(6, 9)
+    return k * (9 + 12 + 15)
+
+
+def geo_triangle_between_parallels():
+    angle_B = 180 - 38 - 64  # triangle angle sum
+    # Alternate interior angles across transversal BC: angle ABC equals the angle between CB and line m.
+    acute = angle_B if angle_B < 90 else 180 - angle_B
+    return Integer(acute)
+
+
+def geo_parallel_segment_trapezoid_area():
+    k = Rational(6 + 4, 6)  # PQ / PS
+    whole = 27 * k**2
+    return whole - 27
+
+
+# ----- Right triangles and trigonometry ------------------------------------
+
+
+def geo_degrees_to_radians_150():
+    return 150 * pi / 180
+
+
+def geo_pole_wire_tangent_height():
+    height = 15 * tan(40 * pi / 180)
+    assert abs(float(height) - 12.586) < 0.001
+    return _nearest(sp.nsimplify(round(float(height), 6)), 1)
+
+
+def geo_ramp_angle_arctan():
+    angle = atan(Rational(7, 24)) * 180 / pi
+    assert abs(float(angle) - 16.26) < 0.01
+    # Distractor sanity: arcsin and arccos of the same ratio round elsewhere.
+    assert round(float(asin(Rational(7, 24)) * 180 / pi)) == 17
+    assert round(float(acos(Rational(7, 24)) * 180 / pi)) == 73
+    return Integer(round(float(angle)))
+
+
+def geo_isosceles_right_area():
+    leg = 10 * sin(pi / 4)
+    return sp.simplify(Rational(1, 2) * leg * leg)
+
+
+def geo_altitude_angle_sine():
+    # C at the origin, A on the y-axis (AC = 6), B on the x-axis (BC = 8); D is the foot from C on AB.
+    A, B, C = sp.Point(0, 6), sp.Point(8, 0), sp.Point(0, 0)
+    D = sp.Line(A, B).projection(C)
+    angle = sp.Segment(C, A).angle_between(sp.Segment(C, D))
+    return sp.nsimplify(sp.simplify(sin(angle)))
+
+
+def geo_quadrant_four_cosine():
+    th = 2 * pi + asin(-Rational(5, 13))  # the angle in (3π/2, 2π) with that sine
+    assert 3 * pi / 2 < th < 2 * pi
+    return sp.simplify(cos(th))
+
+
+# ----- Circles -------------------------------------------------------------
+
+
+def geo_arc_length_100_degrees():
+    return 2 * pi * 9 * Rational(100, 360)
+
+
+def geo_circle_chord_on_line():
+    pts = sp.solve([Eq(x**2 + y**2 - 2 * x + 4 * y - 20, 0), Eq(y, 2)], [x, y])
+    assert len(pts) == 2
+    (x1, y1), (x2, y2) = pts
+    return sp.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+
+def geo_sector_angle_garden():
+    return sp.solve(Eq(theta / 360 * pi * 12**2, 30 * pi), theta)[0]
+
+
+def geo_circle_radius_constant_c():
+    # Complete the square: (x-3)^2 + (y+5)^2 = 34 - c; radius 7 means 34 - c = 49.
+    expr = x**2 + y**2 - 6 * x + 10 * y + c
+    cx, cy = Rational(6, 2), -Rational(10, 2)
+    r2 = sp.expand(-(expr.subs({x: cx, y: cy})))  # 34 - c
+    return sp.solve(Eq(r2, 49), c)[0]
+
+
+def geo_circle_tangent_vertical_line():
+    center, line_x = sp.Point(2, -3), 7
+
+    def check(choices, idx):
+        good = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = (latex_to_sympy(t) for t in ch.strip("$").split("="))
+            expr = sp.expand(lhs - rhs)
+            poly = sp.Poly(expr, x, y)
+            d, e, f = poly.coeff_monomial(x), poly.coeff_monomial(y), poly.coeff_monomial(1)
+            h0, k0 = -d / 2, -e / 2
+            r = sp.sqrt(h0**2 + k0**2 - f)
+            if sp.Point(h0, k0) == center and r == abs(line_x - h0):
+                good.append(i)
+        return good == [idx], f"choices centered at (2, -3) and tangent to x = 7: {good}"
+
+    return check
+
+
+# ----- Batch batch3-algebra -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch3-algebra.ts (batch 3-algebra).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch3_algebra.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+
+import re
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, symbols
+
+
+x, y, m, n, t, a, b, c, k, h = symbols("x y m n t a b c k h")
+
+
+def _point(text: str):
+    """'$(1, -2)$' -> (1, -2) as SymPy numbers."""
+    inner = text.strip().strip("$").strip().strip("()")
+    xs, ys = inner.split(",")
+    return sp.nsimplify(xs.strip()), sp.nsimplify(ys.strip())
+
+
+def _relational(text: str, var):
+    """'$35n + 80 \\le 900$' -> SymPy relational in var."""
+    s = text.strip().strip("$")
+    for tok, rel in (("\\le", sp.Le), ("\\ge", sp.Ge), ("<", sp.Lt), (">", sp.Gt)):
+        if tok in s:
+            lhs, rhs = s.split(tok)
+            return rel(latex_to_sympy(lhs), latex_to_sympy(rhs))
+    raise ValueError(f"no inequality sign in {text!r}")
+
+
+# ----- Linear equations in one variable -----
+
+
+def alg_ride_fare_equation():
+    miles = (Rational("19.70") - Rational("3.50")) / Rational("1.80")  # from the stem's givens
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = _split_equation(ch)
+            sol = sp.solve(Eq(lhs, rhs), m)
+            if sol and sp.nsimplify(sol[0]) == miles:
+                matches.append(i)
+        return matches == [idx], f"m = {miles}; choices solved by it {matches}"
+
+    return check
+
+
+def alg_fraction_equation_solve():
+    sols = sp.solve(Eq((2 * x - 5) / 3, (x + 4) / 2 - 1), x)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def alg_plumber_hours():
+    return sp.solve(Eq(65 + 48 * h, 245), h)[0]
+
+
+def alg_count_solutions_identity():
+    diff = sp.expand(5 * (x - 2) - 3 * x - (2 * (x + 4) - 18))
+    if diff == 0:
+        word = "Infinitely many"
+    elif diff.is_number:
+        word = "Zero"
+    else:
+        word = "Exactly one"
+
+    def check(choices, idx):
+        return choices[idx] == word, f"lhs - rhs simplifies to {diff} -> '{word}'"
+
+    return check
+
+
+def alg_structure_x_plus_3():
+    xx = sp.solve(Eq((2 * x + 6) / 5, 9), x)[0]
+    return xx + 3
+
+
+def alg_infinitely_many_c():
+    poly = sp.Poly(sp.expand(c * (x + 2) - 4 - (6 * x + 8)), x)
+    sols = sp.solve(poly.all_coeffs(), [c], dict=True)
+    assert len(sols) == 1  # both coefficient conditions agree
+    return sols[0][c]
+
+
+# ----- Linear functions -----
+
+
+def alg_evaluate_linear_f4():
+    return (7 * x - 11).subs(x, 4)
+
+
+def alg_drain_rate_interpretation():
+    w = 420 - 15 * t
+    slope, start, empty_at = sp.diff(w, t), w.subs(t, 0), sp.solve(Eq(w, 0), t)[0]
+
+    def check(choices, idx):
+        key_ok = "each minute" in choices[idx] and "decreases" in choices[idx] and slope == -15
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("when it starts" in ch and start != 15)
+            or ("is empty" in ch and empty_at != 15)
+            or ("every 15 minutes" in ch and 420 / Integer(15) != 15))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"slope={slope}, w(0)={start}, empty at t={empty_at}; contradicted distractors {wrong}"
+
+    return check
+
+
+def _line_through(points):
+    (x1, y1), (x2, y2) = points[:2]
+    slope = Rational(y2 - y1, x2 - x1)
+    intercept = y1 - slope * x1
+    for px, py in points[2:]:
+        assert slope * px + intercept == py, "extra point must lie on the same line"
+    return slope * x + intercept
+
+
+def alg_table_to_rule_g():
+    expected = _line_through([(2, 11), (5, 2), (9, -10)])
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if sp.expand(latex_to_sympy(ch.split("=")[1]) - expected) == 0]
+        return matches == [idx], f"g(x) = {expected}; matching choices {matches}"
+
+    return check
+
+
+def alg_bird_count_model():
+    f = _line_through([(2012, 860), (2020, 620)])
+    return f.subs(x, 2029)
+
+
+def alg_rule_from_point_and_rate():
+    bb = sp.solve(Eq(4 * 3 + b, 10), b)[0]
+    return (4 * x + bb).subs(x, -2)
+
+
+def alg_linear_shift_rule():
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            f = latex_to_sympy(ch.split("=")[1])
+            shift_ok = sp.expand(f.subs(x, x + 3) - f - 12) == 0
+            if shift_ok and f.subs(x, 2) == 1:
+                matches.append(i)
+        return matches == [idx], f"choices with f(x+3) - f(x) = 12 and f(2) = 1: {matches}"
+
+    return check
+
+
+def alg_rate_find_input():
+    slope = Rational(6, 4)
+    bb = sp.solve(Eq(slope * 10 + b, 20), b)[0]
+    return sp.solve(Eq(slope * x + bb, 2), x)[0]
+
+
+def alg_candle_height_time():
+    f = _line_through([(12, Rational("22.6")), (40, Rational("15.6"))])
+    return sp.solve(Eq(f, 10), x)[0]
+
+
+# ----- Linear equations in two variables -----
+
+
+def alg_slope_two_points():
+    return Rational(-1 - 7, 6 - 2)
+
+
+def alg_line_point_slope_equation():
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rhs = latex_to_sympy(ch.split("=")[1])
+            if sp.diff(rhs, x) == -2 and rhs.subs(x, 6) == 1:
+                matches.append(i)
+        return matches == [idx], f"choices with slope -2 through (6, 1): {matches}"
+
+    return check
+
+
+def alg_snack_stand_pretzels():
+    p, q = symbols("p q")
+    return sp.solve(Eq(3 * p + 2 * q, 96).subs(q, 12), p)[0]
+
+
+def alg_table_line_find_x():
+    f = _line_through([(-3, 14), (1, 2), (6, -13)])
+    return sp.solve(Eq(f, 50), x)[0]
+
+
+def alg_line_constant_x_intercept():
+    aa = sp.solve(Eq(a * (-6) + 4 * 2, 20), a)[0]
+    return sp.solve(Eq(aa * x + 4 * 0, 20), x)[0]
+
+
+def alg_budget_x_intercept_meaning():
+    x_int = sp.solve(Eq(45 * x + 120 * 0, 900), x)[0]
+    y_int = sp.solve(Eq(45 * 0 + 120 * y, 900), y)[0]
+    ratio, pair_cost = Rational(120, 45), 45 + 120
+
+    def check(choices, idx):
+        key_ok = "chairs" in choices[idx] and "no desks" in choices[idx] and x_int == 20
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("no chairs" in ch and y_int != x_int)
+            or ("for each desk" in ch and ratio != x_int)
+            or ("cost" in ch and pair_cost != x_int))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"x-intercept {x_int}, y-intercept {y_int}, ratio {ratio}, pair cost {pair_cost}; contradicted {wrong}"
+
+    return check
+
+
+# ----- Systems of two linear equations in two variables -----
+
+
+def alg_system_substitution_y():
+    sol = sp.solve([Eq(y, 2 * x - 3), Eq(x + y, 9)], [x, y])
+    return sol[y]
+
+
+def alg_theater_child_tickets():
+    sol = sp.solve([Eq(a + c, 380), Eq(12 * a + 7 * c, 3785)], [a, c])
+    return sol[c]
+
+
+def alg_system_product_xy():
+    sol = sp.solve([Eq(x, 2 * y + 1), Eq(3 * x + 4 * y, 33)], [x, y])
+    return sol[x] * sol[y]
+
+
+def alg_infinite_solutions_c():
+    # Infinitely many solutions: the second equation times a scalar equals the first.
+    factor = Rational(6, -9)
+    assert factor * 15 == -10
+    cc = factor * 12
+    assert sp.linsolve([6 * x - 10 * y - cc, -9 * x + 15 * y - 12], [x, y]) != sp.S.EmptySet
+    assert sp.Matrix([[6, -10], [-9, 15]]).det() == 0
+    return cc
+
+
+def alg_system_k_on_line():
+    sol = sp.solve([Eq(3 * x - 2 * y, 7), Eq(y, 2 * x)], [x, y])
+    return (5 * x + 4 * y).subs(sol)
+
+
+def alg_tanks_equal_volume():
+    tt = sp.solve(Eq(300 + 12 * t, 540 - 8 * t), t)[0]
+    return (300 + 12 * t).subs(t, tt)
+
+
+# ----- Linear inequalities in one or two variables -----
+
+
+def alg_point_satisfies_inequality():
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices) if bool(sp.Gt(_point(ch)[1], 2 * _point(ch)[0] - 5))]
+        return good == [idx], f"points satisfying y > 2x - 5: {good}"
+
+    return check
+
+
+def alg_elevator_crates_inequality():
+    expected = sp.solve_univariate_inequality(sp.Le(80 + 35 * n, 900), n, relational=False)
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            got = sp.solve_univariate_inequality(_relational(ch, n), n, relational=False)
+            if got == expected:
+                matches.append(i)
+        return matches == [idx], f"solution set {expected}; matching choices {matches}"
+
+    return check
+
+
+def alg_greatest_integer_inequality():
+    sol = sp.solve_univariate_inequality(sp.Gt(7 - 2 * x, 3 * x - 8), x, relational=False)
+    assert sol.right_open and sol.right == 3
+    return sp.floor(sol.right) - 1  # strict, so the greatest integer is one below the endpoint
+
+
+def alg_inequality_solution_set_c():
+    # 3x + c > 5x - 9  <=>  x < (c + 9)/2; that bound must be 4.
+    bound = sp.solve(sp.Gt(3 * x + c, 5 * x - 9), x)  # unused symbolic form guard
+    cc = sp.solve(Eq((c + 9) / 2, 4), c)[0]
+    sol = sp.solve_univariate_inequality(sp.Gt(3 * x + cc, 5 * x - 9), x, relational=False)
+    assert sol == sp.Interval.open(-sp.oo, 4), (bound, sol)
+    return cc
+
+
+def alg_system_inequalities_point():
+    def check(choices, idx):
+        good = []
+        for i, ch in enumerate(choices):
+            px, py = _point(ch)
+            if bool(sp.Ge(py, Rational(1, 2) * px - 3)) and bool(sp.Lt(2 * px + py, 6)):
+                good.append(i)
+        return good == [idx], f"points in the solution set: {good}"
+
+    return check
+
+
+def alg_count_integers_two_inequalities():
+    s1 = sp.solve_univariate_inequality(sp.Gt(2 * x + 5, -9), x, relational=False)
+    s2 = sp.solve_univariate_inequality(sp.Ge(4 - x, -3), x, relational=False)
+    both = s1.intersect(s2)
+    return Integer(len([i for i in range(-50, 51) if both.contains(i)]))
+
+
+# ----- Batch batch3-psda -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch3-psda.ts (batch 3-psda).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch3_psda.py --only-extra
+
+Each function derives the answer from the stem's givens, following the
+conventions of verify_items.py: a numeric result for numeric keys, or a
+callable (choices, answer_index) -> (ok, detail) for word-choice items, which
+compute the underlying quantity and then match the choice text.
+"""
+
+
+
+
+
+
+x, m, n = symbols("x m n")
+
+
+# ---------------------------------------------------------------------------
+# Ratios, rates, proportional relationships, and units
+# ---------------------------------------------------------------------------
+
+
+def psda_scale_drawing_path():
+    meters_per_cm = Rational(5, 2)
+    return Rational(72, 10) * meters_per_cm
+
+
+def psda_kilowatt_hours_heater():
+    hours_per_day = Rational(25, 60)
+    return Rational(3, 2) * hours_per_day * 12
+
+
+def psda_density_neighbor_county():
+    area1 = Rational(156000, 240)
+    return 2 * area1 * 150
+
+
+def psda_cyclist_speed_mps():
+    meters = 27 * 1000
+    seconds = (60 + 15) * 60
+    return Rational(meters, seconds)
+
+
+# ---------------------------------------------------------------------------
+# Percentages
+# ---------------------------------------------------------------------------
+
+
+def psda_jacket_sale_price():
+    return Rational(80) * (1 - Rational(35, 100))
+
+
+def psda_percent_of_percent_music_art():
+    both = Rational(45, 100) * Rational(60, 100)
+    return both * 100
+
+
+def psda_tax_tip_original_cost():
+    total = Rational(6480, 100)
+    return sp.solve(sp.Eq(m * Rational(108, 100) * Rational(120, 100), total), m)[0]
+
+
+# ---------------------------------------------------------------------------
+# One-variable data
+# ---------------------------------------------------------------------------
+
+
+def _median(values):
+    vals = sorted(values)
+    k = len(vals)
+    return Rational(vals[k // 2]) if k % 2 else Rational(vals[k // 2 - 1] + vals[k // 2], 2)
+
+
+def _mean(values):
+    return Rational(sum(values), len(values))
+
+
+def _sd(values, population=True):
+    mu = _mean(values)
+    denom = len(values) if population else len(values) - 1
+    return sqrt(sum((v - mu) ** 2 for v in values) / denom)
+
+
+def psda_books_frequency_mean():
+    freq = {0: 4, 1: 6, 2: 3, 4: 2}
+    data = [v for v, f in freq.items() for _ in range(f)]
+    assert len(data) == 15
+    return _mean(data)
+
+
+def psda_remove_max_mean_median():
+    before = [12, 15, 15, 18, 18, 20, 22, 70]
+    after = [v for v in before if v != 70]
+    assert len(after) == 7
+    mean_word = "decreases" if _mean(after) < _mean(before) else ("remains the same" if _mean(after) == _mean(before) else "increases")
+    med_word = "decreases" if _median(after) < _median(before) else ("remains the same" if _median(after) == _median(before) else "increases")
+    expected = f"The mean {mean_word}, and the median {med_word}."
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if ch.strip() == expected]
+        return matches == [idx], (f"mean {_mean(before)} -> {_mean(after)}, median {_median(before)} -> {_median(after)}; "
+                                  f"matching choices {matches}")
+
+    return check
+
+
+def psda_combined_shifted_sets_sd():
+    # Any A with mean 36 and SD 5 gives the same mean of C and var(C) = var(A) + 16 (population).
+    A = [31] * 6 + [41] * 6
+    assert _mean(A) == 36 and _sd(A) == 5
+    B = [v - 8 for v in A]
+    C = A + B
+    mean_c = _mean(C)
+    sd_pop, sd_samp = _sd(C), _sd(C, population=False)
+    assert (sd_pop > 5) == (sd_samp > 5)
+    word = "greater" if sd_pop > 5 else "less"
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if f"is {mean_c}," in ch and f"{word} than 5" in ch]
+        return matches == [idx], f"mean(C) = {mean_c}, SD(C) = {float(sd_pop):.3f} (sample {float(sd_samp):.3f}); matching choices {matches}"
+
+    return check
+
+
+# ---------------------------------------------------------------------------
+# Two-variable data
+# ---------------------------------------------------------------------------
+
+
+def psda_model_predict_customers():
+    return (Rational(35, 10) * x + 12).subs(x, 8)
+
+
+def psda_residual_from_model():
+    predicted = (Rational(45, 10) * x + 2).subs(x, 6)
+    return Integer(31) - predicted
+
+
+def psda_cells_exponential_model():
+    pts = [(0, 64), (1, 80), (2, 100), (3, 125)]
+
+    def check(choices, idx):
+        ssr = []
+        for ch in choices:
+            rhs = latex_to_sympy(ch.split("=")[1])
+            ssr.append(sum((sp.nsimplify(rhs.subs(x, xv)) - yv) ** 2 for xv, yv in pts))
+        exact = [i for i, v in enumerate(ssr) if sp.simplify(v) == 0]
+        return exact == [idx], f"sum of squared residuals per choice {[float(v) for v in ssr]}; exact fits {exact}"
+
+    return check
+
+
+def psda_best_fit_predict_eight():
+    xs = [1, 2, 3, 4, 5]
+    ys = [Rational(32, 10), Rational(51, 10), Rational(66, 10), Rational(89, 10), Rational(107, 10)]
+    xbar, ybar = Rational(sum(xs), 5), sum(ys) / 5
+    slope = sum((xi - xbar) * (yi - ybar) for xi, yi in zip(xs, ys)) / sum((xi - xbar) ** 2 for xi in xs)
+    intercept = ybar - slope * xbar
+    return slope * 8 + intercept
+
+
+# ---------------------------------------------------------------------------
+# Probability and conditional probability
+# ---------------------------------------------------------------------------
+
+
+def psda_parking_lot_van():
+    vans = 40 - 14 - 18
+    return Rational(vans, 40)
+
+
+def psda_club_members_given_probability():
+    junior_share = 1 - Rational(5, 8)
+    return sp.solve(sp.Eq(junior_share * n, 24), n)[0]
+
+
+def psda_commuters_transit_conditional():
+    transit = 200 - 120
+    transit_long = 95 - 45
+    return Rational(transit - transit_long, transit)
+
+
+# ---------------------------------------------------------------------------
+# Inference from sample statistics and margin of error
+# ---------------------------------------------------------------------------
+
+
+def psda_moe_streaming_interpretation():
+    est, moe = Rational(26, 10), Rational(3, 10)
+    lo, hi = est - moe, est + moe
+
+    def check(choices, idx):
+        interval = f"between {float(lo):g} and {float(hi):g}"
+        matches = [i for i, ch in enumerate(choices)
+                   if "mean" in ch and "all households in the city" in ch and interval in ch]
+        return matches == [idx], f"interval {float(lo):g} to {float(hi):g}; choices stating the city mean lies plausibly in it: {matches}"
+
+    return check
+
+
+def psda_sample_proportion_employees():
+    use_share = Rational(24, 60)
+    return 1500 * (1 - use_share)
+
+
+# ---------------------------------------------------------------------------
+# Evaluating statistical claims
+# ---------------------------------------------------------------------------
+
+
+def _study_check(random_assignment: bool, random_selection: bool, population: str):
+    """Map the two design flags to the (causal, generalizable-to) claims each choice makes."""
+    causal_word = "likely caused" if random_assignment else "may not have caused"
+    generalize = f"can be generalized to {population}" if random_selection else "cannot be generalized beyond"
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if causal_word in ch and generalize in ch]
+        return matches == [idx], (f"random assignment={random_assignment} -> '{causal_word}'; "
+                                  f"random selection={random_selection} -> '{generalize}'; matching choices {matches}")
+
+    return check
+
+
+def psda_fitness_stretching_experiment():
+    return _study_check(random_assignment=True, random_selection=True, population="all members of the fitness center")
+
+
+def psda_lavender_volunteers_generalize():
+    return _study_check(random_assignment=True, random_selection=False, population="")
+
+
+def psda_sampling_method_walk():
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices) if "at random" in ch and "all students" in ch]
+        return good == [idx], f"choices that are random and drawn from the whole population: {good}"
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -606,6 +1345,85 @@ CHECKS = {
     "geo-parallel-proof-equation": geo_parallel_proof_equation,
     "geo-polygon-angle-sum-n": geo_polygon_angle_sum_n,
     "geo-congruence-sufficiency": geo_congruence_sufficiency,
+    # batch batch3-geo
+    "geo-prism-to-cube-edge": geo_prism_to_cube_edge,
+    "geo-rectangle-perimeter-to-area": geo_rectangle_perimeter_to_area,
+    "geo-scale-model-floor-area": geo_scale_model_floor_area,
+    "geo-cylinder-tank-radius-decimal": geo_cylinder_tank_radius_decimal,
+    "geo-prism-cubic-volume-s": geo_prism_cubic_volume_s,
+    "geo-cone-cut-volume-ratio": geo_cone_cut_volume_ratio,
+    "geo-parallel-obtuse-angle": geo_parallel_obtuse_angle,
+    "geo-exterior-angle-x": geo_exterior_angle_x,
+    "geo-similar-triangle-perimeter": geo_similar_triangle_perimeter,
+    "geo-triangle-between-parallels": geo_triangle_between_parallels,
+    "geo-parallel-segment-trapezoid-area": geo_parallel_segment_trapezoid_area,
+    "geo-degrees-to-radians-150": geo_degrees_to_radians_150,
+    "geo-pole-wire-tangent-height": geo_pole_wire_tangent_height,
+    "geo-ramp-angle-arctan": geo_ramp_angle_arctan,
+    "geo-isosceles-right-area": geo_isosceles_right_area,
+    "geo-altitude-angle-sine": geo_altitude_angle_sine,
+    "geo-quadrant-four-cosine": geo_quadrant_four_cosine,
+    "geo-arc-length-100-degrees": geo_arc_length_100_degrees,
+    "geo-circle-chord-on-line": geo_circle_chord_on_line,
+    "geo-sector-angle-garden": geo_sector_angle_garden,
+    "geo-circle-radius-constant-c": geo_circle_radius_constant_c,
+    "geo-circle-tangent-vertical-line": geo_circle_tangent_vertical_line,
+    # batch batch3-algebra
+    "alg-ride-fare-equation": alg_ride_fare_equation,
+    "alg-fraction-equation-solve": alg_fraction_equation_solve,
+    "alg-plumber-hours": alg_plumber_hours,
+    "alg-count-solutions-identity": alg_count_solutions_identity,
+    "alg-structure-x-plus-3": alg_structure_x_plus_3,
+    "alg-infinitely-many-c": alg_infinitely_many_c,
+    "alg-evaluate-linear-f4": alg_evaluate_linear_f4,
+    "alg-drain-rate-interpretation": alg_drain_rate_interpretation,
+    "alg-table-to-rule-g": alg_table_to_rule_g,
+    "alg-bird-count-model": alg_bird_count_model,
+    "alg-rule-from-point-and-rate": alg_rule_from_point_and_rate,
+    "alg-linear-shift-rule": alg_linear_shift_rule,
+    "alg-rate-find-input": alg_rate_find_input,
+    "alg-candle-height-time": alg_candle_height_time,
+    "alg-slope-two-points": alg_slope_two_points,
+    "alg-line-point-slope-equation": alg_line_point_slope_equation,
+    "alg-snack-stand-pretzels": alg_snack_stand_pretzels,
+    "alg-table-line-find-x": alg_table_line_find_x,
+    "alg-line-constant-x-intercept": alg_line_constant_x_intercept,
+    "alg-budget-x-intercept-meaning": alg_budget_x_intercept_meaning,
+    "alg-system-substitution-y": alg_system_substitution_y,
+    "alg-theater-child-tickets": alg_theater_child_tickets,
+    "alg-system-product-xy": alg_system_product_xy,
+    "alg-infinite-solutions-c": alg_infinite_solutions_c,
+    "alg-system-k-on-line": alg_system_k_on_line,
+    "alg-tanks-equal-volume": alg_tanks_equal_volume,
+    "alg-point-satisfies-inequality": alg_point_satisfies_inequality,
+    "alg-elevator-crates-inequality": alg_elevator_crates_inequality,
+    "alg-greatest-integer-inequality": alg_greatest_integer_inequality,
+    "alg-inequality-solution-set-c": alg_inequality_solution_set_c,
+    "alg-system-inequalities-point": alg_system_inequalities_point,
+    "alg-count-integers-two-inequalities": alg_count_integers_two_inequalities,
+    # batch batch3-psda
+    "psda-scale-drawing-path": psda_scale_drawing_path,
+    "psda-kilowatt-hours-heater": psda_kilowatt_hours_heater,
+    "psda-density-neighbor-county": psda_density_neighbor_county,
+    "psda-cyclist-speed-mps": psda_cyclist_speed_mps,
+    "psda-jacket-sale-price": psda_jacket_sale_price,
+    "psda-percent-of-percent-music-art": psda_percent_of_percent_music_art,
+    "psda-tax-tip-original-cost": psda_tax_tip_original_cost,
+    "psda-books-frequency-mean": psda_books_frequency_mean,
+    "psda-remove-max-mean-median": psda_remove_max_mean_median,
+    "psda-combined-shifted-sets-sd": psda_combined_shifted_sets_sd,
+    "psda-model-predict-customers": psda_model_predict_customers,
+    "psda-residual-from-model": psda_residual_from_model,
+    "psda-cells-exponential-model": psda_cells_exponential_model,
+    "psda-best-fit-predict-eight": psda_best_fit_predict_eight,
+    "psda-parking-lot-van": psda_parking_lot_van,
+    "psda-club-members-given-probability": psda_club_members_given_probability,
+    "psda-commuters-transit-conditional": psda_commuters_transit_conditional,
+    "psda-moe-streaming-interpretation": psda_moe_streaming_interpretation,
+    "psda-sample-proportion-employees": psda_sample_proportion_employees,
+    "psda-fitness-stretching-experiment": psda_fitness_stretching_experiment,
+    "psda-sampling-method-walk": psda_sampling_method_walk,
+    "psda-lavender-volunteers-generalize": psda_lavender_volunteers_generalize,
 }
 
 
