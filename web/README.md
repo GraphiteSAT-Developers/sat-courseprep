@@ -39,7 +39,7 @@ Item `desmos.verified` starts `false`. The headless verification service should 
 
 ## Not built yet
 
-Accounts and progress (Supabase), age screen and parental consent, billing, the item pipeline, Elo/IRT item selection, spaced review, streaming tutor replies.
+Accounts and progress (Firebase Auth + Firestore, decided 2026-10-15), age screen and parental consent, billing, the item pipeline, Elo/IRT item selection, spaced review, streaming tutor replies.
 
 ## Tested so far
 

@@ -32,7 +32,8 @@ This is a collaborative project.
 
 ## Owner decisions still pending
 These are listed in the report's decisions table:
-- ~~LLM vendor~~ Anthropic, Sonnet for live tutoring (2026-10-15). Legal path: safeguards per `docs/phase0/age-gate-plan.md`.
+- ~~LLM vendor~~ Anthropic, Sonnet for live tutoring (2026-10-15).
+- **Accounts and data: Firebase** (Auth + Firestore), decided 2026-10-15. Not Supabase. Note the report's warning that Firebase AI Logic ties the LLM to Gemini; use Firebase for auth and data only, and keep the tutor on the Anthropic SDK server-side. Legal path: safeguards per `docs/phase0/age-gate-plan.md`.
 - audience and channel
 - Desmos plan tier
 - launch quality thresholds
