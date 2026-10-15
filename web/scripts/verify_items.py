@@ -281,6 +281,308 @@ def geo_cylinder_sphere():
     return Rational(4, 3) * pi * rr**3
 
 
+# ---------------------------------------------------------------------------
+# Batch 2 checks
+# ---------------------------------------------------------------------------
+
+j_, k_, m_, bb_, cc_ = symbols("j k m b c")
+
+
+def _split_equation(text: str):
+    """'$lhs = rhs$' -> (lhs, rhs) as SymPy expressions."""
+    lhs, rhs = text.strip().strip("$").split("=")
+    return latex_to_sympy(lhs), latex_to_sympy(rhs)
+
+
+def alg_which_equation_no_solution():
+    given = Eq(6 * x - 9 * y, 14)
+
+    def check(choices, idx):
+        none = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = _split_equation(ch)
+            if sp.linsolve([given.lhs - given.rhs, lhs - rhs], [x, y]) == sp.S.EmptySet:
+                none.append(i)
+        return none == [idx], f"choices giving no solution: {none}"
+
+    return check
+
+
+def alg_point_on_every_line_r():
+    expr = sp.expand((r + 2) * x + (1 - 3 * r) * y - (6 * r + 5))
+    sol = sp.solve(sp.Poly(expr, r).all_coeffs(), [x, y])
+    # Confirm the point works for a few r values.
+    for rv in (-3, 0, 1, Rational(7, 2)):
+        assert expr.subs({x: sol[x], y: sol[y], r: rv}) == 0
+    return sol[x] - sol[y]
+
+
+def alg_sum_difference_trick():
+    sol = sp.solve([Eq(7 * j_ + 2 * k_, 61), Eq(4 * j_ + 5 * k_, 37)], [j_, k_])
+    return 7 * (sol[j_] - sol[k_])
+
+
+def alg_interpret_intercept():
+    E = 14 * n + 65
+    at_open, slope, after14 = E.subs(n, 0), sp.diff(E, n), E.subs(n, 14)
+
+    def check(choices, idx):
+        # The key must describe the value at n = 0; every distractor must claim a number the model contradicts.
+        key_ok = "when it opened" in choices[idx] and at_open == 65
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("each week" in ch and slope != 65)
+            or ("first week" in ch and slope != 65)
+            or ("14 weeks" in ch and after14 != 65))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"E(0)={at_open}, slope={slope}, E(14)={after14}; contradicted distractors {wrong}"
+
+    return check
+
+
+def adv_discriminant_max_ac():
+    best = 0
+    for av in range(1, 101):
+        for cv in range(1, 101):
+            if sp.discriminant(av * x**2 + 18 * x + cv, x) > 0:
+                best = max(best, av * cv)
+    return Integer(best)
+
+
+def adv_vieta_sum_to_product():
+    poly = 3 * x**2 - (k + 5) * x + 2 * k
+    roots = sp.solve(poly, x)
+    kk = sp.solve(Eq(sp.simplify(sum(roots)), 6), k)[0]
+    assert sp.discriminant(poly.subs(k, kk), x) > 0
+    return sp.simplify(sp.prod(roots).subs(k, kk))
+
+
+def adv_vieta_other_root():
+    cc = sp.solve(Eq((4 * x**2 - 11 * x + c).subs(x, 3), 0), c)[0]
+    roots = sp.solve(4 * x**2 - 11 * x + cc, x)
+    assert 3 in roots
+    return [rt for rt in roots if rt != 3][0]
+
+
+def adv_shift_from_table():
+    pts = {-1: 8, 0: 3, 2: 5, 3: 12}
+    f = a * x**2 + b * x + c
+    sol = sp.solve([Eq(f.subs(x, xv), yv) for xv, yv in list(pts.items())[:3]], [a, b, c])
+    f = f.subs(sol)
+    assert f.subs(x, 3) == pts[3], "fourth table point must fit the same quadratic"
+    g = f.subs(x, x + 4)
+    return g.subs(x, 0)
+
+
+def adv_composite_from_table():
+    F = {1: 3, 2: 1, 3: 4, 4: 2}
+    G = {1: 2, 2: 4, 3: 1, 4: 3}
+    h = lambda v: Rational(2 * F[v] + 1, G[v] - 1)
+    return h(4) - h(2)
+
+
+def adv_absolute_one_solution_k():
+    xr = Symbol("x", real=True)
+    f = -2 * sp.Abs(xr - 5) + 9
+    ones = [kv for kv in range(-30, 31) if len(sp.solve(Eq(f, kv), xr)) == 1]
+    assert len(ones) == 1
+    return Integer(ones[0])
+
+
+def adv_absolute_no_solution_c():
+    xr = Symbol("x", real=True)
+    f = sp.Abs(4 * xr - 1) + c
+    samples = [Rational(v, 2) for v in range(-8, 12)]
+    no_solution = {cv for cv in samples if sp.solve(Eq(f.subs(c, cv), 2), xr) == []}
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            text = ch.strip("$")
+            op = "<" if "<" in text else ">"
+            lhs, rhs = (latex_to_sympy(t) for t in text.split(op))
+            holds = {cv for cv in samples if bool((lhs < rhs if op == "<" else lhs > rhs).subs(c, cv))}
+            if holds == no_solution:
+                matches.append(i)
+        return matches == [idx], f"no-solution set on samples matches choices {matches}"
+
+    return check
+
+
+def adv_exponential_form_displays_value():
+    f = 3 * 2**x
+    target = f.subs(x, 2)
+    test_xs = [0, 1, 2, Rational(5, 2), 7, -3]
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rhs = latex_to_sympy(ch.split("=")[1])
+            equivalent = all(sp.simplify(rhs.subs(x, xv) - f.subs(x, xv)) == 0 for xv in test_xs)
+            coeff = rhs.as_coeff_Mul()[0]
+            if equivalent and coeff == target:
+                matches.append(i)
+        return matches == [idx], f"f(2)={target}; equivalent forms with that coefficient: {matches}"
+
+    return check
+
+
+def adv_decay_rate_interpretation():
+    M = 820 * Rational(94, 100) ** (t / 3)
+    three_day = sp.simplify(M.subs(t, 3) / M.subs(t, 0))
+    one_day = sp.simplify(M.subs(t, 1) / M.subs(t, 0))
+
+    def check(choices, idx):
+        pct3 = (1 - three_day) * 100
+        key_ok = "6%" in choices[idx] and "every 3 days" in choices[idx] and pct3 == 6
+        # Daily factor is 0.94^(1/3): not a 2% drop and not a 6% drop.
+        daily_ok = one_day != Rational(98, 100) and one_day != Rational(94, 100)
+        return key_ok and daily_ok, f"3-day factor {three_day} ({pct3}% drop); 1-day factor {float(one_day):.4f}"
+
+    return check
+
+
+def adv_factor_theorem_constant():
+    def check(choices, idx):
+        zero = []
+        for i, ch in enumerate(choices):
+            pexpr = latex_to_sympy(ch)
+            val = sp.simplify(pexpr.subs(x, 3 * bb_))
+            if val == 0:
+                zero.append(i)
+            else:
+                assert val.subs(bb_, 2) != 0  # nonzero for a positive b
+        return zero == [idx], f"p(3b) = 0 for choices {zero}"
+
+    return check
+
+
+def adv_sqrt_extraneous_root():
+    sols = sp.solve(Eq(sqrt(2 * x + 11), x - 2), x)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def psda_mixing_saline():
+    sol = sp.solve([Eq(x + y, 350), Eq(Rational(12, 100) * x + Rational(40, 100) * y, Rational(28, 100) * 350)], [x, y])
+    return sol[y]
+
+
+def psda_weighted_mean_new_members():
+    total_after = 30 * Rational(161, 10)
+    total_before = 24 * Rational(155, 10)
+    return (total_after - total_before) / 6
+
+
+def psda_sd_frequency_smallest():
+    freqs = {"W": [4, 4, 4, 4, 4], "X": [10, 0, 0, 0, 10], "Y": [0, 5, 10, 5, 0], "Z": [2, 4, 8, 4, 2]}
+
+    def sd(fr):
+        data = [v for v, f in zip(range(1, 6), fr) for _ in range(f)]
+        assert len(data) == 20
+        mean = Rational(sum(data), len(data))
+        return sqrt(sum((d - mean) ** 2 for d in data) / len(data))
+
+    sds = {name: sd(fr) for name, fr in freqs.items()}
+    smallest = min(sds, key=lambda nm: sds[nm])
+
+    def check(choices, idx):
+        return choices[idx] == f"Data set {smallest}", f"SDs {{{', '.join(f'{nm}: {float(v):.3f}' for nm, v in sds.items())}}} -> {smallest}"
+
+    return check
+
+
+def psda_margin_of_error_sample_size():
+    n1, n2 = 120, 1080
+    moe1, moe2 = Rational(5, 10), Rational(17, 100)
+
+    def check(choices, idx):
+        ratio_ok = n2 > n1 and abs(float(moe1 / sqrt(Rational(n2, n1)) - moe2)) < 0.01
+        key_ok = "larger" in choices[idx]
+        others = [i for i, ch in enumerate(choices) if "larger" in ch]
+        return ratio_ok and key_ok and others == [idx], f"n2/n1 = {n2 // n1}; 0.5/sqrt(9) = {float(moe1/3):.3f} ~ {moe2}"
+
+    return check
+
+
+def psda_ratio_chained_split():
+    indoor = 420 * Rational(3, 7)
+    return indoor * Rational(4, 9)
+
+
+def psda_unit_conversion_squared():
+    return Rational(24, 10) * 60**2 / 1000
+
+
+def psda_density_block_height():
+    volume = Rational(2700) / Rational(75, 10)
+    return volume / (8 * 6)
+
+
+def geo_coterminal_radians():
+    theta = Rational(83, 6) * pi
+    while theta >= 2 * pi:
+        theta -= 2 * pi
+    assert 0 <= theta < 2 * pi
+    return theta
+
+
+def geo_similar_perimeter_to_area():
+    return 24 * Rational(5, 2) ** 2
+
+
+def geo_inscribed_angle_arc_x():
+    return sp.solve(Eq(2 * x + 7, (6 * x - 10) / 2), x)[0]
+
+
+def geo_parallel_proof_equation():
+    a1, a2 = 3 * x + 10, 2 * x - 5
+    condition = a1 + a2 - 180  # same-side interior angles supplementary
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = _split_equation(ch)
+            ratio = sp.simplify((lhs - rhs) / condition)
+            if ratio.is_number and ratio != 0:
+                matches.append(i)
+        return matches == [idx], f"choices equivalent to {condition} = 0: {matches}"
+
+    return check
+
+
+def geo_polygon_angle_sum_n():
+    hexagon = 180 * (6 - 2)
+    return sp.solve(Eq(180 * (n - 2), 6 * hexagon), n)[0]
+
+
+def geo_congruence_sufficiency():
+    # Known: side AB and angle B. Each case adds one fact; decide with SSS/SAS/ASA/AAS.
+    def sufficient(sides: set[frozenset], angles: set[str]) -> bool:
+        if len(sides) == 3:
+            return True
+        if len(sides) == 2 and len(angles) >= 1:
+            s1, s2 = sides
+            included = s1 & s2
+            return any(v in included for v in angles)  # SAS; SSA is not enough
+        if len(angles) >= 2 and len(sides) >= 1:
+            return True  # ASA or AAS
+        return False
+
+    base_sides, base_angles = {frozenset("AB")}, {"B"}
+    cases = {
+        "I": ({frozenset("BC")}, set()),
+        "II": ({frozenset("AC")}, set()),
+        "III": (set(), {"C"}),
+    }
+    good = [nm for nm, (sd, an) in cases.items() if sufficient(base_sides | sd, base_angles | an)]
+    expected = {"I only": ["I"], "I and III only": ["I", "III"], "II and III only": ["II", "III"], "I, II, and III": ["I", "II", "III"]}
+
+    def check(choices, idx):
+        return expected.get(choices[idx]) == good, f"sufficient cases {good}"
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -309,6 +611,35 @@ CHECKS = {
     "geo-inscribed-square": geo_inscribed_square,
     "geo-sin-cos-degrees": geo_sin_cos_degrees,
     "geo-cylinder-sphere": geo_cylinder_sphere,
+    # Batch 2
+    "alg-which-equation-no-solution": alg_which_equation_no_solution,
+    "alg-point-on-every-line-r": alg_point_on_every_line_r,
+    "alg-sum-difference-trick": alg_sum_difference_trick,
+    "alg-interpret-intercept": alg_interpret_intercept,
+    "adv-discriminant-max-ac": adv_discriminant_max_ac,
+    "adv-vieta-sum-to-product": adv_vieta_sum_to_product,
+    "adv-vieta-other-root": adv_vieta_other_root,
+    "adv-shift-from-table": adv_shift_from_table,
+    "adv-composite-from-table": adv_composite_from_table,
+    "adv-absolute-one-solution-k": adv_absolute_one_solution_k,
+    "adv-absolute-no-solution-c": adv_absolute_no_solution_c,
+    "adv-exponential-form-displays-value": adv_exponential_form_displays_value,
+    "adv-decay-rate-interpretation": adv_decay_rate_interpretation,
+    "adv-factor-theorem-constant": adv_factor_theorem_constant,
+    "adv-sqrt-extraneous-root": adv_sqrt_extraneous_root,
+    "psda-mixing-saline": psda_mixing_saline,
+    "psda-weighted-mean-new-members": psda_weighted_mean_new_members,
+    "psda-sd-frequency-smallest": psda_sd_frequency_smallest,
+    "psda-margin-of-error-sample-size": psda_margin_of_error_sample_size,
+    "psda-ratio-chained-split": psda_ratio_chained_split,
+    "psda-unit-conversion-squared": psda_unit_conversion_squared,
+    "psda-density-block-height": psda_density_block_height,
+    "geo-coterminal-radians": geo_coterminal_radians,
+    "geo-similar-perimeter-to-area": geo_similar_perimeter_to_area,
+    "geo-inscribed-angle-arc-x": geo_inscribed_angle_arc_x,
+    "geo-parallel-proof-equation": geo_parallel_proof_equation,
+    "geo-polygon-angle-sum-n": geo_polygon_angle_sum_n,
+    "geo-congruence-sufficiency": geo_congruence_sufficiency,
 }
 
 
