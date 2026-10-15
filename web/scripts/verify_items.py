@@ -5296,6 +5296,246 @@ def geo_parallel_lines_bent_path_angle():
     return Integer(round(deg))
 
 
+# ----- Batch batch8-rtt -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch8-rtt.ts (batch batch8-rtt).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch8_rtt.py --only-extra
+
+Each function derives the answer from the stem's givens: an exact SymPy number
+for numeric keys, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices contain radicals (parsed with latex_to_sympy_ext).
+"""
+
+
+
+import sympy as sp
+from sympy import Rational, Integer, symbols, sqrt, pi, sin, cos, tan, atan, asin, acos, Eq
+
+x, y, k, a, b, c, p, s, r, n, t = symbols("x y k a b c p s r n t")
+
+_B8RT_DEG = pi / 180
+
+
+def _b8rt_nearest(value, places: int = 1):
+    """Round an exact SymPy number to `places` decimals, asserting it is not a near tie."""
+    v = sp.nsimplify(round(float(value), 9))
+    scaled = v * 10**places
+    assert abs(scaled - sp.floor(scaled) - Rational(1, 2)) > Rational(1, 100), "rounding tie"
+    return Rational(int(sp.floor(scaled + Rational(1, 2))), 10**places)
+
+
+def _b8rt_pick(expected):
+    """Callable for MC items with radical choices: exactly the key choice equals `expected`."""
+    expected = sp.nsimplify(expected)
+
+    def check(choices, idx):
+        vals = [latex_to_sympy_ext(ch) for ch in choices]
+        matches = [i for i, v in enumerate(vals) if sp.simplify(v - expected) == 0]
+        fl = [float(v) for v in vals]
+        mono = all(u < w for u, w in zip(fl, fl[1:])) or all(u > w for u, w in zip(fl, fl[1:]))
+        return matches == [idx] and mono, f"expected {expected}; matching choices {matches}; monotonic {mono}"
+
+    return check
+
+
+# ----- easy -------------------------------------------------------------------
+
+
+def geo_ladder_wall_height_pythagorean():
+    h = [v for v in sp.solve(Eq(x**2 + Rational(5, 2) ** 2, Rational(13, 2) ** 2), x) if v > 0][0]
+    return h
+
+
+def geo_legs_9_40_hypotenuse():
+    return sqrt(9**2 + 40**2)
+
+
+def geo_isosceles_right_leg_9_hypotenuse():
+    # Angle Y = 180 - 45 - 45 = 90, so XZ is the hypotenuse; law of sines as an independent check.
+    xz = 9 * sin(90 * _B8RT_DEG) / sin(45 * _B8RT_DEG)
+    return _b8rt_pick(sp.simplify(xz))
+
+
+def geo_tan_e_from_three_sides():
+    de, ef, df = 29, 20, 21
+    assert ef**2 + df**2 == de**2
+    return Rational(df, ef)  # opposite E over adjacent E
+
+
+def geo_sin_28_cos_x_complement():
+    sols = [v for v in range(1, 90) if abs(float(sin(28 * _B8RT_DEG) - cos(v * _B8RT_DEG))) < 1e-12]
+    assert sols == [62]
+    return Integer(sols[0])
+
+
+def geo_radians_7pi_12_to_degrees():
+    return (7 * pi / 12) * 180 / pi
+
+
+# ----- medium -----------------------------------------------------------------
+
+
+def geo_post_shadow_sun_elevation():
+    shadow = Rational(32, 10) / tan(35 * _B8RT_DEG)
+    assert abs(float(shadow) - 4.570) < 0.001
+    return _b8rt_nearest(shadow)
+
+
+def geo_river_width_survey_tangent():
+    ab = 80 * tan(58 * _B8RT_DEG)
+    assert [float(_b8rt_nearest(v)) for v in (80 * cos(58 * _B8RT_DEG), 80 / tan(58 * _B8RT_DEG), 80 * sin(58 * _B8RT_DEG))] == [42.4, 50.0, 67.8]
+    return _b8rt_nearest(ab)
+
+
+def geo_truck_ramp_length_sine():
+    L = Rational(12, 10) / sin(14 * _B8RT_DEG)
+    assert [float(_b8rt_nearest(v)) for v in (Rational(12, 10) * tan(14 * _B8RT_DEG), Rational(12, 10) / sin(14), Rational(12, 10) / tan(14 * _B8RT_DEG))] == [0.3, 1.2, 4.8]
+    return _b8rt_nearest(L)
+
+
+def geo_escalator_horizontal_30_60_90():
+    return _b8rt_pick(12 * cos(30 * _B8RT_DEG))
+
+
+def geo_cliff_elevation_arccos():
+    angle = acos(Rational(90, 150)) / _B8RT_DEG
+    assert float(_b8rt_nearest(asin(Rational(90, 150)) / _B8RT_DEG)) == 36.9
+    assert float(_b8rt_nearest(atan(Rational(150, 90)) / _B8RT_DEG)) == 59.0
+    assert float(_b8rt_nearest(atan(Rational(90, 150)) / _B8RT_DEG)) == 31.0
+    return _b8rt_nearest(angle)
+
+
+def geo_30_60_90_longer_leg_hypotenuse():
+    # R at the origin, S on the x-axis, angle R = 60°: ST = RS tan 60° (ST opposite R).
+    rs = sp.solve(Eq(s * tan(60 * _B8RT_DEG), 8 * sqrt(3)), s)[0]
+    return sp.simplify(rs / cos(60 * _B8RT_DEG))
+
+
+def geo_cos_to_tan_nontriple():
+    A = acos(Rational(3, 7))
+    return _b8rt_pick(sp.simplify(tan(A)))
+
+
+def geo_similar_triangle_tan_scaled():
+    bc = sqrt(17**2 - 15**2)
+    ac_d, bc_d = 3 * 15, 3 * bc  # triangle DEF: E corresponds to B; opposite E is DF (~AC), adjacent is EF (~BC)
+    return sp.nsimplify(ac_d / bc_d)
+
+
+def geo_triangle_angles_sin_cos_equal():
+    A, B = 2 * x, x + 6
+    valid = []
+    for sol in sp.solve(Eq(A + B, 90), x) + sp.solve(Eq(A, B + 90), x):
+        a_, b_ = A.subs(x, sol), B.subs(x, sol)
+        if a_ > 0 and b_ > 0 and a_ + b_ < 180:
+            assert sp.simplify(sin(a_ * _B8RT_DEG) - cos(b_ * _B8RT_DEG)) == 0
+            valid.append(a_)
+    assert len(valid) == 1
+    return valid[0]
+
+
+def geo_complementary_radians_k():
+    B = pi / 2 - 3 * pi / 10
+    return sp.simplify(B / pi)
+
+
+def geo_tan_2pi_3_unit_circle():
+    return _b8rt_pick(tan(2 * pi / 3))
+
+
+# ----- hard -------------------------------------------------------------------
+
+
+def geo_altitude_45_30_split_base():
+    C = sp.Point(0, 6)
+    D = sp.Point(0, 0)
+    A = sp.Point(-6 / tan(45 * _B8RT_DEG), 0)
+    B = sp.Point(6 / tan(30 * _B8RT_DEG), 0)
+    # Angles at A and B are 45° and 30°.
+    assert sp.simplify(sp.Segment(A, C).length - 6 * sqrt(2)) == 0
+    assert sp.simplify(sp.Segment(B, C).length - 12) == 0
+    return _b8rt_pick(sp.simplify(A.distance(B)))
+
+
+def geo_parallel_segment_cos_complement():
+    # P at the origin, R on the positive x-axis, S = (12, 0), T = (12, 5); Q is on ray PT above R.
+    P, S, T = sp.Point(0, 0), sp.Point(12, 0), sp.Point(12, 5)
+    R = sp.Point(30, 0)  # any R beyond S works; the angle at Q does not depend on it
+    Q = sp.Point(30, 30 * Rational(5, 12))
+    cos_q = (P - Q).dot(R - Q) / (P.distance(Q) * R.distance(Q))
+    return sp.simplify(cos_q)
+
+
+def geo_sin_x_squared_cos_x():
+    f = sp.lambdify(x, sp.sin(x**2 * _B8RT_DEG) - sp.cos(x * _B8RT_DEG))
+    roots = set()
+    for i in range(1, 949):
+        x0, x1 = i / 100, (i + 1) / 100
+        if x1**2 >= 90:
+            break
+        if f(x0) == 0 or f(x0) * f(x1) < 0:
+            roots.add(round(float(sp.nsolve(sp.sin(x**2 * _B8RT_DEG) - sp.cos(x * _B8RT_DEG), x, (x0 + x1) / 2)), 9))
+    assert roots == {9.0}, roots
+    assert sp.simplify(sin(81 * _B8RT_DEG) - cos(9 * _B8RT_DEG)) == 0
+    return Integer(9)
+
+
+def geo_isosceles_base_cosine():
+    kl = 2 * 10 * cos(50 * _B8RT_DEG)
+    assert [float(_b8rt_nearest(v)) for v in (10 * cos(50 * _B8RT_DEG), 10 * sin(50 * _B8RT_DEG), 20 * sin(50 * _B8RT_DEG))] == [6.4, 7.7, 15.3]
+    return _b8rt_nearest(kl)
+
+
+def geo_right_triangle_area_hypotenuse_angle():
+    bc, ac = 15 * sin(64 * _B8RT_DEG), 15 * cos(64 * _B8RT_DEG)
+    area = Rational(1, 2) * bc * ac
+    assert [float(_b8rt_nearest(v)) for v in (Rational(1, 2) * 15 * ac, bc * ac, Rational(1, 2) * 15 * bc)] == [49.3, 88.7, 101.1]
+    return _b8rt_nearest(area)
+
+
+def geo_shadow_flagpole_hypotenuse():
+    height = Rational(15, 10) / 2 * 14
+    return sqrt(height**2 + 14**2)
+
+
+def geo_lighthouse_two_elevations():
+    h, d = symbols("h d", positive=True)
+    sol = sp.solve([Eq(tan(45 * _B8RT_DEG), h / d), Eq(tan(30 * _B8RT_DEG), h / (d + 40))], [h, d], dict=True)
+    assert len(sol) == 1
+    height = sol[0][h]
+    assert float(_b8rt_nearest(40 / (sqrt(3) + 1))) == 14.6
+    assert float(_b8rt_nearest(height + 40)) == 94.6
+    return _b8rt_nearest(height)
+
+
+def geo_legs_differ_by_7_area():
+    legs = [v for v in sp.solve(Eq(x**2 + (x + 7) ** 2, 17**2), x) if v > 0]
+    assert legs == [8]
+    return Rational(1, 2) * legs[0] * (legs[0] + 7)
+
+
+def geo_sum_angles_sine_negative_root3():
+    th = symbols("th")
+    sols = sp.solveset(Eq(sin(th), -sqrt(3) / 2), th, sp.Interval.Ropen(0, 2 * pi))
+    assert len(sols) == 2
+    return sum(sols)
+
+
+def geo_square_diagonal_2_more():
+    side = [v for v in sp.solve(Eq(s * sqrt(2), s + 2), s) if v > 0][0]
+    return _b8rt_pick(sp.radsimp(side))
+
+
+def geo_sin_twice_cos_value():
+    A = atan(2)  # sin A = 2 cos A  <=>  tan A = 2 for an acute angle A
+    assert sp.simplify(sin(A) - 2 * cos(A)) == 0
+    return _b8rt_pick(sp.simplify(cos(A)))
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -5862,6 +6102,35 @@ CHECKS = {
     "geo-shared-angle-similar-side": geo_shared_angle_similar_side,
     "geo-angle-bisectors-meet-bic": geo_angle_bisectors_meet_bic,
     "geo-parallel-lines-bent-path-angle": geo_parallel_lines_bent_path_angle,
+    # batch batch8-rtt
+    "geo-ladder-wall-height-pythagorean": geo_ladder_wall_height_pythagorean,
+    "geo-legs-9-40-hypotenuse": geo_legs_9_40_hypotenuse,
+    "geo-isosceles-right-leg-9-hypotenuse": geo_isosceles_right_leg_9_hypotenuse,
+    "geo-tan-e-from-three-sides": geo_tan_e_from_three_sides,
+    "geo-sin-28-cos-x-complement": geo_sin_28_cos_x_complement,
+    "geo-radians-7pi-12-to-degrees": geo_radians_7pi_12_to_degrees,
+    "geo-post-shadow-sun-elevation": geo_post_shadow_sun_elevation,
+    "geo-river-width-survey-tangent": geo_river_width_survey_tangent,
+    "geo-truck-ramp-length-sine": geo_truck_ramp_length_sine,
+    "geo-escalator-horizontal-30-60-90": geo_escalator_horizontal_30_60_90,
+    "geo-cliff-elevation-arccos": geo_cliff_elevation_arccos,
+    "geo-30-60-90-longer-leg-hypotenuse": geo_30_60_90_longer_leg_hypotenuse,
+    "geo-cos-to-tan-nontriple": geo_cos_to_tan_nontriple,
+    "geo-similar-triangle-tan-scaled": geo_similar_triangle_tan_scaled,
+    "geo-triangle-angles-sin-cos-equal": geo_triangle_angles_sin_cos_equal,
+    "geo-complementary-radians-k": geo_complementary_radians_k,
+    "geo-tan-2pi-3-unit-circle": geo_tan_2pi_3_unit_circle,
+    "geo-altitude-45-30-split-base": geo_altitude_45_30_split_base,
+    "geo-parallel-segment-cos-complement": geo_parallel_segment_cos_complement,
+    "geo-sin-x-squared-cos-x": geo_sin_x_squared_cos_x,
+    "geo-isosceles-base-cosine": geo_isosceles_base_cosine,
+    "geo-right-triangle-area-hypotenuse-angle": geo_right_triangle_area_hypotenuse_angle,
+    "geo-shadow-flagpole-hypotenuse": geo_shadow_flagpole_hypotenuse,
+    "geo-lighthouse-two-elevations": geo_lighthouse_two_elevations,
+    "geo-legs-differ-by-7-area": geo_legs_differ_by_7_area,
+    "geo-sum-angles-sine-negative-root3": geo_sum_angles_sine_negative_root3,
+    "geo-square-diagonal-2-more": geo_square_diagonal_2_more,
+    "geo-sin-twice-cos-value": geo_sin_twice_cos_value,
 }
 
 
