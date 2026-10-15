@@ -7211,6 +7211,295 @@ def adv_radical_exponents_two_variable_a_minus_b():
     return a_val - b_val
 
 
+# ----- Batch batch10-lf2 -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch10-lf2.ts (batch batch10-lf2).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch10_lf2.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers.
+"""
+
+import math
+
+
+import sympy as sp
+from sympy import Eq, Rational, symbols
+
+x, y, t, k, a, b, c, p, q, n = symbols("x y t k a b c p q n")
+
+
+# ----- helpers (prefix _b10lf_) -----
+
+
+def _b10lf_line(p1, p2, var=x):
+    """The linear expression in var through two points (exact)."""
+    (x1, y1), (x2, y2) = [(sp.nsimplify(u), sp.nsimplify(v)) for u, v in (p1, p2)]
+    m = (y2 - y1) / (x2 - x1)
+    return sp.expand(y1 + m * (var - x1))
+
+
+def _b10lf_slope(expr, var=x):
+    return sp.Poly(sp.expand(expr), var).coeff_monomial(var)
+
+
+def _b10lf_rhs(choice, var):
+    """'$V(t) = 18,000 - 2,160t$' -> right side as SymPy, in terms of x."""
+    rhs = choice.strip().strip("$").split("=", 1)[1]
+    expr = latex_to_sympy(rhs)
+    return sp.nsimplify(expr.subs(sp.Symbol(str(var)), x), rational=True)
+
+
+def _b10lf_rhs_matches(expected, var=x):
+    """MC check for 'F(v) = ...' choices: exactly the key's right side equals expected (in x)."""
+    expected = sp.expand(expected.subs(var, x)) if var != x else sp.expand(expected)
+
+    def check(choices, idx):
+        hits = [i for i, ch in enumerate(choices) if sp.expand(_b10lf_rhs(ch, var) - expected) == 0]
+        return hits == [idx], f"expected {expected}; matching choices {hits}"
+
+    return check
+
+
+def _b10lf_std_form_matches(line_expr):
+    """MC check for 'Ax + By = C' choices: exactly the key describes y = line_expr."""
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            lhs, rhs = ch.strip().strip("$").split("=")
+            eq = latex_to_sympy(lhs) - latex_to_sympy(rhs)
+            sol = sp.solve(eq, y)
+            if len(sol) == 1 and sp.expand(sol[0] - line_expr) == 0:
+                hits.append(i)
+        return hits == [idx], f"y = {line_expr}; matching choices {hits}"
+
+    return check
+
+
+def _b10lf_sentences(truth_by_phrase):
+    """Sentence choices: each choice must contain exactly one known phrase; the key's
+    claim is true and every distractor's claim is false (claims computed below)."""
+
+    def check(choices, idx):
+        verdicts = []
+        for ch in choices:
+            found = [truth for phrase, truth in truth_by_phrase.items() if phrase in ch]
+            if len(found) != 1:
+                return False, f"choice {ch!r} matched {len(found)} phrases"
+            verdicts.append(bool(found[0]))
+        true_idx = [i for i, v in enumerate(verdicts) if v]
+        return true_idx == [idx], f"true claims at {true_idx}"
+
+    return check
+
+
+# ----- item checks -----
+
+
+def alg_lf_uneven_table_slope():
+    pts = [(-2, 13), (1, 4), (7, -14)]
+    line = _b10lf_line(pts[0], pts[2])
+    assert all(line.subs(x, px) == py for px, py in pts), "table is not linear"
+    return _b10lf_slope(line)
+
+
+def alg_lf_increase_between_inputs():
+    f = 4 * x - 13
+    return f.subs(x, 5) - f.subs(x, 2)
+
+
+def alg_lf_table_scaled_shifted_value():
+    pts = [(1, 10), (4, -2), (9, -22)]
+    f = _b10lf_line(pts[0], pts[2])
+    assert all(f.subs(x, px) == py for px, py in pts)
+    g = 3 * f.subs(x, x - 1)
+    return g.subs(x, 5)
+
+
+def alg_lf_hiking_club_year_input():
+    M = 35 * t + 1450
+    return M.subs(t, 2018 - 2010)
+
+
+def alg_lf_fraction_rule_input_spr():
+    sol = sp.solve(Eq((3 * x - 8) / 2, 14), x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_decimal_rate_zero_input():
+    sol = sp.solve(Eq(12 - Rational(2, 5) * x, 0), x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_table_missing_output_k():
+    g = _b10lf_line((-3, 11), (6, -16))
+    return g.subs(x, 1)
+
+
+def alg_lf_scaled_shifted_rule():
+    f = 2 * x - 5
+    g = 3 * f.subs(x, x - 1)
+    return _b10lf_rhs_matches(g)
+
+
+def alg_lf_k_coefficient_and_term():
+    f = k * x + 2 * k
+    ks = sp.solve(Eq(f.subs(x, 3), 20), k)
+    assert len(ks) == 1
+    return f.subs({k: ks[0], x: 7})
+
+
+def alg_lf_oven_percent_depreciation():
+    price = 18000
+    V = price - Rational(12, 100) * price * t
+    return _b10lf_rhs_matches(V, var=t)
+
+
+def alg_lf_table_standard_form_match():
+    pts = [(-2, -1), (2, 5), (8, 14)]
+    h = _b10lf_line(pts[0], pts[2])
+    assert all(h.subs(x, px) == py for px, py in pts)
+    return _b10lf_std_form_matches(h)
+
+
+def alg_lf_charging_stations_since_2010():
+    N = _b10lf_line((2012 - 2010, 40), (2020 - 2010, 112), var=t)
+    return _b10lf_rhs_matches(N, var=t)
+
+
+def alg_lf_compare_increase_interval():
+    f = Rational(5, 2) * x - 4
+    g = _b10lf_line((-1, 3), (5, 21))
+    inc = lambda h: h.subs(x, 8) - h.subs(x, 0)  # noqa: E731
+    return inc(g) - inc(f)
+
+
+def alg_lf_tote_bags_budget_spr():
+    C = Rational(11, 4) * x + 18
+    bound = sp.solve(Eq(C, 100), x)[0]
+    best = math.floor(bound)
+    assert C.subs(x, best) <= 100 < C.subs(x, best + 1)
+    return sp.Integer(best)
+
+
+def alg_lf_calf_weight_shifted_input():
+    W = Rational(12, 5) * (t - 5) + 86
+    rate = sp.diff(W, t)
+    return _b10lf_sentences({
+        "at birth": W.subs(t, 0) == 86,
+        "86 kilograms each week": rate == 86,
+        "86 kilograms 5 weeks after birth": W.subs(t, 5) == 86,
+        "in its first 5 weeks": W.subs(t, 5) - W.subs(t, 0) == 86,
+    })
+
+
+def alg_lf_transit_card_x_intercept():
+    B = _b10lf_line((32, 0), (33, Rational(-9, 4)))  # slope -2.25 through (32, 0)
+    rate = -_b10lf_slope(B)
+    return _b10lf_sentences({
+        "Each ride costs 32.00": rate == 32,
+        "starting balance is 32.00": B.subs(x, 0) == 32,
+        "balance is 2.25": B.subs(x, 32) == Rational(9, 4),
+        "balance is 0 dollars": B.subs(x, 32) == 0,
+    })
+
+
+def alg_lf_decrease_over_interval_spr():
+    f = _b10lf_line((-3, 7), (9, -2))
+    return f.subs(x, 0) - f.subs(x, 20)
+
+
+def alg_lf_constants_in_outputs_spr():
+    f = a * x + b
+    sol = sp.solve([Eq(f.subs(x, 1), 2 * a + 1), Eq(f.subs(x, 3), 21)], [a, b], dict=True)
+    assert len(sol) == 1
+    return f.subs(sol[0]).subs(x, 5)
+
+
+def alg_lf_two_machines_equal_value():
+    A = 24000 - Rational(10, 100) * 24000 * t
+    B = 15000 - 1200 * t
+    sol = sp.solve(Eq(A, B), t)
+    assert len(sol) == 1 and A.subs(t, sol[0]) > 0
+    return sol[0]
+
+
+def alg_lf_seabird_shifted_base_year():
+    P = Rational(18, 5) * t + 210
+    Q = P.subs(t, x + (2015 - 2010))
+    return _b10lf_rhs_matches(Q)
+
+
+def alg_lf_shift_scale_from_two_values():
+    f = _b10lf_line((2, 5), (6, -3))
+    g = 3 * f.subs(x, x - 1)
+    return g.subs(x, 0)
+
+
+def alg_lf_two_intervals_intersection_spr():
+    f = _b10lf_line((-2, 4), (6, 24))
+    g = _b10lf_line((-2, 40), (6, 0))
+    sol = sp.solve(Eq(f, g), x)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_shirts_profit_least_number():
+    C = Rational(25, 2) * x + 450
+    profit = 20 * x - C
+    bound = sp.solve(Eq(profit, 200), x)[0]
+    least = math.ceil(bound)
+    assert profit.subs(x, least) >= 200 > profit.subs(x, least - 1)
+    return sp.Integer(least)
+
+
+def alg_lf_point_slope_equivalent():
+    f = Rational(-3, 2) * (x + 4) + 10  # rate -3 per +2 in x, through (-4, 10)
+    return _b10lf_rhs_matches(f)
+
+
+def alg_lf_swapped_points_constant_c():
+    m = sp.Symbol("m")
+    f = m * x + 7  # f(0) = 7
+    sols = sp.solve([Eq(f.subs(x, 2), c), Eq(f.subs(x, c), 2)], [m, c], dict=True)
+    vals = {s[c] for s in sols if s[c] != 2}
+    assert len(vals) == 1, vals
+    return vals.pop()
+
+
+def alg_lf_output_difference_input_gap():
+    f = 5 - Rational(4, 5) * x
+    d = sp.Symbol("d")
+    diff = sp.expand(f.subs(x, p) - f.subs(x, q))
+    sol = sp.solve(Eq(diff.subs(p, q + d), 6), d)
+    assert len(sol) == 1
+    return sol[0]
+
+
+def alg_lf_table_two_unknown_outputs():
+    m = sp.Symbol("m")
+    r = 8 + m * (x + 1)  # passes through (-1, 8)
+    av, bv = r.subs(x, -6), r.subs(x, 9)
+    ms = sp.solve(Eq(bv - av, 30), m)
+    assert len(ms) == 1
+    return av.subs(m, ms[0])
+
+
+def alg_lf_composed_integer_count():
+    f = lambda u: 4 * u + 9  # noqa: E731
+    g = sp.expand(f(2 * x - 3))
+    count = sum(1 for nn in range(1, 1000) if g.subs(x, nn) < 100)
+    return sp.Integer(count)
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -7979,6 +8268,35 @@ CHECKS = {
     "adv-rationalize-conjugate-a-plus-b": adv_rationalize_conjugate_a_plus_b,
     "adv-quartic-product-identity-ab": adv_quartic_product_identity_ab,
     "adv-radical-exponents-two-variable-a-minus-b": adv_radical_exponents_two_variable_a_minus_b,
+    # batch batch10-lf2
+    "alg-lf-uneven-table-slope": alg_lf_uneven_table_slope,
+    "alg-lf-increase-between-inputs": alg_lf_increase_between_inputs,
+    "alg-lf-table-scaled-shifted-value": alg_lf_table_scaled_shifted_value,
+    "alg-lf-hiking-club-year-input": alg_lf_hiking_club_year_input,
+    "alg-lf-fraction-rule-input-spr": alg_lf_fraction_rule_input_spr,
+    "alg-lf-decimal-rate-zero-input": alg_lf_decimal_rate_zero_input,
+    "alg-lf-table-missing-output-k": alg_lf_table_missing_output_k,
+    "alg-lf-scaled-shifted-rule": alg_lf_scaled_shifted_rule,
+    "alg-lf-k-coefficient-and-term": alg_lf_k_coefficient_and_term,
+    "alg-lf-oven-percent-depreciation": alg_lf_oven_percent_depreciation,
+    "alg-lf-table-standard-form-match": alg_lf_table_standard_form_match,
+    "alg-lf-charging-stations-since-2010": alg_lf_charging_stations_since_2010,
+    "alg-lf-compare-increase-interval": alg_lf_compare_increase_interval,
+    "alg-lf-tote-bags-budget-spr": alg_lf_tote_bags_budget_spr,
+    "alg-lf-calf-weight-shifted-input": alg_lf_calf_weight_shifted_input,
+    "alg-lf-transit-card-x-intercept": alg_lf_transit_card_x_intercept,
+    "alg-lf-decrease-over-interval-spr": alg_lf_decrease_over_interval_spr,
+    "alg-lf-constants-in-outputs-spr": alg_lf_constants_in_outputs_spr,
+    "alg-lf-two-machines-equal-value": alg_lf_two_machines_equal_value,
+    "alg-lf-seabird-shifted-base-year": alg_lf_seabird_shifted_base_year,
+    "alg-lf-shift-scale-from-two-values": alg_lf_shift_scale_from_two_values,
+    "alg-lf-two-intervals-intersection-spr": alg_lf_two_intervals_intersection_spr,
+    "alg-lf-shirts-profit-least-number": alg_lf_shirts_profit_least_number,
+    "alg-lf-point-slope-equivalent": alg_lf_point_slope_equivalent,
+    "alg-lf-swapped-points-constant-c": alg_lf_swapped_points_constant_c,
+    "alg-lf-output-difference-input-gap": alg_lf_output_difference_input_gap,
+    "alg-lf-table-two-unknown-outputs": alg_lf_table_two_unknown_outputs,
+    "alg-lf-composed-integer-count": alg_lf_composed_integer_count,
 }
 
 
