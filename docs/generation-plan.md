@@ -1,4 +1,4 @@
-# Item generation plan: to 300, then 500
+# Item generation plan: to 1,000
 
 _2026-10-15, bank at 301 after batch 5 (first milestone reached). Storage decision: items live in `web/content/items.ts` and are exported to `data/items.jsonl` for the AI side (Sonnet tutor, retrieval, evals). Firebase is deferred._
 
@@ -60,3 +60,38 @@ Nothing reaches `data/items.jsonl` without steps 3 and 4 passing.
 ## Order of batches
 
 Fill the largest gaps first: Algebra (four batches), then Advanced Math (three), then PSDA (two), then Geometry/Trig (two). Each batch's brief comes from the table above minus the current count.
+
+## Phase 2: 301 → 1,000 (started 2026-10-15)
+
+Same guidelines and ratios, scaled to a 1,000-item bank. Per-skill targets are the 300-item targets × 10/3.
+
+| Skill | Target (1,000) | At 301 | To write | Batches |
+|---|---|---|---|---|
+| Linear equations in one variable | 60 | 18 | 42 | 2 × 21 |
+| Linear functions | 80 | 24 | 56 | 2 × 28 |
+| Linear equations in two variables | 60 | 18 | 42 | 2 × 21 |
+| Systems of two linear equations in two variables | 80 | 23 | 57 | 29 + 28 |
+| Linear inequalities in one or two variables | 70 | 22 | 48 | 2 × 24 |
+| Equivalent expressions | 100 | 30 | 70 | 24 + 23 + 23 |
+| Nonlinear equations in one variable and systems of equations in two variables | 133 | 40 | 93 | 3 × 31 |
+| Nonlinear functions | 117 | 35 | 82 | 28 + 27 + 27 |
+| Ratios, rates, proportional relationships, and units | 30 | 10 | 20 | psda-A |
+| Percentages | 23 | 7 | 16 | psda-A 6, psda-B 10 |
+| One-variable data: distributions and measures of center and spread | 23 | 8 | 15 | psda-B |
+| Two-variable data: models and scatterplots | 23 | 7 | 16 | psda-C |
+| Probability and conditional probability | 20 | 6 | 14 | psda-C 10, psda-D 4 |
+| Inference from sample statistics and margin of error | 17 | 4 | 13 | psda-D |
+| Evaluating statistical claims: observational studies and experiments | 14 | 4 | 10 | psda-D |
+| Area and volume | 40 | 10 | 30 | geo-A |
+| Lines, angles, and triangles | 40 | 13 | 27 | geo-B |
+| Right triangles and trigonometry | 40 | 12 | 28 | geo-C |
+| Circles | 30 | 10 | 20 | geo-D |
+| **Total** | **1,000** | **301** | **699** | **27 batches** |
+
+Per batch: difficulty ≈ 20/40/40, MC:SPR ≈ 3:1, route ≈ one third each (geometry and PSDA lean hand-primary), context ≈ 30% (PSDA ≈ 80%).
+
+Scale changes from phase 1:
+- Batches are per skill (not per domain), so each agent goes deep on one skill's testing points.
+- Agents read `python3 web/scripts/bank_index.py --skill "<name>"` (one line per existing item) instead of the whole bank, to avoid setups already used.
+- Two batches of the same skill never run in the same wave; the second one sees the first's items in the index.
+- Waves of 5 agents, merged and committed as each finishes (`merge_batch.py`, verify, lint, export).
