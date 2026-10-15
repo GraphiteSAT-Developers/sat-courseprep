@@ -5536,6 +5536,252 @@ def geo_sin_twice_cos_value():
     return _b8rt_pick(sp.simplify(cos(A)))
 
 
+# ----- Batch batch8-psdaC -----
+import math
+
+
+import sympy as sp
+from sympy import Rational, Eq
+
+_b8pc_x = sp.symbols("x")
+X = _b8pc_x
+
+
+def _b8pc_lsq(pts):
+    """Exact least-squares slope and intercept for a list of (x, y) pairs."""
+    n = len(pts)
+    xs = [sp.nsimplify(p[0]) for p in pts]
+    ys = [sp.nsimplify(p[1]) for p in pts]
+    xb, yb = sum(xs) / n, sum(ys) / n
+    m = sum((xi - xb) * (yi - yb) for xi, yi in zip(xs, ys)) / sum((xi - xb) ** 2 for xi in xs)
+    return m, yb - m * xb
+
+
+def _b8pc_rhs(choice):
+    return sp.nsimplify(latex_to_sympy_ext(choice.strip().strip("$").split("=", 1)[1]), rational=True)
+
+
+def _b8pc_pick_equation(expected):
+    """Callable: exactly the key choice's right-hand side equals the expected expression."""
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if sp.simplify(_b8pc_rhs(ch) - expected) == 0]
+        return matches == [idx], f"expected y = {expected}; matching choices {matches}"
+    return check
+
+
+def _b8pc_pick_text(predicate, detail):
+    """Callable: exactly the key choice satisfies the predicate on its text."""
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if predicate(ch)]
+        return matches == [idx], f"{detail}; matching choices {matches}"
+    return check
+
+
+# ---------------------------------------------------------------- Two-variable data
+
+
+def psda_shipping_weight_rate_interpretation():
+    # y = 2.4x + 15: the coefficient of x is the change in estimated cost per kilogram.
+    model = Rational(24, 10) * X + 15
+    rate = sp.diff(model, X)
+    assert rate == Rational(12, 5)
+    return _b8pc_pick_text(
+        lambda ch: ch.startswith("For each additional kilogram") and "increases by 2.40 dollars" in ch,
+        f"rate of change {rate} dollars per kilogram",
+    )
+
+
+def psda_bicycle_resale_intercept():
+    model = -35 * X + 420
+    at_zero = model.subs(X, 0)
+    assert at_zero == 420
+    return _b8pc_pick_text(
+        lambda ch: "age 0 years" in ch and "is 420 dollars" in ch and "estimated" in ch,
+        f"model value at x = 0 is {at_zero}",
+    )
+
+
+def psda_bamboo_shoot_prediction():
+    return (Rational(9, 2) * X + 12).subs(X, 10)
+
+
+def psda_iced_drinks_residual():
+    predicted = (3 * X - 95).subs(X, 80)
+    return 138 - predicted
+
+
+def psda_candle_height_regression():
+    pts = [(1, "18.6"), (2, "16.9"), (3, "15.5"), (4, "13.4"), (5, "12.1")]
+    m, b = _b8pc_lsq(pts)
+    return _b8pc_pick_equation(m * X + b)
+
+
+def psda_spring_length_regression_prediction():
+    m, b = _b8pc_lsq([(10, 52), (20, 57), (30, 61), (40, 66), (50, 69)])
+    value = m * 60 + b
+    # Exact value already has one decimal place, so "to the nearest tenth" is the value itself.
+    assert (value * 10).is_integer
+    return value
+
+
+def psda_points_constant_ratio_relationship():
+    pts = [(0, 400), (1, 300), (2, 225), (3, Rational(675, 4))]
+    ratios = {Rational(pts[i + 1][1]) / pts[i][1] for i in range(3)}
+    diffs = {Rational(pts[i + 1][1]) - pts[i][1] for i in range(3)}
+    assert len(ratios) == 1 and len(diffs) > 1
+    pct = (1 - ratios.pop()) * 100  # percent decrease per step
+    return _b8pc_pick_text(
+        lambda ch: ch.startswith("Exponential") and f"decreases by {pct}%" in ch,
+        f"constant ratio, decrease {pct}% per step",
+    )
+
+
+def psda_ticket_price_revenue_quadratic():
+    a, b, c = sp.symbols("a b c")
+    pts = [(10, 1500), (15, 1875), (20, 2000), (25, 1875), (30, 1500)]
+    q = a * X**2 + b * X + c
+    sol = sp.solve([Eq(q.subs(X, px), py) for px, py in pts[:3]], [a, b, c], dict=True)[0]
+    fitted = q.subs(sol)
+    assert all(fitted.subs(X, px) == py for px, py in pts)  # quadratic fits all five exactly
+    return fitted.subs(X, 35)
+
+
+def psda_apartment_rent_association():
+    # Described: points close to a line (strong, linear), y decreases as x increases (negative).
+    return _b8pc_pick_text(
+        lambda ch: ch.strip() == "A strong negative linear association",
+        "strong, negative, linear",
+    )
+
+
+def psda_points_leveling_association():
+    ys = [20, 31, 37, 40, 41, Rational(83, 2)]
+    d = [ys[i + 1] - ys[i] for i in range(len(ys) - 1)]
+    assert all(v > 0 for v in d)  # increasing: positive
+    assert len(set(d)) > 1 and all(d[i] > d[i + 1] for i in range(len(d) - 1))  # not constant: nonlinear
+    return _b8pc_pick_text(
+        lambda ch: ch.strip() == "A positive nonlinear association",
+        f"first differences {d}: positive and shrinking",
+    )
+
+
+def psda_exhibit_visitors_models_compare():
+    f = 1200 + 150 * X
+    g = 1200 * Rational(11, 10) ** X
+    week = next(w for w in range(0, 100) if w > 0 and g.subs(X, w) > f.subs(X, w))
+    assert g.subs(X, week - 1) <= f.subs(X, week - 1)
+    return sp.Integer(week)
+
+
+def psda_tree_species_equal_height():
+    return sp.solve(Eq(Rational(1, 2) * X + Rational(12, 5), Rational(7, 20) * X + Rational(21, 5)), X)[0]
+
+
+def psda_printer_value_decay_interpretation():
+    base = Rational(85, 100)
+    pct = (1 - base) * 100
+    return _b8pc_pick_text(
+        lambda ch: f"decreases by {pct}% each year" in ch,
+        f"decay factor {base}: {pct}% decrease each year",
+    )
+
+
+def psda_points_above_model_line():
+    pts = [(1, 2), (2, 3), (3, 7), (4, 11), (5, 14), (6, 15)]
+    return sp.Integer(sum(1 for px, py in pts if py > 3 * px - 2))
+
+
+def psda_study_hours_intercept_from_means():
+    pts = [(1, 58), (2, 66), (4, 75), (5, 81), (8, 90)]
+    m, b = _b8pc_lsq(pts)
+    assert m == Rational(9, 2)  # the slope stated in the stem
+    return b
+
+
+def psda_forum_members_exponential_fit():
+    pts = [(0, 118), (1, 152), (2, 186), (3, 236), (4, 291)]
+    # Log-linear least squares (what Desmos log mode fits), rounded as in the choices.
+    lx = [p[0] for p in pts]
+    ly = [math.log(p[1]) for p in pts]
+    xb, yb = sum(lx) / 5, sum(ly) / 5
+    m = sum((u - xb) * (v - yb) for u, v in zip(lx, ly)) / sum((u - xb) ** 2 for u in lx)
+    a_fit, b_fit = round(math.exp(yb - m * xb), 1), round(math.exp(m), 2)
+
+    def check(choices, idx):
+        ssr = []
+        for ch in choices:
+            rhs = _b8pc_rhs(ch)
+            ssr.append(float(sum((rhs.subs(X, px) - py) ** 2 for px, py in pts)))
+        expected = sp.nsimplify(a_fit, rational=True) * sp.nsimplify(b_fit, rational=True) ** X
+        matches = [i for i, ch in enumerate(choices) if sp.simplify(_b8pc_rhs(ch) - expected) == 0]
+        best = min(range(4), key=lambda i: ssr[i])
+        ok = matches == [idx] and best == idx
+        return ok, f"log fit y = {a_fit}({b_fit})^x; matches {matches}; SSR {[round(v, 1) for v in ssr]}"
+
+    return check
+
+
+# ---------------------------------------------------------------- Probability
+
+
+def psda_bulb_shipment_expected_defective():
+    return Rational(4, 100) * 1250
+
+
+def psda_fair_food_ride_joint():
+    both, food_only, ride_only, neither = 120, 70, 50, 60
+    total = both + food_only + ride_only + neither
+    assert total == 300
+    return Rational(both, total)
+
+
+def psda_bean_plants_soil_given_flowered():
+    a_yes, a_no, b_yes, b_no = 84, 36, 78, 52
+    assert a_yes + a_no + b_yes + b_no == 250
+    return Rational(b_yes, a_yes + b_yes)
+
+
+def psda_game_club_neither():
+    total, chess, checkers, both = 80, 30, 25, 10
+    neither = total - (chess + checkers - both)
+    return Rational(neither, total)
+
+
+def psda_display_bin_red_apples():
+    r = sp.symbols("r")
+    return sp.solve(Eq(Rational(18) / (18 + r + 6), Rational(3, 8)), r)[0]
+
+
+def psda_spanish_art_given_art():
+    total = 400
+    spanish = total * Rational(60, 100)
+    spanish_art = spanish * Rational(25, 100)
+    other_art = (total - spanish) * Rational(40, 100)
+    return spanish_art / (spanish_art + other_art)
+
+
+def psda_tiles_with_replacement_both_blue():
+    return Rational(12, 30) ** 2
+
+
+def psda_inspection_truck_given_failed():
+    car_pass, car_fail, truck_pass, truck_fail = 198, 42, 84, 36
+    assert car_pass + car_fail + truck_pass + truck_fail == 360
+    return Rational(truck_fail, car_fail + truck_fail)
+
+
+def psda_household_pets_at_least_two():
+    freq = {0: 14, 1: 18, 2: 11, 3: 7}
+    assert sum(freq.values()) == 50
+    return Rational(sum(v for k_, v in freq.items() if k_ >= 2), 50)
+
+
+def psda_two_lines_defective_source():
+    a_def = 3000 * Rational(4, 100)
+    b_def = 5000 * Rational(15, 1000)
+    return a_def / (a_def + b_def)
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -6131,6 +6377,33 @@ CHECKS = {
     "geo-sum-angles-sine-negative-root3": geo_sum_angles_sine_negative_root3,
     "geo-square-diagonal-2-more": geo_square_diagonal_2_more,
     "geo-sin-twice-cos-value": geo_sin_twice_cos_value,
+    # batch batch8-psdaC
+    "psda-shipping-weight-rate-interpretation": psda_shipping_weight_rate_interpretation,
+    "psda-bicycle-resale-intercept": psda_bicycle_resale_intercept,
+    "psda-bamboo-shoot-prediction": psda_bamboo_shoot_prediction,
+    "psda-iced-drinks-residual": psda_iced_drinks_residual,
+    "psda-candle-height-regression": psda_candle_height_regression,
+    "psda-spring-length-regression-prediction": psda_spring_length_regression_prediction,
+    "psda-points-constant-ratio-relationship": psda_points_constant_ratio_relationship,
+    "psda-ticket-price-revenue-quadratic": psda_ticket_price_revenue_quadratic,
+    "psda-apartment-rent-association": psda_apartment_rent_association,
+    "psda-points-leveling-association": psda_points_leveling_association,
+    "psda-exhibit-visitors-models-compare": psda_exhibit_visitors_models_compare,
+    "psda-tree-species-equal-height": psda_tree_species_equal_height,
+    "psda-printer-value-decay-interpretation": psda_printer_value_decay_interpretation,
+    "psda-points-above-model-line": psda_points_above_model_line,
+    "psda-study-hours-intercept-from-means": psda_study_hours_intercept_from_means,
+    "psda-forum-members-exponential-fit": psda_forum_members_exponential_fit,
+    "psda-bulb-shipment-expected-defective": psda_bulb_shipment_expected_defective,
+    "psda-fair-food-ride-joint": psda_fair_food_ride_joint,
+    "psda-bean-plants-soil-given-flowered": psda_bean_plants_soil_given_flowered,
+    "psda-game-club-neither": psda_game_club_neither,
+    "psda-display-bin-red-apples": psda_display_bin_red_apples,
+    "psda-spanish-art-given-art": psda_spanish_art_given_art,
+    "psda-tiles-with-replacement-both-blue": psda_tiles_with_replacement_both_blue,
+    "psda-inspection-truck-given-failed": psda_inspection_truck_given_failed,
+    "psda-household-pets-at-least-two": psda_household_pets_at_least_two,
+    "psda-two-lines-defective-source": psda_two_lines_defective_source,
 }
 
 
