@@ -3604,6 +3604,218 @@ def alg_lf_vertical_shift_through_point():
     return sol[0]
 
 
+# ----- Batch batch6-ee1 -----
+#!/usr/bin/env python3
+"""SymPy checks for batch batch6-ee1 (web/content/batches/batch6-ee1.ts).
+
+Run from the repo root, against a temp items.ts that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch6_ee1.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers. Every key is derived from the stem's
+givens, not restated.
+"""
+
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, sqrt, Eq
+
+
+x, y, a, b, c, d, h, k = symbols("x y a b c d h k")
+
+
+def _b6ee_expr_check(expected, samples, label=""):
+    """MC with expression choices: exactly the key equals `expected` at every sample point."""
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            try:
+                expr = latex_to_sympy_ext(ch)
+            except Exception as e:  # noqa: BLE001
+                return False, f"could not parse choice {i} {ch!r}: {e}"
+            if all(abs(complex((expr - expected).subs(s).evalf())) < 1e-9 for s in samples):
+                matches.append(i)
+        return matches == [idx], f"{label or expected}; matching choices {matches}, key index {idx}"
+
+    return check
+
+
+def _b6ee_coeffs(identity, unknowns):
+    """Solve a polynomial identity in x (expression == 0 for all x) for the unknown constants."""
+    eqs = sp.Poly(sp.expand(identity), x).all_coeffs()
+    return sp.solve(eqs, unknowns, dict=True)
+
+
+_B6EE_X = [{x: v} for v in (Rational(1, 3), Rational(3, 2), Rational(7, 2), 5, 7, 11)]
+_B6EE_XPOS = [{x: v} for v in (Rational(1, 4), Rational(2, 3), 2, 5, 9)]
+_B6EE_XY = [{x: xv, y: yv} for xv, yv in ((1, 2), (3, Rational(-1, 2)), (Rational(2, 5), 4), (-3, 7))]
+
+
+# ---------------------------------------------------------------- easy
+
+
+def adv_gcf_monomial_three_terms():
+    expr = 15 * x**4 - 10 * x**3 + 5 * x**2
+    g = sp.gcd_terms(expr)
+    assert sp.expand(g - expr) == 0
+    return _b6ee_expr_check(expr, _B6EE_X, label="15x^4 - 10x^3 + 5x^2")
+
+
+def adv_poly_add_two_variable():
+    expr = sp.expand((4 * x**2 - 3 * x * y + y**2) + (-(x**2) + 5 * x * y - 6 * y**2))
+    return _b6ee_expr_check(expr, _B6EE_XY, label=str(expr))
+
+
+def adv_power_of_monomial():
+    expr = sp.expand((2 * x**3) ** 4)
+    return _b6ee_expr_check(expr, _B6EE_X, label=str(expr))
+
+
+def adv_rational_exponent_to_radical():
+    xp = Symbol("x", positive=True)
+    assert sp.simplify(xp ** Rational(2, 5) - sp.root(xp**2, 5)) == 0
+    return _b6ee_expr_check(x ** Rational(2, 5), _B6EE_XPOS, label="x^(2/5) for x > 0")
+
+
+def adv_mural_area_product():
+    expr = sp.expand((2 * x + 3) * (x + 5))
+    return _b6ee_expr_check(expr, _B6EE_X, label=f"area {expr}")
+
+
+# ---------------------------------------------------------------- medium
+
+
+def adv_gcf_then_difference_squares():
+    expr = 3 * x**3 - 48 * x
+    assert sp.factor(expr) == 3 * x * (x - 4) * (x + 4)
+    return _b6ee_expr_check(expr, _B6EE_X, label="3x^3 - 48x")
+
+
+def adv_trinomial_leading_ten():
+    expr = 10 * x**2 - 11 * x - 6
+    assert sp.factor(expr) == (5 * x + 2) * (2 * x - 3)
+    return _b6ee_expr_check(expr, _B6EE_X, label="10x^2 - 11x - 6")
+
+
+def adv_grouping_cubic_four_terms():
+    expr = x**3 - 5 * x**2 - 4 * x + 20
+    assert sp.factor(expr) == (x - 5) * (x - 2) * (x + 2)
+    return _b6ee_expr_check(expr, _B6EE_X, label="x^3 - 5x^2 - 4x + 20")
+
+
+def adv_complete_square_leading_two_k():
+    sols = _b6ee_coeffs(2 * x**2 + 6 * x + 5 - (2 * (x + h) ** 2 + k), [h, k])
+    assert len(sols) == 1
+    return sols[0][k]
+
+
+def adv_rational_add_unlike_denominators():
+    expr = sp.together(3 / x + 2 / (x + 4))
+    return _b6ee_expr_check(expr, _B6EE_X, label=f"sum {expr}")
+
+
+def adv_rational_multiply_cancel_monomial():
+    expr = sp.cancel((x**2 - 25) / (3 * x) * (6 * x**2) / (x + 5))
+    assert sp.expand(expr - 2 * x * (x - 5)) == 0
+    return _b6ee_expr_check(expr, _B6EE_X, label=f"product {expr}")
+
+
+def adv_negative_exponent_quotient():
+    expr = sp.simplify((3 * x**-2 * y**3) ** 2 / (x**-5 * y))
+    assert sp.simplify(expr - 9 * x * y**5) == 0
+    return _b6ee_expr_check(expr, _B6EE_XY, label=str(expr))
+
+
+def adv_revenue_vertex_form():
+    expr = -5 * x**2 + 150 * x
+    vx = sp.solve(sp.diff(expr, x), x)[0]
+    assert (vx, expr.subs(x, vx)) == (15, 1125)
+    return _b6ee_expr_check(expr, _B6EE_X, label="-5x^2 + 150x")
+
+
+def adv_cubic_product_coefficient_c():
+    sols = _b6ee_coeffs((3 * x - 4) * (x**2 + 2 * x - 5) - (a * x**3 + b * x**2 + c * x + d), [a, b, c, d])
+    return sols[0][c]
+
+
+def adv_banner_perimeter_factor():
+    length, rem = sp.div(6 * x**2 + 23 * x + 20, 2 * x + 5, x)
+    assert rem == 0
+    perim = sp.expand(2 * length + 2 * (2 * x + 5))
+    return _b6ee_expr_check(perim, _B6EE_X, label=f"length {length}, perimeter {perim}")
+
+
+# ---------------------------------------------------------------- hard
+
+
+def adv_tilde_recentered_b():
+    sols = _b6ee_coeffs(a * (x + 2) ** 2 + b * (x + 2) + c - (3 * x**2 + 5 * x - 1), [a, b, c])
+    assert len(sols) == 1
+    return sols[0][b]
+
+
+def adv_rational_exponent_coefficient_quotient():
+    xp = Symbol("x", positive=True)
+    expr = sp.simplify((8 * xp**3) ** Rational(2, 3) / sqrt(16 * xp))
+    assert sp.simplify(expr - xp ** Rational(3, 2)) == 0
+    return _b6ee_expr_check(expr.subs(xp, x), _B6EE_XPOS, label=f"simplifies to {expr}")
+
+
+def adv_complete_square_unknown_k():
+    sols = _b6ee_coeffs(x**2 - 6 * k * x + 50 - ((x - h) ** 2 + 14), [h, k])
+    pos = [s for s in sols if s[h] > 0 and s[k] > 0]
+    assert len(sols) == 2 and len(pos) == 1
+    return pos[0][k]
+
+
+def adv_rational_binomial_ratio_difference():
+    expr = sp.cancel((x + 1) / (x - 1) - (x - 1) / (x + 1))
+    return _b6ee_expr_check(expr, _B6EE_X, label=f"difference {expr}")
+
+
+def adv_quartic_quadratic_form_a():
+    sols = _b6ee_coeffs(x**4 - 13 * x**2 + 36 - (x - a) * (x + a) * (x - b) * (x + b), [a, b])
+    ok = [s for s in sols if s[a].is_real and s[b].is_real and s[a] > s[b] > 0]
+    assert len(ok) == 1
+    return ok[0][a]
+
+
+def adv_patio_gravel_border_k():
+    sols = _b6ee_coeffs((x + 2 * k) ** 2 - x**2 - (20 * x + 100), [k])
+    pos = [s[k] for s in sols if s[k] > 0]
+    assert len(pos) == 1
+    return pos[0]
+
+
+def adv_rational_product_four_factors():
+    expr = sp.cancel((2 * x**2 + 5 * x - 3) / (x**2 - 9) * (x - 3) / (4 * x**2 - 1))
+    assert sp.simplify(expr - 1 / (2 * x + 1)) == 0
+    samples = [{x: v} for v in (Rational(7, 2), 4, 5, 9, 20)]  # stem restricts x > 3
+    return _b6ee_expr_check(expr, samples, label=f"product {expr}")
+
+
+def adv_exponent_difference_squares_a_minus_b():
+    sols = sp.solve([Eq(a**2 - b**2, 32), Eq(a + b, 4)], [a, b], dict=True)
+    assert len(sols) == 1
+    xs = Symbol("xs", positive=True)
+    s0 = sols[0]
+    assert sp.simplify(xs ** (s0[a] ** 2) / xs ** (s0[b] ** 2) - xs**32) == 0
+    return s0[a] - s0[b]
+
+
+def adv_radical_perfect_square_negative_x():
+    expr = sqrt(x**2 + 6 * x + 9)
+    samples = [{x: v} for v in (-4, Rational(-9, 2), -5, Rational(-15, 2), -10)]  # stem restricts x < -3
+    for s in samples:
+        assert expr.subs(s) == -(s[x]) - 3
+    return _b6ee_expr_check(expr, samples, label="sqrt((x+3)^2) = -x - 3 for x < -3")
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -3973,6 +4185,31 @@ CHECKS = {
     "alg-lf-scaled-function-from-slope": alg_lf_scaled_function_from_slope,
     "alg-lf-output-equals-input": alg_lf_output_equals_input,
     "alg-lf-vertical-shift-through-point": alg_lf_vertical_shift_through_point,
+    # batch batch6-ee1
+    "adv-gcf-monomial-three-terms": adv_gcf_monomial_three_terms,
+    "adv-poly-add-two-variable": adv_poly_add_two_variable,
+    "adv-power-of-monomial": adv_power_of_monomial,
+    "adv-rational-exponent-to-radical": adv_rational_exponent_to_radical,
+    "adv-mural-area-product": adv_mural_area_product,
+    "adv-gcf-then-difference-squares": adv_gcf_then_difference_squares,
+    "adv-trinomial-leading-ten": adv_trinomial_leading_ten,
+    "adv-grouping-cubic-four-terms": adv_grouping_cubic_four_terms,
+    "adv-complete-square-leading-two-k": adv_complete_square_leading_two_k,
+    "adv-rational-add-unlike-denominators": adv_rational_add_unlike_denominators,
+    "adv-rational-multiply-cancel-monomial": adv_rational_multiply_cancel_monomial,
+    "adv-negative-exponent-quotient": adv_negative_exponent_quotient,
+    "adv-revenue-vertex-form": adv_revenue_vertex_form,
+    "adv-cubic-product-coefficient-c": adv_cubic_product_coefficient_c,
+    "adv-banner-perimeter-factor": adv_banner_perimeter_factor,
+    "adv-tilde-recentered-b": adv_tilde_recentered_b,
+    "adv-rational-exponent-coefficient-quotient": adv_rational_exponent_coefficient_quotient,
+    "adv-complete-square-unknown-k": adv_complete_square_unknown_k,
+    "adv-rational-binomial-ratio-difference": adv_rational_binomial_ratio_difference,
+    "adv-quartic-quadratic-form-a": adv_quartic_quadratic_form_a,
+    "adv-patio-gravel-border-k": adv_patio_gravel_border_k,
+    "adv-rational-product-four-factors": adv_rational_product_four_factors,
+    "adv-exponent-difference-squares-a-minus-b": adv_exponent_difference_squares_a_minus_b,
+    "adv-radical-perfect-square-negative-x": adv_radical_perfect_square_negative_x,
 }
 
 
