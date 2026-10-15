@@ -4507,6 +4507,278 @@ def psda_rice_bags_added_at_mean():
     return _b7pb_sentence(f"The mean {mean}, and the standard deviation {sd}.")
 
 
+# ----- Batch batch7-ineq1 -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch7-ineq1.ts (batch batch7-ineq1).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch7_ineq1.py --only-extra
+
+Each function derives the answer from the stem's givens: a numeric result for
+numeric keys, or a callable (choices, answer_index) -> (ok, detail) for items
+whose choices are inequalities, points or sentences.
+"""
+
+import re
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, Eq
+
+x, y, k, a, b, c, p, s, r, n, t = symbols("x y k a b c p s r n t")
+m, f = symbols("m f")
+
+_B7IQ_OPS = {"\\le": sp.Le, "\\ge": sp.Ge, "<": sp.Lt, ">": sp.Gt}
+
+
+def _b7iq_rel(text: str):
+    """'$3 \\le x < 6$' -> And(3 <= x, x < 6); '$y \\ge \\frac{3}{2}x - 2$' -> relational."""
+    body = text.strip().strip("$")
+    parts = re.split(r"(\\le|\\ge|<|>)", body)
+    exprs = [latex_to_sympy(e) for e in parts[0::2]]
+    ops = parts[1::2]
+    rels = [_B7IQ_OPS[op](lhs, rhs) for op, lhs, rhs in zip(ops, exprs, exprs[1:])]
+    return sp.And(*rels)
+
+
+def _b7iq_point(text: str):
+    inner = text.strip().strip("$").strip().strip("()")
+    xs, ys = inner.split(",")
+    return sp.nsimplify(xs.strip()), sp.nsimplify(ys.strip())
+
+
+def _b7iq_same_set_1d(expected, var, grid):
+    """Choices whose relation agrees with expected at every grid value of var."""
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rel = _b7iq_rel(ch)
+            if all(bool(rel.subs(var, v)) == bool(expected.subs(var, v)) for v in grid):
+                matches.append(i)
+        return matches == [idx], f"expected {expected}; matching choices {matches}"
+
+    return check
+
+
+_B7IQ_GRID_1D = [Rational(i, 4) for i in range(-120, 121)]
+_B7IQ_GRID_2D = [(Rational(i, 2), Rational(j, 2)) for i in range(-24, 25) for j in range(-24, 25)]
+
+
+def _b7iq_count_ints(rel, var, lo=-200, hi=200):
+    return Integer(sum(1 for i in range(lo, hi + 1) if bool(rel.subs(var, i))))
+
+
+# ----- easy -----
+
+
+def alg_ineq_collect_terms_easy():
+    expected = sp.solve_univariate_inequality(sp.Lt(5 * x - 3, 2 * x + 9), x)
+    return _b7iq_same_set_1d(expected, x, _B7IQ_GRID_1D)
+
+
+def alg_ineq_which_value_solution():
+    rel = sp.Gt(6 * x + 1, 4 * x + 11)
+
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices) if bool(rel.subs(x, latex_to_sympy(ch)))]
+        return good == [idx], f"choices satisfying 6x + 1 > 4x + 11: {good}"
+
+    return check
+
+
+def alg_ineq_compound_middle_term():
+    expected = sp.And(sp.Le(7, 4 * x - 5), sp.Lt(4 * x - 5, 19))
+    return _b7iq_same_set_1d(expected, x, _B7IQ_GRID_1D)
+
+
+def alg_ineq_point_standard_form():
+    def check(choices, idx):
+        good = []
+        for i, ch in enumerate(choices):
+            px, py = _b7iq_point(ch)
+            if bool(sp.Ge(4 * px - 3 * py, 12)):
+                good.append(i)
+        return good == [idx], f"points satisfying 4x - 3y >= 12: {good}"
+
+    return check
+
+
+def alg_ineq_swimmer_weekly_distance():
+    done, per, goal = 1200, 400, 3500
+    expected = sp.Ge(done + per * p, goal)
+    return _b7iq_same_set_1d(expected, p, list(range(0, 21)) + [Rational(i, 8) for i in range(0, 80)])
+
+
+# ----- medium -----
+
+
+def alg_ineq_least_integer_fraction_flip():
+    sol = sp.solve_univariate_inequality(sp.Lt(5 - Rational(2, 3) * x, 1), x, relational=False)
+    return Integer(min(i for i in range(-100, 101) if sol.contains(i)))
+
+
+def alg_ineq_count_integers_chain():
+    rel = sp.And(sp.Le(3 * (x - 2), 5 * x + 4), sp.Lt(5 * x + 4, 2 * x + 34))
+    return _b7iq_count_ints(rel, x)
+
+
+def alg_ineq_count_listed_points_system():
+    pts = [(1, -5), (0, 3), (2, 2), (3, 2)]
+    return Integer(sum(1 for px, py in pts if py > 3 * px - 8 and px + 2 * py < 7))
+
+
+def alg_ineq_boundary_line_two_points():
+    (x1, y1), (x2, y2) = (0, -2), (4, 4)
+    slope = Rational(y2 - y1, x2 - x1)
+    expected = sp.Ge(y, slope * (x - x1) + y1)  # on or above the line
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            rel = _b7iq_rel(ch)
+            if all(bool(rel.subs({x: u, y: v})) == bool(expected.subs({x: u, y: v})) for u, v in _B7IQ_GRID_2D):
+                matches.append(i)
+        return matches == [idx], f"expected {expected}; matching choices {matches}"
+
+    return check
+
+
+def alg_ineq_fractions_equivalent():
+    expected = sp.solve_univariate_inequality(sp.Ge(x / 3 - 2, (x + 1) / 2), x)
+    return _b7iq_same_set_1d(expected, x, _B7IQ_GRID_1D)
+
+
+def alg_ineq_ferry_trucks():
+    space, car, truck, cars = 136, 2, 5, 30
+    sol = sp.solve_univariate_inequality(sp.Le(car * cars + truck * t, space), t, relational=False)
+    return Integer(max(i for i in range(0, 200) if sol.contains(i)))
+
+
+def alg_ineq_press_time_coefficient():
+    coef_b, coef_f, limit = Rational(2, 5), Rational(1, 4), 8
+    # 0.4 multiplies b (booklet batches) and the total is hours, so 0.4 is hours per booklet batch.
+
+    def check(choices, idx):
+        key = choices[idx]
+        ok = "booklets uses 0.4 hour" in key and coef_b == Rational("0.4")
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("flyers uses 0.4" in ch and coef_f != Rational("0.4"))
+            or ("0.4 batch of booklets per hour" in ch and 1 / coef_b != Rational("0.4"))
+            or ("at most 0.4 hour" in ch and limit != Rational("0.4")))]
+        return ok and len(wrong) == 3, f"coef of b = {coef_b} hours per batch; distractors contradicted {wrong}"
+
+    return check
+
+
+def alg_ineq_farm_stand_revenue_point():
+    def check(choices, idx):
+        good = []
+        for i, ch in enumerate(choices):
+            mv, bv = _b7iq_point(ch)
+            if 6 * mv + 14 * bv >= 1800:
+                good.append(i)
+        return good == [idx], f"pairs with 6m + 14b >= 1800: {good}"
+
+    return check
+
+
+def alg_ineq_gym_plans_months():
+    sol = sp.solve_univariate_inequality(sp.Lt(40 + 25 * t, 32 * t), t, relational=False)
+    return Integer(min(i for i in range(0, 200) if sol.contains(i)))
+
+
+def alg_ineq_rain_barrel_solution():
+    sol = sp.solve_univariate_inequality(sp.Ge(480 - 15 * t, 120), t, relational=False)
+    bound = sol.sup  # solution is t <= bound (t >= 0 in context)
+
+    def check(choices, idx):
+        nums = [Integer(re.search(r"first (\d+) minutes", ch).group(1)) for ch in choices]
+        good = [i for i, v in enumerate(nums) if v == bound]
+        return good == [idx], f"t <= {bound}; choice minutes {nums}"
+
+    return check
+
+
+# ----- hard -----
+
+
+def alg_ineq_workshop_tables():
+    best = None
+    for tv in range(0, 50):
+        for cv in range(0, 50):
+            if 3 * cv + 7 * tv <= 120 and cv >= 2 * tv:
+                best = tv if best is None else max(best, tv)
+    return Integer(best)
+
+
+def alg_ineq_candy_temperature_count():
+    F = Symbol("F")
+    celsius = Rational(5, 9) * (F - 32)
+    rel = sp.And(sp.Le(112, celsius), sp.Le(celsius, 116))
+    return Integer(sum(1 for i in range(0, 400) if bool(rel.subs(F, i))))
+
+
+def alg_ineq_every_x_solution_k():
+    # every x is a solution  <=>  the x-terms cancel and the constant comparison holds
+    diff = sp.expand(3 * (2 * x - k) - (6 * x + 12))
+    assert diff.coeff(x) == 0
+    expected = sp.solve_univariate_inequality(sp.Le(diff, 0), k)
+    return _b7iq_same_set_1d(expected, k, _B7IQ_GRID_1D)
+
+
+def alg_ineq_no_solution_a():
+    def no_solution(av):
+        sol = sp.solve_univariate_inequality(sp.Lt(av * x + 5, 2 * (3 * x - 1)), x, relational=False)
+        return sol == sp.EmptySet
+
+    def check(choices, idx):
+        good = [i for i, ch in enumerate(choices) if no_solution(latex_to_sympy(ch))]
+        return good == [idx], f"values of a giving no solution: {good}"
+
+    return check
+
+
+def alg_ineq_interval_all_satisfy_k():
+    # x + k > 3x - 1  <=>  k > 2x - 1; must hold for every x in [2, 5]
+    g = 2 * x - 1
+    sup = sp.Max(*[g.subs(x, v) for v in (2, 5)])  # linear, so the max is at an endpoint
+    return Integer(sp.floor(sup) + 1)
+
+
+def alg_ineq_point_on_line_system_k():
+    sol = sp.solve_univariate_inequality(sp.Gt(2 * k, -k + 9), k, relational=False).intersect(
+        sp.solve_univariate_inequality(sp.Le(2 * k, k + 7), k, relational=False))
+    assert not sol.right_open
+    return sol.sup
+
+
+def alg_ineq_wedge_greatest_x():
+    sol = sp.solve_univariate_inequality(sp.Le(2 * x - 4, -Rational(1, 2) * x + 6), x, relational=False)
+    assert not sol.right_open
+    return sol.sup
+
+
+def alg_ineq_difference_bounds():
+    samples = [(3 + Rational(i, 2), -2 - Rational(j, 2)) for i in range(0, 20) for j in range(0, 20)]
+
+    def check(choices, idx):
+        implied = []
+        for i, ch in enumerate(choices):
+            rel = _b7iq_rel(ch)
+            if all(bool(rel.subs({x: u, y: v})) for u, v in samples):
+                implied.append(i)
+        return implied == [idx], f"choices true for every x >= 3, y <= -2: {implied}"
+
+    return check
+
+
+def alg_ineq_lattice_points_count():
+    return Integer(sum(1 for i in range(1, 30) for j in range(1, 30) if 3 * i + 4 * j <= 20))
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -4990,6 +5262,31 @@ CHECKS = {
     "psda-household-cars-added-mean": psda_household_cars_added_mean,
     "psda-quiz-scores-correction-shift": psda_quiz_scores_correction_shift,
     "psda-rice-bags-added-at-mean": psda_rice_bags_added_at_mean,
+    # batch batch7-ineq1
+    "alg-ineq-collect-terms-easy": alg_ineq_collect_terms_easy,
+    "alg-ineq-which-value-solution": alg_ineq_which_value_solution,
+    "alg-ineq-compound-middle-term": alg_ineq_compound_middle_term,
+    "alg-ineq-point-standard-form": alg_ineq_point_standard_form,
+    "alg-ineq-swimmer-weekly-distance": alg_ineq_swimmer_weekly_distance,
+    "alg-ineq-least-integer-fraction-flip": alg_ineq_least_integer_fraction_flip,
+    "alg-ineq-count-integers-chain": alg_ineq_count_integers_chain,
+    "alg-ineq-count-listed-points-system": alg_ineq_count_listed_points_system,
+    "alg-ineq-boundary-line-two-points": alg_ineq_boundary_line_two_points,
+    "alg-ineq-fractions-equivalent": alg_ineq_fractions_equivalent,
+    "alg-ineq-ferry-trucks": alg_ineq_ferry_trucks,
+    "alg-ineq-press-time-coefficient": alg_ineq_press_time_coefficient,
+    "alg-ineq-farm-stand-revenue-point": alg_ineq_farm_stand_revenue_point,
+    "alg-ineq-gym-plans-months": alg_ineq_gym_plans_months,
+    "alg-ineq-rain-barrel-solution": alg_ineq_rain_barrel_solution,
+    "alg-ineq-workshop-tables": alg_ineq_workshop_tables,
+    "alg-ineq-candy-temperature-count": alg_ineq_candy_temperature_count,
+    "alg-ineq-every-x-solution-k": alg_ineq_every_x_solution_k,
+    "alg-ineq-no-solution-a": alg_ineq_no_solution_a,
+    "alg-ineq-interval-all-satisfy-k": alg_ineq_interval_all_satisfy_k,
+    "alg-ineq-point-on-line-system-k": alg_ineq_point_on_line_system_k,
+    "alg-ineq-wedge-greatest-x": alg_ineq_wedge_greatest_x,
+    "alg-ineq-difference-bounds": alg_ineq_difference_bounds,
+    "alg-ineq-lattice-points-count": alg_ineq_lattice_points_count,
 }
 
 
