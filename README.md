@@ -5,6 +5,7 @@ Planning for an AI-powered SAT Math course aimed at an 800. It teaches Desmos fi
 ## Contents
 
 - [`reports/AI Desmos SAT math course plan.md`](reports/AI%20Desmos%20SAT%20math%20course%20plan.md): the full planning report, with the recommended architecture, a phased roadmap, the decisions the owner needs to make, and a list of facts still to verify.
+- [`docs/desmos-integration.md`](docs/desmos-integration.md): calculator design decision (student-operated embed, OnePrep-style) and how the AI reads it
 - `research_notes/AI Desmos SAT math course plan/`: the notes behind the report, with sources:
   - `sat_math_format.md`: Digital SAT Math format, scoring, and the Desmos calculator in Bluebook
   - `desmos_techniques.md`: Desmos technique library (T1–T13) and existing resources
