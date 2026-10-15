@@ -6997,6 +6997,220 @@ def geo_circ_center_h_through_point():
     return [s for s in sols if s > 0][0]
 
 
+# ----- Batch batch9-ee2 -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch9-ee2.ts (batch batch9-ee2).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch9_ee2.py --only-extra
+
+Each function derives the answer from the stem's givens: a numeric result for
+numeric keys, or a callable (choices, answer_index) -> (ok, detail) for items
+whose choices are expressions.
+"""
+
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, Eq, sqrt
+
+x, y, k, a, b, c, p, s, r, n, t = symbols("x y k a b c p s r n t")
+d, w = symbols("d w")
+
+
+def _b9e2_expr_check(expected, samples, label=""):
+    """MC with expression choices: exactly the key equals `expected` at every sample point."""
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            try:
+                expr = latex_to_sympy_ext(ch)
+            except Exception as e:  # noqa: BLE001
+                return False, f"could not parse choice {i} {ch!r}: {e}"
+            if all(abs(complex((expr - expected).subs(sv).evalf(30))) < 1e-12 for sv in samples):
+                matches.append(i)
+        return matches == [idx], f"{label or expected}; matching choices {matches}, key index {idx}"
+
+    return check
+
+
+def _b9e2_coeffs(identity, unknowns):
+    """Solve a polynomial identity in x (expression == 0 for all x) for the unknown constants."""
+    return sp.solve(sp.Poly(sp.expand(identity), x).all_coeffs(), unknowns, dict=True)
+
+
+# x samples avoid 0, -3, 3, -8 and other excluded values; all positive ones also serve x > 0 items.
+_B9E2_X = [{x: v} for v in (Rational(1, 3), Rational(3, 2), Rational(7, 2), 5, 7, 11)]
+_B9E2_XR = [{x: v} for v in (Rational(-5, 2), Rational(-1, 2), Rational(1, 3), Rational(3, 2), 5, 11)]
+_B9E2_XY = [{x: xv, y: yv} for xv, yv in ((1, 2), (3, Rational(1, 2)), (Rational(2, 5), 4), (7, 3))]
+
+
+# ------------------------------------------------------------------ easy
+
+
+def adv_expand_monomial_two_binomials():
+    expr = sp.expand(2 * x * (x + 3) * (x - 4))
+    assert expr == 2 * x**3 - 2 * x**2 - 24 * x
+    return _b9e2_expr_check(expr, _B9E2_XR, label=str(expr))
+
+
+def adv_exponential_shift_coefficient():
+    expr = 5 * 3 ** (x + 2)
+    return _b9e2_expr_check(expr, _B9E2_XR, label="5*3^(x+2) = 45*3^x")
+
+
+def adv_negative_exponents_product_two_variable():
+    expr = sp.powsimp(x**-3 * y**2 * x**5 * y**-4)
+    assert sp.simplify(expr - x**2 / y**2) == 0
+    return _b9e2_expr_check(expr, _B9E2_XY, label=str(expr))
+
+
+def adv_poly_sum_difference_coefficient_total():
+    expr = sp.expand((3 * x**2 + 2 * x - 7) + (x**2 - 6 * x + 4) - (2 * x**2 - x - 1))
+    co = sp.Poly(expr, x).all_coeffs()
+    assert len(co) == 3
+    return sum(co)
+
+
+def adv_floor_tile_area_square_binomial():
+    side = x + 4
+    return _b9e2_expr_check(sp.expand(side**2), _B9E2_X, label="(x+4)^2")
+
+
+# ---------------------------------------------------------------- medium
+
+
+def adv_long_division_linear_negative_remainder():
+    q, rem = sp.div(2 * x**2 + 5 * x - 4, x + 3, x)
+    assert (q, rem) == (2 * x - 1, -1)
+    expected = (2 * x**2 + 5 * x - 4) / (x + 3)
+    return _b9e2_expr_check(expected, _B9E2_XR, label=f"quotient {q}, remainder {rem}")
+
+
+def adv_rationalize_radical_difference_denominator():
+    expected = 6 / (sqrt(x + 3) - sqrt(x))
+    assert sp.simplify(sp.radsimp(expected) - (2 * sqrt(x + 3) + 2 * sqrt(x))) == 0
+    return _b9e2_expr_check(expected, _B9E2_X, label="6/(sqrt(x+3)-sqrt(x))")
+
+
+def adv_fractional_negative_exponent_power_two_variable():
+    xp, yp = symbols("x y", positive=True)
+    e = (xp ** Rational(1, 2) * yp**-3) ** -2 * xp**2 * yp**-4
+    assert sp.simplify(e - xp * yp**2) == 0
+    expected = e.subs({xp: x, yp: y})
+    return _b9e2_expr_check(expected, _B9E2_XY, label="x*y^2")
+
+
+def adv_exponential_difference_rewrite_coefficient():
+    expected = 3 ** (x + 2) - 3**x
+    return _b9e2_expr_check(expected, _B9E2_XR, label="3^(x+2) - 3^x")
+
+
+def adv_perfect_square_identity_ab():
+    sols = _b9e2_coeffs((a * x + b) ** 2 - (9 * x**2 - 24 * x + 16), [a, b])
+    pos = [sv for sv in sols if sv[a] > 0]
+    assert len(pos) == 1
+    return pos[0][a] * pos[0][b]
+
+
+def adv_difference_of_binomial_squares_factor():
+    expected = (2 * x + 3) ** 2 - (x - 1) ** 2
+    assert sp.factor(expected) == (x + 4) * (3 * x + 2)
+    return _b9e2_expr_check(expected, _B9E2_XR, label=str(sp.factor(expected)))
+
+
+def adv_complex_fraction_sum_numerator():
+    expected = (2 / x + Rational(1, 4)) / ((x + 8) / 2)
+    assert sp.simplify(expected - 1 / (2 * x)) == 0
+    return _b9e2_expr_check(expected, _B9E2_XR, label="1/(2x)")
+
+
+def adv_storage_bin_volume_three_binomials():
+    volume = sp.expand((x + 3) * (x + 2) * (x - 1))
+    return _b9e2_expr_check(volume, _B9E2_X, label=str(volume))
+
+
+def adv_parallel_resistance_complex_fraction():
+    expected = 1 / (1 / x + 1 / (x + 6))
+    return _b9e2_expr_check(expected, _B9E2_X, label=str(sp.cancel(expected)))
+
+
+# ---------------------------------------------------------------- hard
+
+
+def adv_moss_area_exponential_rewrite_a():
+    expr = 6 * Integer(4) ** ((w + 3) / 2)
+    a_val = expr.subs(w, 0)
+    b_val = sp.simplify(expr.subs(w, 1) / a_val)
+    for wv in (0, 1, Rational(5, 2), 7):
+        assert sp.simplify(expr.subs(w, wv) - a_val * b_val**wv) == 0
+    assert b_val == 2
+    return a_val
+
+
+def adv_quartic_hidden_difference_squares():
+    expected = x**4 + 2 * x**2 + 9
+    return _b9e2_expr_check(expected, _B9E2_XR, label="(x^2+3)^2 - (2x)^2")
+
+
+def adv_three_factor_coefficient_sum():
+    co = sp.Poly(sp.expand((x - 2) * (x + 3) * (2 * x - 1)), x).all_coeffs()
+    assert len(co) == 4
+    return sum(co)
+
+
+def adv_long_division_missing_term_cubic():
+    q, rem = sp.div(x**3 - 8 * x + 5, x - 3, x)
+    assert (q, rem) == (x**2 + 3 * x + 1, 8)
+    expected = (x**3 - 8 * x + 5) / (x - 3)
+    return _b9e2_expr_check(expected, _B9E2_XR, label=f"quotient {q}, remainder {rem}")
+
+
+def adv_negative_exponent_complex_fraction_two_variable():
+    expected = (x**-2 - y**-2) / (x**-1 - y**-1)
+    assert sp.simplify(expected - (x + y) / (x * y)) == 0
+    return _b9e2_expr_check(expected, _B9E2_XY, label="(x+y)/(xy)")
+
+
+def adv_exponential_product_base_half():
+    expected = 2 ** (2 * x + 3) * 8 ** (1 - x)
+    return _b9e2_expr_check(expected, _B9E2_XR, label="2^(6-x)")
+
+
+def adv_rationalize_conjugate_a_plus_b():
+    val = sp.radsimp((sqrt(5) + 1) / (sqrt(5) - 1))
+    val = sp.expand(val)
+    b_val = val.coeff(sqrt(5))
+    a_val = sp.expand(val - b_val * sqrt(5))
+    assert a_val.is_Rational and b_val.is_Rational
+    return a_val + b_val
+
+
+def adv_quartic_product_identity_ab():
+    sols = _b9e2_coeffs((x**2 + a * x + 2) * (x**2 + b * x + 2) - (x**4 - 5 * x**2 + 4), [a, b])
+    prods = {sp.simplify(sv[a] * sv[b]) for sv in sols}
+    assert len(prods) == 1
+    return prods.pop()
+
+
+def adv_radical_exponents_two_variable_a_minus_b():
+    xp, yp = symbols("x y", positive=True)
+    e = sp.root(xp**2 * yp, 3) * sqrt(xp * yp**3) / (xp ** Rational(-1, 3) * yp**2)
+    e = sp.powsimp(sp.expand_power_base(e, force=True), force=True)
+    # Read exponents directly from the simplified power product.
+    powers = sp.Mul.make_args(e)
+    exps = {}
+    for f in powers:
+        base, ex = f.as_base_exp()
+        exps[base] = exps.get(base, 0) + ex
+    a_val, b_val = exps[xp], exps[yp]
+    assert sp.simplify(e - xp**a_val * yp**b_val) == 0
+    return a_val - b_val
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -7741,6 +7955,30 @@ CHECKS = {
     "geo-circ-wiper-blade-region": geo_circ_wiper_blade_region,
     "geo-circ-radian-central-inscribed": geo_circ_radian_central_inscribed,
     "geo-circ-center-h-through-point": geo_circ_center_h_through_point,
+    # batch batch9-ee2
+    "adv-expand-monomial-two-binomials": adv_expand_monomial_two_binomials,
+    "adv-exponential-shift-coefficient": adv_exponential_shift_coefficient,
+    "adv-negative-exponents-product-two-variable": adv_negative_exponents_product_two_variable,
+    "adv-poly-sum-difference-coefficient-total": adv_poly_sum_difference_coefficient_total,
+    "adv-floor-tile-area-square-binomial": adv_floor_tile_area_square_binomial,
+    "adv-long-division-linear-negative-remainder": adv_long_division_linear_negative_remainder,
+    "adv-rationalize-radical-difference-denominator": adv_rationalize_radical_difference_denominator,
+    "adv-fractional-negative-exponent-power-two-variable": adv_fractional_negative_exponent_power_two_variable,
+    "adv-exponential-difference-rewrite-coefficient": adv_exponential_difference_rewrite_coefficient,
+    "adv-perfect-square-identity-ab": adv_perfect_square_identity_ab,
+    "adv-difference-of-binomial-squares-factor": adv_difference_of_binomial_squares_factor,
+    "adv-complex-fraction-sum-numerator": adv_complex_fraction_sum_numerator,
+    "adv-storage-bin-volume-three-binomials": adv_storage_bin_volume_three_binomials,
+    "adv-parallel-resistance-complex-fraction": adv_parallel_resistance_complex_fraction,
+    "adv-moss-area-exponential-rewrite-a": adv_moss_area_exponential_rewrite_a,
+    "adv-quartic-hidden-difference-squares": adv_quartic_hidden_difference_squares,
+    "adv-three-factor-coefficient-sum": adv_three_factor_coefficient_sum,
+    "adv-long-division-missing-term-cubic": adv_long_division_missing_term_cubic,
+    "adv-negative-exponent-complex-fraction-two-variable": adv_negative_exponent_complex_fraction_two_variable,
+    "adv-exponential-product-base-half": adv_exponential_product_base_half,
+    "adv-rationalize-conjugate-a-plus-b": adv_rationalize_conjugate_a_plus_b,
+    "adv-quartic-product-identity-ab": adv_quartic_product_identity_ab,
+    "adv-radical-exponents-two-variable-a-minus-b": adv_radical_exponents_two_variable_a_minus_b,
 }
 
 
