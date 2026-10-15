@@ -3189,6 +3189,178 @@ def alg_fraction_inequality_k_bound():
     return kk
 
 
+# ----- Batch batch6-psdaA -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch6-psdaA.ts (batch batch6-psdaA).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch6_psdaA.py --only-extra
+
+Each function derives the answer from the stem's givens, following the
+conventions of verify_items.py. Helpers are prefixed _b6pa_ so they do not
+collide with earlier batches after the merge.
+"""
+
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, symbols
+
+
+_b6pa_x, _b6pa_k, _b6pa_g, _b6pa_m, _b6pa_p = symbols("_b6pa_x _b6pa_k _b6pa_g _b6pa_m _b6pa_p")
+
+
+def _b6pa_dec(text):
+    """Exact Rational from a decimal string, so 0.65 is 13/20, not a float."""
+    return Rational(text)
+
+
+def _b6pa_solve_positive(eq, var):
+    sols = [s for s in sp.solve(eq, var) if s.is_real and s > 0]
+    assert len(sols) == 1, sols
+    return sols[0]
+
+
+# ----- Ratios, rates, proportional relationships, and units -----
+
+
+def psda_b6pa_coffee_beans_per_ounce():
+    return _b6pa_dec("9.60") / 12
+
+
+def psda_b6pa_road_map_towns_inches():
+    return _b6pa_dec("4.2") * 15
+
+
+def psda_b6pa_truck_fuel_route():
+    return _b6pa_dec("0.12") * 245
+
+
+def psda_b6pa_direct_proportion_y_x():
+    k = Rational(30, 8)
+    return k * 20
+
+
+def psda_b6pa_map_scale_lakes_km():
+    cm = _b6pa_dec("6.4") * 250000
+    return cm / (100 * 1000)
+
+
+def psda_b6pa_train_kmh_to_mps():
+    return Rational(108 * 1000, 60 * 60)
+
+
+def psda_b6pa_carpet_square_yards_cost():
+    sq_ft = 42 * 3**2
+    return sq_ft * _b6pa_dec("3.50")
+
+
+def psda_b6pa_sandbox_cubic_yards():
+    return _b6pa_dec("0.75") * 3**3
+
+
+def psda_b6pa_wood_board_mass_kg():
+    grams = 120 * 15 * 2 * _b6pa_dec("0.65")
+    return grams / 1000
+
+
+def psda_b6pa_trail_mix_almonds():
+    grams = _b6pa_dec("1.5") * 1000
+    return grams * Rational(5, 2 + 3 + 5)
+
+
+def psda_b6pa_soup_calories_liters():
+    ml = _b6pa_dec("0.4") * 1000
+    return Rational(140, 250) * ml
+
+
+def psda_b6pa_painting_crew_days():
+    worker_days = 6 * 15
+    return Rational(worker_days, 9)
+
+
+def psda_b6pa_download_megabits_minutes():
+    seconds = Rational(900 * 8, 60)
+    return seconds / 60
+
+
+def psda_b6pa_ratio_chain_a_over_c():
+    a, b, c = symbols("a b c", nonzero=True)
+    sol = sp.solve([Eq(2 * a, 5 * b), Eq(3 * b, 4 * c)], [a, b], dict=True)[0]
+    return sp.simplify(sol[a] / c)
+
+
+def psda_b6pa_club_juniors_ratio_change():
+    k = _b6pa_k
+    kval = sp.solve(Eq((4 * k + 12) / (5 * k), Rational(6, 5)), k)[0]
+    return 4 * kval + 5 * kval
+
+
+def psda_b6pa_fuel_efficiency_mpg():
+    exact = 15 / _b6pa_dec("1.6") * _b6pa_dec("3.8")
+    return Integer(sp.floor(exact + Rational(1, 2)))
+
+
+def psda_b6pa_tank_two_hoses_hours():
+    t = _b6pa_x
+    liters = 54 * 1000
+    both = sp.solve(Eq(180 * 60 + (180 + 120) * t, liters), t)[0]
+    return (60 + both) / 60
+
+
+def psda_b6pa_blueprint_parking_space_area():
+    actual_cm2 = 120 * 50**2
+    return Rational(actual_cm2, 100**2)
+
+
+def psda_b6pa_faucet_drips_liters():
+    minutes = 30 * 24 * 60
+    ml = Rational(12 * minutes, 20)
+    return ml / 1000
+
+
+def psda_b6pa_three_part_ratio_sum():
+    a, b, c = symbols("a b c", positive=True)
+    sol = sp.solve([Eq(3 * a, 2 * b), Eq(5 * b, 4 * c), Eq(a + b + c, 105)], [a, b, c], dict=True)[0]
+    return sol[c]
+
+
+# ----- Percentages -----
+
+
+def psda_b6pa_percent_of_number():
+    return Rational(35, 100) * 840
+
+
+def psda_b6pa_recycling_households_p():
+    before = Rational(40, 100) * 2500
+    after = Rational(50, 100) * 2800
+    return (after - before) / before * 100
+
+
+def psda_b6pa_grain_drying_original():
+    m = _b6pa_m
+    return sp.solve(Eq(m * (1 - Rational(12, 100)), 2640), m)[0]
+
+
+def psda_b6pa_double_increase_44():
+    p = _b6pa_p
+    return _b6pa_solve_positive(Eq((1 + p / 100) ** 2, 1 + Rational(44, 100)), p)
+
+
+def psda_b6pa_chess_club_girls():
+    g = _b6pa_g
+    return sp.solve(Eq(Rational(30, 100) * (1000 - g) + Rational(45, 100) * g, Rational(36, 100) * 1000), g)[0]
+
+
+def psda_b6pa_monthly_sales_successive():
+    jan = 2500
+    feb = jan * (1 - Rational(8, 100))
+    mar = feb * (1 + Rational(15, 100))
+    return (mar - jan) / jan * 100
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -3502,6 +3674,33 @@ CHECKS = {
     "alg-compound-inequality-flip": alg_compound_inequality_flip,
     "alg-scaled-inequality-max": alg_scaled_inequality_max,
     "alg-fraction-inequality-k-bound": alg_fraction_inequality_k_bound,
+    # batch batch6-psdaA
+    "psda-coffee-beans-per-ounce": psda_b6pa_coffee_beans_per_ounce,
+    "psda-road-map-towns-inches": psda_b6pa_road_map_towns_inches,
+    "psda-truck-fuel-route": psda_b6pa_truck_fuel_route,
+    "psda-direct-proportion-y-x": psda_b6pa_direct_proportion_y_x,
+    "psda-map-scale-lakes-km": psda_b6pa_map_scale_lakes_km,
+    "psda-train-kmh-to-mps": psda_b6pa_train_kmh_to_mps,
+    "psda-carpet-square-yards-cost": psda_b6pa_carpet_square_yards_cost,
+    "psda-sandbox-cubic-yards": psda_b6pa_sandbox_cubic_yards,
+    "psda-wood-board-mass-kg": psda_b6pa_wood_board_mass_kg,
+    "psda-trail-mix-almonds": psda_b6pa_trail_mix_almonds,
+    "psda-soup-calories-liters": psda_b6pa_soup_calories_liters,
+    "psda-painting-crew-days": psda_b6pa_painting_crew_days,
+    "psda-download-megabits-minutes": psda_b6pa_download_megabits_minutes,
+    "psda-ratio-chain-a-over-c": psda_b6pa_ratio_chain_a_over_c,
+    "psda-club-juniors-ratio-change": psda_b6pa_club_juniors_ratio_change,
+    "psda-fuel-efficiency-mpg": psda_b6pa_fuel_efficiency_mpg,
+    "psda-tank-two-hoses-hours": psda_b6pa_tank_two_hoses_hours,
+    "psda-blueprint-parking-space-area": psda_b6pa_blueprint_parking_space_area,
+    "psda-faucet-drips-liters": psda_b6pa_faucet_drips_liters,
+    "psda-three-part-ratio-sum": psda_b6pa_three_part_ratio_sum,
+    "psda-percent-of-number": psda_b6pa_percent_of_number,
+    "psda-recycling-households-p": psda_b6pa_recycling_households_p,
+    "psda-grain-drying-original": psda_b6pa_grain_drying_original,
+    "psda-double-increase-44": psda_b6pa_double_increase_44,
+    "psda-chess-club-girls": psda_b6pa_chess_club_girls,
+    "psda-monthly-sales-successive": psda_b6pa_monthly_sales_successive,
 }
 
 
