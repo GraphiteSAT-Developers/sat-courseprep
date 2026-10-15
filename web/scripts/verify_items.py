@@ -8585,6 +8585,305 @@ def alg_ineq_region_lines_through_points():
     return _b11iq_match(expected, _b11iq_system, _B11IQ_GRID_2D, [X, Y])
 
 
+# ----- Batch batch11-nf2 -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch11-nf2.ts (batch batch11-nf2).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch11_nf2.py --only-extra
+
+Each function derives the answer from the stem's givens: a numeric result for
+numeric keys, or a callable (choices, answer_index) -> (ok, detail) for items
+whose choices are equations, points, inequalities or sentences.
+"""
+
+import re
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, Eq, sqrt
+
+x, y, k, a, b, c, p, s, r, n, t = symbols("x y k a b c p s r n t")
+h = Symbol("h")
+
+
+def _b11nf_rhs(choice):
+    """'$y = ...$' or '$g(x) = ...$' -> the right side as a SymPy expression."""
+    return latex_to_sympy_ext(choice.strip().strip("$").split("=", 1)[1])
+
+
+def _b11nf_rhs_match(expected, samples, label=""):
+    """MC with equation choices: exactly the key's right side equals `expected` at every sample x."""
+
+    def check(choices, idx):
+        matches = []
+        for i, ch in enumerate(choices):
+            expr = _b11nf_rhs(ch)
+            if all(abs(complex((expr - expected).subs(x, v).evalf(30))) < 1e-12 for v in samples):
+                matches.append(i)
+        return matches == [idx], f"{label or expected}; matching choices {matches}, key index {idx}"
+
+    return check
+
+
+def _b11nf_point(text):
+    m = re.fullmatch(r"\$?\((-?[\d.]+),\s*(-?[\d.]+)\)\$?", text.strip())
+    assert m, text
+    return sp.nsimplify(m.group(1)), sp.nsimplify(m.group(2))
+
+
+def _b11nf_interval(text):
+    """'$x < a$', '$x > a$' or '$a < x < b$' -> a SymPy set."""
+    s_ = text.strip().strip("$").replace(" ", "")
+    m = re.fullmatch(r"x<(-?\d+)", s_)
+    if m:
+        return sp.Interval.open(-sp.oo, int(m.group(1)))
+    m = re.fullmatch(r"x>(-?\d+)", s_)
+    if m:
+        return sp.Interval.open(int(m.group(1)), sp.oo)
+    m = re.fullmatch(r"(-?\d+)<x<(-?\d+)", s_)
+    if m:
+        return sp.Interval.open(int(m.group(1)), int(m.group(2)))
+    raise ValueError(text)
+
+
+# ------------------------------------------------------------------ easy
+
+
+def adv_nf_remainder_cubic_divided_by_binomial():
+    P = x**3 - 4 * x**2 + 2 * x + 9
+    rem = sp.rem(P, x - 3, x)
+    assert rem == P.subs(x, 3)
+    return rem
+
+
+def adv_nf_radical_evaluate_scaled_root():
+    return (3 * sqrt(2 * x - 1) + 4).subs(x, 5)
+
+
+def adv_nf_rational_undefined_input():
+    sols = sp.solve(Eq(2 * x - 10, 0), x)
+    assert len(sols) == 1 and (x + 6).subs(x, sols[0]) != 0
+    return sols[0]
+
+
+def adv_nf_parabola_shift_left_down_equation():
+    expected = (x + 3) ** 2 - 2  # left 3: x -> x + 3; down 2: subtract 2
+    return _b11nf_rhs_match(expected, [-5, Rational(1, 2), 2, 7])
+
+
+def adv_nf_pool_chemical_half_life_amount():
+    A = 96 * Rational(1, 2) ** (t / 4)
+    return A.subs(t, 12)
+
+
+# ------------------------------------------------------------------ medium
+
+
+def adv_nf_repeated_factor_touch_point():
+    f = -2 * x * (x - 5) ** 2 * (x + 4)
+    roots = sp.roots(sp.Poly(f, x))
+    touch = [rt for rt, mult in roots.items() if mult % 2 == 0]
+    assert len(touch) == 1
+    return touch[0]
+
+
+def adv_nf_cubic_negative_between_zeros():
+    f = (x + 2) * (x - 1) * (x - 4)
+
+    def check(choices, idx):
+        neg = [i for i, ch in enumerate(choices) if f.subs(x, latex_to_sympy(ch)) < 0]
+        return neg == [idx], f"choices with f(a) < 0: {neg}"
+
+    return check
+
+
+def adv_nf_equal_remainders_coefficient():
+    Q = 3 * x**2 + b * x - 7
+    sols = sp.solve(Eq(sp.rem(Q, x - 2, x), sp.rem(Q, x + 1, x)), b)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_rational_input_for_output_five():
+    sols = [v for v in sp.solve(Eq((3 * x + 1) / (x - 2), 5), x) if v != 2]
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_poster_average_cost():
+    sols = [v for v in sp.solve(Eq((1440 + 12 * n) / n, 20), n) if v > 0]
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_radical_graph_endpoint():
+    g = sqrt(12 - 3 * x) + 2
+    xe = sp.solve(Eq(12 - 3 * x, 0), x)[0]
+    # g is real only for x <= xe, so (xe, g(xe)) is the endpoint
+    assert g.subs(x, xe + 1).is_real is False and g.subs(x, xe - 1).is_real
+    end = (xe, g.subs(x, xe))
+
+    def check(choices, idx):
+        hits = [i for i, ch in enumerate(choices) if _b11nf_point(ch) == end]
+        return hits == [idx], f"endpoint {end}; matching choices {hits}"
+
+    return check
+
+
+def adv_nf_laptop_half_life_period():
+    hp = Symbol("hp", positive=True)
+    sols = sp.solve(Eq(640 * Rational(1, 2) ** (6 / hp), 80), hp)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_caffeine_half_life_interpret():
+    C = 200 * Rational(1, 2) ** (t / 5)
+    c0, c1 = C.subs(t, 0), C.subs(t, 1)
+    halves_every_5 = sp.simplify(C.subs(t, t + 5) / C) == Rational(1, 2)
+
+    def check(choices, idx):
+        key_ok = "half every 5 hours" in choices[idx] and halves_every_5
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("by 5 milligrams" in ch and sp.simplify(c0 - c1 - 5) != 0)
+            or ("by 5%" in ch and sp.simplify(c1 / c0 - Rational(95, 100)) != 0)
+            or ("one-fifth" in ch and sp.simplify(c1 / c0 - Rational(4, 5)) != 0))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"C(0)={c0}, C(1)={sp.N(c1, 6)}; contradicted {wrong}"
+
+    return check
+
+
+def adv_nf_sqrt_reflect_translate_equation():
+    expected = -sqrt(x) + 4  # reflect across x-axis, then up 4
+    return _b11nf_rhs_match(expected, [Rational(1, 4), 1, 3, 9])
+
+
+def adv_nf_shift_right_new_x_intercept():
+    f = sp.Lambda(x, (x + 1) * (x - 5))
+    g = f(x - 2)
+    zeros = set(sp.solve(g, x))
+
+    def check(choices, idx):
+        hits = [i for i, ch in enumerate(choices)
+                if _b11nf_point(ch)[1] == 0 and _b11nf_point(ch)[0] in zeros]
+        return hits == [idx], f"zeros of g {sorted(zeros)}; x-intercept choices {hits}"
+
+    return check
+
+
+def adv_nf_rational_constant_from_value():
+    f = (x + k) / (x - 3)
+    ks = sp.solve(Eq(f.subs(x, 5), 4), k)
+    assert len(ks) == 1
+    return f.subs({k: ks[0], x: 1})
+
+
+# ------------------------------------------------------------------ hard
+
+
+def adv_nf_solar_panels_two_towns():
+    A = 500 * Rational(12, 10) ** t
+    B = 2000 * Rational(105, 100) ** t
+    tt = 0
+    while not A.subs(t, tt) > B.subs(t, tt):
+        tt += 1
+    # A stays ahead afterwards (ratio (8/7)^t is increasing)
+    assert all(A.subs(t, v) > B.subs(t, v) for v in range(tt, tt + 20))
+    return Integer(tt)
+
+
+def adv_nf_cubic_negative_leading_sign_interval():
+    f = -(x + 3) * (x - 2) ** 2
+    xr = Symbol("xr", real=True)
+    sol = sp.solve_univariate_inequality(f.subs(x, xr) > 0, xr, relational=False)
+
+    def check(choices, idx):
+        hits = [i for i, ch in enumerate(choices) if _b11nf_interval(ch) == sol]
+        return hits == [idx], f"solution set {sol}; matching choices {hits}"
+
+    return check
+
+
+def adv_nf_cubic_touch_cross_evaluate():
+    P = a * (x + 1) * (x - 2) ** 2  # odd multiplicity at -1, even at 2, degree 3
+    av = sp.solve(Eq(P.subs(x, 0), 12), a)
+    assert len(av) == 1
+    return P.subs({a: av[0], x: 4})
+
+
+def adv_nf_remainder_factor_of_shifted():
+    # Every polynomial with p(-3) = 5 is (x + 3)q(x) + 5; test the choices against several q.
+    qs = [Integer(1), x**2 + 7, 2 * x**3 - x + 4, x - 11]
+
+    def check(choices, idx):
+        must = []
+        for i, ch in enumerate(choices):
+            d = latex_to_sympy(ch)
+            if all(sp.rem(sp.expand((x + 3) * q + 5 - 5), d, x) == 0 for q in qs):
+                must.append(i)
+        return must == [idx], f"choices dividing p(x) - 5 for every sample p: {must}"
+
+    return check
+
+
+def adv_nf_pendulum_longer_swing():
+    Lp = Symbol("Lp", positive=True)
+    L5 = sp.solve(Eq(2 * sqrt(Lp), 5), Lp)
+    L4 = sp.solve(Eq(2 * sqrt(Lp), 4), Lp)
+    assert len(L5) == len(L4) == 1
+    return L5[0] - L4[0]
+
+
+def adv_nf_two_samples_equal_mass():
+    tp = Symbol("tp", real=True)
+    A = 400 * Rational(1, 2) ** (tp / 3)
+    B = 100 * Rational(1, 2) ** (tp / 6)
+    sols = sp.solve(Eq(A, B), tp)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_shift_left_down_expanded():
+    f = sp.Lambda(x, x**2 - 4 * x)
+    expected = sp.expand(f(x + 2) - 5)
+    return _b11nf_rhs_match(expected, [-3, Rational(1, 2), 2, 5])
+
+
+def adv_nf_model_rocket_three_heights():
+    H = a * t**2 + b * t + c
+    sol = sp.solve([Eq(H.subs(t, 1), 38), Eq(H.subs(t, 2), 63), Eq(H.subs(t, 3), 78)], [a, b, c])
+    Hm = H.subs(sol)
+    assert sol[a] < 0
+    tv = sp.solve(sp.diff(Hm, t), t)[0]
+    return Hm.subs(t, tv)
+
+
+def adv_nf_rational_point_undefined_input():
+    f = 8 / (x - k) + 3
+    ks = sp.solve(Eq(f.subs(x, 5), 7), k)
+    assert len(ks) == 1
+    return ks[0]  # f is undefined where x - k = 0
+
+
+def adv_nf_half_life_ratio_constant():
+    hp = Symbol("hp", positive=True)
+    f = 500 * Rational(1, 2) ** (x / hp)
+    sols = sp.solve(Eq(f.subs(x, 4), 2 * f.subs(x, 10)), hp)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_factored_cubic_remainder_constant():
+    P = (x - a) * (x - 4) * (x + 2)
+    sols = sp.solve(Eq(sp.rem(sp.expand(P), x - 1, x), 18), a)
+    assert len(sols) == 1
+    return sols[0]
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -9490,6 +9789,34 @@ CHECKS = {
     "alg-ineq-two-inequalities-given-interval": alg_ineq_two_inequalities_given_interval,
     "alg-ineq-region-greatest-2x-plus-y": alg_ineq_region_greatest_2x_plus_y,
     "alg-ineq-region-lines-through-points": alg_ineq_region_lines_through_points,
+    # batch batch11-nf2
+    "adv-nf-remainder-cubic-divided-by-binomial": adv_nf_remainder_cubic_divided_by_binomial,
+    "adv-nf-radical-evaluate-scaled-root": adv_nf_radical_evaluate_scaled_root,
+    "adv-nf-rational-undefined-input": adv_nf_rational_undefined_input,
+    "adv-nf-parabola-shift-left-down-equation": adv_nf_parabola_shift_left_down_equation,
+    "adv-nf-pool-chemical-half-life-amount": adv_nf_pool_chemical_half_life_amount,
+    "adv-nf-repeated-factor-touch-point": adv_nf_repeated_factor_touch_point,
+    "adv-nf-cubic-negative-between-zeros": adv_nf_cubic_negative_between_zeros,
+    "adv-nf-equal-remainders-coefficient": adv_nf_equal_remainders_coefficient,
+    "adv-nf-rational-input-for-output-five": adv_nf_rational_input_for_output_five,
+    "adv-nf-poster-average-cost": adv_nf_poster_average_cost,
+    "adv-nf-radical-graph-endpoint": adv_nf_radical_graph_endpoint,
+    "adv-nf-laptop-half-life-period": adv_nf_laptop_half_life_period,
+    "adv-nf-caffeine-half-life-interpret": adv_nf_caffeine_half_life_interpret,
+    "adv-nf-sqrt-reflect-translate-equation": adv_nf_sqrt_reflect_translate_equation,
+    "adv-nf-shift-right-new-x-intercept": adv_nf_shift_right_new_x_intercept,
+    "adv-nf-rational-constant-from-value": adv_nf_rational_constant_from_value,
+    "adv-nf-solar-panels-two-towns": adv_nf_solar_panels_two_towns,
+    "adv-nf-cubic-negative-leading-sign-interval": adv_nf_cubic_negative_leading_sign_interval,
+    "adv-nf-cubic-touch-cross-evaluate": adv_nf_cubic_touch_cross_evaluate,
+    "adv-nf-remainder-factor-of-shifted": adv_nf_remainder_factor_of_shifted,
+    "adv-nf-pendulum-longer-swing": adv_nf_pendulum_longer_swing,
+    "adv-nf-two-samples-equal-mass": adv_nf_two_samples_equal_mass,
+    "adv-nf-shift-left-down-expanded": adv_nf_shift_left_down_expanded,
+    "adv-nf-model-rocket-three-heights": adv_nf_model_rocket_three_heights,
+    "adv-nf-rational-point-undefined-input": adv_nf_rational_point_undefined_input,
+    "adv-nf-half-life-ratio-constant": adv_nf_half_life_ratio_constant,
+    "adv-nf-factored-cubic-remainder-constant": adv_nf_factored_cubic_remainder_constant,
 }
 
 
