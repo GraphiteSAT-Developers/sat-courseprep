@@ -5981,6 +5981,306 @@ def alg_pick_one_var_equation_no_solution():
     return check
 
 
+# ----- Batch batch8-nf1 -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch8-nf1.ts (batch batch8-nf1).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch8_nf1.py --only-extra
+
+Each function derives the answer from the stem's givens: a numeric result for
+numeric keys, or a callable (choices, answer_index) -> (ok, detail) for items
+whose choices are points, equations, percents or sentences.
+"""
+
+
+
+import sympy as sp
+from sympy import Rational, Integer, Symbol, symbols, Eq, sqrt
+
+x, y, k, a, b, c, p, s, r, n, t = symbols("x y k a b c p s r n t")
+m, d = symbols("m d")
+
+
+def _b8nf_point(text: str):
+    inner = text.strip().strip("$").strip().strip("()")
+    xs, ys = inner.split(",")
+    return sp.nsimplify(xs.strip()), sp.nsimplify(ys.strip())
+
+
+def _b8nf_rhs(choice: str):
+    return sp.nsimplify(latex_to_sympy_ext(choice.strip().strip("$").split("=", 1)[1]))
+
+
+def _b8nf_same_function(e1, e2, var=x, pts=(-2, -1, 0, Rational(1, 2), 1, 3)):
+    return all(sp.simplify(e1.subs(var, v) - e2.subs(var, v)) == 0 for v in pts)
+
+
+# ------------------------------------------------------------------ easy
+
+
+def adv_nf_rational_evaluate_at_five():
+    return ((2 * x + 10) / (x - 3)).subs(x, 5)
+
+
+def adv_nf_cubic_x_intercept_point():
+    f = (x + 4) * (x - 3) * (2 * x - 5)
+    zeros = set(sp.solve(f, x))
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            px, py = _b8nf_point(ch)
+            if py == 0 and px in zeros:
+                hits.append(i)
+        return hits == [idx], f"zeros {sorted(zeros)}; x-intercept choices {hits}"
+
+    return check
+
+
+def adv_nf_vertex_form_minimum_value():
+    f = 4 * (x + 6) ** 2 - 11
+    xv = sp.solve(sp.diff(f, x), x)[0]
+    assert sp.diff(f, x, 2) > 0
+    return f.subs(x, xv)
+
+
+def adv_nf_channel_followers_weekly_percent():
+    w = Symbol("w")
+    F = 850 * Rational(106, 100) ** w
+    pct = sp.simplify((F.subs(w, 1) - F.subs(w, 0)) / F.subs(w, 0)) * 100  # 6
+
+    def check(choices, idx):
+        vals = [sp.nsimplify(latex_to_sympy_ext(ch)) for ch in choices]
+        hits = [i for i, v in enumerate(vals) if v == pct]
+        return hits == [idx], f"weekly percent increase {pct}; matching choices {hits}"
+
+    return check
+
+
+def adv_nf_factored_vertex_x_coordinate():
+    f = sp.expand((x - 4) * (x + 10))
+    return sp.solve(sp.diff(f, x), x)[0]
+
+
+def adv_nf_composition_quadratic_linear():
+    f = sp.Lambda(x, x**2 - 3 * x)
+    g = sp.Lambda(x, 2 * x + 1)
+    return f(g(3))
+
+
+# ------------------------------------------------------------------ medium
+
+
+def adv_nf_radical_input_for_output():
+    sols = sp.solve(Eq(2 * sqrt(a + 5) - 1, 11), a)
+    sols = [v for v in sols if sp.simplify(2 * sqrt(v + 5) - 1 - 11) == 0]
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_exponential_input_for_output():
+    sols = sp.solve(Eq(5 * 3 ** (x - 2) + 4, 139), x)
+    real = [v for v in sols if v.is_real]
+    assert len(real) == 1
+    return real[0]
+
+
+def adv_nf_exponential_form_displays_y_intercept():
+    f = 3 * 4 ** (x + 1)
+    y0 = f.subs(x, 0)
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            rhs = _b8nf_rhs(ch)
+            assert _b8nf_same_function(rhs, f), f"choice {i} is not equivalent"
+            coeff, _ = rhs.as_independent(x, as_Add=False)
+            if coeff == y0:
+                hits.append(i)
+        return hits == [idx], f"f(0) = {y0}; forms with that coefficient {hits}"
+
+    return check
+
+
+def adv_nf_hive_half_year_factor():
+    bp = Symbol("bp", positive=True)
+    sols = sp.solve(Eq(bp**2, Rational(121, 100)), bp)
+    assert len(sols) == 1
+    tt = Rational(7, 3)
+    assert sp.simplify(2000 * Rational(121, 100) ** tt - 2000 * sols[0] ** (2 * tt)) == 0
+    return sols[0]
+
+
+def adv_nf_exponential_from_three_values():
+    pts = {1: 6, 2: 18, 4: 162}
+
+    def check(choices, idx):
+        hits = []
+        for i, ch in enumerate(choices):
+            rhs = _b8nf_rhs(ch)
+            if all(rhs.subs(x, xv) == yv for xv, yv in pts.items()):
+                hits.append(i)
+        return hits == [idx], f"choices through all three points {hits}"
+
+    return check
+
+
+def adv_nf_museum_visitors_point():
+    V = -3 * d**2 + 90 * d
+    assert V.subs(d, 10) == 600
+    dmax = sp.solve(sp.diff(V, d), d)[0]
+    vmax = V.subs(d, dmax)
+    total10 = sum(V.subs(d, i) for i in range(1, 11))
+
+    def check(choices, idx):
+        key_ok = choices[idx].startswith("On the 10th day") and V.subs(d, 10) == 600
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("600th day" in ch and V.subs(d, 600) != 10)
+            or ("greatest number" in ch and vmax != 600)
+            or ("a total of 600" in ch and total10 != 600))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"V(10)=600, max {vmax} at d={dmax}, total over 10 days {total10}; contradicted {wrong}"
+
+    return check
+
+
+def adv_nf_wave_speed_depth():
+    sols = sp.solve(Eq(sqrt(Rational(98, 10) * x), 7), x)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_rational_shift_x_intercept():
+    f = sp.Lambda(x, 1 / x)
+    g = f(x + 3) - 2
+    sols = sp.solve(Eq(g, 0), x)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_nf_island_rabbits_initial():
+    ap_, bp_ = symbols("ap bp", positive=True)
+    sol = sp.solve([Eq(ap_ * bp_**2, 900), Eq(ap_ * bp_**4, 1296)], [ap_, bp_], dict=True)
+    assert len(sol) == 1
+    return sol[0][ap_]
+
+
+def adv_nf_table_shift_scale_evaluate():
+    f = {-1: 7, 1: 2, 3: -4, 5: 9}
+    return 2 * f[3 - 2] + 1
+
+
+def adv_nf_quadratic_positive_input():
+    sols = sp.solve(Eq(2 * x**2 - 8 * x - 1, 9), x)
+    pos = [v for v in sols if v > 0]
+    assert len(pos) == 1
+    return pos[0]
+
+
+# ------------------------------------------------------------------ hard
+
+
+def adv_nf_regression_reflect_shift_max():
+    q = a * x**2 + b * x + c
+    sol = sp.solve([Eq(q.subs(x, -1), 15), Eq(q.subs(x, 1), 3), Eq(q.subs(x, 5), 27)], [a, b, c])
+    f = sp.Lambda(x, q.subs(sol))
+    h = 10 - f(x - 2)
+    xc = sp.solve(sp.diff(h, x), x)[0]
+    assert sp.diff(h, x, 2) < 0
+    return h.subs(x, xc)
+
+
+def adv_nf_exponential_doubling_period():
+    f = sp.Lambda(x, 400 * 8 ** (x / 9))
+    ratio = sp.simplify(f(x + k) / f(x))  # 8^(k/9), independent of x
+    assert not ratio.has(x)
+    sols = [v for v in sp.solve(Eq(ratio, 2), k) if v.is_real]
+    assert len(sols) == 1
+    assert sp.simplify(f(x + sols[0]) - 2 * f(x)) == 0
+    return sols[0]
+
+
+def adv_nf_tea_cooling_constant():
+    T = 22 + 68 * Rational(9, 10) ** m
+    t0, t1 = T.subs(m, 0), T.subs(m, 1)
+    limit = sp.limit(T, m, sp.oo)
+
+    def check(choices, idx):
+        key_ok = "gets closer to 22" in choices[idx] and limit == 22
+        wrong = [i for i, ch in enumerate(choices) if i != idx and (
+            ("when it is poured is 22" in ch and t0 != 22)
+            or ("decreases by 22 degrees" in ch and t0 - t1 != 22)
+            or ("decreases by 22%" in ch and (t0 - t1) / t0 != Rational(22, 100)))]
+        ok = key_ok and sorted(wrong + [idx]) == [0, 1, 2, 3]
+        return ok, f"T(0)={t0}, T(0)-T(1)={t0 - t1}, limit {limit}; contradicted {wrong}"
+
+    return check
+
+
+def adv_nf_shifted_exponential_two_points():
+    ap_, bp_ = symbols("ap bp", positive=True)
+    f = ap_ * bp_**x - 5
+    sol = sp.solve([Eq(f.subs(x, 0), 11), Eq(f.subs(x, 2), 139)], [ap_, bp_], dict=True)
+    assert len(sol) == 1
+    fx = f.subs(sol[0])
+    xs = [v for v in sp.solve(Eq(fx, 1291), x) if v.is_real]
+    assert len(xs) == 1
+    return xs[0]
+
+
+def adv_nf_factored_plus_c_y_intercept():
+    f = (x - 2) * (x - 8) + c
+    xv = sp.solve(sp.diff(f, x), x)[0]
+    cv = sp.solve(Eq(f.subs(x, xv), -7), c)[0]
+    return f.subs(c, cv).subs(x, 0)
+
+
+def adv_nf_composition_find_linear():
+    comp = sp.expand((a * x + b) ** 2 + 1)
+    sols = sp.solve(sp.Poly(comp - (4 * x**2 - 12 * x + 10), x).all_coeffs(), [a, b], dict=True)
+    sols = [sd for sd in sols if sd[a] > 0]
+    assert len(sols) == 1
+    return (a * 5 + b).subs(sols[0])
+
+
+def adv_nf_pen_wall_max_area():
+    A = x * (120 - 2 * x)
+    xc = sp.solve(sp.diff(A, x), x)[0]
+    assert 0 < xc < 60 and sp.diff(A, x, 2) < 0
+    return A.subs(x, xc)
+
+
+def adv_nf_bridge_cable_length_below():
+    h = Rational(2, 100) * x**2 - 4 * x + 210
+    region = sp.solve_univariate_inequality(h <= 12, x, relational=False)
+    region = region.intersect(sp.Interval(0, 200))  # between the towers: h(0) = h(200) = 210
+    assert h.subs(x, 0) == h.subs(x, 200)
+    return region.measure
+
+
+def adv_nf_cubic_shift_up_intercept_count():
+    g = sp.Poly(sp.expand((x - 1) * (x + 3) ** 2 + 4), x)
+    return Integer(len(set(sp.real_roots(g))))
+
+
+def adv_nf_exponential_input_scale_rewrite():
+    f = sp.Lambda(x, 3 * 9**x)
+    g = f(x / 2 + 1)
+    av = sp.nsimplify(g.subs(x, 0))
+    bv = sp.nsimplify(g.subs(x, 1) / g.subs(x, 0))
+    assert _b8nf_same_function(g, av * bv**x)
+    return av + bv
+
+
+def adv_nf_quadratic_symmetric_values():
+    q = a * x**2 + b * x + c
+    sol = sp.solve([Eq(q.subs(x, -1), 12), Eq(q.subs(x, 2), -6), Eq(q.subs(x, 5), 12)], [a, b, c])
+    return q.subs(sol).subs(x, 7)
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -6625,6 +6925,35 @@ CHECKS = {
     "alg-decimal-mixture-value-40-minus-x": alg_decimal_mixture_value_40_minus_x,
     "alg-repeated-binomial-value-5x": alg_repeated_binomial_value_5x,
     "alg-pick-one-var-equation-no-solution": alg_pick_one_var_equation_no_solution,
+    # batch batch8-nf1
+    "adv-nf-rational-evaluate-at-five": adv_nf_rational_evaluate_at_five,
+    "adv-nf-cubic-x-intercept-point": adv_nf_cubic_x_intercept_point,
+    "adv-nf-vertex-form-minimum-value": adv_nf_vertex_form_minimum_value,
+    "adv-nf-channel-followers-weekly-percent": adv_nf_channel_followers_weekly_percent,
+    "adv-nf-factored-vertex-x-coordinate": adv_nf_factored_vertex_x_coordinate,
+    "adv-nf-composition-quadratic-linear": adv_nf_composition_quadratic_linear,
+    "adv-nf-radical-input-for-output": adv_nf_radical_input_for_output,
+    "adv-nf-exponential-input-for-output": adv_nf_exponential_input_for_output,
+    "adv-nf-exponential-form-displays-y-intercept": adv_nf_exponential_form_displays_y_intercept,
+    "adv-nf-hive-half-year-factor": adv_nf_hive_half_year_factor,
+    "adv-nf-exponential-from-three-values": adv_nf_exponential_from_three_values,
+    "adv-nf-museum-visitors-point": adv_nf_museum_visitors_point,
+    "adv-nf-wave-speed-depth": adv_nf_wave_speed_depth,
+    "adv-nf-rational-shift-x-intercept": adv_nf_rational_shift_x_intercept,
+    "adv-nf-island-rabbits-initial": adv_nf_island_rabbits_initial,
+    "adv-nf-table-shift-scale-evaluate": adv_nf_table_shift_scale_evaluate,
+    "adv-nf-quadratic-positive-input": adv_nf_quadratic_positive_input,
+    "adv-nf-regression-reflect-shift-max": adv_nf_regression_reflect_shift_max,
+    "adv-nf-exponential-doubling-period": adv_nf_exponential_doubling_period,
+    "adv-nf-tea-cooling-constant": adv_nf_tea_cooling_constant,
+    "adv-nf-shifted-exponential-two-points": adv_nf_shifted_exponential_two_points,
+    "adv-nf-factored-plus-c-y-intercept": adv_nf_factored_plus_c_y_intercept,
+    "adv-nf-composition-find-linear": adv_nf_composition_find_linear,
+    "adv-nf-pen-wall-max-area": adv_nf_pen_wall_max_area,
+    "adv-nf-bridge-cable-length-below": adv_nf_bridge_cable_length_below,
+    "adv-nf-cubic-shift-up-intercept-count": adv_nf_cubic_shift_up_intercept_count,
+    "adv-nf-exponential-input-scale-rewrite": adv_nf_exponential_input_scale_rewrite,
+    "adv-nf-quadratic-symmetric-values": adv_nf_quadratic_symmetric_values,
 }
 
 
