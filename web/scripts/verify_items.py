@@ -657,11 +657,29 @@ def check_item(item: dict, compute) -> tuple[bool, str]:
 
 
 def main() -> int:
-    items = parse_items(ITEMS_TS.read_text(encoding="utf-8"))
+    import argparse, importlib.util
+    ap = argparse.ArgumentParser(description="Recompute every item key with SymPy and compare with items.ts")
+    ap.add_argument("--items", type=Path, default=ITEMS_TS, help="path to an items .ts file (default: web/content/items.ts)")
+    ap.add_argument("--checks", type=Path, action="append", default=[],
+                    help="extra Python module(s) defining CHECKS = {item_id: fn}; used by batch files before merge")
+    ap.add_argument("--only-extra", action="store_true", help="verify only the ids registered in --checks modules")
+    args = ap.parse_args()
+    checks = dict(CHECKS)
+    extra_ids: set[str] = set()
+    for mod_path in args.checks:
+        spec = importlib.util.spec_from_file_location(mod_path.stem, mod_path)
+        mod = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(mod)
+        checks.update(mod.CHECKS)
+        extra_ids.update(mod.CHECKS)
+    items = parse_items(args.items.read_text(encoding="utf-8"))
+    if args.only_extra:
+        items = [i for i in items if i["id"] in extra_ids]
     failures = 0
     print(f"{'id':34} {'dom':14} {'fmt':4} {'diff':6} {'route':15} status  detail")
     for item in items:
-        compute = CHECKS.get(item["id"])
+        compute = checks.get(item["id"])
         if compute is None:
             ok, detail = False, "no SymPy check registered in verify_items.py"
         else:
@@ -673,7 +691,7 @@ def main() -> int:
         print(f"{item['id']:34} {item['domain']:14} {item['format']:4} {item['difficulty']:6} {item['route']:15} "
               f"{'PASS' if ok else 'FAIL':6}  {detail}")
 
-    unknown = sorted(set(CHECKS) - {i["id"] for i in items})
+    unknown = sorted(set(checks) - {i["id"] for i in items})
     if unknown:
         print(f"\nnote: checks with no matching item in items.ts: {unknown}")
 
