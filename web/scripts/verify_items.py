@@ -2284,6 +2284,175 @@ def alg_shelf_inequality_point_meaning():
     return check
 
 
+# ----- Batch batch5-psda -----
+#!/usr/bin/env python3
+"""SymPy key checks for web/content/batches/batch5-psda.ts (batch 5-psda).
+
+Run from the repo root, against a temp items file that contains the batch:
+
+    python3 web/scripts/verify_items.py --items <tmp items.ts> \
+        --checks web/scripts/checks_batch5_psda.py --only-extra
+
+Each function derives the answer from the stem's givens, following the
+conventions of verify_items.py: a numeric result for numeric keys, or a
+callable (choices, answer_index) -> (ok, detail) for items whose choices are
+equations or sentences. Helpers are prefixed _b5p_ so they do not collide
+with earlier batches after the merge.
+"""
+
+
+
+import sympy as sp
+from sympy import Eq, Integer, Rational, sqrt, symbols
+
+
+x, p, n = symbols("x p n")
+
+
+def _b5p_mean(values):
+    return Rational(sum(values), len(values))
+
+
+def _b5p_median(values):
+    vals = sorted(values)
+    k = len(vals)
+    return Rational(vals[k // 2]) if k % 2 else Rational(vals[k // 2 - 1] + vals[k // 2], 2)
+
+
+def _b5p_sd(values):
+    mu = _b5p_mean(values)
+    return sqrt(sum((v - mu) ** 2 for v in values) / len(values))
+
+
+# ---------------------------------------------------------------------------
+# Ratios, rates, proportional relationships, and units
+# ---------------------------------------------------------------------------
+
+
+def psda_oven_loaves_two_hours():
+    per_minute = Rational(36, 45)
+    return per_minute * 2 * 60
+
+
+def psda_sprinkler_lawn_minutes():
+    liters = 18 * 10 * Rational(5, 2)
+    seconds = liters / Rational(3, 4)
+    return seconds / 60
+
+
+# ---------------------------------------------------------------------------
+# Percentages
+# ---------------------------------------------------------------------------
+
+
+def psda_scooter_fleet_percent_increase():
+    return sp.solve(Eq(n * (1 + Rational(150, 100)), 1500), n)[0]
+
+
+def psda_markup_discount_profit_p():
+    regular, sale = 1 + Rational(60, 100), 1 + Rational(20, 100)
+    return sp.solve(Eq(regular * (1 - p / 100), sale), p)[0]
+
+
+# ---------------------------------------------------------------------------
+# One-variable data
+# ---------------------------------------------------------------------------
+
+
+def psda_flaws_mean_minus_median():
+    freq = {0: 6, 1: 9, 3: 5}
+    data = [v for v, f in freq.items() for _ in range(f)]
+    assert len(data) == 20
+    return _b5p_mean(data) - _b5p_median(data)
+
+
+def psda_scaled_shifted_data_set():
+    # The rule (mean -> 3m - 5, SD -> 3s) holds for every list; check it on two lists with mean 14.
+    for X in ([10, 12, 14, 16, 18], [14] * 10 + [4, 24, 9, 19, 14, 14, 14, 14, 14, 14]):
+        assert _b5p_mean(X) == 14 and len(X) in (5, 20)
+        Y = [3 * v - 5 for v in X]
+        mean_y, ratio = _b5p_mean(Y), sp.simplify(_b5p_sd(Y) / _b5p_sd(X))
+        assert ratio == 3
+    expected_mean, expected_ratio = mean_y, ratio
+    sd_phrase = f"is {expected_ratio} times the standard deviation" if expected_ratio != 1 else "is equal to the standard deviation"
+
+    def check(choices, idx):
+        matches = [i for i, ch in enumerate(choices) if f"is {expected_mean}," in ch and sd_phrase in ch]
+        return matches == [idx], f"mean(Y) = {expected_mean}, SD(Y)/SD(X) = {expected_ratio}; matching choices {matches}"
+
+    return check
+
+
+# ---------------------------------------------------------------------------
+# Two-variable data
+# ---------------------------------------------------------------------------
+
+
+def psda_tidal_pool_quadratic_fit():
+    pts = [(0, 5), (1, 8), (2, 9), (3, 8), (4, 5)]
+
+    def check(choices, idx):
+        ssr = []
+        for ch in choices:
+            rhs = latex_to_sympy(ch.split("=")[1])
+            ssr.append(sum((rhs.subs(x, xv) - yv) ** 2 for xv, yv in pts))
+        exact = [i for i, v in enumerate(ssr) if sp.simplify(v) == 0]
+        return exact == [idx], f"sum of squared residuals per choice {[int(v) for v in ssr]}; exact fits {exact}"
+
+    return check
+
+
+def psda_newsletter_linear_vs_exponential():
+    y0, y2 = 250, 360
+    slope = Rational(y2 - y0, 2)
+    linear_4 = y0 + slope * 4
+    b = [v for v in sp.solve(Eq(y0 * x**2, y2), x) if v > 0][0]
+    exp_4 = y0 * b**4
+    return sp.nsimplify(exp_4 - linear_4)
+
+
+# ---------------------------------------------------------------------------
+# Probability and conditional probability
+# ---------------------------------------------------------------------------
+
+
+def psda_tokens_not_red():
+    return Rational(50 - 12, 50)
+
+
+def psda_workshop_book_conditional():
+    first_time_no_book = 90 - 28
+    no_book = 150 - 40
+    return Rational(first_time_no_book, no_book)
+
+
+# ---------------------------------------------------------------------------
+# Inference from sample statistics and margin of error
+# ---------------------------------------------------------------------------
+
+
+def psda_fish_mass_sample_mean():
+    lo, hi = Rational(24, 10), Rational(32, 10)
+    return (lo + hi) / 2
+
+
+# ---------------------------------------------------------------------------
+# Evaluating statistical claims
+# ---------------------------------------------------------------------------
+
+
+def psda_bicycle_survey_generalize():
+    sampled_from = "residents of the apartment complex"
+
+    def check(choices, idx):
+        # The key names exactly the sampled population: no wider region, no subgroup.
+        good = [i for i, ch in enumerate(choices)
+                if ch.strip() == f"All {sampled_from}"]
+        return good == [idx], f"sampled population '{sampled_from}'; choices naming exactly it: {good}"
+
+    return check
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -2519,6 +2688,19 @@ CHECKS = {
     "alg-parallel-strip-combination": alg_parallel_strip_combination,
     "alg-two-jobs-least-hours": alg_two_jobs_least_hours,
     "alg-shelf-inequality-point-meaning": alg_shelf_inequality_point_meaning,
+    # batch batch5-psda
+    "psda-oven-loaves-two-hours": psda_oven_loaves_two_hours,
+    "psda-sprinkler-lawn-minutes": psda_sprinkler_lawn_minutes,
+    "psda-scooter-fleet-percent-increase": psda_scooter_fleet_percent_increase,
+    "psda-markup-discount-profit-p": psda_markup_discount_profit_p,
+    "psda-flaws-mean-minus-median": psda_flaws_mean_minus_median,
+    "psda-scaled-shifted-data-set": psda_scaled_shifted_data_set,
+    "psda-tidal-pool-quadratic-fit": psda_tidal_pool_quadratic_fit,
+    "psda-newsletter-linear-vs-exponential": psda_newsletter_linear_vs_exponential,
+    "psda-tokens-not-red": psda_tokens_not_red,
+    "psda-workshop-book-conditional": psda_workshop_book_conditional,
+    "psda-fish-mass-sample-mean": psda_fish_mass_sample_mean,
+    "psda-bicycle-survey-generalize": psda_bicycle_survey_generalize,
 }
 
 
