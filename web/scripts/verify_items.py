@@ -9330,6 +9330,291 @@ def adv_ee3_exponential_sum_squared():
     return _b12e3_expr_check(expr, _B12E3_X, label="(2^x + 2^-x)^2 = 4^x + 2 + 4^-x")
 
 
+# ----- Batch batch12-ne3 -----
+#!/usr/bin/env python3
+"""SymPy checks for web/content/batches/batch12-ne3.ts (batch batch12-ne3).
+
+Run through the shared verifier, which loads this module's CHECKS:
+
+    python3 web/scripts/verify_items.py --items <items file> \
+        --checks web/scripts/checks_batch12_ne3.py --only-extra
+
+Same conventions as verify_items.py: each function returns the exact answer as
+a SymPy object, or a callable (choices, answer_index) -> (ok, detail) for MC
+items whose choices are not plain numbers (radicals, words, +- expressions).
+"""
+
+
+
+import sympy as sp
+from sympy import Eq, Rational, Symbol, sqrt, symbols
+
+x, y, k, t = symbols("x y k t")
+
+
+# ----- helpers (prefix _b12n3_) -----
+
+_B12N3_COUNT_WORDS = {0: "Zero", 1: "Exactly one", 2: "Exactly two", 3: "Exactly three", 4: "Exactly four"}
+
+
+def _b12n3_real_roots(expr, var=x):
+    """Distinct real roots of a polynomial or rational expression in var."""
+    vr = Symbol(str(var) + "_r", real=True)
+    return sorted(set(sp.solve(sp.together(expr).subs(var, vr), vr)))
+
+
+def _b12n3_real_points(eqs):
+    """Distinct real solutions (x, y) of a system of polynomial equations."""
+    sols = sp.solve(eqs, [x, y], dict=True)
+    pts = set()
+    for s0 in sols:
+        xv, yv = sp.simplify(s0[x]), sp.simplify(s0[y])
+        if xv.is_real and yv.is_real:
+            pts.add((xv, yv))
+    return pts
+
+
+def _b12n3_mc(expected):
+    """Callable for numeric choices the base parser can't read (radicals)."""
+
+    def check(choices, idx):
+        vals = [latex_to_sympy_ext(ch) for ch in choices]
+        matches = [i for i, v in enumerate(vals) if sp.simplify(v - expected) == 0]
+        return matches == [idx], f"expected {expected}; matching choices {matches}"
+
+    return check
+
+
+def _b12n3_count(count):
+    def check(choices, idx):
+        word = _B12N3_COUNT_WORDS[count]
+        hits = [i for i, ch in enumerate(choices) if ch == word]
+        return hits == [idx], f"{count} solution(s) -> '{word}'; matching choices {hits}"
+
+    return check
+
+
+def _b12n3_pm_set(text):
+    """'$3 \\pm \\sqrt{5}$' -> {3 + sqrt(5), 3 - sqrt(5)}."""
+    s = text.strip().strip("$")
+    left, right = s.split("\\pm")
+    a0 = latex_to_sympy_ext(left) if left.strip() else sp.Integer(0)
+    b0 = latex_to_sympy_ext(right)
+    return {sp.nsimplify(a0 + b0), sp.nsimplify(a0 - b0)}
+
+
+# ----- checks -----
+
+
+def adv_ne3_square_49_negative_root():
+    neg = [r for r in _b12n3_real_roots(x**2 - 49) if r < 0]
+    assert len(neg) == 1
+    return neg[0]
+
+
+def adv_ne3_five_times_power_two():
+    sols = sp.solve(Eq(5 * 2**x, 160), x)
+    assert len(sols) == 1
+    return sp.nsimplify(sols[0])
+
+
+def adv_ne3_sqrt_plus_five_easy():
+    xp = Symbol("xp", nonnegative=True)
+    sols = sp.solve(Eq(sqrt(xp) + 5, 11), xp)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_ne3_heating_coil_voltage():
+    vp = Symbol("V", positive=True)
+    sols = sp.solve(Eq(vp**2 / 24, 150), vp)
+    assert len(sols) == 1
+    return sols[0]
+
+
+def adv_ne3_product_xy_line_easy():
+    pts = [p for p in _b12n3_real_points([Eq(x * y, 18), Eq(y, 2 * x)]) if p[0] > 0]
+    assert len(pts) == 1
+    return pts[0][0]
+
+
+def adv_ne3_base_four_sixty_four():
+    xr = Symbol("xr", real=True)
+    sols = sp.solve(Eq(4 ** (xr + 1), 64), xr)
+    assert len(sols) == 1
+    return sp.nsimplify(sols[0])
+
+
+def adv_ne3_factored_repeated_count():
+    return _b12n3_count(len(_b12n3_real_roots((x - 5) ** 2 * (x**2 - 25))))
+
+
+def adv_ne3_meeting_handshakes():
+    pos = [r for r in _b12n3_real_roots(x * (x - 1) / 2 - 45) if r > 0]
+    assert len(pos) == 1 and pos[0].is_integer
+    return pos[0]
+
+
+def adv_ne3_auditorium_rows_seats():
+    pos = [r for r in _b12n3_real_roots(x * (x + 8) - 384) if r > 0]
+    assert len(pos) == 1 and pos[0].is_integer
+    return pos[0]
+
+
+def adv_ne3_podcast_base_four_weeks():
+    sols = sp.solve(Eq(25 * 4 ** (t / 2), 1600), t)
+    real = [sp.nsimplify(v) for v in sols if v.is_real]
+    assert len(real) == 1
+    return real[0]
+
+
+def adv_ne3_given_root_other_fraction():
+    kv = sp.solve((3 * x**2 + k * x - 20).subs(x, -4), k)[0]
+    others = [r for r in _b12n3_real_roots(3 * x**2 + kv * x - 20) if r != -4]
+    assert len(others) == 1
+    return others[0]
+
+
+def adv_ne3_line_parabola_second_point_y():
+    pts = _b12n3_real_points([Eq(y, x**2 - 2 * x + 3), Eq(y, 2 * x + 3)])
+    assert (0, 3) in pts and len(pts) == 2
+    other = [p for p in pts if p != (0, 3)][0]
+    return other[1]
+
+
+def adv_ne3_circles_external_tangent_count():
+    return _b12n3_count(len(_b12n3_real_points([Eq(x**2 + y**2, 9), Eq((x - 5) ** 2 + y**2, 4)])))
+
+
+def adv_ne3_f_equals_f_double_quadratic():
+    f = lambda v: v**2 - 6 * v + 10  # noqa: E731
+    nz = [r for r in _b12n3_real_roots(f(x) - f(2 * x)) if r != 0]
+    assert len(nz) == 1
+    return nz[0]
+
+
+def adv_ne3_one_ninth_base_three():
+    xr = Symbol("xr", real=True)
+    sols = sp.solve(Eq(Rational(1, 9) ** xr, 3 ** (xr + 6)), xr)
+    assert len(sols) == 1
+    return sp.nsimplify(sols[0])
+
+
+def adv_ne3_product_sum_squares():
+    pts = _b12n3_real_points([Eq(x * y, 12), Eq(x + y, 7)])
+    vals = {sp.simplify(p[0] ** 2 + p[1] ** 2) for p in pts}
+    assert len(vals) == 1
+    return vals.pop()
+
+
+def adv_ne3_quadratic_formula_expression():
+    roots = set(_b12n3_real_roots(x**2 - 6 * x + 4))
+
+    def check(choices, idx):
+        hits = [i for i, ch in enumerate(choices)
+                if {sp.simplify(v) for v in _b12n3_pm_set(ch)} == {sp.simplify(v) for v in roots}]
+        return hits == [idx], f"roots {roots}; matching choices {hits}"
+
+    return check
+
+
+def adv_ne3_absolute_quadratic_four_count():
+    xr = Symbol("xr", real=True)
+    sols = set(sp.solve(sp.Abs(xr**2 - 5) - 4, xr))
+    return _b12n3_count(len(sols))
+
+
+def adv_ne3_train_braking_domain():
+    good = [r for r in _b12n3_real_roots(3 * (12 - t) ** 2 - 75, t) if 0 <= r <= 12]
+    assert len(good) == 1
+    return good[0]
+
+
+def adv_ne3_circle_parabola_three_count():
+    return _b12n3_count(len(_b12n3_real_points([Eq(x**2 + y**2, 16), Eq(y, x**2 - 4)])))
+
+
+def adv_ne3_circles_other_point_b():
+    pts = _b12n3_real_points([Eq(x**2 + y**2, 25), Eq((x - 7) ** 2 + (y - 1) ** 2, 25)])
+    assert (3, 4) in pts and len(pts) == 2
+    return [p for p in pts if p != (3, 4)][0][1]
+
+
+def adv_ne3_sixteen_four_quadratic_exponent():
+    # Exponents match on the common base 4; confirm on the original equation.
+    pos = [r for r in _b12n3_real_roots(2 * x**2 - (x + 3)) if r > 0]
+    assert len(pos) == 1
+    assert sp.simplify(16 ** (pos[0] ** 2) - 4 ** (pos[0] + 3)) == 0
+    return pos[0]
+
+
+def adv_ne3_roots_differ_by_one_k():
+    kp = Symbol("kp", positive=True)
+    cands = []
+    for kv in sp.solve((kp**2 - 48) - 1, kp):  # (difference of roots)^2 = discriminant
+        rts = _b12n3_real_roots(x**2 + kv * x + 12)
+        if len(rts) == 2 and abs(rts[1] - rts[0]) == 1:
+            cands.append(kv)
+    assert len(cands) == 1
+    return cands[0]
+
+
+def adv_ne3_v_graph_circle_count():
+    right = [r for r in _b12n3_real_roots(x**2 + (x + 1) ** 2 - 25) if r >= 0]
+    left = [r for r in _b12n3_real_roots(x**2 + (-x + 1) ** 2 - 25) if r < 0]
+    return _b12n3_count(len(set(right + left)))
+
+
+def adv_ne3_product_ellipse_x_plus_2y():
+    pts = [p for p in _b12n3_real_points([Eq(x * y, 10), Eq(x**2 + 4 * y**2, 41)]) if p[0] > 0 and p[1] > 0]
+    vals = {sp.simplify(p[0] + 2 * p[1]) for p in pts}
+    assert len(pts) == 2 and len(vals) == 1
+    return vals.pop()
+
+
+def adv_ne3_robots_north_east():
+    pos = [r for r in _b12n3_real_roots((2 * x) ** 2 + (2 * (x + 2)) ** 2 - 400) if r > 0]
+    assert len(pos) == 1
+    return pos[0]
+
+
+def adv_ne3_dance_floor_enlarged_area():
+    pos = [r for r in _b12n3_real_roots((x + 4) * (x + 6) - 2 * x**2) if r > 0]
+    assert len(pos) == 1
+    return (pos[0] + 4) * (pos[0] + 6)
+
+
+def adv_ne3_f_equals_f_double_rational():
+    f = lambda v: v + 12 / v  # noqa: E731
+    pos = [r for r in _b12n3_real_roots(f(x) - f(2 * x)) if r > 0]
+    assert len(pos) == 1
+    return _b12n3_mc(pos[0])
+
+
+def adv_ne3_quartic_substitution_product():
+    roots = _b12n3_real_roots((x**2 - 3 * x) ** 2 - (x**2 - 3 * x) - 12)
+    assert len(roots) == 2
+    return sp.prod(roots)
+
+
+def adv_ne3_root_difference_squared():
+    rts = _b12n3_real_roots(2 * x**2 - 4 * x - 3)
+    assert len(rts) == 2
+    return sp.simplify((rts[0] - rts[1]) ** 2)
+
+
+def adv_ne3_exponential_system_sum():
+    xr, yr = symbols("xr yr", real=True)
+    sols = sp.solve([Eq(3**xr * 9**yr, 81), Eq(9**xr / 3**yr, 27)], [xr, yr], dict=True)
+    if not sols:  # fall back to the exponent system on base 3
+        sols = sp.solve([Eq(xr + 2 * yr, 4), Eq(2 * xr - yr, 3)], [xr, yr], dict=True)
+    assert len(sols) == 1
+    s0 = sols[0]
+    assert sp.simplify(3 ** s0[xr] * 9 ** s0[yr] - 81) == 0
+    assert sp.simplify(9 ** s0[xr] / 3 ** s0[yr] - 27) == 0
+    return s0[xr] + s0[yr]
+
+
 CHECKS = {
     "sample-tangent-system": sample_tangent_system,
     "sample-positive-root": sample_positive_root,
@@ -10309,6 +10594,38 @@ CHECKS = {
     "adv-ee3-gcf-then-trinomial-a-plus-b": adv_ee3_gcf_then_trinomial_a_plus_b,
     "adv-ee3-equal-coefficients-k": adv_ee3_equal_coefficients_k,
     "adv-ee3-exponential-sum-squared": adv_ee3_exponential_sum_squared,
+    # batch batch12-ne3
+    "adv-ne3-square-49-negative-root": adv_ne3_square_49_negative_root,
+    "adv-ne3-five-times-power-two": adv_ne3_five_times_power_two,
+    "adv-ne3-sqrt-plus-five-easy": adv_ne3_sqrt_plus_five_easy,
+    "adv-ne3-heating-coil-voltage": adv_ne3_heating_coil_voltage,
+    "adv-ne3-product-xy-line-easy": adv_ne3_product_xy_line_easy,
+    "adv-ne3-base-four-sixty-four": adv_ne3_base_four_sixty_four,
+    "adv-ne3-factored-repeated-count": adv_ne3_factored_repeated_count,
+    "adv-ne3-meeting-handshakes": adv_ne3_meeting_handshakes,
+    "adv-ne3-auditorium-rows-seats": adv_ne3_auditorium_rows_seats,
+    "adv-ne3-podcast-base-four-weeks": adv_ne3_podcast_base_four_weeks,
+    "adv-ne3-given-root-other-fraction": adv_ne3_given_root_other_fraction,
+    "adv-ne3-line-parabola-second-point-y": adv_ne3_line_parabola_second_point_y,
+    "adv-ne3-circles-external-tangent-count": adv_ne3_circles_external_tangent_count,
+    "adv-ne3-f-equals-f-double-quadratic": adv_ne3_f_equals_f_double_quadratic,
+    "adv-ne3-one-ninth-base-three": adv_ne3_one_ninth_base_three,
+    "adv-ne3-product-sum-squares": adv_ne3_product_sum_squares,
+    "adv-ne3-quadratic-formula-expression": adv_ne3_quadratic_formula_expression,
+    "adv-ne3-absolute-quadratic-four-count": adv_ne3_absolute_quadratic_four_count,
+    "adv-ne3-train-braking-domain": adv_ne3_train_braking_domain,
+    "adv-ne3-circle-parabola-three-count": adv_ne3_circle_parabola_three_count,
+    "adv-ne3-circles-other-point-b": adv_ne3_circles_other_point_b,
+    "adv-ne3-sixteen-four-quadratic-exponent": adv_ne3_sixteen_four_quadratic_exponent,
+    "adv-ne3-roots-differ-by-one-k": adv_ne3_roots_differ_by_one_k,
+    "adv-ne3-v-graph-circle-count": adv_ne3_v_graph_circle_count,
+    "adv-ne3-product-ellipse-x-plus-2y": adv_ne3_product_ellipse_x_plus_2y,
+    "adv-ne3-robots-north-east": adv_ne3_robots_north_east,
+    "adv-ne3-dance-floor-enlarged-area": adv_ne3_dance_floor_enlarged_area,
+    "adv-ne3-f-equals-f-double-rational": adv_ne3_f_equals_f_double_rational,
+    "adv-ne3-quartic-substitution-product": adv_ne3_quartic_substitution_product,
+    "adv-ne3-root-difference-squared": adv_ne3_root_difference_squared,
+    "adv-ne3-exponential-system-sum": adv_ne3_exponential_system_sum,
 }
 
 
