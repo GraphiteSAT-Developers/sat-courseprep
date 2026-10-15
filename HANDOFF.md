@@ -25,7 +25,7 @@ This is a collaborative project.
    - a three-layer eval (solver accuracy, expression validity, tutoring quality).
 
 ## Open blockers (resolve first, as Phase 0)
-- **Gemini under-18 terms.** The Gemini API Additional Terms and Google Cloud terms §17(d) reportedly bar apps "directed towards or likely to be accessed by" anyone under 18. Options: a written exception from Google, a different LLM vendor, or an 18+-only product. **Needs a lawyer.** Keep the LLM layer provider-agnostic.
+- **Gemini under-18 terms.** The Gemini API Additional Terms (effective March 2026) bar apps "directed towards or likely to be accessed by" anyone under 18, with no education exception. **Working decision (2026-10-15): build on OpenAI or Anthropic instead**; both allow apps serving minors with safeguards (age screen, AI disclosure, content filtering). Details and sources in `docs/phase0/README.md`. The LLM layer stays provider-agnostic.
 - **Desmos API license.** The free key covers personal use or 90-day internal evaluation only. Production needs a paid plan: Starter is reported at about $100/month for 1,000 users. Ask Desmos whether a server-side headless instance is covered.
 - **College Board content.** Official questions can't be used commercially or with generative AI. **All items must be original**, including the eval benchmark. Every use of "SAT" needs College Board's trademark footnote.
 - **COPPA and minors' privacy.** The amended rule's compliance date was April 22, 2026. Plan for a neutral age screen, parental consent for under-13s, and a parent-paid checkout.
@@ -40,7 +40,7 @@ These are listed in the report's decisions table:
 - human review budget
 
 ## Recommended next steps
-1. Phase 0 gating: counsel and Google on the age clause; email Desmos about licensing; audit Bluebook's Desmos features by hand.
+1. Phase 0: send the Desmos licensing email and do the Bluebook calculator audit (drafts and checklist in `docs/phase0/`). A lawyer is a pre-launch step, not a pre-build one.
 2. ~~Scaffold the repo~~ Done for the site: Next.js app with the Desmos embed, KaTeX, the SPR grader and the tutor seam (`web/`). Still open:
    - first run against the real Desmos API with a key (only a mock was tested)
    - the headless Desmos verification service (Playwright) and SymPy verifier (AI collaborator)
