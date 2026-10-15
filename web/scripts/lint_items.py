@@ -177,7 +177,7 @@ def choice_class(choice: str) -> str:
     s = choice.strip()
     if s.startswith("$") and s.endswith("$"):
         inner = s.strip("$")
-        if re.search(r"=|<|>|\\le|\\ge|\\neq", inner):
+        if re.search(r"=|<|>|\\(?:le|leq|ge|geq)(?![a-z])|\\neq", inner):
             return "equation"
         return "expression"
     return "sentence"
@@ -214,7 +214,7 @@ CONTEXT_WORDS = re.compile(
     r"\b(dollars?|cents?|price|cost|costs|fee|charges?|meters?|centimeters?|kilometers?|millimeters?|"
     r"grams?|kilograms?|milliliters?|liters?|feet|foot|inches|inch|yards?|miles?|hours?|minutes?|seconds|"
     r"days?|weeks?|months?|years?|students?|people|adults?|members?|population|survey|sample[sd]?|"
-    r"store|shop|town|city|chemist|club|plants?|per)\b",
+    r"store|shop|town|city|chemist|club|plants?|per|ohms?|volts?|watts?|degrees Fahrenheit|degrees Celsius)\b",
     re.I,
 )
 
