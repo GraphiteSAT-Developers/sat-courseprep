@@ -1146,36 +1146,34 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
   transform: rotateX(90deg) translateZ(calc(var(--H) / 2 - 0.5px)); }
 .c3-back { border-radius: 34px 34px 46px 46px; }
 
-/* 3D keys: the front keeps its 3D space, so every key sits raised off the face with visible sides */
-.c3-front { overflow: visible; transform-style: preserve-3d; }
+/* The front is one flat layer: a 3D front leaves the screen in the same plane as the faceplate, and real GPUs flicker between them. Keys look raised through their shading. */
+.c3-front { overflow: visible; }
 /* The side rails are painted into the face, so the face's rounded corners clip them. */
 .nsp-rail { display: none; }
 .c3-front.nsp { background: linear-gradient(90deg, #f2c14e 0, #e2ad35 9px, #b98a24 13px, transparent 13px, transparent calc(100% - 13px), #b98a24 calc(100% - 13px), #e2ad35 calc(100% - 9px), #f2c14e 100%),
   radial-gradient(120% 50% at 40% 0%, #2a2c2f 0%, transparent 60%), linear-gradient(175deg, #1c1d1f 0%, #131415 100%); }
-.nsp-nav, .nsp-col, .nsp-pad, .nsp-row, .nsp-main, .nsp-alpha, .nk, .ak, .pad-ring, .pad-in { transform-style: preserve-3d; }
 /* Each key is a raised cap: its face floats just above the body and a solid skirt underneath reads as the key's side.
    (Stacked side layers looked like ghost outlines once the calculator tilted.) */
-.nk-face, .ak span { --side: #050506; position: relative; transform: translateZ(2px);
+.nk-face, .ak span { --side: #050506; position: relative;
   transition: transform 90ms ease, box-shadow 90ms ease;
   box-shadow: 0 3px 0 var(--side), 0 4px 4px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -2px 3px rgba(0, 0, 0, 0.3); }
 .ak span { --side: #050506; box-shadow: 0 2px 0 var(--side), 0 3px 3px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12); }
 .nk-num .nk-face { --side: #1f2123; }
 .nk-ctrl .nk-face { --side: #8a6718; }
 /* Pressed: the cap drops onto its skirt and lights up (a filter would flatten the 3D scene). */
-.nk-face.is-pressed, .ak span.is-pressed, .nk:hover .nk-face, .ak:hover span { transform: translateZ(1px) translateY(2px);
+.nk-face.is-pressed, .ak span.is-pressed, .nk:hover .nk-face, .ak:hover span { transform: translateY(2px);
   box-shadow: 0 1px 0 var(--side), 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 0 0 40px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
 /* Split keys: two equal halves with the divider in the middle */
 .nk-pair .nk-face { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); justify-items: stretch; }
 .nk-pair .nk-face b { width: 100%; text-align: center; }
-.pad-ring { transform: translateZ(2px); box-shadow: 0 3px 0 #4a4d52, 0 4px 5px rgba(0, 0, 0, 0.5), 0 0 0 1px #000; }
-.pad-click { transform: translateZ(1px); }
+.pad-ring { box-shadow: 0 3px 0 #4a4d52, 0 4px 5px rgba(0, 0, 0, 0.5), 0 0 0 1px #000; }
+
 
 /* Flipped: hide the front's screen and keys once the turn passes halfway. Some GPUs draw the animated
    screen layers on top of the back, so depth sorting alone isn't enough. */
-.c3-front, .c3-front *, .c3-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.c3-front > * { transition: visibility 0s linear 380ms; }
+.c3-front > * { transition: visibility 0s linear 150ms; }
 .c3-tilt.is-flipped .c3-front > * { visibility: hidden; }
-.c3-back > * { transition: visibility 0s linear 380ms; }
+.c3-back > * { transition: visibility 0s linear 150ms; }
 .c3-tilt:not(.is-flipped) .c3-back > * { visibility: hidden; }
 
 /* SAT date box: same size and text placement as the select below it, on every browser.
