@@ -334,6 +334,7 @@
       S.submitted = true; S.result = result; save();
       if (auto) toast("Time's up. Your module was submitted.");
       renderResults(result); showPage("results");
+      closePopup();
       celebrate(result.finished);
     };
     if (!LIVE && !T.session) { finish(gradeLocal(seconds)); return; }
@@ -435,10 +436,17 @@
   var calcBuilt = false;
   function themeCalc() {
     var f = $("calc-frame").querySelector("iframe");
-    try {
-      var btn = f && f.contentDocument && f.contentDocument.getElementById(S.view === "light" ? "thLight" : "thDark");
-      if (btn) btn.click();
-    } catch (e) { /* calculator served from another origin */ }
+    [f && f.contentDocument, popup && !popup.closed && popup.document].forEach(function (doc) {
+      try {
+        var btn = doc && doc.getElementById(S.view === "light" ? "thLight" : "thDark");
+        if (btn) btn.click();
+      } catch (e) { /* calculator served from another origin */ }
+    });
+  }
+  function calcSource() {
+    var bin = atob(window.TOPLINE_SRC_B64), bytes = new Uint8Array(bin.length);
+    for (var k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+    return new TextDecoder().decode(bytes);
   }
   function buildCalc() {
     if (calcBuilt) return; calcBuilt = true;
@@ -446,21 +454,60 @@
     f.title = "Graphing calculator";
     f.addEventListener("load", function () { var l = $("calc-frame").querySelector(".calc-loading"); if (l) l.remove(); themeCalc(); });
     if (window.TOPLINE_SRC_B64) {
-      var bin = atob(window.TOPLINE_SRC_B64), bytes = new Uint8Array(bin.length);
-      for (var k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
-      f.srcdoc = new TextDecoder().decode(bytes);
+      f.srcdoc = calcSource();
     } else {
       f.src = "calculator.html";
     }
     $("calc-frame").appendChild(f);
   }
-  function setCalc(open) {
-    $("calc-panel").hidden = !open;
+  function markCalc(open) {
     $("calc-toggle").setAttribute("aria-pressed", String(open));
     $("calc-toggle").classList.toggle("on", open);
     root.classList.toggle("calc-open", open);
+  }
+  // In-page floating window: the fallback when the browser blocks pop-up windows.
+  function setCalc(open) {
+    $("calc-panel").hidden = !open;
+    markCalc(open);
     if (open) { calcWin.place(); buildCalc(); }
   }
+
+  /* The calculator opens in its own browser window beside the test. Its work saves in this browser,
+     so closing and reopening it (or changing questions) keeps the graphs. */
+  var popup = null, popupWatch = null;
+  function popupOpen() { return !!(popup && !popup.closed); }
+  function openPopup() {
+    if (popupOpen()) { popup.focus(); return true; }
+    var w = 480, h = Math.min(820, (window.screen && screen.availHeight || 900) - 60);
+    var left = Math.max(0, (window.screenX || 0) + (window.outerWidth || 1200) - w - 24), top = Math.max(0, (window.screenY || 0) + 60);
+    var feats = "popup=yes,width=" + w + ",height=" + h + ",left=" + left + ",top=" + top;
+    var embedded = !!window.TOPLINE_SRC_B64;
+    try { popup = window.open(embedded ? "" : "calculator.html", "graphite_calculator", feats); } catch (e) { popup = null; }
+    if (!popup) return false;
+    if (embedded) {
+      // Preview: the calculator is built into this page, so write it into the new window.
+      try { var d = popup.document; d.open(); d.write(calcSource()); d.close(); d.title = "Graphing calculator | Graphite"; }
+      catch (e) { try { popup.close(); } catch (e2) { /* already gone */ } popup = null; return false; }
+      themeCalc();
+    } else {
+      popup.addEventListener("load", function () { try { popup.document.title = "Graphing calculator | Graphite"; } catch (e) { /* cross-origin */ } themeCalc(); });
+    }
+    markCalc(true);
+    clearInterval(popupWatch);
+    popupWatch = setInterval(function () { if (!popupOpen()) { clearInterval(popupWatch); markCalc(!$("calc-panel").hidden); } }, 500);
+    return true;
+  }
+  function closePopup() { if (popupOpen()) popup.close(); popup = null; clearInterval(popupWatch); markCalc(!$("calc-panel").hidden); }
+  function toggleCalc() {
+    if (popupOpen()) { closePopup(); return; }
+    if (!$("calc-panel").hidden) { setCalc(false); return; }
+    if (!openPopup()) {
+      setCalc(true);
+      toast("Your browser blocked the calculator window, so it opened here. Allow pop-ups for this site to get it in its own window.");
+    }
+  }
+  // The calculator window closes with the test.
+  window.addEventListener("pagehide", function () { if (popupOpen()) popup.close(); });
   // The calculator floats over the test in its own window.
   var calcWin = window.GraphiteFloat($("calc-panel"), { key: "graphite_calc_window", handle: $("calc-head"), grip: $("calc-grip"), expand: $("calc-expand") });
 
@@ -491,7 +538,7 @@
     $("q-area").focus({ preventScroll: true });
   });
   $("timer-toggle").addEventListener("click", function () { S.timerHidden = !S.timerHidden; save(); renderTimer(); });
-  $("calc-toggle").addEventListener("click", function () { setCalc($("calc-panel").hidden); });
+  $("calc-toggle").addEventListener("click", toggleCalc);
   $("calc-close").addEventListener("click", function () { setCalc(false); $("calc-toggle").focus(); });
   $("ref-open").addEventListener("click", function () { openDialog("ref-dialog"); });
   $("open-directions").addEventListener("click", function () { openDialog("dir-dialog"); });
