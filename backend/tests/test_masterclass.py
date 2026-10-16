@@ -28,7 +28,7 @@ class MasterclassContentTest(unittest.TestCase):
                 for step in lesson["steps"]:
                     for key in ("do", "check", "hint", "done"):
                         self.assertIn(key, step)
-                self.assertEqual(len(lesson["quiz"]), 3)
+                self.assertEqual(len(lesson["quiz"]), 8)
                 for q in lesson["quiz"]:
                     self.assertIn("check", q)
                     self.assertTrue(q.get("use"))
@@ -51,7 +51,7 @@ class MasterclassContentTest(unittest.TestCase):
                 self.assertEqual(t["id"], "topic-" + t["skill"])
                 for key in ("title", "summary", "goal", "minutes", "intro", "rules", "example", "try"):
                     self.assertTrue(t.get(key), key)
-                self.assertEqual(len(t["quiz"]), 3)
+                self.assertEqual(len(t["quiz"]), 8)
                 for q in [t["try"]] + t["quiz"]:
                     if "choices" in q:
                         self.assertIn(q["answer"], range(len(q["choices"])))

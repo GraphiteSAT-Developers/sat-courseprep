@@ -1162,6 +1162,10 @@ function pwList(cs, vs, ev) {
   return out;
 }
 function compile(n, locals) {
+  // a(x + 1)^2 with a variable (not a function) means a · (x + 1)², as in Desmos: the power belongs to the parentheses only.
+  if (n.k === 'b' && n.op === '^' && n.a.k === 'app' && !n.a.primes && n.a.args.length === 1 && !(CTX.funcs.has(n.a.name) && !locals.includes(n.a.name))) {
+    return compile({ k: 'b', op: '*', imp: true, a: { k: 'v', name: n.a.name }, b: { k: 'b', op: '^', a: n.a.args[0], b: n.b } }, locals);
+  }
   switch (n.k) {
     case 'n': { const v = n.v; return () => v; }
     case 'v': return varRef(n.name, locals);
