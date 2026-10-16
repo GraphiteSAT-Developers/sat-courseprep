@@ -869,3 +869,7 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .tutor-xp .xp { font-size: var(--t-sm); gap: var(--s3); }
 .tutor-xp .xp-desmos { padding: var(--s3); }
 .qcard-stem var, .choice-text var { font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 1.1em; }
+
+.pl-form-actions { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }
+.pl-skip-link { font-size: var(--t-sm); font-weight: 700; color: var(--muted); }
+.pl-skip-link:hover { color: var(--text); }

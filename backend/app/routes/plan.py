@@ -55,6 +55,8 @@ def _save_plan(user, diagnostic_id, results, today):
 @login_required
 def overview():
     user = current_user()
+    if not user["diagnostic_prompted_at"]:
+        execute("UPDATE users SET diagnostic_prompted_at = ? WHERE id = ?", (now_iso(), user["id"]))
     diag = query("SELECT * FROM diagnostics WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user["id"],), one=True)
     out = {"user": public_user(user), "diagnostic": None, "plan": None}
     if diag:

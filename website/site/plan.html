@@ -42,7 +42,6 @@
         <li><a href="#today">Today</a></li>
         <li><a href="#scores">Scores</a></li>
         <li><a href="#review">Review</a></li>
-        <li><a href="/plan.html">Study plan</a></li>
         <li><a href="/practice.html">Practice</a></li>
         <li><a href="#account">Account</a></li>
       </ul>
@@ -70,7 +69,7 @@
     <!-- 1. Before the diagnostic -->
     <section class="panel pl-intro" id="pl-intro" aria-labelledby="pl-intro-title" hidden>
       <div class="pl-intro-copy">
-        <p class="label">Step 1 of 2</p>
+        <p class="label" id="pl-intro-kicker">Step 1 of 2</p>
         <h2 id="pl-intro-title">Take the 10-question diagnostic</h2>
         <p class="panel-lede">Six Math questions and four Reading and Writing questions, one from every part of the test. After each answer, tell us whether you're sure or guessing, so a lucky guess doesn't hide a weak spot. It takes about 15 minutes.</p>
         <ul class="pr-facts">
@@ -89,7 +88,10 @@
           <label for="pl-hours">Hours you can study each week</label>
           <select id="pl-hours" name="weekly_goal_hours"></select>
         </div>
-        <button class="btn btn-primary" type="submit" id="pl-start">Start the diagnostic</button>
+        <div class="pl-form-actions">
+          <button class="btn btn-primary" type="submit" id="pl-start">Start the diagnostic</button>
+          <a class="pl-skip-link" href="/dashboard.html">Skip for now</a>
+        </div>
       </form>
     </section>
 

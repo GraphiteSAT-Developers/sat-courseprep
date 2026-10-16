@@ -140,7 +140,10 @@ MIGRATIONS = [
         "ALTER TABLE practice_sessions ADD COLUMN plan_id INTEGER",
         "ALTER TABLE practice_sessions ADD COLUMN plan_task TEXT",
     ]),
-    # (5, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (5, "When a student was first sent to the diagnostic", [
+        "ALTER TABLE users ADD COLUMN diagnostic_prompted_at TEXT",
+    ]),
+    # (6, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

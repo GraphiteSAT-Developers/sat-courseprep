@@ -28,6 +28,11 @@
   function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
 
   if (!LIVE) $("pl-preview-note").hidden = false;
+  if (!LIVE) store("graphite_diag_prompted", true);
+  if (/[?&]welcome=1/.test(location.search)) {
+    $("pl-intro-kicker").textContent = "Welcome to Graphite";
+    $("pl-intro-title").textContent = "Let's start with a quick 10-question diagnostic";
+  }
   if (LIVE) API.call("/api/me").then(function (r) { $("account-email").textContent = r.user.email; }, function () {});
   else { try { $("account-email").textContent = sessionStorage.getItem("graphite_user") || ""; } catch (e) { /* storage blocked */ } }
   if (!call) { $("pl-loading").textContent = "The study plan isn't available in this preview."; return; }

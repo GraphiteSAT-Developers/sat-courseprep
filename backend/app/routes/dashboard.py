@@ -15,7 +15,16 @@ ACTIVITY_KINDS = {"practice_question": 300}  # kind: most seconds one entry can 
 @bp.get("/dashboard")
 @login_required
 def dashboard():
-    return jsonify(dashboard_service.build(current_user(), _local_today()))
+    user = current_user()
+    data = dashboard_service.build(user, _local_today())
+    # The first visit after a student's first sign-in goes to the diagnostic, once. Skipping it is fine:
+    # they aren't sent back, and Today's set offers it until they take it.
+    data["start_with_diagnostic"] = False
+    if not user["diagnostic_prompted_at"]:
+        execute("UPDATE users SET diagnostic_prompted_at = ? WHERE id = ?", (now_iso(), user["id"]))
+        started = query("SELECT 1 FROM diagnostics WHERE user_id = ? LIMIT 1", (user["id"],), one=True)
+        data["start_with_diagnostic"] = not started
+    return jsonify(data)
 
 
 def _local_today():

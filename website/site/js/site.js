@@ -713,6 +713,7 @@
     });
 
     function renderDashboard(d) {
+      if (d.start_with_diagnostic) { location.replace("plan.html?welcome=1"); return; }
       var s = d.summary, u = d.user;
       // Label each attempt in the student's own time zone.
       d.history.forEach(function (h) { if (h.submitted_at) h.label = new Date(h.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }); });
@@ -837,6 +838,8 @@
       $("#greeting").textContent = part;
       loadDashboard();
     } else {
+      // Preview: the first dashboard visit goes to the diagnostic once, as the live site does.
+      if (!store.get("graphite_diag_prompted")) { store.set("graphite_diag_prompted", true); location.replace("plan.html?welcome=1"); }
       $("#greeting").textContent = part + ", Maya";
       try { var who = sessionStorage.getItem("graphite_user"); if (who) $("#account-email").textContent = who; } catch (err) { /* storage blocked */ }
       var dl = $("#days-left");

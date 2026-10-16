@@ -97,5 +97,16 @@ class ConnectionsTest(unittest.TestCase):
         self.assertEqual(self.client.get("/api/dashboard").json["review"][0]["right_count"], 0)
 
 
+    def test_first_dashboard_visit_goes_to_the_diagnostic_once(self):
+        self.register()
+        self.assertTrue(self.client.get("/api/dashboard").json["start_with_diagnostic"])
+        self.assertFalse(self.client.get("/api/dashboard").json["start_with_diagnostic"], "only once, so skipping is allowed")
+
+    def test_no_redirect_once_the_plan_page_was_seen(self):
+        self.register()
+        self.client.get("/api/plan")
+        self.assertFalse(self.client.get("/api/dashboard").json["start_with_diagnostic"])
+
+
 if __name__ == "__main__":
     unittest.main()
