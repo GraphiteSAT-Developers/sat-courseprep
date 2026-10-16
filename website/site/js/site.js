@@ -449,6 +449,40 @@
     });
     stage.addEventListener("pointerleave", function () { tilt.style.removeProperty("--ry"); tilt.style.removeProperty("--rx"); });
   }
+  // The keys press in time with the screen: x² − 2x − 1 is typed as the parabola appears, then x + 3 before the line.
+  var calcFront = $(".c3-front.nsp"), firstRow = $(".c3-e1");
+  if (calcFront && firstRow && firstRow.getAnimations && window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+    var faceOf = function (test) {
+      var found = $all(".nk, .ak", calcFront).filter(function (k) { return test(k.textContent.replace(/\s+/g, " ").trim(), k); })[0];
+      return found ? (found.querySelector(".nk-face") || found.querySelector("span")) : null;
+    };
+    var keyX = faceOf(function (t, k) { return k.classList.contains("ak") && t === "X"; });
+    var keySq = faceOf(function (t) { return /\^ ?x²$/.test(t.replace(/^\S+ \S+ /, "")) || t.indexOf("x²") > -1 && t.indexOf("^") > -1; });
+    var keyPM = faceOf(function (t) { return t.indexOf("+") > -1 && t.indexOf("−") > -1 && t.indexOf("(") < 0; });
+    var digit = function (d) { return faceOf(function (t, k) { return k.classList.contains("nk-num") && t === d; }); };
+    var keyEnter = faceOf(function (t, k) { return k.classList.contains("nk-enter"); });
+    // [ms into the 9-second loop, key]
+    var script = [[60, keyX], [140, keySq], [220, keyPM], [300, digit("2")], [380, keyX], [460, keyPM], [540, digit("1")], [640, keyEnter],
+                  [2560, keyX], [2650, keyPM], [2740, digit("3")], [2840, keyEnter]];
+    var lastT = 0;
+    var tick = function () {
+      var anim = firstRow.getAnimations()[0];
+      if (anim && anim.currentTime != null) {
+        var t = anim.currentTime % 9000;
+        script.forEach(function (step) {
+          var crossed = lastT <= t ? (step[0] > lastT && step[0] <= t) : (step[0] > lastT || step[0] <= t);
+          if (crossed && step[1]) {
+            step[1].classList.add("is-pressed");
+            setTimeout(function () { step[1].classList.remove("is-pressed"); }, 110);
+          }
+        });
+        lastT = t;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
   // Click the calculator (or the button) to flip it over and see the back.
   var flipBtn = $("#c3-flip");
   if (tilt && flipBtn) {

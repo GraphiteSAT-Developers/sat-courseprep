@@ -1004,9 +1004,9 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
   .c3-para { stroke-dasharray: 1; animation: c3-para 9s ease-in-out infinite; }
   .c3-line { stroke-dasharray: 1; animation: c3-line 9s ease-in-out infinite; }
   .c3-pt { transform-box: fill-box; transform-origin: center; }
-  .c3-p1 { animation: c3-pt1 9s ease infinite; }
-  .c3-p2 { animation: c3-pt2 9s ease infinite; }
-  .c3-p3 { animation: c3-pt3 9s ease infinite; }
+  .c3-pt.p1 { animation: c3-pt1 9s ease infinite; }
+  .c3-pt.p2 { animation: c3-pt2 9s ease infinite; }
+  .c3-pt.p3 { animation: c3-pt3 9s ease infinite; }
 }
 @keyframes c3-float { 0%, 100% { transform: translateY(0) rotateY(0deg); } 50% { transform: translateY(-16px) rotateY(8deg); } }
 @keyframes c3-shadow { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(0.85); opacity: 0.6; } }
@@ -1145,3 +1145,25 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .c3-top { left: 40px; right: 40px; height: 26px; top: calc(50% - 13px); border-radius: 6px; background: transparent;
   transform: rotateX(90deg) translateZ(calc(var(--H) / 2 - 0.5px)); }
 .c3-back { border-radius: 34px 34px 46px 46px; }
+
+/* 3D keys: the front keeps its 3D space, so every key sits raised off the face with visible sides */
+.c3-front { overflow: visible; transform-style: preserve-3d; }
+/* The side rails are painted into the face, so the face's rounded corners clip them. */
+.nsp-rail { display: none; }
+.c3-front.nsp { background: linear-gradient(90deg, #f2c14e 0, #e2ad35 9px, #b98a24 13px, transparent 13px, transparent calc(100% - 13px), #b98a24 calc(100% - 13px), #e2ad35 calc(100% - 9px), #f2c14e 100%),
+  radial-gradient(120% 50% at 40% 0%, #2a2c2f 0%, transparent 60%), linear-gradient(175deg, #1c1d1f 0%, #131415 100%); }
+.nsp-nav, .nsp-col, .nsp-pad, .nsp-row, .nsp-main, .nsp-alpha, .nk, .ak, .pad-ring, .pad-in { transform-style: preserve-3d; }
+.nk-face, .ak span { --side: #0c0d0e; --side2: #060607; position: relative; transform: translateZ(4px); transform-style: preserve-3d;
+  transition: transform 90ms ease, box-shadow 90ms ease; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -2px 3px rgba(0, 0, 0, 0.35); }
+.nk-face::before, .nk-face::after, .ak span::before, .ak span::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+.nk-face::before, .ak span::before { background: var(--side); transform: translateZ(-1.5px); }
+.nk-face::after, .ak span::after { background: var(--side2); transform: translateZ(-3px); }
+.ak span { transform: translateZ(3px); }
+.nk-num .nk-face { --side: #2a2c2f; --side2: #1a1b1d; }
+.nk-ctrl .nk-face { --side: #9b7520; --side2: #6e5214; }
+/* Pressed: lower the key and lighten it with an inner glow (a filter would flatten the key's 3D sides). */
+.nk-face.is-pressed, .ak span.is-pressed, .nk:hover .nk-face, .ak:hover span { transform: translateZ(1px);
+  box-shadow: inset 0 0 0 40px rgba(255, 255, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+.pad-ring { transform: translateZ(3px); position: relative; }
+.pad-ring::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: #5d6167; transform: translateZ(-2px); }
+.pad-click { transform: translateZ(2px); }
