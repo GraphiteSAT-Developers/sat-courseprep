@@ -21,6 +21,7 @@
   var at = 0;          // checkpoints passed in the open lesson
   var calc = null;     // window.Topline inside the iframe, once it's ready
   var calcWaiters = [];
+  var tryReady = false; // has the student done the calculator work for the SAT-style question?
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function store(k, v) {
@@ -147,6 +148,7 @@
     if (!l) { lesson = null; $("dm-lesson").hidden = true; $("dm-home").hidden = false; renderHome(); document.title = "Desmos Masterclass | Graphite SAT Tutoring"; return; }
     lesson = l;
     at = stepOf(l);
+    tryReady = false;
     $("dm-home").hidden = true;
     $("dm-lesson").hidden = false;
     document.title = l.title + " | Desmos Masterclass | Graphite";
@@ -202,8 +204,25 @@
         '<p class="dm-step-done">' + esc(s.done) + "</p>" +
         '<div class="dm-step-help"><button class="btn btn-quiet dm-small" type="button" data-hint="' + i + '">Hint</button>' +
         '<button class="btn btn-quiet dm-small" type="button" data-show="' + i + '" hidden>Show me</button></div>' +
-        '<p class="dm-hint" id="dm-hint-' + i + '" hidden>' + esc(s.hint) + "</p></div></li>";
+        '<p class="dm-hint" id="dm-hint-' + i + '" hidden>' + esc(s.hint) + "</p>" +
+        '<div class="dm-showme" id="dm-showme-' + i + '" hidden>' + showText(s) + "</div></div></li>";
     }).join("");
+  }
+  // "Show me" says exactly what to type, but the student still types it: the calculator never fills itself in.
+  function showText(s) {
+    var parts = [];
+    if (s.showSetting === "deg") parts.push("Open <strong>Settings</strong> and choose <strong>Degrees</strong>.");
+    (s.show || []).forEach(function (sp) {
+      if (sp.table) {
+        parts.push("Type <code>table</code> on an empty line, then fill in " + sp.table.cols.map(function (c) {
+          return "<code>" + esc(c.name) + "</code>: " + esc(c.cells.join(", "));
+        }).join(" and ") + ".");
+      } else {
+        var text = typeof sp === "string" ? sp : sp.text;
+        parts.push((sp.slider ? "Set the slider to " : "Type ") + "<code>" + esc(text) + "</code>");
+      }
+    });
+    return '<p class="label">Type this yourself</p><ul>' + parts.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>";
   }
   $("dm-steps").addEventListener("click", function (e) {
     var h = e.target.closest("[data-hint]"), s = e.target.closest("[data-show]");
@@ -213,12 +232,23 @@
       h.hidden = true;
       $("dm-steps").querySelector('[data-show="' + i + '"]').hidden = false;  // "Show me" only after a hint
     }
-    if (s && calc) {
-      C.applyShow(calc, lesson.steps[+s.getAttribute("data-show")]);
+    if (s) {
+      $("dm-showme-" + s.getAttribute("data-show")).hidden = false;
+      s.hidden = true;
       setCalcOpen(true);
     }
   });
+  // The SAT-style question opens only once the calculator holds the work for it.
+  function checkTry() {
+    if (tryReady || !lesson || !lesson.try || !calc || at !== qIndex("t")) return;
+    if (!lesson.try.check || C.passes(lesson.try.check, calc.lines(), calc)) {
+      tryReady = true;
+      refresh();
+      if (lesson.try.check) $("dm-calc-status").textContent = "Calculator work found";
+    }
+  }
   function checkStep() {
+    checkTry();
     if (!lesson || lesson.kind === "drill" || !calc || at >= lesson.steps.length) return;
     var step = lesson.steps[at];
     if (!C.passes(step.check, calc.lines(), calc)) return;
@@ -231,6 +261,7 @@
     at++;
     saveProgress(lesson, at);
     refresh();
+    checkTry();
   }
 
   /* questions: the reads, then the SAT-style question */
@@ -242,8 +273,9 @@
       : '<form class="dm-spr" data-q="' + key + '" novalidate><label class="visually-hidden" for="dm-in-' + key + '">Your answer</label>' +
         '<input id="dm-in-' + key + '" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Your answer">' +
         '<button class="btn btn-primary" type="submit">Check</button></form>';
+    var gate = q.check ? '<p class="dm-gate" id="dm-gate-' + key + '"><span class="dm-gate-lock" aria-hidden="true"></span><span><strong>Use the calculator first.</strong> ' + esc(q.use) + " Answers open when your work is in the calculator.</span></p>" : "";
     return '<div class="dm-q" id="dm-q-' + key + '">' + (label ? '<p class="label">' + label + "</p>" : "") +
-      '<p class="q-stem">' + (q.prompt || q.stem) + "</p>" + body +
+      '<p class="q-stem">' + (q.prompt || q.stem) + "</p>" + gate + body +
       '<p class="dm-feedback" id="dm-fb-' + key + '" role="status" hidden></p>' +
       '<button class="btn btn-quiet dm-small" type="button" data-reveal="' + key + '" hidden>Show the answer</button>' +
       '<div class="dm-explain" id="dm-ex-' + key + '" hidden><p>' + q.explain + "</p></div></div>";
@@ -260,6 +292,7 @@
   function answer(key, right, picked) {
     var q = qByKey(key), fb = $("dm-fb-" + key), box = $("dm-q-" + key);
     if (qIndex(key) !== at) return;  // only the current question takes answers
+    if (key === "t" && !tryReady) return;  // and only after the calculator work
     if (q.choices) {
       box.querySelectorAll(".choice").forEach(function (b, i) {
         b.classList.toggle("is-right", right && i === picked);
@@ -351,7 +384,10 @@
       keys.forEach(function (k) {
         var box = $("dm-q-" + k), idx = qIndex(k);
         box.classList.toggle("is-locked", idx > at);
-        box.querySelectorAll("button, input").forEach(function (x) { if (!x.hasAttribute("data-reveal")) x.disabled = idx !== at; });
+        var locked = idx !== at || (k === "t" && !tryReady);
+        box.querySelectorAll("button, input").forEach(function (x) { if (!x.hasAttribute("data-reveal")) x.disabled = locked; });
+        var gate = $("dm-gate-" + k);
+        if (gate) gate.hidden = k !== "t" || tryReady || idx < at;
         if (idx < at && !box.classList.contains("is-answered")) {  // finished on an earlier visit
           box.classList.add("is-answered");
           $("dm-ex-" + k).hidden = false;

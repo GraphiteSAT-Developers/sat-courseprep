@@ -120,7 +120,9 @@
         return false;
       });
     },
-    deg: function (c, lines, T) { return T.settings().deg === c.deg; }
+    deg: function (c, lines, T) { return T.settings().deg === c.deg; },
+    // Every one of several checks, like two graphs for "graph both sides".
+    all: function (c, lines, T) { return c.all.every(function (sub) { return passes(sub, lines, T); }); }
   };
 
   function passes(check, lines, T) {

@@ -28,6 +28,9 @@ class MasterclassContentTest(unittest.TestCase):
                 for step in lesson["steps"]:
                     for key in ("do", "check", "hint", "done"):
                         self.assertIn(key, step)
+                # The SAT-style question opens only after the student does the work in the calculator.
+                self.assertIn("check", lesson["try"])
+                self.assertTrue(lesson["try"].get("use"))
                 for q in lesson.get("reads", []) + [lesson["try"]]:
                     if "choices" in q:
                         self.assertIn(q["answer"], range(len(q["choices"])))

@@ -55,6 +55,14 @@ for (const L of content.lessons) {
         out.push(`step ${i + 1} fails after "show": ` + JSON.stringify(T.lines().map(l => [l.text, l.kind, l.error, l.value ?? l.fit ?? null])));
       }
     });
+    if (lesson.try && lesson.try.check) {
+      T.clear();
+      if (C.passes(lesson.try.check, T.lines(), T)) out.push("the SAT-style question's calculator check passes on a blank calculator");
+      C.applyShow(T, lesson.try);
+      if (!C.passes(lesson.try.check, T.lines(), T)) out.push("the SAT-style question's calculator check fails after its lines: " + JSON.stringify(T.lines().map(l => [l.text, l.kind, l.error])));
+      T.clear();
+      lesson.steps.forEach(step => C.applyShow(T, step));
+    }
     (lesson.reads || []).forEach((q, i) => {
       if (!q.verify) return;
       T.add([q.verify]);
