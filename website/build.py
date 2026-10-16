@@ -11,8 +11,10 @@ SRC = ROOT / "src"
 DIST = ROOT / "site"
 ART = ROOT / "artifact"
 SITE = "https://www.graphiteprep.com"
-FONTS = ("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..800"
-         "&family=Atkinson+Hyperlegible+Next:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap")
+# Lexend (headings, designed for easy reading) and Nunito (body, rounded) keep the site friendly for students.
+# IBM Plex Mono is only for the keys a student types into Desmos.
+FONTS = ("https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700"
+         "&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap")
 FAVICON_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#2d3136"/>'
                '<ellipse cx="16" cy="16" rx="10" ry="7" fill="#f2c14e"/></svg>')
 
