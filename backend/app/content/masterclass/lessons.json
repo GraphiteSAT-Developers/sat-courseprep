@@ -108,7 +108,53 @@
         "Use parentheses around anything you divide or raise to a power, like (x + 1)/2 or (−3)^2."
       ],
       "byHand": "Simple arithmetic you can do in your head in a few seconds is faster by hand. Use the calculator when there are several fractions or a root.",
-      "bluebook": "Desmos on test day works the same way: / makes a fraction, ^ an exponent, and sqrt becomes √. Bluebook also has a scientific calculator, but the graphing one can do everything it does."
+      "bluebook": "Desmos on test day works the same way: / makes a fraction, ^ an exponent, and sqrt becomes √. Bluebook also has a scientific calculator, but the graphing one can do everything it does.",
+      "quiz": [
+        {
+          "stem": "What is the value of (5/8 − 1/3) × 24?",
+          "answer": "7",
+          "explain": "Type <code>(5/8 → − 1/3 →) * 24</code>. By hand, 5/8 − 1/3 = 7/24, and 7/24 × 24 = 7.",
+          "check": {
+            "value": 7,
+            "text": "frac|/"
+          },
+          "use": "Type the whole expression, fractions and all.",
+          "show": [
+            "(5/8-1/3)*24"
+          ]
+        },
+        {
+          "stem": "What is √(2⁶ + 36)?",
+          "answer": "10",
+          "explain": "Type <code>sqrt 2^6 → + 36</code>: √(64 + 36) = √100 = 10. Keep the + 36 inside the root.",
+          "check": {
+            "value": 10,
+            "text": "sqrt"
+          },
+          "use": "Type the root with everything under it.",
+          "show": [
+            "sqrt(2^6+36)"
+          ]
+        },
+        {
+          "stem": "Where does the line y = −3x + 6 cross the x-axis?",
+          "choices": [
+            "(−2, 0)",
+            "(2, 0)",
+            "(0, 6)",
+            "(6, 0)"
+          ],
+          "answer": 1,
+          "explain": "Graph it and tap the line: it crosses the x-axis at (2, 0). (0, 6) is where it crosses the y-axis.",
+          "check": {
+            "graph": "-3x+6"
+          },
+          "use": "Graph the line.",
+          "show": [
+            "y=-3x+6"
+          ]
+        }
+      ]
     },
     {
       "id": "intersect",
@@ -190,7 +236,81 @@
         "0.6667 on the screen may stand for 2/3. Check whether the answer needs to be exact."
       ],
       "byHand": "If the equation is linear or factors in a few seconds, solve it by hand. Graph it when there's a root, an absolute value, or ugly coefficients.",
-      "bluebook": "In Desmos, tap a curve and gray dots appear at its intercepts and at every crossing with the other graphs. Tap a dot to see its coordinates. You can also move everything to one side, graph y = left − right, and read the x-intercepts."
+      "bluebook": "In Desmos, tap a curve and gray dots appear at its intercepts and at every crossing with the other graphs. Tap a dot to see its coordinates. You can also move everything to one side, graph y = left − right, and read the x-intercepts.",
+      "quiz": [
+        {
+          "stem": "What is the solution to √(2x + 3) = x?",
+          "choices": [
+            "−1",
+            "3",
+            "−1 and 3",
+            "No solution"
+          ],
+          "answer": 1,
+          "explain": "The graphs of y = √(2x + 3) and y = x cross once, at (3, 3). Squaring gives x² − 2x − 3 = 0, so x = 3 or x = −1, but √1 = 1, not −1. The choice \"−1 and 3\" is the trap.",
+          "check": {
+            "all": [
+              {
+                "graph": "sqrt(2x+3)"
+              },
+              {
+                "graph": "x"
+              }
+            ]
+          },
+          "use": "Graph each side as its own line.",
+          "show": [
+            "y=sqrt(2x+3)",
+            "y=x"
+          ]
+        },
+        {
+          "stem": "How many solutions does |x − 4| = 0.5x + 1 have?",
+          "choices": [
+            "0",
+            "1",
+            "2",
+            "3"
+          ],
+          "answer": 2,
+          "explain": "Graph y = |x − 4| and y = 0.5x + 1. They cross at x = 2 and x = 10, so there are two solutions.",
+          "check": {
+            "all": [
+              {
+                "graph": "abs(x-4)"
+              },
+              {
+                "graph": "0.5x+1"
+              }
+            ]
+          },
+          "use": "Graph each side. Type abs( or | for the absolute value.",
+          "show": [
+            "y=abs(x-4)",
+            "y=0.5x+1"
+          ]
+        },
+        {
+          "stem": "What is the positive solution to 2ˣ = x + 5?",
+          "answer": "3",
+          "explain": "Graph y = 2^x and y = x + 5. They cross twice: near x = −4.97 and at x = 3. The positive one is 3, and 2³ = 8 = 3 + 5 confirms it.",
+          "check": {
+            "all": [
+              {
+                "graph": "2^x"
+              },
+              {
+                "graph": "x+5"
+              }
+            ]
+          },
+          "use": "Graph each side. There's no algebra shortcut for this one.",
+          "show": [
+            "y=2^x",
+            "y=x+5"
+          ]
+        }
+      ]
     },
     {
       "id": "systems",
@@ -300,7 +420,124 @@
         "If the question gives the system in words, write both equations down before you type."
       ],
       "byHand": "When one equation is already solved for a variable (like y = 2x), substitution can be faster. For two lines in standard form, elimination is often quick too.",
-      "bluebook": "Desmos graphs equations in any form, like 3x + 2y = 16, and marks the crossing with a gray dot you can tap."
+      "bluebook": "Desmos graphs equations in any form, like 3x + 2y = 16, and marks the crossing with a gray dot you can tap.",
+      "quiz": [
+        {
+          "stem": "2x + 5y = 1 and 3x − y = 10. The solution is (x, y). What is x − y?",
+          "answer": "4",
+          "explain": "The lines cross at (3, −1), so x − y = 3 − (−1) = 4. Watch the double negative.",
+          "check": {
+            "all": [
+              {
+                "curve": [
+                  [
+                    3,
+                    -1
+                  ],
+                  [
+                    -2,
+                    1
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              },
+              {
+                "curve": [
+                  [
+                    3,
+                    -1
+                  ],
+                  [
+                    4,
+                    2
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              }
+            ]
+          },
+          "use": "Type both equations as written.",
+          "show": [
+            "2x+5y=1",
+            "3x-y=10"
+          ]
+        },
+        {
+          "stem": "How many solutions does this system have? y = x² − 2x + 3 and y = x + 1",
+          "choices": [
+            "Zero",
+            "Exactly one",
+            "Exactly two",
+            "Infinitely many"
+          ],
+          "answer": 2,
+          "explain": "The line crosses the parabola at (1, 2) and (2, 3): two solutions.",
+          "check": {
+            "all": [
+              {
+                "graph": "x^2-2x+3"
+              },
+              {
+                "graph": "x+1"
+              }
+            ]
+          },
+          "use": "Graph both equations.",
+          "show": [
+            "y=x^2-2x+3",
+            "y=x+1"
+          ]
+        },
+        {
+          "stem": "x² + y² = 25 and y = x + 1. One solution (x, y) has x > 0. What is that x?",
+          "answer": "3",
+          "explain": "The line crosses the circle at (3, 4) and (−4, −3). The one with x > 0 is (3, 4).",
+          "check": {
+            "all": [
+              {
+                "curve": [
+                  [
+                    5,
+                    0
+                  ],
+                  [
+                    0,
+                    5
+                  ],
+                  [
+                    3,
+                    4
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              },
+              {
+                "graph": "x+1"
+              }
+            ]
+          },
+          "use": "Graph the circle and the line.",
+          "show": [
+            "x^2+y^2=25",
+            "y=x+1"
+          ]
+        }
+      ]
     },
     {
       "id": "functions",
@@ -382,7 +619,53 @@
         "Read whether the question wants f(2), or the x where f(x) = 2. The second is a T1 question: graph y = f(x) and y = 2."
       ],
       "byHand": "For a simple function like f(x) = 3x + 1 and one input, plugging in by hand is faster.",
-      "bluebook": "Desmos works the same way: define f(x) = … on one line and type f(4) on another."
+      "bluebook": "Desmos works the same way: define f(x) = … on one line and type f(4) on another.",
+      "quiz": [
+        {
+          "stem": "f(x) = x² − 5x + 2. What is f(−3)?",
+          "answer": "26",
+          "explain": "Define f, then type f(−3): 9 + 15 + 2 = 26. The −5(−3) = +15 is where the sign trap is.",
+          "check": {
+            "value": 26,
+            "text": "^\\s*f"
+          },
+          "use": "Define f, then evaluate it.",
+          "show": [
+            "f(x)=x^2-5x+2",
+            "f(-3)"
+          ]
+        },
+        {
+          "stem": "g(x) = 4x − 1 and h(x) = 2x². What is h(g(1))?",
+          "answer": "18",
+          "explain": "g(1) = 3, and h(3) = 2 · 9 = 18. Typing h(g(1)) does both steps in order. g(h(1)) would give 7.",
+          "check": {
+            "value": 18,
+            "text": "^\\s*h"
+          },
+          "use": "Define g and h, then evaluate h(g(1)).",
+          "show": [
+            "g(x)=4x-1",
+            "h(x)=2x^2",
+            "h(g(1))"
+          ]
+        },
+        {
+          "stem": "p(x) = 3x + k, where k is a constant, and p(2) = 11. What is p(5)?",
+          "answer": "20",
+          "explain": "p(2) = 6 + k = 11, so k = 5. Define p(x) = 3x + 5 and type p(5) to get 20. You can also make k a slider and drag until p(2) shows 11.",
+          "check": {
+            "value": 20,
+            "text": "^\\s*p"
+          },
+          "use": "Define p with the right k, then evaluate p(5).",
+          "show": [
+            "k=5",
+            "p(x)=3x+k",
+            "p(5)"
+          ]
+        }
+      ]
     },
     {
       "id": "sliders",
@@ -520,7 +803,123 @@
         "If the answer must be a fraction, the slider may never land on it exactly. Use the ratios to finish."
       ],
       "byHand": "For two lines in standard form, the ratio check (a₁/a₂ = b₁/b₂) is often faster than the slider. Use the slider when you're not sure which ratio matters, or when one graph is a curve.",
-      "bluebook": "In Desmos, typing a letter that isn't defined offers to add a slider for it, the same way."
+      "bluebook": "In Desmos, typing a letter that isn't defined offers to add a slider for it, the same way.",
+      "quiz": [
+        {
+          "stem": "kx + 2y = 7 and 6x + 4y = 3 have no solution, where k is a constant. What is k?",
+          "answer": "3",
+          "explain": "Drag k until the lines are parallel: k = 3. By ratios, 6/k = 4/2, so k = 3, and the constants 7 and 3 don't match that ratio, so the lines never meet.",
+          "check": {
+            "all": [
+              {
+                "curve": [
+                  [
+                    0.5,
+                    0
+                  ],
+                  [
+                    -0.5,
+                    1.5
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              },
+              {
+                "slider": "k",
+                "near": 3
+              }
+            ]
+          },
+          "use": "Graph both lines, make k a slider and drag until they're parallel.",
+          "show": [
+            "6x+4y=3",
+            "kx+2y=7",
+            {
+              "text": "k=3",
+              "slider": {
+                "min": -10,
+                "max": 10
+              }
+            }
+          ]
+        },
+        {
+          "stem": "3x − ay = 6 and 9x − 12y = 18 have infinitely many solutions, where a is a constant. What is a?",
+          "answer": "4",
+          "explain": "Drag a until the lines lie on top of each other: a = 4. By ratios, everything in the second equation is 3 times the first, so 12 = 3a.",
+          "check": {
+            "all": [
+              {
+                "curve": [
+                  [
+                    2,
+                    0
+                  ],
+                  [
+                    6,
+                    3
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              },
+              {
+                "slider": "a",
+                "near": 4
+              }
+            ]
+          },
+          "use": "Graph both lines, make a a slider and drag until they overlap.",
+          "show": [
+            "9x-12y=18",
+            "3x-ay=6",
+            {
+              "text": "a=4",
+              "slider": {
+                "min": -10,
+                "max": 10
+              }
+            }
+          ]
+        },
+        {
+          "stem": "The graphs of y = x² + c and y = 4x meet at exactly one point, where c is a constant. What is c?",
+          "answer": "4",
+          "explain": "Drag c until the parabola just touches the line: c = 4, at the point (2, 8). By hand, x² − 4x + c = 0 needs a discriminant of 0: 16 − 4c = 0.",
+          "check": {
+            "all": [
+              {
+                "graph": "4x"
+              },
+              {
+                "slider": "c",
+                "near": 4
+              }
+            ]
+          },
+          "use": "Graph both, make c a slider and drag until they just touch.",
+          "show": [
+            "y=4x",
+            "y=x^2+c",
+            {
+              "text": "c=4",
+              "slider": {
+                "min": -10,
+                "max": 10
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "tilde",
@@ -596,7 +995,60 @@
         "Don't retype rounded results like 1.99999. Recognize them as 2."
       ],
       "byHand": "When only one constant is unknown, matching the constant terms or the x² terms by hand usually takes seconds.",
-      "bluebook": "Desmos uses the same syntax: x_1 for the subscript and ~ for regression. Its results show under the line."
+      "bluebook": "Desmos uses the same syntax: x_1 for the subscript and ~ for regression. Its results show under the line.",
+      "quiz": [
+        {
+          "stem": "(2x + 3)(x − k) = 2x² + bx − 15 for all values of x, where b and k are constants. What is b?",
+          "answer": "-7",
+          "explain": "With a list x₁ = [1, 2, 3, 4], the regression (2x₁ + 3)(x₁ − k) ~ 2x₁² + bx₁ − 15 gives k = 5 and b = −7. If a letter is already used in the calculator, use another one.",
+          "check": {
+            "fit": {
+              "k": 5,
+              "b": -7
+            },
+            "anyNames": true
+          },
+          "use": "Set up the tilde regression. Use new letters if b or k are already taken.",
+          "show": [
+            "x_1=[1,2,3,4]",
+            "(2x_1+3)(x_1-m)~2x_1^2+nx_1-15"
+          ]
+        },
+        {
+          "stem": "(ax + 2)(3x − 1) = 12x² + bx − 2 for all values of x, where a and b are constants. What is a + b?",
+          "answer": "6",
+          "explain": "The regression gives a = 4 and b = 2, so a + b = 6.",
+          "check": {
+            "fit": {
+              "a": 4,
+              "b": 2
+            },
+            "anyNames": true
+          },
+          "use": "Set up the tilde regression with the two unknowns.",
+          "show": [
+            "x_1=[1,2,3,4]",
+            "(px_1+2)(3x_1-1)~12x_1^2+qx_1-2"
+          ]
+        },
+        {
+          "stem": "x² + 10x + 7 = (x + h)² + k for all values of x, where h and k are constants. What is k?",
+          "answer": "-18",
+          "explain": "The regression x₁² + 10x₁ + 7 ~ (x₁ + h)² + k gives h = 5 and k = −18. This is completing the square without the algebra.",
+          "check": {
+            "fit": {
+              "h": 5,
+              "k": -18
+            },
+            "anyNames": true
+          },
+          "use": "Set up the tilde regression for h and k.",
+          "show": [
+            "x_1=[1,2,3,4]",
+            "x_1^2+10x_1+7~(x_1+r)^2+s"
+          ]
+        }
+      ]
     },
     {
       "id": "regression",
@@ -778,7 +1230,204 @@
         "Pick the model the question describes: linear for a constant change, exponential for a constant percent change."
       ],
       "byHand": "When the question gives two points and asks for the line through them, the slope formula is faster than a table.",
-      "bluebook": "Desmos fits regressions the same way. In the College Board version, Log Mode turns on by itself for some exponential and power fits."
+      "bluebook": "Desmos fits regressions the same way. In the College Board version, Log Mode turns on by itself for some exponential and power fits.",
+      "quiz": [
+        {
+          "stem": "Data: x = 2, 4, 6, 8, 10 and y = 7.1, 10.8, 15.2, 18.9, 23.0. Which is closest to the slope of the line of best fit?",
+          "choices": [
+            "1.5",
+            "2.0",
+            "2.5",
+            "3.0"
+          ],
+          "answer": 1,
+          "explain": "Put the data in a table and fit y ~ mx + b: m = 1.995 and b = 3.03. The slope is about 2.0.",
+          "check": {
+            "all": [
+              {
+                "table": [
+                  [
+                    2,
+                    4,
+                    6,
+                    8,
+                    10
+                  ],
+                  [
+                    7.1,
+                    10.8,
+                    15.2,
+                    18.9,
+                    23.0
+                  ]
+                ]
+              },
+              {
+                "fit": {
+                  "m": 1.995,
+                  "b": 3.03
+                },
+                "anyNames": true
+              }
+            ]
+          },
+          "use": "Put the data in a table and fit a line.",
+          "show": [
+            {
+              "table": {
+                "cols": [
+                  {
+                    "name": "x_1",
+                    "cells": [
+                      "2",
+                      "4",
+                      "6",
+                      "8",
+                      "10"
+                    ]
+                  },
+                  {
+                    "name": "y_1",
+                    "cells": [
+                      "7.1",
+                      "10.8",
+                      "15.2",
+                      "18.9",
+                      "23.0"
+                    ]
+                  }
+                ]
+              }
+            },
+            "y_1~mx_1+b"
+          ]
+        },
+        {
+          "stem": "Data: x = 0, 1, 2, 3, 4 and y = 50, 40, 32, 25.6, 20.48. The data fit y = a · bˣ. What is b?",
+          "answer": "0.8",
+          "explain": "Fit y ~ a·b^x: a = 50 and b = 0.8 with R² = 1. Each step multiplies y by 0.8, a 20% decrease.",
+          "check": {
+            "all": [
+              {
+                "table": [
+                  [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  [
+                    50,
+                    40,
+                    32,
+                    25.6,
+                    20.48
+                  ]
+                ]
+              },
+              {
+                "fit": {
+                  "a": 50,
+                  "b": 0.8
+                },
+                "anyNames": true
+              }
+            ]
+          },
+          "use": "Put the data in a table and fit an exponential model.",
+          "show": [
+            {
+              "table": {
+                "cols": [
+                  {
+                    "name": "x_1",
+                    "cells": [
+                      "0",
+                      "1",
+                      "2",
+                      "3",
+                      "4"
+                    ]
+                  },
+                  {
+                    "name": "y_1",
+                    "cells": [
+                      "50",
+                      "40",
+                      "32",
+                      "25.6",
+                      "20.48"
+                    ]
+                  }
+                ]
+              }
+            },
+            "y_1~ab^{x_1}"
+          ]
+        },
+        {
+          "stem": "The points (1, 2), (2, 7), (3, 14) and (4, 23) lie on y = ax² + bx + c. What is a + b + c?",
+          "answer": "2",
+          "explain": "Fit y ~ ax² + bx + c: a = 1, b = 2 and c = −1, so a + b + c = 2. Shortcut: a + b + c is y at x = 1, which is 2.",
+          "check": {
+            "all": [
+              {
+                "table": [
+                  [
+                    1,
+                    2,
+                    3,
+                    4
+                  ],
+                  [
+                    2,
+                    7,
+                    14,
+                    23
+                  ]
+                ]
+              },
+              {
+                "fit": {
+                  "a": 1,
+                  "b": 2,
+                  "c": -1
+                },
+                "anyNames": true
+              }
+            ]
+          },
+          "use": "Put the points in a table and fit a quadratic. Use new letters if a or b are taken.",
+          "show": [
+            {
+              "table": {
+                "cols": [
+                  {
+                    "name": "x_1",
+                    "cells": [
+                      "1",
+                      "2",
+                      "3",
+                      "4"
+                    ]
+                  },
+                  {
+                    "name": "y_1",
+                    "cells": [
+                      "2",
+                      "7",
+                      "14",
+                      "23"
+                    ]
+                  }
+                ]
+              }
+            },
+            "y_1~px_1^2+qx_1+r"
+          ]
+        }
+      ]
     },
     {
       "id": "stats",
@@ -872,7 +1521,76 @@
         "If the question gives a frequency table, every value has to appear as many times as its frequency."
       ],
       "byHand": "For three or four small numbers, the mean is quick by hand. For a median, sorting a short list in your head is often faster than typing.",
-      "bluebook": "Desmos has the same functions: mean, median, stdev, stdevp, min, max and quartile."
+      "bluebook": "Desmos has the same functions: mean, median, stdev, stdevp, min, max and quartile.",
+      "quiz": [
+        {
+          "stem": "What is the median of 14, 3, 9, 22, 9, 17, 6, 30?",
+          "answer": "11.5",
+          "explain": "median([14, 3, 9, 22, 9, 17, 6, 30]) = 11.5. With 8 values, the median is halfway between the 4th and 5th in order, 9 and 14. The calculator sorts for you.",
+          "check": {
+            "value": 11.5,
+            "text": "median"
+          },
+          "use": "Put the data in a list and use median.",
+          "show": [
+            "median([14,3,9,22,9,17,6,30])"
+          ]
+        },
+        {
+          "stem": "The mean of 8 test scores is 85. Seven of the scores are 82, 90, 78, 88, 85, 91 and 79. What is the eighth score?",
+          "answer": "87",
+          "explain": "The 8 scores add up to 8 × 85 = 680, and the seven add up to total([82, 90, 78, 88, 85, 91, 79]) = 593. So the eighth is 680 − 593 = 87.",
+          "check": {
+            "value": 87,
+            "text": "total|mean"
+          },
+          "use": "Use total or mean on the seven scores.",
+          "show": [
+            "8*85-total([82,90,78,88,85,91,79])"
+          ]
+        },
+        {
+          "stem": "Data set A is 2, 4, 6, 8, 10. Data set B is 5, 5, 6, 7, 7. Which statement is true?",
+          "choices": [
+            "A has the larger standard deviation.",
+            "B has the larger standard deviation.",
+            "They have the same standard deviation.",
+            "They have different means."
+          ],
+          "answer": 0,
+          "explain": "Both have mean 6, but stdev(A) ≈ 3.16 and stdev(B) = 1. A is more spread out. (stdevp gives 2.83 and 0.89: same conclusion.)",
+          "check": {
+            "all": [
+              {
+                "any": [
+                  {
+                    "value": 3.1622776601683795
+                  },
+                  {
+                    "value": 2.8284271247461903
+                  }
+                ]
+              },
+              {
+                "any": [
+                  {
+                    "value": 1,
+                    "text": "stdev"
+                  },
+                  {
+                    "value": 0.8944271909999159
+                  }
+                ]
+              }
+            ]
+          },
+          "use": "Find the standard deviation of each set.",
+          "show": [
+            "stdev([2,4,6,8,10])",
+            "stdev([5,5,6,7,7])"
+          ]
+        }
+      ]
     },
     {
       "id": "points",
@@ -934,7 +1652,45 @@
         "Coordinates are rounded on screen. If an answer must be exact, check it by hand."
       ],
       "byHand": "In vertex form, y = a(x − h)² + k, the vertex is right there in the equation. Don't graph it.",
-      "bluebook": "In Desmos, tap a curve and gray dots appear at its maximum or minimum, its intercepts and its crossings. Tap a dot for its coordinates."
+      "bluebook": "In Desmos, tap a curve and gray dots appear at its maximum or minimum, its intercepts and its crossings. Tap a dot for its coordinates.",
+      "quiz": [
+        {
+          "stem": "A ball's height in meters t seconds after it's thrown is h(t) = −4.9t² + 19.6t + 2. What is its maximum height, in meters?",
+          "answer": "21.6",
+          "explain": "Graph it and tap the top of the arch: (2, 21.6).",
+          "check": {
+            "graph": "-4.9x^2+19.6x+2"
+          },
+          "use": "Graph the height with x for t, and tap the maximum.",
+          "show": [
+            "y=-4.9x^2+19.6x+2"
+          ]
+        },
+        {
+          "stem": "f(x) = 2x² − 7x − 4. What is the product of the x-intercepts of the graph of f?",
+          "answer": "-2",
+          "explain": "Tap the curve: the x-intercepts are −0.5 and 4, and their product is −2.",
+          "check": {
+            "graph": "2x^2-7x-4"
+          },
+          "use": "Graph f and tap its x-intercepts.",
+          "show": [
+            "y=2x^2-7x-4"
+          ]
+        },
+        {
+          "stem": "f(x) = x³ − 3x. What is the local maximum value of f?",
+          "answer": "2",
+          "explain": "Graph it and tap the hump on the left: (−1, 2). The maximum value is the y-coordinate, 2, not x = −1.",
+          "check": {
+            "graph": "x^3-3x"
+          },
+          "use": "Graph f and tap its local maximum.",
+          "show": [
+            "y=x^3-3x"
+          ]
+        }
+      ]
     },
     {
       "id": "inequalities",
@@ -1100,7 +1856,207 @@
         "When the question uses words like \"at least\" or \"no more than\", write the inequality down before typing."
       ],
       "byHand": "Testing four answer choices by plugging them in takes about as long as graphing, and gives the same answer. Use whichever you trust more.",
-      "bluebook": "Desmos shades inequalities the same way, with dashed edges for < and > and solid edges for ≤ and ≥."
+      "bluebook": "Desmos shades inequalities the same way, with dashed edges for < and > and solid edges for ≤ and ≥.",
+      "quiz": [
+        {
+          "stem": "Which point (x, y) is a solution to y > 3x − 2 and y ≤ −x + 6?",
+          "choices": [
+            "(0, 0)",
+            "(2, 5)",
+            "(3, 1)",
+            "(−1, 8)"
+          ],
+          "answer": 0,
+          "explain": "Graph both and plot the points: only (0, 0) is in the overlap. (2, 5) fails y ≤ −x + 6, because 5 > 4.",
+          "check": {
+            "all": [
+              {
+                "region": {
+                  "op": ">",
+                  "edge": [
+                    [
+                      0,
+                      -2
+                    ],
+                    [
+                      1,
+                      1
+                    ]
+                  ],
+                  "in": [
+                    0,
+                    0
+                  ],
+                  "out": [
+                    3,
+                    1
+                  ]
+                }
+              },
+              {
+                "region": {
+                  "op": "<=",
+                  "edge": [
+                    [
+                      0,
+                      6
+                    ],
+                    [
+                      6,
+                      0
+                    ]
+                  ],
+                  "in": [
+                    0,
+                    0
+                  ],
+                  "out": [
+                    5,
+                    5
+                  ]
+                }
+              }
+            ]
+          },
+          "use": "Graph both inequalities.",
+          "show": [
+            "y>3x-2",
+            "y<=-x+6"
+          ]
+        },
+        {
+          "stem": "Which point is NOT a solution to y ≥ 2x + 1 and y < −x + 4?",
+          "choices": [
+            "(0, 2)",
+            "(−2, 0)",
+            "(1, 3)",
+            "(−1, 1)"
+          ],
+          "answer": 2,
+          "explain": "(1, 3) sits exactly on the dashed edge of y < −x + 4, because 3 < 3 is false. Points on a dashed edge don't count.",
+          "check": {
+            "all": [
+              {
+                "region": {
+                  "op": ">=",
+                  "edge": [
+                    [
+                      0,
+                      1
+                    ],
+                    [
+                      1,
+                      3
+                    ]
+                  ],
+                  "in": [
+                    0,
+                    5
+                  ],
+                  "out": [
+                    0,
+                    0
+                  ]
+                }
+              },
+              {
+                "region": {
+                  "op": "<",
+                  "edge": [
+                    [
+                      0,
+                      4
+                    ],
+                    [
+                      4,
+                      0
+                    ]
+                  ],
+                  "in": [
+                    0,
+                    0
+                  ],
+                  "out": [
+                    5,
+                    5
+                  ]
+                }
+              }
+            ]
+          },
+          "use": "Graph both inequalities and check the edges.",
+          "show": [
+            "y>=2x+1",
+            "y<-x+4"
+          ]
+        },
+        {
+          "stem": "Pens cost $2 and notebooks $5. Ana spends at most $30 and buys at least 3 notebooks. If x is pens and y is notebooks, which could she buy?",
+          "choices": [
+            "5 pens, 4 notebooks",
+            "8 pens, 3 notebooks",
+            "6 pens, 2 notebooks",
+            "3 pens, 5 notebooks"
+          ],
+          "answer": 0,
+          "explain": "The inequalities are 2x + 5y ≤ 30 and y ≥ 3. Only (5, 4) is in both: 10 + 20 = 30, and 4 ≥ 3. (8, 3) and (3, 5) cost $31.",
+          "check": {
+            "all": [
+              {
+                "region": {
+                  "op": "<=",
+                  "edge": [
+                    [
+                      0,
+                      6
+                    ],
+                    [
+                      15,
+                      0
+                    ]
+                  ],
+                  "in": [
+                    0,
+                    0
+                  ],
+                  "out": [
+                    10,
+                    10
+                  ]
+                }
+              },
+              {
+                "region": {
+                  "op": ">=",
+                  "edge": [
+                    [
+                      0,
+                      3
+                    ],
+                    [
+                      5,
+                      3
+                    ]
+                  ],
+                  "in": [
+                    0,
+                    5
+                  ],
+                  "out": [
+                    0,
+                    0
+                  ]
+                }
+              }
+            ]
+          },
+          "use": "Write both inequalities and graph them.",
+          "show": [
+            "2x+5y<=30",
+            "y>=3"
+          ]
+        }
+      ]
     },
     {
       "id": "circles",
@@ -1205,7 +2161,98 @@
         "Read the top and bottom points, where x is the center's x. The calculator may not mark the leftmost and rightmost points."
       ],
       "byHand": "If the equation is already in (x − h)² + (y − k)² = r² form, read the center and radius straight off it.",
-      "bluebook": "Desmos graphs circles in expanded form the same way. Tap the curve to see its marked points."
+      "bluebook": "Desmos graphs circles in expanded form the same way. Tap the curve to see its marked points.",
+      "quiz": [
+        {
+          "stem": "x² + y² + 4x − 8y = 5 defines a circle. What is its radius?",
+          "answer": "5",
+          "explain": "Graph it: the top is (−2, 9) and the bottom (−2, −1), 10 apart, so the radius is 5. By hand, (x + 2)² + (y − 4)² = 25.",
+          "check": {
+            "curve": [
+              [
+                3,
+                4
+              ],
+              [
+                -2,
+                9
+              ],
+              [
+                -7,
+                4
+              ],
+              [
+                -2,
+                -1
+              ]
+            ],
+            "off": [
+              [
+                -2,
+                4
+              ]
+            ]
+          },
+          "use": "Graph the equation as given.",
+          "show": [
+            "x^2+y^2+4x-8y=5"
+          ]
+        },
+        {
+          "stem": "x² − 10x + y² + 6y + 18 = 0 defines a circle. What is its center?",
+          "choices": [
+            "(5, −3)",
+            "(−5, 3)",
+            "(10, −6)",
+            "(5, 3)"
+          ],
+          "answer": 0,
+          "explain": "Graph it: it runs from y = 1 down to y = −7, centered at x = 5, so the center is (5, −3). By hand, (x − 5)² + (y + 3)² = 16. (−5, 3) is the sign trap.",
+          "check": {
+            "curve": [
+              [
+                9,
+                -3
+              ],
+              [
+                5,
+                1
+              ],
+              [
+                1,
+                -3
+              ],
+              [
+                5,
+                -7
+              ]
+            ],
+            "off": [
+              [
+                5,
+                -3
+              ]
+            ]
+          },
+          "use": "Graph the equation as given.",
+          "show": [
+            "x^2-10x+y^2+6y+18=0"
+          ]
+        },
+        {
+          "stem": "A circle's diameter has endpoints (−1, 2) and (7, 8). What is the radius?",
+          "answer": "5",
+          "explain": "The diameter is √((7 − (−1))² + (8 − 2)²) = √100 = 10, so the radius is 5. Type <code>sqrt((7+1)^2+(8-2)^2)/2</code>.",
+          "check": {
+            "value": 5,
+            "text": "sqrt"
+          },
+          "use": "Work out the length of the diameter with sqrt, then halve it.",
+          "show": [
+            "sqrt((7+1)^2+(8-2)^2)/2"
+          ]
+        }
+      ]
     },
     {
       "id": "exact",
@@ -1295,7 +2342,68 @@
         "Don't round in the middle of a problem: keep exact values in the calculator and round once, at the end."
       ],
       "byHand": "Special angles (30°, 45°, 60°) are faster from the special right triangles than from the calculator.",
-      "bluebook": "Desmos has a degree setting under the wrench icon, and a button that turns a decimal result into a fraction. Topline shows decimals, so convert them yourself."
+      "bluebook": "Desmos has a degree setting under the wrench icon, and a button that turns a decimal result into a fraction. Topline shows decimals, so convert them yourself.",
+      "quiz": [
+        {
+          "stem": "In a right triangle, one angle is 25° and the side adjacent to it is 12. What is the hypotenuse, to the nearest tenth?",
+          "answer": "13.2",
+          "tol": 0.05,
+          "showSetting": "deg",
+          "explain": "Hypotenuse = 12 / cos 25°. In degree mode that's 13.24, so 13.2.",
+          "check": {
+            "all": [
+              {
+                "deg": true
+              },
+              {
+                "value": 13.240535027549901,
+                "text": "cos"
+              }
+            ]
+          },
+          "use": "In degree mode, work out 12 / cos 25°.",
+          "show": [
+            "12/cos(25)"
+          ]
+        },
+        {
+          "stem": "Enter 5/6 − 3/8 as a typed (SPR) answer.",
+          "answer": "11/24",
+          "accept": [
+            ".4583",
+            ".4584"
+          ],
+          "explain": "The calculator shows 0.458333…. As an exact fraction it's 11/24; .4583 and .4584 fill the box and also count.",
+          "check": {
+            "value": 0.4583333333333333,
+            "text": "frac|/"
+          },
+          "use": "Work it out in the calculator.",
+          "show": [
+            "5/6-3/8"
+          ]
+        },
+        {
+          "stem": "An angle measures π/3 radians. What is the cosine of the angle?",
+          "answer": "0.5",
+          "explain": "This one says radians, so switch back to Radians and type cos(π/3) = 0.5. In degree mode you'd get 0.9998: always match the question's unit.",
+          "check": {
+            "all": [
+              {
+                "deg": false
+              },
+              {
+                "value": 0.5,
+                "text": "cos"
+              }
+            ]
+          },
+          "use": "Switch the angle mode to match the question, then type cos(π/3).",
+          "show": [
+            "cos(pi/3)"
+          ]
+        }
+      ]
     },
     {
       "id": "choose",

@@ -154,7 +154,10 @@ MIGRATIONS = [
             UNIQUE (user_id, lesson_id)
         )""",
     ]),
-    # (7, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (7, "Best practice quiz score for each masterclass lesson", [
+        "ALTER TABLE masterclass_progress ADD COLUMN quiz_best INTEGER",
+    ]),
+    # (8, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

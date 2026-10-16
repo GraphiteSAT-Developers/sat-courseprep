@@ -28,10 +28,14 @@ class MasterclassContentTest(unittest.TestCase):
                 for step in lesson["steps"]:
                     for key in ("do", "check", "hint", "done"):
                         self.assertIn(key, step)
+                self.assertEqual(len(lesson["quiz"]), 3)
+                for q in lesson["quiz"]:
+                    self.assertIn("check", q)
+                    self.assertTrue(q.get("use"))
                 # The SAT-style question opens only after the student does the work in the calculator.
                 self.assertIn("check", lesson["try"])
                 self.assertTrue(lesson["try"].get("use"))
-                for q in lesson.get("reads", []) + [lesson["try"]]:
+                for q in lesson.get("reads", []) + [lesson["try"]] + lesson["quiz"]:
                     if "choices" in q:
                         self.assertIn(q["answer"], range(len(q["choices"])))
                     else:
@@ -65,17 +69,28 @@ class MasterclassApiTest(unittest.TestCase):
         n = masterclass.total(masterclass.lessons()["basics"])
         r = self.post("/api/masterclass/progress", {"lesson": "basics", "step": 2})
         self.assertEqual(r.status_code, 200, r.json)
-        self.assertEqual(r.json["progress"], {"step": 2, "total": n, "completed": False})
+        self.assertEqual(r.json["progress"], {"step": 2, "total": n, "completed": False, "quiz_best": None, "quiz_total": 3})
         r = self.post("/api/masterclass/progress", {"lesson": "basics", "step": 1})
         self.assertEqual(r.json["progress"]["step"], 2)
         r = self.post("/api/masterclass/progress", {"lesson": "basics", "step": 999})
-        self.assertEqual(r.json["progress"], {"step": n, "total": n, "completed": True})
+        self.assertEqual(r.json["progress"]["step"], n)
+        self.assertTrue(r.json["progress"]["completed"])
 
         data = self.client.get("/api/masterclass").json
         self.assertTrue(data["progress"]["basics"]["completed"])
         self.assertEqual(data["summary"]["completed"], 1)
         self.assertEqual(data["summary"]["next"]["id"], masterclass.content()["lessons"][1]["id"])
         self.assertEqual(self.client.get("/api/dashboard").json["masterclass"]["completed"], 1)
+
+    def test_quiz_keeps_the_best_score(self):
+        r = self.post("/api/masterclass/quiz", {"lesson": "tilde", "correct": 2})
+        self.assertEqual(r.status_code, 200, r.json)
+        self.assertEqual((r.json["progress"]["quiz_best"], r.json["progress"]["quiz_total"]), (2, 3))
+        self.assertEqual(self.post("/api/masterclass/quiz", {"lesson": "tilde", "correct": 1}).json["progress"]["quiz_best"], 2)
+        self.assertEqual(self.post("/api/masterclass/quiz", {"lesson": "tilde", "correct": 3}).json["progress"]["quiz_best"], 3)
+        self.assertEqual(self.client.get("/api/masterclass").json["progress"]["tilde"]["quiz_best"], 3)
+        self.assertEqual(self.post("/api/masterclass/quiz", {"lesson": "tilde", "correct": 4}).status_code, 400)
+        self.assertEqual(self.post("/api/masterclass/quiz", {"lesson": "choose", "correct": 1}).status_code, 404)
 
     def test_rejects_unknown_lessons_and_bad_steps(self):
         self.assertEqual(self.post("/api/masterclass/progress", {"lesson": "nope", "step": 1}).status_code, 404)

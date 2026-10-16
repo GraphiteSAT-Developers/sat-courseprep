@@ -1296,3 +1296,15 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .dm-showme ul { margin: 0; padding-left: 1.2em; display: grid; gap: var(--s1); }
 .dm-step .dm-showme { display: none; }
 .dm-step.is-current .dm-showme:not([hidden]) { display: grid; }
+.dm-quiz { padding-top: var(--s5); border-top: 2px dashed var(--line); }
+.dm-quiz-top { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); }
+.dm-quiz-dots { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--s2); }
+.dm-quiz-dots li { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--control); }
+.dm-quiz-dots li.is-now { border-color: var(--accent); }
+.dm-quiz-dots li.is-right { background: var(--ok); border-color: var(--ok); }
+.dm-quiz-dots li.is-wrong { background: var(--err); border-color: var(--err); }
+.dm-quiz-result { justify-items: start; }
+.dm-quiz-score { font-size: var(--t-lg); }
+.dm-quiz-score strong { font: 700 2.4rem var(--font-display); color: var(--accent); }
+.dm-status.dm-quiz-best { color: var(--accent); }
+.dm-card-foot { display: flex; gap: var(--s3); flex-wrap: wrap; }

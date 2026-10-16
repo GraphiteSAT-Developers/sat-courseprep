@@ -93,6 +93,7 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `POST /api/practice/sessions/<id>/submit` | Finish a set; returns graded results | Yes |
 | `GET /api/masterclass` | Desmos masterclass progress, and the next lesson | Yes |
 | `POST /api/masterclass/progress` | Save how far a student got in a lesson: `{"lesson", "step"}` (it only goes up) | Yes |
+| `POST /api/masterclass/quiz` | Save a practice quiz score: `{"lesson", "correct"}` (the best is kept) | Yes |
 | `GET /api/dashboard` | Everything the dashboard shows | Yes |
 | `POST /api/review/<id>/right` | Mark a review question right | Yes |
 | `POST /api/activity` | Log practice time | Yes |

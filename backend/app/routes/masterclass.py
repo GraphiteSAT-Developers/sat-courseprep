@@ -25,3 +25,16 @@ def save_progress():
     if not isinstance(step, int) or isinstance(step, bool):
         raise ApiError(400, "Send the step as a whole number.", "step")
     return jsonify({"lesson": lesson_id, "progress": masterclass.save(current_user()["id"], lesson_id, step)})
+
+
+@bp.post("/quiz")
+@login_required
+def save_quiz():
+    data = body()
+    lesson = masterclass.lessons().get(data.get("lesson")) if isinstance(data.get("lesson"), str) else None
+    if not lesson or not masterclass.quiz_total(lesson):
+        raise ApiError(404, "That lesson doesn't have a quiz.")
+    correct = data.get("correct")
+    if not isinstance(correct, int) or isinstance(correct, bool) or not 0 <= correct <= masterclass.quiz_total(lesson):
+        raise ApiError(400, "Send the number of right answers.", "correct")
+    return jsonify({"lesson": lesson["id"], "progress": masterclass.save_quiz(current_user()["id"], lesson["id"], correct)})

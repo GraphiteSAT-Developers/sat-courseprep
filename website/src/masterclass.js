@@ -22,6 +22,7 @@
   var calc = null;     // window.Topline inside the iframe, once it's ready
   var calcWaiters = [];
   var tryReady = false; // has the student done the calculator work for the SAT-style question?
+  var quiz = null;       // the practice quiz in progress: {i, right, ready, answered}
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function store(k, v) {
@@ -45,10 +46,21 @@
     if (!LIVE) { progress = store(PREVIEW_KEY) || {}; return Promise.resolve(); }
     return API.call("/api/masterclass").then(function (r) { progress = r.progress || {}; });
   }
+  function saveQuiz(l, correct) {
+    var p = progress[l.id] || (progress[l.id] = { step: 0, total: total(l), completed: false });
+    if (p.quiz_best == null || correct > p.quiz_best) p.quiz_best = correct;
+    p.quiz_total = l.quiz.length;
+    if (!LIVE) { store(PREVIEW_KEY, progress); return; }
+    API.call("/api/masterclass/quiz", { lesson: l.id, correct: correct }).catch(function (err) {
+      if (err && err.status === 401) { location.href = "/signin.html?next=/masterclass.html"; return; }
+      showError("Your quiz score couldn't be saved. Check your connection and try again.");
+    });
+  }
   function saveProgress(l, step) {
     var n = total(l), cur = stepOf(l);
     if (step <= cur) return;
-    progress[l.id] = { step: step, total: n, completed: step >= n };
+    var old = progress[l.id] || {};
+    progress[l.id] = { step: step, total: n, completed: step >= n, quiz_best: old.quiz_best, quiz_total: old.quiz_total };
     if (!LIVE) { store(PREVIEW_KEY, progress); return; }
     API.call("/api/masterclass/progress", { lesson: l.id, step: step }).catch(function (err) {
       if (err && err.status === 401) { location.href = "/signin.html?next=/masterclass.html"; return; }
@@ -86,6 +98,9 @@
     var status = state === "done" ? '<span class="dm-status is-done">' + ICONS.done + "Done</span>"
       : state === "started" ? '<span class="dm-status is-started">' + s + " of " + n + " steps</span>"
       : '<span class="dm-status">' + l.minutes + " min</span>";
+    var p = progress[l.id];
+    if (p && p.quiz_best != null && l.quiz) status += '<span class="dm-status dm-quiz-best">Quiz ' + p.quiz_best + " of " + l.quiz.length + "</span>";
+    status = '<span class="dm-card-foot">' + status + "</span>";
     return '<li><a class="dm-card is-' + state + '" href="#' + l.id + '">' +
       '<span class="dm-card-top"><span class="dm-card-n">Lesson ' + l.n + '</span><span class="chip chip-quiet">' + esc(l.technique) + "</span></span>" +
       '<strong class="dm-card-title">' + esc(l.title) + '</strong><span class="dm-card-sum">' + esc(l.summary) + "</span>" + status + "</a></li>";
@@ -128,6 +143,7 @@
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function () { if (calc && lesson && lesson.id === id) store(calcKey(id), calc.snapshot()); }, 400);
     checkStep();
+    checkQuiz();
   }
   function setCalcOpen(open) {
     $("dm-layout").classList.toggle("calc-open", open);
@@ -149,6 +165,7 @@
     lesson = l;
     at = stepOf(l);
     tryReady = false;
+    quiz = null;
     $("dm-home").hidden = true;
     $("dm-lesson").hidden = false;
     document.title = l.title + " | Desmos Masterclass | Graphite";
@@ -319,7 +336,7 @@
     advance();
   }
   document.addEventListener("submit", function (e) {
-    var f = e.target.closest(".dm-spr"); if (!f) return;
+    var f = e.target.closest(".dm-spr"); if (!f || !f.hasAttribute("data-q")) return;  // the quiz handles its own
     e.preventDefault();
     var key = f.getAttribute("data-q"), v = f.querySelector("input").value;
     if (!v.trim()) return;
@@ -399,8 +416,108 @@
     }
     var complete = at >= n;
     $("dm-complete").hidden = !complete;
+    var hasQuiz = !!(l.quiz && l.quiz.length);
+    $("dm-quiz-wrap").hidden = !hasQuiz || !complete;
+    if (hasQuiz && complete && !quiz) startQuiz();
     if (complete) $("dm-complete-title").textContent = l.kind === "drill" ? "Nice work. You've got the strategy." : "Nice work. Lesson " + l.n + " is done.";
   }
+
+  /* the practice quiz: after the lesson, one question at a time, each opened by calculator work */
+  function quizMeta() {
+    var p = progress[lesson.id];
+    return p && p.quiz_best != null ? "Best score: " + p.quiz_best + " of " + lesson.quiz.length : lesson.quiz.length + " questions";
+  }
+  function startQuiz() {
+    quiz = { i: 0, right: 0, ready: false, answered: false, marks: [] };
+    $("dm-quiz-meta").textContent = quizMeta();
+    renderQuizQuestion();
+    checkQuiz();
+  }
+  function renderQuizQuestion() {
+    var q = lesson.quiz[quiz.i], n = lesson.quiz.length;
+    var body = q.choices
+      ? '<div class="choices dm-choices" role="group" aria-label="Answer choices">' + q.choices.map(function (c, i) {
+          return '<button class="choice" type="button" data-zchoice="' + i + '" disabled><span class="bubble">' + LETTERS[i] + '</span><span class="choice-text">' + esc(c) + "</span></button>";
+        }).join("") + "</div>"
+      : '<form class="dm-spr" id="dm-z-form" novalidate><label class="visually-hidden" for="dm-z-in">Your answer</label>' +
+        '<input id="dm-z-in" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Your answer" disabled>' +
+        '<button class="btn btn-primary" type="submit" disabled>Submit</button></form>';
+    $("dm-quiz").innerHTML = '<div class="dm-q dm-zq"><div class="dm-quiz-top"><p class="label">Question ' + (quiz.i + 1) + " of " + n + "</p>" +
+      '<ol class="dm-quiz-dots" aria-hidden="true">' + lesson.quiz.map(function (x, i) {
+        return '<li class="' + (i < quiz.i ? (quiz.marks[i] ? "is-right" : "is-wrong") : i === quiz.i ? "is-now" : "") + '"></li>';
+      }).join("") + "</ol></div>" +
+      '<p class="q-stem">' + q.stem + "</p>" +
+      '<p class="dm-gate" id="dm-z-gate"><span class="dm-gate-lock" aria-hidden="true"></span><span><strong>Use the calculator first.</strong> ' + esc(q.use) + " Answers open when your work is in the calculator.</span></p>" +
+      body + '<p class="dm-feedback" id="dm-z-fb" role="status" hidden></p>' +
+      '<div class="dm-explain" id="dm-z-ex" hidden><p>' + q.explain + "</p></div>" +
+      '<button class="btn btn-primary" type="button" id="dm-z-next" hidden>' + (quiz.i + 1 < n ? "Next question" : "See your score") + "</button></div>";
+  }
+  function checkQuiz() {
+    if (!quiz || quiz.ready || quiz.done || !calc || !lesson.quiz) return;
+    if (!C.passes(lesson.quiz[quiz.i].check, calc.lines(), calc)) return;
+    quiz.ready = true;
+    $("dm-z-gate").hidden = true;
+    $("dm-quiz").querySelectorAll("[data-zchoice], #dm-z-in, #dm-z-form button").forEach(function (x) { x.disabled = false; });
+    $("dm-calc-status").textContent = "Calculator work found";
+  }
+  function answerQuiz(right, picked) {
+    if (!quiz || !quiz.ready || quiz.answered) return;  // one try, and only after the calculator work
+    var q = lesson.quiz[quiz.i];
+    quiz.answered = true;
+    quiz.marks = quiz.marks || [];
+    quiz.marks[quiz.i] = right;
+    if (right) quiz.right++;
+    $("dm-quiz").querySelectorAll("[data-zchoice], #dm-z-in, #dm-z-form button").forEach(function (x) { x.disabled = true; });
+    if (q.choices) {
+      var bs = $("dm-quiz").querySelectorAll(".choice");
+      bs[q.answer].classList.add("is-right");
+      if (!right) bs[picked].classList.add("is-wrong");
+    }
+    var fb = $("dm-z-fb");
+    fb.hidden = false;
+    fb.className = "dm-feedback " + (right ? "is-right" : "is-wrong");
+    fb.textContent = right ? "Right." : "Not this time. The answer is " + (q.choices ? LETTERS[q.answer] + ". " + q.choices[q.answer] : String(q.answer).replace("-", "\u2212")) + ".";
+    $("dm-z-ex").hidden = false;
+    $("dm-z-next").hidden = false;
+    $("dm-z-next").focus();
+  }
+  function quizNext() {
+    if (quiz.i + 1 < lesson.quiz.length) {
+      quiz.i++; quiz.ready = false; quiz.answered = false;
+      renderQuizQuestion();
+      checkQuiz();
+      return;
+    }
+    quiz.done = true;
+    var n = lesson.quiz.length;
+    saveQuiz(lesson, quiz.right);
+    $("dm-quiz-meta").textContent = quizMeta();
+    var msg = quiz.right === n ? "A perfect score. You're ready to use this on test day."
+      : quiz.right >= n - 1 ? "Nearly there. Read the explanation for the one you missed, then retake it."
+      : "Go back over the lesson steps above, then retake the quiz. The questions stay the same, so focus on the method.";
+    msg += " Retaking clears the calculator, so you'll do the work again.";
+    $("dm-quiz").innerHTML = '<div class="dm-q dm-quiz-result"><p class="label">Your score</p><p class="dm-quiz-score"><strong>' + quiz.right + "</strong> of " + n + "</p>" +
+      '<ol class="dm-quiz-dots" aria-hidden="true">' + quiz.marks.map(function (m) { return '<li class="' + (m ? "is-right" : "is-wrong") + '"></li>'; }).join("") + "</ol>" +
+      "<p>" + msg + '</p><button class="btn btn-secondary" type="button" id="dm-z-retake">Retake the quiz</button></div>';
+  }
+  $("dm-quiz").addEventListener("click", function (e) {
+    var c = e.target.closest("[data-zchoice]");
+    if (c) { var i = +c.getAttribute("data-zchoice"); answerQuiz(i === lesson.quiz[quiz.i].answer, i); return; }
+    if (e.target.closest("#dm-z-next")) { quizNext(); return; }
+    if (e.target.closest("#dm-z-retake")) {
+      // A retake starts from a blank calculator, so every answer needs fresh work.
+      if (calc) calc.clear();
+      startQuiz();
+      $("dm-calc-status").textContent = "Calculator cleared for the retake";
+      $("dm-quiz-wrap").scrollIntoView({ block: "start" });
+    }
+  });
+  $("dm-quiz").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var v = $("dm-z-in").value;
+    if (!v.trim()) return;
+    answerQuiz(C.answerMatches(v, lesson.quiz[quiz.i]));
+  });
 
   /* ---------- routing ---------- */
   $("dm-back").addEventListener("click", function (e) { e.preventDefault(); location.hash = ""; });

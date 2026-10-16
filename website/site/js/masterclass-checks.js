@@ -122,7 +122,9 @@
     },
     deg: function (c, lines, T) { return T.settings().deg === c.deg; },
     // Every one of several checks, like two graphs for "graph both sides".
-    all: function (c, lines, T) { return c.all.every(function (sub) { return passes(sub, lines, T); }); }
+    all: function (c, lines, T) { return c.all.every(function (sub) { return passes(sub, lines, T); }); },
+    // At least one of several checks, like sample or population standard deviation.
+    any: function (c, lines, T) { return c.any.some(function (sub) { return passes(sub, lines, T); }); }
   };
 
   function passes(check, lines, T) {
@@ -150,6 +152,7 @@
   // "Show me": put a step's lines in the calculator. A line like k = 2 replaces the k that's already there.
   function applyShow(T, step) {
     if (step.showSetting === "deg") T.setDeg(true);
+    if (step.showSetting === "rad") T.setDeg(false);
     (step.show || []).forEach(function (spec) {
       var text = typeof spec === "string" ? spec : spec.text || "";
       var m = /^\s*([a-zA-Z](?:_\w+)?)\s*=/.exec(text);

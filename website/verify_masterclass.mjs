@@ -28,7 +28,8 @@ for (const L of content.lessons) {
   if (ids.has(L.id)) fail(L.id, "duplicate lesson id");
   ids.add(L.id);
   if (!unitIds.has(L.unit)) fail(L.id, `unknown unit ${L.unit}`);
-  const qs = [...(L.reads || []), ...(L.try ? [L.try] : [])];
+  const qs = [...(L.reads || []), ...(L.try ? [L.try] : []), ...(L.quiz || [])];
+  if (L.kind !== "drill" && !(L.quiz && L.quiz.length)) fail(L.id, "no practice quiz");
   for (const q of qs) {
     if (q.choices) { if (!(Number.isInteger(q.answer) && q.answer >= 0 && q.answer < q.choices.length)) fail(L.id, `bad choice answer in "${q.prompt || q.stem}"`); }
     else if (!Checks.answerMatches(q.answer, q)) fail(L.id, `answer ${q.answer} doesn't match itself`);
@@ -63,6 +64,19 @@ for (const L of content.lessons) {
       T.clear();
       lesson.steps.forEach(step => C.applyShow(T, step));
     }
+    // Practice quiz: each question's work must not already be done by the lesson, and its lines must pass.
+    (lesson.quiz || []).forEach((q, i) => {
+      T.clear();
+      lesson.steps.forEach(step => C.applyShow(T, step));
+      if (lesson.try) C.applyShow(T, lesson.try);
+      if (C.passes(q.check, T.lines(), T)) out.push(`quiz ${i + 1}: its calculator check already passes from the lesson's work`);
+      lesson.quiz.slice(0, i).forEach(prev => { T.clear(); C.applyShow(T, prev); if (C.passes(q.check, T.lines(), T)) out.push(`quiz ${i + 1}: unlocked by an earlier question's work`); });
+      T.clear();
+      C.applyShow(T, q);
+      if (!C.passes(q.check, T.lines(), T)) out.push(`quiz ${i + 1}: check fails after its lines: ` + JSON.stringify(T.lines().map(l => [l.text, l.kind, l.error, l.value ?? l.fit ?? null])));
+    });
+    T.clear();
+    lesson.steps.forEach(step => C.applyShow(T, step));
     (lesson.reads || []).forEach((q, i) => {
       if (!q.verify) return;
       T.add([q.verify]);

@@ -1,5 +1,7 @@
 """The Desmos masterclass: lessons from content/masterclass/lessons.json and each student's progress.
 
+After a lesson comes its practice quiz. The best score is kept, and retakes never lower it.
+
 A lesson is a series of checkpoints: its calculator steps, then its questions about the graph, then
 one SAT-style question (a strategy drill's checkpoints are its items). Progress is how many checkpoints
 the student has passed, and it only goes up: going back over a finished lesson never undoes it.
@@ -31,11 +33,28 @@ def total(lesson):
     return len(lesson["steps"]) + len(lesson.get("reads", [])) + (1 if lesson.get("try") else 0)
 
 
+def quiz_total(lesson):
+    return len(lesson.get("quiz", []))
+
+
+def _state(lesson, row):
+    return {"step": row["step"], "total": total(lesson), "completed": row["step"] >= total(lesson),
+            "quiz_best": row["quiz_best"], "quiz_total": quiz_total(lesson)}
+
+
 def progress(user_id):
-    rows = query("SELECT lesson_id, step, completed_at FROM masterclass_progress WHERE user_id = ?", (user_id,))
+    rows = query("SELECT lesson_id, step, quiz_best FROM masterclass_progress WHERE user_id = ?", (user_id,))
     known = lessons()
-    return {r["lesson_id"]: {"step": r["step"], "total": total(known[r["lesson_id"]]), "completed": bool(r["completed_at"])}
-            for r in rows if r["lesson_id"] in known}
+    return {r["lesson_id"]: _state(known[r["lesson_id"]], r) for r in rows if r["lesson_id"] in known}
+
+
+def _ensure_row(user_id, lesson_id, stamp):
+    execute("INSERT INTO masterclass_progress (user_id, lesson_id, step, updated_at) VALUES (?, ?, 0, ?) "
+            "ON CONFLICT (user_id, lesson_id) DO NOTHING", (user_id, lesson_id, stamp))
+
+
+def _row(user_id, lesson_id):
+    return query("SELECT step, quiz_best FROM masterclass_progress WHERE user_id = ? AND lesson_id = ?", (user_id, lesson_id), one=True)
 
 
 def save(user_id, lesson_id, step):
@@ -45,15 +64,24 @@ def save(user_id, lesson_id, step):
     step = max(0, min(n, step))
     stamp = now_iso()
     # Steps can pass in quick succession, so saves may arrive together: each write here is safe to race.
-    execute("INSERT INTO masterclass_progress (user_id, lesson_id, step, updated_at) VALUES (?, ?, 0, ?) "
-            "ON CONFLICT (user_id, lesson_id) DO NOTHING", (user_id, lesson_id, stamp))
+    _ensure_row(user_id, lesson_id, stamp)
     execute("UPDATE masterclass_progress SET step = ?, updated_at = ? WHERE user_id = ? AND lesson_id = ? AND step < ?",
             (step, stamp, user_id, lesson_id, step))
     if step == n:
         execute("UPDATE masterclass_progress SET completed_at = ? WHERE user_id = ? AND lesson_id = ? AND completed_at IS NULL",
                 (stamp, user_id, lesson_id))
-    row = query("SELECT step FROM masterclass_progress WHERE user_id = ? AND lesson_id = ?", (user_id, lesson_id), one=True)
-    return {"step": row["step"], "total": n, "completed": row["step"] == n}
+    return _state(lesson, _row(user_id, lesson_id))
+
+
+def save_quiz(user_id, lesson_id, correct):
+    """Records a practice quiz score. Returns that lesson's progress, with the best score so far."""
+    lesson = lessons()[lesson_id]
+    correct = max(0, min(quiz_total(lesson), correct))
+    stamp = now_iso()
+    _ensure_row(user_id, lesson_id, stamp)
+    execute("UPDATE masterclass_progress SET quiz_best = ?, updated_at = ? WHERE user_id = ? AND lesson_id = ? "
+            "AND (quiz_best IS NULL OR quiz_best < ?)", (correct, stamp, user_id, lesson_id, correct))
+    return _state(lesson, _row(user_id, lesson_id))
 
 
 def summary(user_id):
