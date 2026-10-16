@@ -1,6 +1,8 @@
 /* Graphite practice test engine.
    Live (served by the backend): questions come from /api/tests/<id> without answers, and the server grades.
-   Static preview: questions come from GRAPHITE_TEST in questions.js and are graded in the browser. */
+   Static preview: questions come from GRAPHITE_TEST in questions.js and are graded in the browser.
+   With ?session=<id>, the page runs a practice set from the question bank instead (see practice.js):
+   a timed random practice test, or untimed topic practice where each answer is checked as you go. */
 (function () {
   "use strict";
   var root = document.getElementById("exam");
@@ -9,17 +11,33 @@
   var API = window.GraphiteAPI;
   var LIVE = !!(API && API.live);
   var TEST_ID = root.getAttribute("data-test") || "pt4-math-m1";
+  var SESSION_ID = (/[?&]session=(\d+)/.exec(location.search) || [])[1] || null;
+  var practiceCall = LIVE ? (API && API.call) : (window.GraphitePracticeLocal && window.GraphitePracticeLocal.call);
+  var BACK_URL = SESSION_ID ? "practice.html" : "dashboard.html";
 
-  if (LIVE) {
+  function loadFailed(err, here) {
+    if (err && err.status === 401) { location.href = "/signin.html?next=" + encodeURIComponent(here); return; }
+    $("start-btn").textContent = "Couldn't load";
+    var p = document.querySelector("#start-overlay .dialog > p:not(.label)");
+    if (p) p.textContent = err && err.status === 404 ? "We couldn't find this practice set. Start a new one from the practice page."
+      : "We couldn't load this test. Check your connection and refresh the page.";
+  }
+
+  if (SESSION_ID) {
+    $("start-btn").disabled = true; $("start-btn").textContent = "Loading…";
+    if (!practiceCall) { loadFailed(null); return; }
+    Promise.all([practiceCall("/api/practice/sessions/" + SESSION_ID), LIVE ? API.call("/api/me") : Promise.resolve({ user: null })])
+      .then(function (r) {
+        var s = r[0].session;
+        boot({ id: "practice-" + s.id, session: s, mode: s.mode, title: s.title, name: s.mode === "test" ? "Practice test" : "Topic practice",
+               minutes: s.minutes, questions: s.questions }, r[1].user);
+      })
+      .catch(function (err) { loadFailed(err, "/practice-test.html?session=" + SESSION_ID); });
+  } else if (LIVE) {
     $("start-btn").disabled = true; $("start-btn").textContent = "Loading…";
     Promise.all([API.call("/api/tests/" + TEST_ID), API.call("/api/me")])
       .then(function (r) { boot(r[0].test, r[1].user); })
-      .catch(function (err) {
-        if (err && err.status === 401) { location.href = "/signin.html?next=/practice-test.html"; return; }
-        $("start-btn").textContent = "Couldn't load";
-        var p = document.querySelector("#start-overlay .dialog > p:not(.label)");
-        if (p) p.textContent = "We couldn't load this test. Check your connection and refresh the page.";
-      });
+      .catch(function (err) { loadFailed(err, "/practice-test.html"); });
   } else {
     boot(window.GRAPHITE_TEST, null);
   }
@@ -27,16 +45,27 @@
   function boot(T, user) {
   if (!T) return;
   var Q = T.questions, N = Q.length, LETTERS = "ABCD";
+  var TOPIC = T.mode === "topic", UNTIMED = !T.minutes;
+  var checked = (T.session && T.session.checked) || {}; // topic practice: graded questions, by index
+  var checking = false;
   var KEY = "graphite_test_" + T.id + (user ? "_u" + user.id : "");
   if (user) $("exam-student").textContent = user.name;
-  $("start-btn").disabled = false; $("start-btn").textContent = "Begin module";
+  $("start-btn").disabled = false; $("start-btn").textContent = T.minutes ? "Begin module" : "Start practicing";
   var submitting = false;
   function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked */ } }
   function fresh() {
-    return { started: false, submitted: false, cur: 0, remaining: T.minutes * 60, answers: {}, crossed: {}, marked: {}, view: "graphite", timerHidden: false, page: "q" };
+    return { started: false, submitted: false, cur: 0, remaining: T.minutes * 60, elapsed: 0, answers: {}, crossed: {}, marked: {}, view: "graphite", timerHidden: false, page: "q" };
   }
   var S = load() || fresh();
+  if (T.session) {
+    // The server's copy wins: answers it already checked, and a set finished on another device.
+    Object.keys(checked).forEach(function (k) { S.answers[k] = answerValue(checked[k]); });
+    if (T.session.submitted && T.session.result) { S.started = true; S.submitted = true; S.result = T.session.result; }
+    if (!T.session.submitted && S.submitted) S = fresh();
+  }
+  function answerValue(g) { return g.type === "mc" ? LETTERS.indexOf(g.your_answer) : g.your_answer; }
+  applyLabels();
   var resumed = !!(S.started && !S.submitted);
   var tickTimer = null, toastTimer = null;
 
@@ -92,6 +121,13 @@
     themeCalc();
   }
   function renderTimer() {
+    if (UNTIMED) {
+      $("timer").textContent = fmt(S.elapsed || 0);
+      $("timer").classList.toggle("is-hidden", !!S.timerHidden);
+      $("timer-toggle").textContent = S.timerHidden ? "Show" : "Hide";
+      $("timer-toggle").setAttribute("aria-pressed", String(!!S.timerHidden));
+      return;
+    }
     $("timer").textContent = fmt(S.remaining);
     var last5 = S.remaining <= 300;
     var hidden = S.timerHidden && !last5;
@@ -105,6 +141,7 @@
     clearInterval(tickTimer);
     tickTimer = setInterval(function () {
       if (!S.started || S.submitted) return;
+      if (UNTIMED) { S.elapsed = (S.elapsed || 0) + 1; renderTimer(); if (S.elapsed % 5 === 0) save(); return; }
       S.remaining -= 1;
       if (S.remaining === 300) toast("5 minutes remaining.");
       if (S.remaining <= 0) { S.remaining = 0; renderTimer(); submit(true); return; }
@@ -123,7 +160,9 @@
     $("spr-help").hidden = q.type !== "spr";
     $("q-stem").innerHTML = q.stem;
     var box = $("q-answer"); box.innerHTML = "";
-    var elimOn = $("elim-toggle").getAttribute("aria-pressed") === "true";
+    var locked = !!checked[i];
+    var elimOn = !locked && $("elim-toggle").getAttribute("aria-pressed") === "true";
+    $("elim-toggle").hidden = q.type !== "mc" || locked;
 
     if (q.type === "mc") {
       var list = document.createElement("div");
@@ -133,8 +172,14 @@
         var row = document.createElement("div"); row.className = "mc-row" + (crossed[k] ? " is-crossed" : "");
         var b = document.createElement("button"); b.type = "button"; b.className = "mc-choice";
         b.setAttribute("role", "radio"); b.setAttribute("aria-checked", String(S.answers[i] === k));
+        if (locked) {
+          b.disabled = true;
+          if (k === checked[i].answer_index) row.classList.add("is-key");
+          else if (S.answers[i] === k) row.classList.add("is-wrong");
+        }
         b.innerHTML = '<span class="mc-letter">' + LETTERS[k] + '</span><span class="mc-text">' + c + "</span>";
         b.addEventListener("click", function () {
+          if (checked[i]) return;
           if ((S.crossed[i] || {})[k]) { S.crossed[i][k] = false; }
           S.answers[i] = S.answers[i] === k ? null : k;
           save(); renderQuestion(); renderNav(); focusChoice(k);
@@ -160,7 +205,7 @@
       var wrap = document.createElement("div"); wrap.className = "spr";
       var lab = document.createElement("label"); lab.setAttribute("for", "spr-input"); lab.className = "visually-hidden"; lab.textContent = "Your answer to question " + (i + 1);
       var inp = document.createElement("input"); inp.type = "text"; inp.id = "spr-input"; inp.autocomplete = "off"; inp.inputMode = "text"; inp.spellcheck = false;
-      inp.maxLength = 6; inp.value = S.answers[i] || "";
+      inp.maxLength = 6; inp.value = S.answers[i] || ""; inp.readOnly = locked;
       var prev = document.createElement("p"); prev.className = "spr-preview"; prev.setAttribute("aria-live", "polite");
       var err = document.createElement("p"); err.className = "field-error"; err.id = "spr-error"; err.hidden = true;
       function update() {
@@ -172,15 +217,53 @@
         err.textContent = "Use digits, one decimal point or one fraction bar, and a leading minus sign if needed.";
         inp.setAttribute("aria-invalid", String(!err.hidden));
         prev.innerHTML = v ? "Answer Preview: <strong>" + previewHTML(v) + "</strong>" : "Answer Preview:";
-        S.answers[i] = v; save(); renderNav();
+        S.answers[i] = v; save(); renderNav(); renderCheck();
       }
       inp.addEventListener("input", update);
       wrap.appendChild(lab); wrap.appendChild(inp); wrap.appendChild(prev); wrap.appendChild(err);
       box.appendChild(wrap);
       prev.innerHTML = inp.value ? "Answer Preview: <strong>" + previewHTML(inp.value) + "</strong>" : "Answer Preview:";
+      if (!locked) inp.addEventListener("keydown", function (e) { if (e.key === "Enter" && TOPIC) checkAnswer(); });
     }
+    renderCheck();
     $("back-btn").disabled = i === 0 && S.page === "q";
     $("nav-label").textContent = "Question " + (i + 1) + " of " + N;
+  }
+  // Topic practice: a Check button under the answer, then the verdict and full explanation once checked.
+  function renderCheck() {
+    var area = $("q-check");
+    if (!TOPIC) { area.hidden = true; return; }
+    area.hidden = false;
+    var i = S.cur, g = checked[i];
+    if (!g) {
+      area.innerHTML = '<button class="btn btn-primary" type="button" id="check-btn">Check answer</button>';
+      var btn = $("check-btn");
+      btn.disabled = !isAnswered(i) || checking;
+      btn.addEventListener("click", checkAnswer);
+      return;
+    }
+    var verdict = g.correct ? "Correct" : "Not quite";
+    area.innerHTML = '<div class="fb ' + (g.correct ? "ok" : "no") + '" tabindex="-1" id="fb"><p class="fb-verdict"><strong>' + verdict + "</strong>" +
+      (g.correct ? "" : ' <span>The answer is <strong>' + (g.type === "mc" ? g.answer : previewHTML(g.answer.split(" or ")[0])) + "</strong>.</span>") + "</p>" +
+      '<div class="fb-explain"></div></div>';
+    area.querySelector(".fb-explain").innerHTML = g.explain_html || "";
+  }
+  function checkAnswer() {
+    var i = S.cur;
+    if (checking || checked[i] || !isAnswered(i)) return;
+    checking = true; renderCheck();
+    practiceCall("/api/practice/sessions/" + T.session.id + "/check", { index: i, answer: S.answers[i] })
+      .then(function (r) {
+        checked[i] = r.question; S.answers[i] = answerValue(r.question); save();
+        checking = false;
+        if (S.cur === i) { renderQuestion(); var fb = $("fb"); if (fb) fb.focus({ preventScroll: false }); }
+        renderNav();
+      })
+      .catch(function (err) {
+        checking = false; renderCheck();
+        if (err && err.status === 401) { save(); location.href = "/signin.html?next=" + encodeURIComponent("/practice-test.html?session=" + T.session.id); return; }
+        toast(err && err.status ? err.message : "We couldn't check that answer. Check your connection and try again.");
+      });
   }
   function focusChoice(k) { var b = $("q-answer").querySelectorAll(".mc-choice")[k]; if (b) b.focus(); }
 
@@ -191,6 +274,7 @@
       (function (i) {
         var b = document.createElement("button"); b.type = "button"; b.className = "g-cell";
         if (isAnswered(i)) b.classList.add("is-answered");
+        if (checked[i]) b.classList.add(checked[i].correct ? "is-right" : "is-wrong");
         if (S.marked[i]) b.classList.add("is-marked");
         if (i === S.cur && S.page === "q") { b.classList.add("is-current"); b.setAttribute("aria-current", "step"); }
         b.textContent = String(i + 1);
@@ -233,20 +317,21 @@
   function submit(auto) {
     if (S.submitted || submitting) return;
     clearInterval(tickTimer);
-    var seconds = T.minutes * 60 - S.remaining;
+    var seconds = UNTIMED ? (S.elapsed || 0) : T.minutes * 60 - S.remaining;
     var finish = function (result) {
       S.submitted = true; S.result = result; save();
       if (auto) toast("Time's up. Your module was submitted.");
       renderResults(result); showPage("results");
     };
-    if (!LIVE) { finish(gradeLocal(seconds)); return; }
+    if (!LIVE && !T.session) { finish(gradeLocal(seconds)); return; }
     var answers = {};
     Object.keys(S.answers).forEach(function (k) { if (isAnswered(Number(k))) answers[k] = S.answers[k]; });
     submitting = true; $("submit-go").disabled = true; $("submit-go").textContent = "Submitting…";
-    API.call("/api/tests/" + T.id + "/attempts", { answers: answers, seconds_used: seconds })
+    var url = T.session ? "/api/practice/sessions/" + T.session.id + "/submit" : "/api/tests/" + T.id + "/attempts";
+    (T.session ? practiceCall : API.call)(url, { answers: answers, seconds_used: seconds })
       .then(function (r) { finish(r.result); })
       .catch(function (err) {
-        if (err && err.status === 401) { save(); location.href = "/signin.html?next=/practice-test.html"; return; }
+        if (err && err.status === 401) { save(); location.href = "/signin.html?next=" + encodeURIComponent(location.pathname + location.search); return; }
         showPage("review");
         toast(err && err.status ? err.message : "We couldn't submit. Check your connection, then press Submit module again.");
       })
@@ -279,9 +364,10 @@
         '</span><span class="res-dom"></span><span class="res-ans">Yours: <strong>' + yours + "</strong> · Answer: <strong>" + correct + "</strong></span></summary>" +
         '<div class="res-body"><div class="res-stem">' + q.stem + "</div>" +
         (q.type === "mc" ? '<ol class="res-choices" type="A">' + q.choices.map(function (c, k) { return '<li class="' + (k === q.answer_index ? "is-key" : "") + '">' + c + "</li>"; }).join("") + "</ol>" : "") +
-        '<p class="res-explain"></p>' + (q.calc ? '<p class="res-calc"><strong>With the calculator:</strong> <span></span></p>' : "") + "</div>";
-      d.querySelector(".res-dom").textContent = q.domain;
-      d.querySelector(".res-explain").textContent = q.explain || "";
+        '<div class="res-explain"></div>' + (q.calc ? '<p class="res-calc"><strong>With the calculator:</strong> <span></span></p>' : "") + "</div>";
+      d.querySelector(".res-dom").textContent = q.skill && T.session ? q.skill : q.domain;
+      if (q.explain_html) d.querySelector(".res-explain").innerHTML = q.explain_html;
+      else d.querySelector(".res-explain").textContent = q.explain || "";
       if (q.calc) d.querySelector(".res-calc span").textContent = q.calc;
       list.appendChild(d);
     });
@@ -412,14 +498,58 @@
   $("submit-open").addEventListener("click", function () { $("submit-confirm").hidden = false; $("submit-go").focus(); });
   $("submit-cancel").addEventListener("click", function () { $("submit-confirm").hidden = true; $("submit-open").focus(); });
   $("submit-go").addEventListener("click", function () { submit(false); });
-  $("retake").addEventListener("click", reset);
+  $("retake").addEventListener("click", function () {
+    if (!T.session) { reset(); return; }
+    var s = T.session, b = $("retake");
+    var data = s.mode === "test" ? { mode: "test" } : { mode: "topic", domain: s.domain, skill: s.skill, count: N };
+    b.disabled = true; b.textContent = "Building your set…";
+    practiceCall("/api/practice/sessions", data).then(function (r) {
+      location.href = "practice-test.html?session=" + r.session.id;
+    }).catch(function (err) {
+      b.disabled = false; b.textContent = "New set, same topic";
+      toast(err && err.status ? err.message : "We couldn't start a new set. Check your connection and try again.");
+    });
+  });
 
   function reset() {
-    var view = S.view; S = fresh(); S.view = view; save();
+    var view = S.view; S = fresh(); S.view = view;
+    Object.keys(checked).forEach(function (k) { S.answers[k] = answerValue(checked[k]); });
+    save();
     clearInterval(tickTimer); restartArmed = false;
     $("restart-test").textContent = "Start over"; $("more-menu").hidden = true;
     applyView(); renderTimer(); showPage("q"); renderNav();
     $("start-overlay").hidden = false; $("start-btn").focus();
+  }
+
+  /* ---------- labels for practice sets ---------- */
+  function applyLabels() {
+    if (!T.session) return;
+    var heading = T.mode === "test" ? "Math practice test" : T.title;
+    var kind = T.mode === "test" ? "Practice test · Math" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain");
+    $("exam-title").textContent = heading;
+    $("start-title").textContent = heading;
+    document.querySelector("#start-overlay .label").textContent = kind;
+    document.querySelector("#results-view > .label").textContent = kind;
+    $("review-heading").textContent = heading + " questions";
+    document.querySelector("#nav-pop .review-card-head strong").textContent = heading + " questions";
+    var facts = '<li><strong>' + N + "</strong> questions</li>" +
+      (UNTIMED ? "<li>Untimed. The clock counts up so you can see your pace</li><li>Check each answer as you go</li>"
+               : "<li><strong>" + T.minutes + "</strong> minutes</li><li>Graphing calculator on every question</li>");
+    document.querySelector("#start-overlay .start-facts").innerHTML = facts;
+    var intro = document.querySelector("#start-overlay .dialog > p:not(.label)");
+    if (intro) intro.textContent = UNTIMED
+      ? "Answer a question, then press Check answer to see if you got it and read the full explanation, with the Desmos shortcut when one helps. Your progress saves as you go."
+      : "New questions you haven't answered before, in the same mix as the real test. The timer starts when you begin. Your answers save as you go, and the module submits itself when time runs out.";
+    $("start-btn").textContent = UNTIMED ? "Start practicing" : "Begin module";
+    $("submit-open").textContent = TOPIC ? "Finish set" : "Submit module";
+    $("confirm-title").textContent = TOPIC ? "Finish this set?" : "Submit this module?";
+    if (TOPIC) $("confirm-desc").textContent = "Questions you haven't answered go back into the pool for next time.";
+    $("retake").textContent = TOPIC ? "New set, same topic" : "Take another practice test";
+    Array.prototype.forEach.call(document.querySelectorAll('a[href$="dashboard.html"]'), function (a) {
+      if (a.id === "save-exit" || a.closest(".dialog-actions")) a.setAttribute("href", BACK_URL);
+    });
+    var back = document.querySelector(".res-actions a"); if (back) { back.setAttribute("href", BACK_URL); back.textContent = "Back to practice"; }
+    document.title = heading + " | Graphite SAT Tutoring";
   }
 
   /* ---------- boot ---------- */
@@ -428,7 +558,7 @@
   if (S.submitted) { renderResults(S.result); showPage("results"); $("start-overlay").hidden = true; }
   else {
     showPage(S.page === "review" ? "review" : "q"); renderNav();
-    if (S.started) { $("start-overlay").hidden = true; startClock(); if (resumed) toast("Picked up where you left off. " + fmt(S.remaining) + " left."); }
+    if (S.started) { $("start-overlay").hidden = true; startClock(); if (resumed) toast(UNTIMED ? "Picked up where you left off." : "Picked up where you left off. " + fmt(S.remaining) + " left."); }
   }
   }
 })();

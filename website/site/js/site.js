@@ -700,7 +700,7 @@
 
       var test = d.tests[0];
       if (test) {
-        $("#next-test-text").innerHTML = "<strong>" + esc(test.name || test.title) + ", Math module 1</strong><span>" + test.questions + " questions · " + test.minutes + " minutes · graphing calculator built in" + (test.taken ? " · retake any time" : "") + "</span>";
+        $("#next-test-text").innerHTML = "<strong>Math practice test</strong><span>" + test.questions + " new questions every time · " + test.minutes + " minutes · or practice one topic</span>";
       }
       $("#scores-meta").textContent = d.history.length ? d.history.length + (d.history.length === 1 ? " test taken" : " tests taken") : "No tests yet";
       if (d.history.length) {

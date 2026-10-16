@@ -50,6 +50,8 @@ Run it from the main `sat-courseprep` folder. It saves `users.csv`, `leads.csv`,
 | Password reset | One-time link, valid 30 minutes, emailed to the student. Only a hash of the token is saved. |
 | Home page form | Saved to `leads`, with an email to the student and, if `ADMIN_EMAIL` is set, to you. |
 | Practice tests | The browser gets questions without answers. The server grades, saves the attempt, and returns explanations. |
+| Question bank | 1,000 original questions in `app/content/bank/`, each with a full explanation: best approach, Desmos steps, by-hand steps, why the wrong choices tempt, and how to enter typed answers. |
+| Practice sets | Random practice tests (22 questions, 35 minutes, the real test's domain mix) and topic practice (5–20 questions, untimed, checked one at a time). Every answered question goes on the student's done list and isn't drawn again until every question in that pool is done; then the pool starts over. |
 | Review queue | Every missed question. After the first right answer it comes back in three days; a second right answer clears it. |
 | Dashboard | Latest score, score history, domain breakdown, today's set, review queue and a week-by-week plan to the test date, all from the student's own data. |
 
@@ -78,6 +80,11 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `GET /api/tests/<id>` | Questions, without answers | Yes |
 | `POST /api/tests/<id>/attempts` | Submit answers; returns graded results | Yes |
 | `GET /api/tests/<id>/attempts[/<attempt>]` | Past attempts and their results | Yes |
+| `GET /api/practice` | Topics with progress, and unfinished sets | Yes |
+| `POST /api/practice/sessions` | Start a set: `{"mode": "test"}` or `{"mode": "topic", "domain", "skill", "count"}` | Yes |
+| `GET /api/practice/sessions/<id>` | A set's questions (no answers) and any checked answers | Yes |
+| `POST /api/practice/sessions/<id>/check` | Topic practice: grade one answer and return its explanation | Yes |
+| `POST /api/practice/sessions/<id>/submit` | Finish a set; returns graded results | Yes |
 | `GET /api/dashboard` | Everything the dashboard shows | Yes |
 | `POST /api/review/<id>/right` | Mark a review question right | Yes |
 | `POST /api/activity` | Log practice time | Yes |

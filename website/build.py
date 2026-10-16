@@ -2,7 +2,7 @@
 site/      deployable site (linked CSS/JS, root-absolute links, server files)
 artifact/  self-contained pages for the hosted preview (inlined CSS/JS/images)
 """
-import base64, json, re, shutil, urllib.parse
+import base64, importlib.util, json, re, shutil, urllib.parse
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -96,6 +96,25 @@ def score_chart():
     return "\n".join(out)
 
 TESTS_DIR = ROOT.parent / "backend" / "app" / "content" / "tests"
+BANK_PY = ROOT.parent / "backend" / "app" / "services" / "bank.py"
+# Preview-only scripts. They carry answer keys, so the live site never serves them: there the backend grades.
+PREVIEW_ONLY = {"questions.js", "bank.js", "practice-local.js"}
+
+
+def bank_js():
+    """The question bank for the offline preview, built by the backend's own bank module (same HTML, same keys)."""
+    spec = importlib.util.spec_from_file_location("graphite_bank", BANK_PY)
+    bank = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bank)
+    keep = ("id", "domain_key", "domain", "skill", "skill_key", "difficulty", "type", "stem", "choices",
+            "answer", "keys", "answer_text", "explain_html")
+    data = {
+        "items": [{k: q[k] for k in keep if k in q} for q in bank.all_items().values()],
+        "topics": bank.topics(), "mix": bank.MODULE_MIX, "order": bank.DIFFICULTY_ORDER,
+        "test": {"questions": sum(bank.MODULE_MIX.values()), "minutes": bank.MODULE_MINUTES},
+        "topic_counts": [5, 10, 15, 20],
+    }
+    return "window.GRAPHITE_BANK = " + json.dumps(data, separators=(",", ":")).replace("</", "<\\/") + ";"
 
 
 def script_source(name):
@@ -103,6 +122,8 @@ def script_source(name):
     if name == "questions.js":
         test = json.loads((TESTS_DIR / "pt4-math-m1.json").read_text())
         return "var GRAPHITE_TEST = " + json.dumps(test) + ";"
+    if name == "bank.js":
+        return bank_js()
     return (SRC / name).read_text()
 
 
@@ -128,7 +149,7 @@ def render(meta, mode):
         styles = '<link rel="stylesheet" href="/css/site.css">'
         # Served by the backend: site.js first (it sets up the API helper), and never the answer key.
         script = '<script src="/js/site.js" defer></script>' + "".join(
-            f'<script src="/js/{n}" defer></script>' for n in meta.get("scripts", []) if n != "questions.js")
+            f'<script src="/js/{n}" defer></script>' for n in meta.get("scripts", []) if n not in PREVIEW_ONLY)
         canonical = f'<link rel="canonical" href="{url}">' if robots.startswith("index") else ""
         # Root-absolute internal links so pages work from any URL, including the 404 page
         body = re.sub(r'href="\./', 'href="/', body)
@@ -214,6 +235,7 @@ def build():
     (DIST / "js/site.js").write_text(js)
     shutil.copy(SRC / "assets/hint-ladder.svg", DIST / "assets/hint-ladder.svg")
     shutil.copy(SRC / "practice-test.js", DIST / "js" / "practice-test.js")
+    shutil.copy(SRC / "practice.js", DIST / "js" / "practice.js")
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:
@@ -226,7 +248,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

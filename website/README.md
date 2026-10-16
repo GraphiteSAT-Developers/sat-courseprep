@@ -17,7 +17,9 @@ The pages run in two modes:
   - `partials/`: the shared header, footer and cookie banner. The dashboard uses `app-header.html` and `app-footer.html`.
   - `site.css`: all styles. Colors, fonts and spacing are set at the top.
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
-  - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results.
+  - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results. With `?session=<id>` it runs a set from the question bank: a timed random practice test, or untimed topic practice with a Check answer button.
+  - `practice.js`: the practice page: start a random practice test or practice one topic.
+  - `practice-local.js`: preview only. Runs the practice requests in the browser when there's no server.
   - `htaccess`, `netlify.toml`: server settings for HTTPS, the 404 page, compression and caching.
 - `build.py`: rebuilds `site/` from `src/`. Run `python3 build.py` after any edit. Needs Python 3 and Pillow (`pip install pillow`).
 
@@ -28,6 +30,7 @@ The pages run in two modes:
 | Home | `index.html` |
 | Sign in | `signin.html` |
 | Dashboard (signed-in students) | `dashboard.html` |
+| Practice: random practice test or one topic | `practice.html` |
 | Math practice test with graphing calculator | `practice-test.html` |
 | Privacy policy | `privacy.html` |
 | Cookie policy | `cookies.html` |

@@ -83,7 +83,33 @@ MIGRATIONS = [
         )""",
         "CREATE INDEX idx_activity_user ON activity (user_id, at)",
     ]),
-    # (2, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (2, "Practice sets from the question bank, and the questions each student has done", [
+        """CREATE TABLE practice_sessions (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            mode TEXT NOT NULL,
+            domain TEXT,
+            skill TEXT,
+            title TEXT NOT NULL,
+            item_ids TEXT NOT NULL,
+            minutes INTEGER NOT NULL DEFAULT 0,
+            checked TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL,
+            submitted_at TEXT,
+            seconds_used INTEGER,
+            correct INTEGER,
+            results TEXT
+        )""",
+        "CREATE INDEX idx_practice_user ON practice_sessions (user_id, created_at)",
+        """CREATE TABLE practice_seen (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            item_id TEXT NOT NULL,
+            seen_at TEXT NOT NULL,
+            UNIQUE (user_id, item_id)
+        )""",
+    ]),
+    # (3, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 
