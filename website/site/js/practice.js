@@ -14,7 +14,6 @@
   var busy = false;
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function num(n) { return Number(n).toLocaleString("en-US"); }
   function showError(msg) { var e = $("pr-error"); e.textContent = msg; e.hidden = !msg; }
   function signIn() { location.href = "/signin.html?next=/practice.html"; }
 
@@ -51,14 +50,7 @@
     });
   }
 
-  function progress(done, total) {
-    var pct = total ? Math.round(done / total * 100) : 0;
-    return '<span class="bar-track" aria-hidden="true"><span style="width:' + pct + '%"></span></span>';
-  }
-
   function render(d) {
-    $("pr-done").textContent = num(d.done) + (d.done === 1 ? " question done" : " questions done");
-    $("pr-meter").style.width = (d.total ? Math.round(d.done / d.total * 100) : 0) + "%";
     $("pr-test-q").textContent = String(d.test.questions);
     $("pr-test-min").textContent = String(d.test.minutes);
     renderCounts(d.topic_counts);
@@ -94,7 +86,7 @@
       ul.className = "pr-skills";
       dm.skills.forEach(function (sk) {
         var li = document.createElement("li");
-        li.innerHTML = '<span class="pr-skill-name">' + esc(sk.name) + "</span>" + progress(sk.done, sk.total);
+        li.innerHTML = '<span class="pr-skill-name">' + esc(sk.name) + "</span>";
         var b = document.createElement("button");
         b.type = "button"; b.className = "btn btn-quiet";
         b.textContent = "Practice";

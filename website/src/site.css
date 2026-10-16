@@ -672,10 +672,6 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 
 /* Practice hub: one progress strip, then the two ways to practice. */
 .pr-lede { margin-top: calc(var(--s4) * -1); }
-.pr-progress { display: grid; gap: var(--s2); max-width: 640px; }
-.pr-progress-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); }
-.pr-progress-head .mono { font-size: var(--t-sm); }
-.pr-progress .meter { height: 8px; margin-top: 0; }
 .pr-error { padding: var(--s3) var(--s4); background: var(--surface); border-radius: var(--radius); }
 .pr-modes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.9fr); gap: var(--s5); align-items: start; }
 @media (max-width: 1000px) { .pr-modes { grid-template-columns: minmax(0, 1fr); } }
@@ -703,15 +699,10 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .pr-domain-head h3 { font-size: var(--t-lg); }
 .pr-domain-head .pr-all { min-height: 40px; padding: 0 var(--s4); }
 .pr-skills { list-style: none; margin: 0; padding: 0; }
-.pr-skills li { display: grid; grid-template-columns: minmax(0, 1fr) 120px auto; gap: var(--s2) var(--s4); align-items: center; padding-block: var(--s3); border-bottom: 1px solid var(--line); }
+.pr-skills li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2) var(--s4); align-items: center; padding-block: var(--s3); border-bottom: 1px solid var(--line); }
 .pr-skill-name { font-size: var(--t-sm); font-weight: 700; }
-.pr-skills .bar-track { height: 6px; border-radius: 3px; }
-.pr-skills .bar-track span { border-radius: 3px; }
 .pr-skills .btn { min-height: 38px; padding: 0 var(--s4); }
 @media (max-width: 640px) {
-  .pr-skills li { grid-template-columns: minmax(0, 1fr) auto; }
-  .pr-skills .bar-track { grid-column: 1; }
-  .pr-skills .btn { grid-column: 2; grid-row: 1 / span 2; }
   .pr-domain-head { grid-template-columns: minmax(0, 1fr); }
   .pr-domain-head .pr-all { grid-column: 1; grid-row: auto; justify-self: start; }
 }
