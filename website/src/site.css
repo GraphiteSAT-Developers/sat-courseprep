@@ -1137,11 +1137,11 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .c3-right, .c3-left { background: repeating-linear-gradient(180deg, #e9b840 0 3px, #cf9c2c 3px 6px); }
 
 /* Body thickness: thin slices of the same rounded outline between front and back, so the edge follows the corners.
-   Yellow where the side rails are, black across the top and bottom. */
+   A black shell with the yellow rail wrapping only the front lip, and a dark seam where the halves meet. */
 .c3-right, .c3-left, .c3-bottom { display: none; }
-.c3-slice { position: absolute; inset: 0; border-radius: 34px 34px 46px 46px;
-  background: linear-gradient(90deg, #c7952a 0 13px, #17181a 13px calc(100% - 13px), #c7952a calc(100% - 13px));
-}
+.c3-slice { position: absolute; inset: 0; border-radius: 34px 34px 46px 46px; background: #1b1c1e; }
+.c3-slice-rail { background: linear-gradient(90deg, #d9a632 0 13px, #1b1c1e 13px calc(100% - 13px), #d9a632 calc(100% - 13px)); }
+.c3-slice-seam { background: #0a0a0b; }
 .c3-top { left: 40px; right: 40px; height: 26px; top: calc(50% - 13px); border-radius: 6px; background: transparent;
   transform: rotateX(90deg) translateZ(calc(var(--H) / 2 - 0.5px)); }
 .c3-back { border-radius: 34px 34px 46px 46px; }
