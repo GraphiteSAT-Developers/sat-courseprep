@@ -18,7 +18,7 @@ The earlier plan (`docs/desmos-integration.md`, `reports/AI Desmos SAT math cour
 2. **Nothing confirms Bluebook any more.** Students practise in Topline but sit the test in Bluebook's Desmos. A step that works in Topline isn't automatically valid in Desmos, and the reverse is also true.
    - Every keystroke the AI teaches has to come from a **shared subset** that works in both (rules in section 4).
    - The technique library needs a one-time human check in the College Board practice calculator (`desmos.com/testing/collegeboard/graphing`).
-3. **The tutor can't read the student's calculator yet.** Desmos offered `getState`, `observeEvent('change')` and `expressionAnalysis`. Topline has no programmatic interface.
+3. **The tutor couldn't read the student's calculator at first.** Desmos offered `getState`, `observeEvent('change')` and `expressionAnalysis`. Topline now has its own interface (section 6, item 1).
    - Today its state exists only as LaTeX lines in `localStorage['plotline-state-v1']`, which held the test input in this pass.
    - Section 6 specifies the interface the tutor needs.
 4. **Intersection and extremum markers** were weaker than in Desmos at first. They are now fixed (section 3). Many SAT routines say "click the intersection", so this mattered for teaching.
@@ -197,9 +197,10 @@ This keeps the no-fine-tuning plan from the report (Gemini 3.x has no tuning). T
 
 ## 6. Topline work still needed
 
-1. **Tutor interface.** Expose `window.topline = { getState(), setState(), onChange(cb), analyze() }`, plus a `postMessage` bridge if the calculator sits in an iframe next to the question.
-   - `analyze()` returns per-line values and errors.
-   - This replaces the Desmos `getState`, `observeEvent` and `expressionAnalysis` calls the integration doc relies on.
+1. **Tutor interface. Done.** `window.topline` in `topline/index.html` (the "tutor API" block just before boot) has `getState`, `setState`, `getExpressions`, `setExpressions`, `setExpression`, `removeExpression`, `analyze`, `evaluate`, `onChange`, `getSettings` and `setSettings` (`setSettings({collegeBoard: true})` switches College Board mode). A `postMessage` bridge serves the same methods when the calculator sits in an iframe, and pushes change events to the parent page. An `?allowOrigin=` URL parameter limits which host origins it answers.
+   - `analyze()` returns each line's kind, value (as plain JSON), error, undefined names and regression results (parameters, R², RMSE, n).
+   - `evaluate(latex)` does what a Desmos `HelperExpression` did, without adding a line.
+   - This replaces the Desmos `getState`, `observeEvent`, `expressionAnalysis` and `HelperExpression` calls the integration doc relies on. Usage is in `topline/README.md` ("Tutor API"), and `node topline/tests/api-check.js` tests it in headless Chromium.
 2. **Engine-level points of interest** the Solver can call without a screen (section 5, item 2).
 3. **A College Board mode** that hides Topline features Bluebook doesn't have, so students don't come to rely on them. *Done:* a "College Board mode" switch in Settings, or forced with `index.html?mode=collegeboard`. The list is `CB_OFF` at the top of the UI code in `topline/index.html`; the engine gets the names through its `OFF` set and `tests/engine-check.js` covers them.
    - Confirmed off (College Board lists images, folders and notes; Topline only has notes): notes.

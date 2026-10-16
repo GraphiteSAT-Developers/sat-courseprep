@@ -1561,6 +1561,15 @@ function analyzeAll(items) {
 function evalText(t) {
   try { const a = parse(tokenize(t)); if (!a || a.op || a.chain) return NaN; return compile(a.lhs, [])({}); } catch (e) { return NaN; }
 }
+// evaluates one expression against the context left by the last analyzeAll; throws with R.missing set for undefined names
+function evalExpr(t, R = {}) {
+  const s = String(t ?? '').trim(); if (!s) throw err('Nothing to evaluate');
+  const a = parse(tokenize(s));
+  if (!a || a.op || a.chain) throw err('Only an expression can be evaluated, not an equation');
+  checkKnown(R, names(a.lhs), []);
+  CTX.seed = 1; CTX.rc = 0;
+  return compile(a.lhs, [])({});
+}
 
 // ---------- formatting ----------
 const minus = s => s.replace(/-/g, '−');
@@ -2395,6 +2404,7 @@ class MathField {
   function save() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => { try { localStorage.setItem(STORE, JSON.stringify(serialize())); } catch (e) { /* storage unavailable */ } }, 300);
+    notify();
   }
 
   // ---------- theme ----------
@@ -3394,6 +3404,132 @@ class MathField {
   try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', themeChanged); } catch (e) { /* older browsers */ }
   new MutationObserver(() => { readTheme(); requestDraw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { themeChanged(); fitKeys(); });
+
+  // ---------- tutor API (window.topline + postMessage bridge) ----------
+  const jcopy = o => JSON.parse(JSON.stringify(o));
+  const fail = m => { throw new Error(m); };
+  const plain = v => typeof v === 'number' ? (isFinite(v) ? v : null)
+    : typeof v === 'boolean' || typeof v === 'string' ? v
+    : v instanceof Pt ? { x: plain(v.x), y: plain(v.y) }
+    : v instanceof Cx ? { re: plain(v.re), im: plain(v.im) }
+    : v instanceof Dist ? { dist: v.type, params: v.p.map(plain) }
+    : isArr(v) ? v.map(plain)
+    : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).filter(([, x]) => typeof x !== 'function').map(([k, x]) => [k, plain(x)]))
+    : null;
+  const apiType = r => ({ math: 'expression', note: 'note', table: 'table' })[kindOf(r)];
+  const isBlank = r => kindOf(r) === 'math' && !r.text.trim();
+  const byId = id => rows.find(r => r.id === +id);
+  function checkTable(t) {
+    if (!t || !Array.isArray(t.cols) || !t.cols.length) fail('A table needs a cols array');
+    return { cols: t.cols.map(c => ({ name: String(c && c.name || ''), cells: (c && Array.isArray(c.cells) ? c.cells : []).map(x => String(x ?? '')) })) };
+  }
+  function apiRow(sp) {
+    if (typeof sp === 'string') return newRow(sp);
+    if (!sp || typeof sp !== 'object') fail('An expression must be a string or an object with latex');
+    const o = { hidden: sp.hidden, slider: sp.slider && isFinite(sp.slider.min) && isFinite(sp.slider.max) ? { min: +sp.slider.min, max: +sp.slider.max } : null, style: sp.style && typeof sp.style === 'object' ? sp.style : undefined };
+    if (sp.color != null) o.color = Math.abs(sp.color | 0) % 6;
+    if (sp.table) return newRow('', { ...o, type: 'table', table: checkTable(sp.table) });
+    const t = sp.latex ?? sp.text ?? ''; if (typeof t !== 'string') fail('latex must be a string');
+    return newRow(t, o);
+  }
+  function afterWrite() { selected = null; trace = null; pinned = null; ensureTrailing(); recompute(); renderList(); requestDraw(); save(); }
+  function insertAt(r) { let i = rows.length; if (i && isBlank(rows[i - 1])) i--; rows.splice(i, 0, r); }
+  function rowInfo(R, r) {
+    const o = { id: r.id, latex: r.type === 'table' ? null : r.text, type: apiType(r), kind: R.kind, value: null, error: R.error || null, missing: (R.missing || []).slice(), regression: null };
+    if (R.name) o.name = R.name;
+    if (R.kind === 'fdef') o.params = R.params.slice();
+    if (R.kind === 'val' || R.kind === 'vdef') o.value = plain(R.value);
+    if (R.kind === 'table') o.columns = R.cols.map((c, k) => ({ name: c.name, values: plain(R.colVals ? R.colVals[k] : null) }));
+    if (R.kind === 'reg' && R.res && !R.res.error) { const s = R.res; o.regression = { params: Object.fromEntries(R.params.map((p, i) => [p, plain(s.p[i])])), r2: plain(s.r2), rmse: plain(s.rmse), n: s.n }; }
+    return o;
+  }
+  const API = {
+    version: '1.0',
+    getState: () => jcopy(serialize()),
+    setState(st) {
+      if (!st || typeof st !== 'object' || !Array.isArray(st.rows)) fail('setState needs an object with a rows array');
+      st = jcopy(st);
+      st.rows.forEach((r, i) => {
+        if (!r || typeof r !== 'object') fail(`Row ${i + 1} isn't an object`);
+        if (r.type === 'table') r.table = checkTable(r.table);
+        else if (r.text != null && typeof r.text !== 'string') fail(`Row ${i + 1} text must be a string`);
+      });
+      restore(st);
+      if (!view.ready) { defaultView(); view.ready = true; }
+      syncSettings(); afterWrite();
+    },
+    getExpressions: () => rows.filter(r => !isBlank(r)).map(r => (r.type === 'table' ? { id: r.id, type: 'table', latex: null, table: jcopy(r.table) } : { id: r.id, type: apiType(r), latex: r.text })),
+    setExpressions(list) {
+      if (!Array.isArray(list)) fail('setExpressions needs an array');
+      const cc = colorCounter; colorCounter = 0;
+      let nr; try { nr = list.map(apiRow); } catch (e) { colorCounter = cc; throw e; }
+      rows = nr.length ? nr.slice() : [newRow('')]; afterWrite();
+      return nr.map(r => r.id);
+    },
+    setExpression(sp) {
+      const old = sp && typeof sp === 'object' && sp.id != null ? byId(sp.id) : null;
+      if (!old) { const r = apiRow(sp); insertAt(r); afterWrite(); return r.id; }
+      const base = old.type === 'table' ? { table: old.table } : { latex: old.text };
+      if ('latex' in sp || 'text' in sp) delete base.table;
+      const r = apiRow({ hidden: old.hidden, slider: old.slider, style: old.style, color: old.color, ...base, ...sp });
+      Object.assign(r, { id: old.id, seed: old.seed });
+      rows[rows.indexOf(old)] = r; afterWrite();
+      return r.id;
+    },
+    removeExpression(id) { const r = byId(id); if (!r) return false; rows.splice(rows.indexOf(r), 1); if (!rows.length) rows.push(newRow('')); afterWrite(); return true; },
+    analyze() {
+      if (RES.length !== rows.length) recompute();
+      return rows.map((r, i) => [r, RES[i]]).filter(([r, R]) => R && R.kind !== 'empty' && !isBlank(r)).map(([r, R]) => rowInfo(R, r));
+    },
+    evaluate(latex) {
+      const R = {};
+      if (RES.length !== rows.length) recompute();
+      try { return { value: plain(evalExpr(latex, R)), error: null, missing: [] }; }
+      catch (e) { return { value: null, error: e instanceof RangeError ? 'This recursion goes too deep' : e.message, missing: (R.missing || []).slice() }; }
+    },
+    onChange(cb) { if (typeof cb !== 'function') fail('onChange needs a function'); subs.add(cb); return () => { subs.delete(cb); }; },
+    getSettings: () => ({ degrees: settings.deg, complex: settings.complex, logX: settings.logX, logY: settings.logY, theme: settings.theme, collegeBoard: cbOn() }),
+    setSettings(o) {
+      if (!o || typeof o !== 'object') fail('setSettings needs an object');
+      if ('theme' in o && o.theme !== null && o.theme !== 'light' && o.theme !== 'dark') fail('theme must be "light", "dark" or null');
+      const lx = logX(), ly = logY(), cb = cbOn();
+      if ('degrees' in o) settings.deg = !!o.degrees;
+      if ('collegeBoard' in o) settings.cb = !!o.collegeBoard;
+      ['complex', 'logX', 'logY'].forEach(k => { if (k in o) settings[k] = !!o[k]; });
+      if ('theme' in o) settings.theme = o.theme;
+      if (lx !== logX() || ly !== logY()) defaultView();
+      syncSettings(); if (cb !== cbOn()) renderList(); changed();
+      return API.getSettings();
+    },
+  };
+  const subs = new Set(), embedded = window.parent !== window;
+  const allow = (new URLSearchParams(location.search).get('allowOrigin') || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
+  // change events go to '*' with no allow-list, else to the one allowed origin, else to whichever allowed host has messaged us
+  let hostOrigin = !allow.length ? '*' : allow.length === 1 ? allow[0] : null;
+  let notifyTimer = 0;
+  function notify() {
+    if (!subs.size && !embedded) return;
+    clearTimeout(notifyTimer);
+    notifyTimer = setTimeout(() => {
+      const state = API.getState(), analysis = API.analyze();
+      subs.forEach(cb => { try { cb({ state, analysis }); } catch (e) { console.error('topline onChange listener failed:', e); } });
+      if (embedded && hostOrigin) window.parent.postMessage({ source: 'topline', event: 'change', state, analysis }, hostOrigin);
+    }, 100);
+  }
+  const BRIDGE = ['getState', 'setState', 'getExpressions', 'setExpressions', 'setExpression', 'removeExpression', 'analyze', 'evaluate', 'getSettings', 'setSettings'];
+  window.addEventListener('message', e => {
+    const d = e.data;
+    if (!d || typeof d !== 'object' || d.source !== 'topline-host') return;
+    if (allow.length && !allow.includes(e.origin)) return;
+    if (allow.length && e.source === window.parent) hostOrigin = e.origin;
+    const to = e.source || window.parent, origin = e.origin && e.origin !== 'null' ? e.origin : '*';
+    const reply = o => { try { to.postMessage({ source: 'topline', id: d.id, ...o }, origin); } catch (er) { /* host went away */ } };
+    if (d.method === 'version') return reply({ result: API.version });
+    if (!BRIDGE.includes(d.method)) return reply({ error: `Unknown method: ${d.method}` });
+    try { reply({ result: API[d.method](...(Array.isArray(d.args) ? d.args : d.args === undefined ? [] : [d.args])) ?? null }); }
+    catch (er) { reply({ error: er.message }); }
+  });
+  window.topline = Object.freeze(API);
 
   // ---------- boot ----------
   if (!load()) rows = exampleRows();
