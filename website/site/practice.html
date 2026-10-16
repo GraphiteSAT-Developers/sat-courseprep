@@ -5,13 +5,13 @@
 <meta name="graphite-mode" content="live">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Practice | Graphite SAT Tutoring</title>
-<meta name="description" content="Take a timed SAT Math practice test or practice one topic at a time, with a full explanation and Desmos route for every question.">
+<meta name="description" content="Choose an SAT section, then take a timed practice test or practice one topic at a time, with a full explanation for every question.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#1c1e21">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Graphite">
 <meta property="og:title" content="Practice | Graphite SAT Tutoring">
-<meta property="og:description" content="Take a timed SAT Math practice test or practice one topic at a time, with a full explanation and Desmos route for every question.">
+<meta property="og:description" content="Choose an SAT section, then take a timed practice test or practice one topic at a time, with a full explanation for every question.">
 <meta property="og:url" content="https://www.graphiteprep.com/practice.html">
 <meta property="og:image" content="https://www.graphiteprep.com/og-image.png">
 <meta property="og:image:alt" content="Graphite: AI SAT tutoring. A yellow answer bubble on a graphite gray background.">
@@ -60,10 +60,19 @@
     <div class="dash-top">
       <div>
         <p class="label">Practice</p>
-        <h1>Practice SAT Math your way</h1>
+        <h1>Practice the SAT your way</h1>
       </div>
     </div>
-    <p class="lede pr-lede">Take a full timed module, or drill one topic. Every question comes with a step-by-step explanation and, where it saves time, the Desmos shortcut. You won't see a question again until you've done every question in that set.</p>
+    <p class="lede pr-lede">Choose a section, then take a full timed module or drill one topic. Every question comes with a step-by-step explanation. You won't see a question again until you've done every question in that set.</p>
+
+    <div class="pr-sections" role="tablist" aria-label="SAT section">
+      <button class="pr-section" type="button" role="tab" id="tab-math" aria-controls="pr-math" aria-selected="true" data-section="math">
+        <span class="pr-section-name">Math</span><span class="pr-section-meta">2 modules · 44 questions · 70 min</span>
+      </button>
+      <button class="pr-section" type="button" role="tab" id="tab-rw" aria-controls="pr-rw" aria-selected="false" tabindex="-1" data-section="rw">
+        <span class="pr-section-name">Reading and Writing <span class="chip chip-quiet">Coming soon</span></span><span class="pr-section-meta">2 modules · 54 questions · 64 min</span>
+      </button>
+    </div>
 
 
     <p class="field-error pr-error" id="pr-error" role="alert" hidden></p>
@@ -73,10 +82,10 @@
       <ul class="queue" id="pr-unfinished-list"></ul>
     </section>
 
-    <div class="pr-modes">
+    <div class="pr-modes" id="pr-math" role="tabpanel" aria-labelledby="tab-math">
       <section class="panel pr-card pr-test" id="pr-test" aria-labelledby="pr-test-title">
         <p class="label">Option 1</p>
-        <h2 id="pr-test-title">Take a practice test</h2>
+        <h2 id="pr-test-title">Take a Math practice test</h2>
         <p class="panel-lede">A full Math module with new questions every time, picked at random in the same mix as the real test.</p>
         <ul class="pr-facts">
           <li><strong id="pr-test-q">22</strong> questions</li>
@@ -89,14 +98,69 @@
 
       <section class="panel pr-card" id="pr-topic" aria-labelledby="pr-topic-title">
         <p class="label">Option 2</p>
-        <h2 id="pr-topic-title">Practice a topic</h2>
-        <p class="panel-lede">Untimed. Check each answer as you go and see the full explanation right away.</p>
+        <h2 id="pr-topic-title">Practice a Math topic</h2>
+        <p class="panel-lede">Untimed. Check each answer as you go and see the full explanation right away, with the Desmos shortcut when it saves time.</p>
         <fieldset class="pr-count">
           <legend class="label">Questions per set</legend>
           <div class="seg" id="pr-count"></div>
         </fieldset>
         <div class="pr-domains" id="pr-domains">
           <p class="fine">Loading topics…</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="pr-modes is-soon" id="pr-rw" role="tabpanel" aria-labelledby="tab-rw" hidden>
+      <p class="sample-note pr-soon-note"><span class="label">Coming soon</span> Reading and Writing practice is on the way. Until then, the Math section is ready to go.</p>
+      <section class="panel pr-card pr-test" aria-labelledby="pr-rw-test-title">
+        <p class="label">Option 1</p>
+        <h2 id="pr-rw-test-title">Take a Reading and Writing practice test</h2>
+        <p class="panel-lede">A full Reading and Writing module with short passages, in the same mix as the real test.</p>
+        <ul class="pr-facts">
+          <li><strong>27</strong> questions</li>
+          <li><strong>32</strong> minutes, timed</li>
+          <li>Information and Ideas, Craft and Structure, Expression of Ideas, Conventions</li>
+          <li>Full explanations after you submit</li>
+        </ul>
+        <button class="btn btn-primary" type="button" disabled>Coming soon</button>
+      </section>
+
+      <section class="panel pr-card" aria-labelledby="pr-rw-topic-title">
+        <p class="label">Option 2</p>
+        <h2 id="pr-rw-topic-title">Practice a Reading and Writing topic</h2>
+        <p class="panel-lede">Untimed. Check each answer as you go and see the full explanation right away.</p>
+        <div class="pr-domains">
+          <section class="pr-domain">
+            <div class="pr-domain-head"><h3>Information and Ideas</h3><button class="btn btn-secondary pr-all" type="button" disabled>Coming soon</button></div>
+            <ul class="pr-skills">
+            <li><span class="pr-skill-name">Central ideas and details</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            <li><span class="pr-skill-name">Command of evidence: textual</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            <li><span class="pr-skill-name">Command of evidence: quantitative</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            <li><span class="pr-skill-name">Inferences</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            </ul>
+          </section>
+          <section class="pr-domain">
+            <div class="pr-domain-head"><h3>Craft and Structure</h3><button class="btn btn-secondary pr-all" type="button" disabled>Coming soon</button></div>
+            <ul class="pr-skills">
+            <li><span class="pr-skill-name">Words in context</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            <li><span class="pr-skill-name">Text structure and purpose</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            <li><span class="pr-skill-name">Cross-text connections</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            </ul>
+          </section>
+          <section class="pr-domain">
+            <div class="pr-domain-head"><h3>Expression of Ideas</h3><button class="btn btn-secondary pr-all" type="button" disabled>Coming soon</button></div>
+            <ul class="pr-skills">
+            <li><span class="pr-skill-name">Rhetorical synthesis</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            <li><span class="pr-skill-name">Transitions</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            </ul>
+          </section>
+          <section class="pr-domain">
+            <div class="pr-domain-head"><h3>Standard English Conventions</h3><button class="btn btn-secondary pr-all" type="button" disabled>Coming soon</button></div>
+            <ul class="pr-skills">
+            <li><span class="pr-skill-name">Boundaries</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            <li><span class="pr-skill-name">Form, structure, and sense</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
+            </ul>
+          </section>
         </div>
       </section>
     </div>

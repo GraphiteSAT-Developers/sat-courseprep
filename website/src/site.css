@@ -707,6 +707,19 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
   .pr-domain-head .pr-all { grid-column: 1; grid-row: auto; justify-self: start; }
 }
 
+/* Section tabs */
+.pr-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); max-width: 760px; }
+.pr-section { display: grid; gap: var(--s1); text-align: left; padding: var(--s4) var(--s5); background: var(--surface); color: var(--text); border: 2px solid var(--line); border-radius: 10px; font: inherit; cursor: pointer; }
+.pr-section:hover { border-color: var(--control); }
+.pr-section[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 -4px 0 var(--accent); }
+.pr-section-name { font: 750 var(--t-lg)/1.2 var(--font-display); font-stretch: 112%; display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+.pr-section-meta { color: var(--muted); font-size: var(--t-sm); }
+.chip-quiet { background: var(--raised); color: var(--muted); }
+@media (max-width: 560px) { .pr-sections { grid-template-columns: minmax(0, 1fr); } }
+.pr-soon-note { grid-column: 1 / -1; }
+.is-soon .pr-card { opacity: 1; }
+.is-soon .pr-skill-name, .is-soon .pr-domain-head h3, .is-soon .pr-facts { color: var(--muted); }
+
 /* Square roots and math inside explanations */
 .sqrt { white-space: nowrap; }
 .sqrt-arg { border-top: 1px solid currentColor; padding: 1px 2px 0; margin-left: 1px; }
