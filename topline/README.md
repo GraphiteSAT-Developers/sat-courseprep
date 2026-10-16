@@ -14,6 +14,15 @@ A browser graphing calculator with a live math editor, built as a single self-co
 - **Desmos-style input.** `20% of 50`, `30°`, list slices like `L[2...4]`, and `x1` turning into `x₁` as you type.
 - **Other.** Complex numbers, degrees or radians, an a/b toggle for results that are exact fractions, and light and dark themes. Expressions are saved in the browser's local storage.
 
+## College Board mode
+
+Bluebook's Desmos is a restricted build, so Topline can hide what it lacks. Turn on **College Board mode** in Settings, or open `index.html?mode=collegeboard` to force it (the switch is then hidden).
+
+- **Confirmed off:** notes. Typing `"` on an empty line does nothing, and existing notes show read-only.
+- **Hidden until checked** in `desmos.com/testing/collegeboard/graphing`: matrices (`det`, `inv`, `rref`, `transpose`, `trace`, `\begin{matrix}`), `random` and `shuffle`, complex numbers, and the manual log-axis switches.
+
+Using a hidden function shows an error such as "random isn't available on the SAT calculator". Everything else, including distributions, t-tests and statistical plots, stays on. The list is `CB_OFF` near the top of the UI code.
+
 ## Notes
 
 - Fonts load from Google Fonts. Everything else is inline in the one file.

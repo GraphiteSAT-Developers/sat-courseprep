@@ -8,7 +8,7 @@ const path = require('path');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const m = /\/\/ == ENGINE START ==([\s\S]*)\/\/ == ENGINE END ==/.exec(html);
 if (!m) throw new Error('Engine markers not found in index.html');
-const E = new Function(`${m[1]}; return { analyzeAll, setMode: (d, c) => { DEG = d; COMPLEX = c; } };`)();
+const E = new Function(`${m[1]}; return { analyzeAll, setMode: (d, c) => { DEG = d; COMPLEX = c; }, setOff: s => { OFF = s; } };`)();
 
 const CASES = [
   // T1/T9 functions and evaluation
@@ -56,15 +56,30 @@ const CASES = [
   // T12 angle mode
   { name: 'sin(30) radians', lines: ['\\sin(30)'], want: Math.sin(30) },
   { name: 'sin(30) degrees', lines: ['\\sin(30)'], want: 0.5, deg: true },
+  // College Board mode: features Bluebook's Desmos lacks are switched off
+  { name: 'CB: random errors', lines: ['\\operatorname{random}()'], error: true, cb: true, msg: /random isn't available on the SAT calculator/ },
+  { name: 'CB: det errors', lines: ['\\operatorname{det}([[1,2],[3,4]])'], error: true, cb: true, msg: /det isn't available/ },
+  { name: 'CB: matrix errors', lines: ['\\begin{bmatrix}1&2\\\\3&4\\end{bmatrix}'], error: true, cb: true, msg: /Matrices/ },
+  { name: 'CB: dot method errors', lines: ['L=[1,2,3]', 'L.\\operatorname{shuffle}'], error: true, cb: true, msg: /shuffle/ },
+  { name: 'CB: ttest still works', lines: ['T=\\operatorname{ttest}([1,2,3])', 'T.\\operatorname{df}'], want: 2, cb: true },
+  { name: 'CB: normalcdf still works', lines: ['\\operatorname{normalcdf}(-1,1)'], want: 0.6826894921, cb: true },
+  { name: 'CB: mean still works', lines: ['\\operatorname{mean}([1,2,3])'], want: 2, cb: true },
+  { name: 'CB: stdev still works', lines: ['L=[3,7,8,12,15]', '\\operatorname{stdev}(L)'], want: Math.sqrt(21.5), cb: true },
+  { name: 'CB: regression still works', lines: ['x_1=[0,1,2,3]', 'y_1=[3,6,12,24]', 'y_1\\sim ab^{x_1}', 'b'], want: 2, cb: true },
+  { name: 'normal mode: random works', lines: ['L=\\operatorname{random}(5)', '\\operatorname{length}(L)'], want: 5 },
 ];
+// the College Board list lives in the UI code; read it from there so the test checks the real list
+const cbm = /const CB_OFF = (\{[\s\S]*?\});/.exec(html);
+if (!cbm) throw new Error('CB_OFF not found in index.html');
+const OFF = new Set(Object.values(new Function(`return ${cbm[1]}`)()).join(' ').split(' '));
 
 let fail = 0;
 for (const c of CASES) {
-  E.setMode(!!c.deg, false);
+  E.setMode(!!c.deg, false); E.setOff(c.cb ? OFF : null);
   const out = E.analyzeAll(c.lines.map((text, i) => ({ text, seed: i + 1 })));
   const R = out[out.length - 1];
   let ok, got;
-  if (c.error) { ok = R.kind === 'err'; got = R.kind === 'err' ? `error: ${R.error}` : `no error (${R.kind})`; }
+  if (c.error) { ok = R.kind === 'err' && (!c.msg || c.msg.test(R.error)); got = R.kind === 'err' ? `error: ${R.error}` : `no error (${R.kind})`; }
   else { got = R.kind === 'err' ? `error: ${R.error}` : R.value; ok = typeof got === 'number' && Math.abs(got - c.want) < 1e-6 * Math.max(1, Math.abs(c.want)); }
   if (!ok) fail++;
   console.log(`${ok ? 'ok  ' : 'FAIL'} ${c.name}${ok ? '' : `: got ${got}, want ${c.error ? 'an error' : c.want}`}`);

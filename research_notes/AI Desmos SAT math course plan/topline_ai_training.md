@@ -201,7 +201,10 @@ This keeps the no-fine-tuning plan from the report (Gemini 3.x has no tuning). T
    - `analyze()` returns per-line values and errors.
    - This replaces the Desmos `getState`, `observeEvent` and `expressionAnalysis` calls the integration doc relies on.
 2. **Engine-level points of interest** the Solver can call without a screen (section 5, item 2).
-3. **A College Board mode** that hides Topline features Bluebook doesn't have, so students don't come to rely on them.
+3. **A College Board mode** that hides Topline features Bluebook doesn't have, so students don't come to rely on them. *Done:* a "College Board mode" switch in Settings, or forced with `index.html?mode=collegeboard`. The list is `CB_OFF` at the top of the UI code in `topline/index.html`; the engine gets the names through its `OFF` set and `tests/engine-check.js` covers them.
+   - Confirmed off (College Board lists images, folders and notes; Topline only has notes): notes.
+   - Hidden but unconfirmed, needs checking in `desmos.com/testing/collegeboard/graphing`: matrices (`\begin{matrix}`, `det`, `inv`, `rref`, `transpose`, `trace`), `random` and `shuffle`, complex-number mode, and the manual log-axis toggles.
+   - Kept (reported present in Bluebook, or no reason to doubt): distributions and their pdf/cdf/inverse helpers, `ttest`/`ittest`, histograms, dot plots and box plots, `mad`, `cov`, `corr`, `var`, `varp`, `csc`/`sec`/`cot`, integrals. Also worth checking there: `var`/`varp`/`corr`, `erf`, `gamma`, `polygon`, and `real`/`imag`/`conj`/`arg` outside complex mode.
 4. **Fix whatever the hand checks in section 7 turn up.**
 
 ## 7. Still to verify by hand in the College Board practice calculator

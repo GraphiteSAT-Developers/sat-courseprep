@@ -214,6 +214,7 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
         </div></div>
       <div class="set-row"><span>Angles</span>
         <div class="seg" role="group" aria-label="Angle units"><button type="button" id="angRad">Radians</button><button type="button" id="angDeg">Degrees</button></div></div>
+      <label class="set-row" for="optCB" id="cbRow"><span>College Board mode<small>Hide what the SAT's Desmos doesn't have</small></span><input type="checkbox" class="switch" id="optCB"></label>
       <label class="set-row" for="optComplex"><span>Complex numbers<small>Use i, and allow results like √−9 = 3i</small></span><input type="checkbox" class="switch" id="optComplex"></label>
       <label class="set-row" for="optLogX"><span>Log scale x-axis</span><input type="checkbox" class="switch" id="optLogX"></label>
       <label class="set-row" for="optLogY"><span>Log scale y-axis</span><input type="checkbox" class="switch" id="optLogY"></label>
@@ -265,7 +266,8 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
 
 <script>
 // == ENGINE START ==
-let DEG = false, COMPLEX = false;
+let DEG = false, COMPLEX = false, OFF = null;
+const offErr = n => err(`${n} isn't available on the SAT calculator`);
 let CTX = { funcs: new Map(), vars: new Map(), seed: 1, rc: 0 };
 const err = m => new Error(m);
 const K = () => (DEG ? Math.PI / 180 : 1);
@@ -736,6 +738,7 @@ function delatex(s) {
         const env = group().trim(), endTag = `\\end{${env}}`, j = s.indexOf(endTag, i);
         if (j < 0) throw err(`\\begin{${env}} needs a matching \\end{${env}}`);
         if (!/^[pbvB]?matrix$/.test(env)) throw err(`The ${env} environment isn't supported`);
+        if (OFF && OFF.has('matrix')) throw err("Matrices aren't available on the SAT calculator");
         const body = s.slice(i, j); i = j + endTag.length;
         const rowsT = body.split('\\\\').map(r => r.trim()).filter(Boolean);
         out += '[' + rowsT.map(r => '[' + r.split('&').map(cell => delatex(cell)).join(',') + ']').join(',') + ']';
@@ -1226,6 +1229,7 @@ function compile(n, locals) {
       };
     }
     case 'dot': {
+      if (OFF && OFF.has(n.name)) throw offErr(n.name);
       const a = compile(n.a, locals), args = (n.args || []).map(x => compile(x, locals)), name = n.name;
       if (name === 'random') { const rng = makeRng(); let done = false, val; return L => { if (!done) { done = true; val = dotCall(a(L), name, args.map(g => g(L)), rng); } return val; }; }
       return L => dotCall(a(L), name, args.map(g => g(L)));
@@ -1265,6 +1269,7 @@ function compile(n, locals) {
       };
     }
     case 'call': {
+      if (OFF && OFF.has(n.name)) throw offErr(n.name);
       const B = BUILTIN[n.name];
       const args = n.args.map(x => compile(x, locals));
       if (n.base) {
@@ -2298,9 +2303,20 @@ class MathField {
   const $ = s => document.querySelector(s);
   const cv = $('#cv'), ctx = cv.getContext('2d'), listEl = $('#list');
   const STORE = 'plotline-state-v1';
+  // College Board mode hides what Bluebook's Desmos lacks. Function names go to the engine as OFF ('matrix' = \begin{matrix});
+  // 'notes', 'complex' and 'logaxes' switch off UI features. Unconfirmed items are hidden until checked in desmos.com/testing/collegeboard/graphing.
+  const CB_OFF = {
+    confirmed: 'notes',
+    unconfirmed: 'matrix det inv rref transpose trace random shuffle complex logaxes',
+  };
+  const CB_NAMES = new Set(Object.values(CB_OFF).join(' ').split(' '));
+  const CB_FORCED = new URLSearchParams(location.search).get('mode') === 'collegeboard';
+  const CB_MSG = "Notes aren't available on the SAT calculator";
 
   let rows = [], nextId = 1, colorCounter = 0, selected = null;
-  const settings = { deg: false, complex: false, logX: false, logY: false, theme: null };
+  const settings = { deg: false, complex: false, logX: false, logY: false, theme: null, cb: false };
+  const cbOn = () => CB_FORCED || settings.cb, cbOff = k => cbOn() && CB_NAMES.has(k);
+  const logX = () => settings.logX && !cbOff('logaxes'), logY = () => settings.logY && !cbOff('logaxes');
   let RES = [], CURVES = [], POIS = [];
   let W = 0, H = 0, dpr = 1;
   const view = { cx: 0, cy: 0, sx: 50, sy: 50, ready: false };
@@ -2347,7 +2363,7 @@ class MathField {
     if (!rows.length) rows = [newRow('')];
     colorCounter = st.colorCounter | 0;
     const s = st.settings || {};
-    settings.deg = !!(s.deg ?? st.deg); settings.complex = !!s.complex; settings.logX = !!s.logX; settings.logY = !!s.logY;
+    settings.deg = !!(s.deg ?? st.deg); settings.complex = !!s.complex; settings.logX = !!s.logX; settings.logY = !!s.logY; settings.cb = !!s.cb;
     settings.theme = s.theme === 'light' || s.theme === 'dark' ? s.theme : null;
     const v = st.view;
     if (v && isFinite(v.cx) && isFinite(v.cy)) {
@@ -2366,7 +2382,7 @@ class MathField {
       newRow('a = 1.5', { color: 4, slider: { min: -3, max: 3 } }),
     ];
     colorCounter = 5; r.push(newRow(''));
-    return r;
+    return cbOff('notes') ? r.slice(1) : r;
   }
   function load() {
     try {
@@ -2472,7 +2488,7 @@ class MathField {
     return out;
   }
   function recompute() {
-    DEG = settings.deg; COMPLEX = settings.complex;
+    DEG = settings.deg; COMPLEX = settings.complex && !cbOff('complex'); OFF = cbOn() ? CB_NAMES : null;
     RES = analyzeAll(rows.map(r => (r.type === 'table' ? { table: r.table, seed: r.seed } : { text: r.text, seed: r.seed })));
     CURVES = [];
     RES.forEach((R, i) => {
@@ -2520,7 +2536,7 @@ class MathField {
       li.innerHTML = `${gut}<div class="main"><div class="tbl"></div><div class="info" hidden></div>${opts}</div>${del}`;
       buildTable(li, row);
     } else if (kind === 'note') {
-      li.innerHTML = `${gut}<div class="main"><textarea class="note-in" id="note-${row.id}" rows="1" aria-label="Note" placeholder="Write a note"></textarea></div>${del}`;
+      li.innerHTML = `${gut}<div class="main"><textarea class="note-in" id="note-${row.id}" rows="1" aria-label="Note" placeholder="Write a note"${cbOff('notes') ? ' readonly' : ''}></textarea>${cbOff('notes') ? `<div class="info">${CB_MSG}</div>` : ''}</div>${del}`;
       li.querySelector('.note-in').value = row.text.trim().slice(1);
       requestAnimationFrame(() => fitNote(li.querySelector('.note-in')));
     } else {
@@ -2534,13 +2550,13 @@ class MathField {
           <input class="smax" id="smax-${row.id}" aria-label="Slider maximum">
         </div>${opts}</div>${del}`;
       const f = new MathField(li.querySelector('.mfhost'), {
-        id: `expr-${row.id}`, label: 'Expression', placeholder: 'Type math, “table”, or " for a note',
+        id: `expr-${row.id}`, label: 'Expression', placeholder: cbOff('notes') ? 'Type math or “table”' : 'Type math, “table”, or " for a note',
         onChange: tex => { row.text = tex; changed(); },
         onFocus: fld => { lastField = fld; selectRow(row.id); },
         onEnter: () => { const r = insertRowAfter(row.id); focusRow(r.id); },
         onBackspaceEmpty: () => { if (rows.length > 1) { const prev = deleteRow(row.id); if (prev) focusRow(prev.id, 'end'); } },
         onUpDown: d => rowNav(row, d),
-        onNote: () => { row.text = '"'; rebuildRow(row); changed(); focusRow(row.id); },
+        onNote: () => { if (cbOff('notes')) return toast(CB_MSG + '.'); row.text = '"'; rebuildRow(row); changed(); focusRow(row.id); },
         onTable: () => { const cols = freshCols(); row.type = 'table'; row.text = ''; row.table = { cols }; rebuildRow(row); selected = row.id; changed(); focusRow(row.id); },
       });
       f.setLatex(row.text);
@@ -2823,10 +2839,13 @@ class MathField {
     $('#angRad').setAttribute('aria-pressed', String(!settings.deg));
     $('#angDeg').setAttribute('aria-pressed', String(settings.deg));
     $('#optComplex').checked = settings.complex; $('#optLogX').checked = settings.logX; $('#optLogY').checked = settings.logY;
+    $('#optCB').checked = cbOn(); $('#cbRow').hidden = CB_FORCED;
+    [['#optComplex', 'complex'], ['#optLogX', 'logaxes'], ['#optLogY', 'logaxes']].forEach(([id, k]) => { $(id).closest('.set-row').hidden = cbOff(k); });
     applyTheme();
   }
   $('#angRad').addEventListener('click', () => { settings.deg = false; syncSettings(); changed(); });
   $('#angDeg').addEventListener('click', () => { settings.deg = true; syncSettings(); changed(); });
+  $('#optCB').addEventListener('change', e => { settings.cb = e.target.checked; syncSettings(); if (CB_NAMES.has('logaxes') && (settings.logX || settings.logY)) defaultView(); renderList(); changed(); });
   $('#optComplex').addEventListener('change', e => { settings.complex = e.target.checked; changed(); });
   $('#optLogX').addEventListener('change', e => { settings.logX = e.target.checked; defaultView(); changed(); });
   $('#optLogY').addEventListener('change', e => { settings.logY = e.target.checked; defaultView(); changed(); });
@@ -2850,10 +2869,10 @@ class MathField {
   }
 
   // ---------- coordinates ----------
-  const tX = x => (settings.logX ? (x > 0 ? Math.log10(x) : NaN) : x);
-  const tY = y => (settings.logY ? (y > 0 ? Math.log10(y) : NaN) : y);
-  const iX = u => (settings.logX ? Math.pow(10, u) : u);
-  const iY = u => (settings.logY ? Math.pow(10, u) : u);
+  const tX = x => (logX() ? (x > 0 ? Math.log10(x) : NaN) : x);
+  const tY = y => (logY() ? (y > 0 ? Math.log10(y) : NaN) : y);
+  const iX = u => (logX() ? Math.pow(10, u) : u);
+  const iY = u => (logY() ? Math.pow(10, u) : u);
   const px = x => W / 2 + (tX(x) - view.cx) * view.sx;
   const py = y => H / 2 - (tY(y) - view.cy) * view.sy;
   const wx = p => iX(view.cx + (p - W / 2) / view.sx);
@@ -2862,9 +2881,9 @@ class MathField {
   const clampS = s => Math.max(1e-6, Math.min(1e10, s));
   function defaultView() {
     const base = Math.max(4, Math.min(W / 10, H / 8));
-    view.cx = settings.logX ? 1 : 0; view.cy = settings.logY ? 1 : 0;
-    view.sx = settings.logX ? W / 5 : base; view.sy = settings.logY ? H / 5 : base;
-    if (!settings.logX && !settings.logY) view.sx = view.sy = base;
+    view.cx = logX() ? 1 : 0; view.cy = logY() ? 1 : 0;
+    view.sx = logX() ? W / 5 : base; view.sy = logY() ? H / 5 : base;
+    if (!logX() && !logY()) view.sx = view.sy = base;
   }
   function setRange(xr, yr) {
     if (!W || !H) { view.pending = [xr, yr]; return; }
@@ -2909,7 +2928,7 @@ class MathField {
     return { maj, min, label: logLabel, zeroSkip: false };
   }
   function drawGrid() {
-    const tx = ticks(settings.logX, wx(0), wx(W), view.sx), ty = ticks(settings.logY, wy(H), wy(0), view.sy);
+    const tx = ticks(logX(), wx(0), wx(W), view.sx), ty = ticks(logY(), wy(H), wy(0), view.sy);
     const lines = (xs, ys, color) => {
       ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.beginPath();
       for (const x of xs) { const p = Math.round(px(x)) + 0.5; if (isFinite(p)) { ctx.moveTo(p, 0); ctx.lineTo(p, H); } }
@@ -2917,7 +2936,7 @@ class MathField {
       ctx.stroke();
     };
     lines(tx.min, ty.min, TH.minor); lines(tx.maj, ty.maj, TH.major);
-    const ax = settings.logX ? NaN : px(0), ay = settings.logY ? NaN : py(0);
+    const ax = logX() ? NaN : px(0), ay = logY() ? NaN : py(0);
     ctx.strokeStyle = TH.axis; ctx.lineWidth = 1.5; ctx.beginPath();
     if (ax >= 0 && ax <= W) { ctx.moveTo(Math.round(ax) + 0.5, 0); ctx.lineTo(Math.round(ax) + 0.5, H); }
     if (ay >= 0 && ay <= H) { ctx.moveTo(0, Math.round(ay) + 0.5); ctx.lineTo(W, Math.round(ay) + 0.5); }
@@ -3138,7 +3157,7 @@ class MathField {
           if (numOk(ve) && Math.abs(toP(ve) - toP(vs[i])) < 40) push(...P(te, ve), alongX ? (isMax ? 'Local maximum' : 'Local minimum') : (isMax ? 'Rightmost point' : 'Leftmost point'));
         }
       }
-      if (alongX ? !settings.logX : !settings.logY) { const v0 = f(0); if (numOk(v0)) push(...P(0, v0), alongX ? 'y-intercept' : 'x-intercept'); }
+      if (alongX ? !logX() : !logY()) { const v0 = f(0); if (numOk(v0)) push(...P(0, v0), alongX ? 'y-intercept' : 'x-intercept'); }
       for (const { o, G } of others) {
         if (o.type === curve.type) { const g = o.f; roots1D(t => { const a = f(t), b = g(t); return numOk(a) && numOk(b) ? a - b : NaN; }, ts, t => push(...P(t, f(t)), 'Intersection')); }
         else roots1D(t => { const v = f(t); return numOk(v) ? G(...P(t, v)) : NaN; }, ts, t => push(...P(t, f(t)), 'Intersection'));
@@ -3148,12 +3167,12 @@ class MathField {
     // implicit curve G(x, y) = 0
     const G = implicitOf(curve), grid = curve._grids && curve._grids[0];
     roots1D(x => G(x, 0), xs, x => push(x, 0, 'x-intercept'));
-    if (!settings.logX) roots1D(y => G(0, y), ys, y => push(0, y, 'y-intercept'));
+    if (!logX()) roots1D(y => G(0, y), ys, y => push(0, y, 'y-intercept'));
     for (const { o, G: H2 } of others) {
       if (o.type === 'fx') { const g = o.f; roots1D(x => { const v = g(x); return numOk(v) ? G(x, v) : NaN; }, xs, x => push(x, g(x), 'Intersection')); }
       else if (o.type === 'fy') { const g = o.f; roots1D(y => { const v = g(y); return numOk(v) ? G(v, y) : NaN; }, ys, y => push(g(y), y, 'Intersection')); }
     }
-    if (!grid || settings.logX || settings.logY) return out;
+    if (!grid || logX() || logY()) return out;
     const { nx, ny, vals, cell } = grid, tol = gridTol(grid);
     const near = (p, i, j) => Math.abs(px(p[0]) - (i + 0.5) * cell) < 3 * cell && Math.abs(py(p[1]) - (j + 0.5) * cell) < 3 * cell;
     const corners = (V, i, j) => [V[j * nx + i], V[j * nx + i + 1], V[(j + 1) * nx + i + 1], V[(j + 1) * nx + i]];
@@ -3388,6 +3407,7 @@ class MathField {
 
   // ---------- boot ----------
   if (!load()) rows = exampleRows();
+  if (cbOff('logaxes') && (settings.logX || settings.logY)) view.ready = false;
   ensureTrailing();
   applyTheme();
   readTheme();
