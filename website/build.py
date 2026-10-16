@@ -21,6 +21,20 @@ footer = (SRC / "partials/footer.html").read_text()
 app_header = (SRC / "partials/app-header.html").read_text()
 app_footer = (SRC / "partials/app-footer.html").read_text()
 banner = (SRC / "partials/cookie-banner.html").read_text()
+TOPLINE = ROOT.parent / "topline" / "index.html"
+
+def calculator_html():
+    """Topline, adapted for the test: blank on first open, its own saved state, not indexed."""
+    t = TOPLINE.read_text()
+    swaps = [
+        ("const STORE = 'plotline-state-v1';", "const STORE = (window.TOPLINE_EMBED && window.TOPLINE_EMBED.store) || 'plotline-state-v1';"),
+        ("if (!load()) rows = exampleRows();", "if (!load()) rows = window.TOPLINE_EMBED ? (colorCounter = 0, [newRow('')]) : exampleRows();"),
+        ("<head>\n", "<head>\n<meta name=\"robots\" content=\"noindex\">\n<meta name=\"description\" content=\"Graphite graphing calculator for SAT Math practice.\">\n<script>window.TOPLINE_EMBED = { store: 'graphite-test-calc-v1' };</script>\n"),
+    ]
+    for old, new in swaps:
+        assert t.count(old) == 1, "Topline changed; update calculator_html(): " + old[:40]
+        t = t.replace(old, new)
+    return t
 css = (SRC / "site.css").read_text()
 js = (SRC / "site.js").read_text()
 
@@ -84,12 +98,14 @@ def score_chart():
 def render(meta, mode):
     is_home = meta["file"] == "index.html"
     h = "" if is_home else "./"
-    if meta.get("app"):
+    if meta.get("test"):
+        head_nav, foot = "", ""
+    elif meta.get("app"):
         head_nav, foot = app_header, app_footer
     else:
         head_nav = header.replace("{{H}}", h).replace("{{SIGNIN_CURRENT}}", ' aria-current="page"' if meta.get("signin") else "")
         foot = footer.replace("{{H}}", h)
-    body = head_nav + meta["body"].replace("{{SCORE_CHART}}", score_chart()) + foot + banner
+    body = head_nav + meta["body"].replace("{{SCORE_CHART}}", score_chart()) + foot + ("" if meta.get("test") else banner)
     url = SITE + meta["path"]
     robots = meta.get("robots", "index, follow")
 
@@ -99,7 +115,7 @@ def render(meta, mode):
                  '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
                  '<link rel="manifest" href="/site.webmanifest">')
         styles = '<link rel="stylesheet" href="/css/site.css">'
-        script = '<script src="/js/site.js" defer></script>'
+        script = "".join(f'<script src="/js/{n}" defer></script>' for n in meta.get("scripts", [])) + '<script src="/js/site.js" defer></script>'
         canonical = f'<link rel="canonical" href="{url}">' if robots.startswith("index") else ""
         # Root-absolute internal links so pages work from any URL, including the 404 page
         body = re.sub(r'href="\./', 'href="/', body)
@@ -109,7 +125,9 @@ def render(meta, mode):
         fav = "data:image/svg+xml," + urllib.parse.quote(FAVICON_SVG)
         icons = f'<link rel="icon" href="{fav}" type="image/svg+xml">'
         styles = "<style>" + minify_css(css) + "</style>"
-        script = "<script>" + js + "</script>"
+        script = "".join("<script>" + (SRC / n).read_text() + "</script>" for n in meta.get("scripts", [])) + "<script>" + js + "</script>"
+        if meta.get("test"):
+            script = "<script>window.TOPLINE_SRC_B64 = '" + base64.b64encode(calculator_html().encode()).decode() + "';</script>" + script
         canonical = ""
         svg = (SRC / "assets/hint-ladder.svg").read_text().strip()
         body = body.replace('src="assets/hint-ladder.svg"', 'src="data:image/svg+xml;base64,' + base64.b64encode(svg.encode()).decode() + '"')
@@ -181,6 +199,9 @@ def build():
     (DIST / "css/site.css").write_text(minify_css(css))
     (DIST / "js/site.js").write_text(js)
     shutil.copy(SRC / "assets/hint-ladder.svg", DIST / "assets/hint-ladder.svg")
+    for n in ("questions.js", "practice-test.js"):
+        shutil.copy(SRC / n, DIST / "js" / n)
+    (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:
         (DIST / p["file"]).write_text(render(p, "dist"))
@@ -192,7 +213,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

@@ -1,0 +1,187 @@
+<!--{"file": "practice-test.html", "path": "/practice-test.html", "title": "Math Practice Test | Graphite SAT Tutoring", "description": "A timed digital SAT Math practice module with a built-in graphing calculator, reference sheet, mark for review and answer elimination.", "robots": "noindex, nofollow", "test": true, "scripts": ["questions.js", "practice-test.js"]}-->
+<div class="exam" id="exam" data-view="graphite">
+  <a class="skip" href="#q-area">Skip to question</a>
+
+  <header class="exam-top">
+    <div class="exam-top-left">
+      <h1 class="exam-title" id="exam-title">Section 2, Module 1: Math</h1>
+      <button class="exam-link" type="button" id="open-directions" aria-haspopup="dialog">Directions</button>
+    </div>
+    <div class="exam-timer" id="timer-box">
+      <span class="timer-num" id="timer" role="timer" aria-live="off">35:00</span>
+      <button class="exam-pill" type="button" id="timer-toggle" aria-pressed="false">Hide</button>
+    </div>
+    <div class="exam-tools">
+      <button class="tool" type="button" id="calc-toggle" aria-pressed="false" aria-controls="calc-panel">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="8" y="6" width="8" height="3.5" rx=".6" fill="currentColor"/><circle cx="9" cy="13.5" r="1.1" fill="currentColor"/><circle cx="12" cy="13.5" r="1.1" fill="currentColor"/><circle cx="15" cy="13.5" r="1.1" fill="currentColor"/><circle cx="9" cy="17.3" r="1.1" fill="currentColor"/><circle cx="12" cy="17.3" r="1.1" fill="currentColor"/><circle cx="15" cy="17.3" r="1.1" fill="currentColor"/></svg>
+        <span>Calculator</span>
+      </button>
+      <button class="tool" type="button" id="ref-open" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20 L12 6 L19 20 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 6 V20" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 2"/><text x="3" y="11" font-size="7" font-family="serif" fill="currentColor">x²</text></svg>
+        <span>Reference</span>
+      </button>
+      <div class="more-wrap">
+        <button class="tool" type="button" id="more-toggle" aria-expanded="false" aria-controls="more-menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5.5" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="18.5" r="1.7" fill="currentColor"/></svg>
+          <span>More</span>
+        </button>
+        <div class="more-menu" id="more-menu" hidden>
+          <button type="button" id="view-toggle" aria-pressed="false">Test-day colors</button>
+          <button type="button" id="restart-test">Start over</button>
+          <a href="dashboard.html" id="save-exit">Save and exit</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="exam-body" id="exam-body">
+    <aside class="calc-panel" id="calc-panel" aria-label="Graphing calculator" hidden>
+      <div class="calc-head">
+        <span class="calc-name">Graphing calculator</span>
+        <div class="calc-actions">
+          <button class="exam-pill" type="button" id="calc-expand" aria-pressed="false">Expand</button>
+          <button class="exam-pill" type="button" id="calc-close" aria-label="Close calculator">Close</button>
+        </div>
+      </div>
+      <div class="calc-frame" id="calc-frame"><p class="calc-loading">Loading calculator…</p></div>
+      <div class="calc-resize" id="calc-resize" role="separator" aria-orientation="vertical" aria-label="Resize calculator" tabindex="0"></div>
+    </aside>
+
+    <main class="q-area" id="q-area" tabindex="-1">
+      <section class="q-wrap" id="q-view" aria-live="polite">
+        <div class="q-head">
+          <span class="q-num" id="q-num">1</span>
+          <button class="mark" type="button" id="mark-btn" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21 V4 H17 L14.5 8 L17 12 H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            <span>Mark for Review</span>
+          </button>
+          <button class="elim-toggle" type="button" id="elim-toggle" aria-pressed="false" title="Cross out answer choices"><s>ABC</s><span class="visually-hidden"> Cross out answer choices</span></button>
+        </div>
+        <div class="spr-help" id="spr-help" hidden>
+          <details>
+            <summary>Student-produced response directions</summary>
+            <ul>
+              <li>Enter one answer, even if more than one is correct.</li>
+              <li>You can enter up to 5 characters for a positive answer and up to 6 for a negative answer, including the negative sign.</li>
+              <li>If an answer is a fraction that doesn't fit, enter the decimal equivalent.</li>
+              <li>Don't enter symbols such as a percent sign, comma or dollar sign.</li>
+              <li>Mixed numbers like 3½ should be entered as 3.5 or 7/2.</li>
+            </ul>
+          </details>
+        </div>
+        <div class="q-stem" id="q-stem"></div>
+        <div class="q-answer" id="q-answer"></div>
+      </section>
+
+      <section class="review-page" id="review-view" hidden aria-labelledby="review-title">
+        <h2 id="review-title">Check your work</h2>
+        <p>On test day, you can't move on to the next module until time expires or you submit. Select a question to go back to it.</p>
+        <div class="review-card">
+          <div class="review-card-head"><strong id="review-heading">Section 2, Module 1: Math Questions</strong><span class="nav-legend"><span><i class="lg lg-cur"></i>Current</span><span><i class="lg lg-un"></i>Unanswered</span><span><i class="lg lg-mark"></i>For review</span></span></div>
+          <div class="q-grid" id="review-grid"></div>
+        </div>
+        <div class="review-submit">
+          <p class="fine" id="review-summary"></p>
+          <button class="btn btn-primary" type="button" id="submit-open">Submit module</button>
+        </div>
+        <div class="confirm" id="submit-confirm" hidden role="alertdialog" aria-labelledby="confirm-title" aria-describedby="confirm-desc">
+          <h3 id="confirm-title">Submit this module?</h3>
+          <p id="confirm-desc">You can't change answers after you submit.</p>
+          <div class="confirm-actions">
+            <button class="btn btn-secondary" type="button" id="submit-cancel">Keep working</button>
+            <button class="btn btn-primary" type="button" id="submit-go">Yes, submit</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="results" id="results-view" hidden aria-labelledby="results-title">
+        <p class="label">Practice test 4 · Math, module 1</p>
+        <h2 id="results-title">You got <span id="res-correct">0</span> of 22 right</h2>
+        <dl class="res-stats">
+          <div><dt>Time used</dt><dd id="res-time">0:00</dd></div>
+          <div><dt>Multiple choice</dt><dd id="res-mc">0 of 14</dd></div>
+          <div><dt>Student-produced</dt><dd id="res-spr">0 of 8</dd></div>
+          <div><dt>Marked for review</dt><dd id="res-marked">0</dd></div>
+        </dl>
+        <h3>By domain</h3>
+        <ul class="bars res-bars" id="res-domains"></ul>
+        <h3>Every question</h3>
+        <p class="fine">Open a question to see the explanation and a calculator approach where one helps.</p>
+        <div class="res-list" id="res-list"></div>
+        <div class="res-actions">
+          <a class="btn btn-primary" href="dashboard.html">Back to dashboard</a>
+          <button class="btn btn-secondary" type="button" id="retake">Retake this module</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="exam-bottom" id="exam-bottom">
+    <span class="exam-student" id="exam-student">Maya R.</span>
+    <div class="nav-wrap">
+      <button class="nav-btn" type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-pop"><span id="nav-label">Question 1 of 22</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 8 L6 4 L10 8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+      <div class="nav-pop" id="nav-pop" hidden>
+        <div class="review-card-head"><strong>Section 2, Module 1: Math Questions</strong><button class="exam-pill" type="button" id="nav-close" aria-label="Close question list">Close</button></div>
+        <span class="nav-legend"><span><i class="lg lg-cur"></i>Current</span><span><i class="lg lg-un"></i>Unanswered</span><span><i class="lg lg-mark"></i>For review</span></span>
+        <div class="q-grid" id="nav-grid"></div>
+        <button class="btn btn-secondary" type="button" id="go-review">Go to review page</button>
+      </div>
+    </div>
+    <div class="exam-moves">
+      <button class="btn btn-secondary" type="button" id="back-btn">Back</button>
+      <button class="btn btn-primary" type="button" id="next-btn">Next</button>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <div class="overlay" id="start-overlay" role="dialog" aria-modal="true" aria-labelledby="start-title">
+    <div class="dialog">
+      <p class="label">Practice test 4</p>
+      <h2 id="start-title">Section 2, Module 1: Math</h2>
+      <ul class="start-facts"><li><strong>22</strong> questions</li><li><strong>35</strong> minutes</li><li>Graphing calculator on every question</li></ul>
+      <p>The timer starts when you begin. Your answers save as you go, so you can leave and come back. When time runs out, the module submits itself.</p>
+      <div class="dialog-actions">
+        <a class="btn btn-secondary" href="dashboard.html">Not now</a>
+        <button class="btn btn-primary" type="button" id="start-btn">Begin module</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="dir-dialog" role="dialog" aria-modal="true" aria-labelledby="dir-title" hidden>
+    <div class="dialog">
+      <h2 id="dir-title">Directions</h2>
+      <p>These questions cover algebra, advanced math, problem-solving and data analysis, and geometry and trigonometry. You can use the calculator on every question.</p>
+      <ul>
+        <li>Variables and expressions stand for real numbers unless a question says otherwise.</li>
+        <li>Figures are drawn to scale and lie in a plane unless a question says otherwise.</li>
+        <li>A function's domain is all real numbers for which its value is a real number, unless a question says otherwise.</li>
+        <li>Multiple-choice questions have one correct answer. For student-produced response questions, type your answer in the box.</li>
+      </ul>
+      <div class="dialog-actions"><button class="btn btn-primary" type="button" data-close>Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ref-dialog" role="dialog" aria-modal="true" aria-labelledby="ref-title" hidden>
+    <div class="dialog dialog-wide">
+      <div class="review-card-head"><h2 id="ref-title">Reference</h2><button class="exam-pill" type="button" data-close>Close</button></div>
+      <div class="ref-grid">
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><circle cx="50" cy="35" r="26" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="50" y1="35" x2="76" y2="35" stroke="currentColor" stroke-width="1.2"/><text x="60" y="31" font-size="9" fill="currentColor">r</text></svg><p><var>A</var> = π<var>r</var><sup>2</sup><br><var>C</var> = 2π<var>r</var></p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><rect x="18" y="16" width="64" height="38" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="47" y="66" font-size="9" fill="currentColor">ℓ</text><text x="86" y="38" font-size="9" fill="currentColor">w</text></svg><p><var>A</var> = ℓ<var>w</var></p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><path d="M12 56 L88 56 L60 14 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="60" y1="14" x2="60" y2="56" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2"/><text x="63" y="38" font-size="9" fill="currentColor">h</text><text x="47" y="67" font-size="9" fill="currentColor">b</text></svg><p><var>A</var> = <span class="frac"><span>1</span><span>2</span></span><var>bh</var></p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><path d="M20 56 L80 56 L80 14 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M74 56 V50 H80" fill="none" stroke="currentColor" stroke-width="1"/><text x="46" y="66" font-size="9" fill="currentColor">b</text><text x="84" y="38" font-size="9" fill="currentColor">a</text><text x="40" y="32" font-size="9" fill="currentColor">c</text></svg><p><var>c</var><sup>2</sup> = <var>a</var><sup>2</sup> + <var>b</var><sup>2</sup></p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><path d="M16 56 L84 56 L16 16 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="8" y="38" font-size="8" fill="currentColor">x</text><text x="40" y="66" font-size="8" fill="currentColor">x√3</text><text x="52" y="32" font-size="8" fill="currentColor">2x</text><text x="20" y="27" font-size="7" fill="currentColor">60°</text><text x="62" y="53" font-size="7" fill="currentColor">30°</text></svg><p>Special right triangle: 30°, 60°, 90°</p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><path d="M22 56 L78 56 L22 12 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="12" y="38" font-size="8" fill="currentColor">s</text><text x="46" y="66" font-size="8" fill="currentColor">s</text><text x="52" y="30" font-size="8" fill="currentColor">s√2</text><text x="26" y="24" font-size="7" fill="currentColor">45°</text><text x="58" y="53" font-size="7" fill="currentColor">45°</text></svg><p>Special right triangle: 45°, 45°, 90°</p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><path d="M20 26 L62 26 L80 14 L38 14 Z M20 26 V58 H62 V26 M62 58 L80 46 V14" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><p><var>V</var> = ℓ<var>wh</var></p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><ellipse cx="50" cy="16" rx="24" ry="7" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M26 16 V54 M74 16 V54" stroke="currentColor" stroke-width="1.4"/><path d="M26 54 A24 7 0 0 0 74 54" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><p><var>V</var> = π<var>r</var><sup>2</sup><var>h</var></p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><circle cx="50" cy="35" r="26" fill="none" stroke="currentColor" stroke-width="1.5"/><ellipse cx="50" cy="35" rx="26" ry="7" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2"/></svg><p><var>V</var> = <span class="frac"><span>4</span><span>3</span></span>π<var>r</var><sup>3</sup></p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><path d="M26 54 L50 10 L74 54" fill="none" stroke="currentColor" stroke-width="1.4"/><ellipse cx="50" cy="54" rx="24" ry="7" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><p><var>V</var> = <span class="frac"><span>1</span><span>3</span></span>π<var>r</var><sup>2</sup><var>h</var></p></div>
+        <div><svg viewBox="0 0 100 70" aria-hidden="true"><path d="M20 54 L62 54 L80 42 L50 8 Z M20 54 L50 8 M62 54 L50 8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><p><var>V</var> = <span class="frac"><span>1</span><span>3</span></span>ℓ<var>wh</var></p></div>
+      </div>
+      <ul class="ref-notes">
+        <li>A circle has 360 degrees of arc, or 2π radians.</li>
+        <li>The angles of a triangle add up to 180 degrees.</li>
+      </ul>
+    </div>
+  </div>
+</div>

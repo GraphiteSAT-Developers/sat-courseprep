@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /dashboard.html
+Disallow: /practice-test.html
+Disallow: /calculator.html
 
 Sitemap: https://www.graphiteprep.com/sitemap.xml
