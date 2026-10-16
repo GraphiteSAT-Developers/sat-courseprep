@@ -390,8 +390,50 @@ def explanation_html(item, techniques):
             note = " A shorter decimal, like 0.67 for 2/3, is marked wrong: fill every space."
         parts.append(f'<section class="xp-sec xp-entry"><h4>Entering your answer</h4><p>Any of these earns credit: {shown}.{html.escape(note)}</p></section>')
 
+    parts.append(learn_html(item))
     parts.append("</div>")
     return "".join(p for p in parts if p)
+
+
+# ---------- links to lessons ----------
+
+LESSONS_FILE = BANK_DIR.parent / "masterclass" / "lessons.json"
+TECHNIQUE_EXTRA = {"T4": "sliders", "T13": "choose"}  # techniques taught inside another lesson
+
+
+@lru_cache(maxsize=None)
+def lesson_links():
+    """Which masterclass lesson teaches each Desmos technique, and the topic lesson for each skill."""
+    data = json.loads(LESSONS_FILE.read_text())
+    by_technique = {}
+    for lesson in data["lessons"]:
+        for tid in re.findall(r"T\d+", lesson.get("technique", "")):
+            by_technique.setdefault(tid, lesson)
+    lessons = {lesson["id"]: lesson for lesson in data["lessons"]}
+    for tid, lid in TECHNIQUE_EXTRA.items():
+        by_technique.setdefault(tid, lessons[lid])
+    numbers = {lesson["id"]: n for n, lesson in enumerate(data["lessons"], 1)}
+    topics = {t["skill"]: t for t in data.get("topics", [])}
+    return by_technique, numbers, topics
+
+
+def learn_html(item):
+    """Links from an explanation to the lessons that teach it. They open in a new tab, so a test in progress stays put."""
+    by_technique, numbers, topics = lesson_links()
+    links, seen = [], set()
+    for tid in item.get("techniques", []) if item.get("desmos") else []:
+        lesson = by_technique.get(tid)
+        if lesson and lesson["id"] not in seen:
+            seen.add(lesson["id"])
+            links.append((lesson["id"], f"Desmos lesson {numbers[lesson['id']]}: {lesson['title']}"))
+    topic = topics.get(slug(item["skill"]))
+    if topic:
+        links.append((topic["id"], f"Topic lesson: {topic['title']}"))
+    if not links:
+        return ""
+    lis = "".join(f'<li><a href="masterclass.html#{html.escape(lid)}" target="_blank" rel="noopener">{html.escape(text)}</a></li>' for lid, text in links)
+    return f'<section class="xp-sec xp-learn"><h4>Learn this move</h4><ul>{lis}</ul></section>'
+
 
 
 def answer_display_html(item):

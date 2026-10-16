@@ -34,8 +34,11 @@ def total(lesson):
     return len(lesson["steps"]) + len(lesson.get("reads", [])) + (1 if lesson.get("try") else 0)
 
 
+QUIZ_SIZE = 3  # each attempt draws this many questions from the lesson's pool
+
+
 def quiz_total(lesson):
-    return len(lesson.get("quiz", []))
+    return min(QUIZ_SIZE, len(lesson.get("quiz", [])))
 
 
 def _state(lesson, row):

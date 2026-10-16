@@ -60,6 +60,16 @@ class MasterclassContentTest(unittest.TestCase):
                 for r in t.get("related", []):
                     self.assertIn(r, masterclass.lessons())
 
+    def test_bank_explanations_link_to_real_lessons(self):
+        import re
+        from app.services import bank
+        known = masterclass.lessons()
+        for q in bank.all_items().values():
+            ids = re.findall(r'href="masterclass\.html#([^"]+)"', q["explain_html"])
+            self.assertIn("topic-" + q["skill_key"], ids, q["id"])
+            for lesson_id in ids:
+                self.assertIn(lesson_id, known)
+
     def test_ids_are_unique(self):
         ids = [lesson["id"] for lesson in masterclass.content()["lessons"] + masterclass.content()["topics"]]
         self.assertEqual(len(ids), len(set(ids)))

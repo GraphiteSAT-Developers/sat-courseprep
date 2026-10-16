@@ -1326,3 +1326,9 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .dm-modal-x { position: absolute; top: var(--s3); right: var(--s3); width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--raised); color: var(--text); font-size: 1.4rem; line-height: 1; cursor: pointer; }
 .dm-modal-check { display: flex; gap: var(--s2); align-items: center; font-size: var(--t-sm); color: var(--muted); }
 .dm-modal-actions { display: flex; gap: var(--s3); flex-wrap: wrap; margin-top: var(--s2); }
+.dm-fresh { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; padding: var(--s2) var(--s3); border-radius: var(--radius); background: var(--raised); font-size: var(--t-sm); color: var(--muted); }
+.dm-fresh[hidden] { display: none; }
+.dm-status.dm-retake { color: var(--accent); }
+.dm-card { position: relative; }
+.dm-card.is-next { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.dm-next-badge { position: absolute; top: -10px; left: var(--s4); padding: 1px var(--s2); border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 800; }

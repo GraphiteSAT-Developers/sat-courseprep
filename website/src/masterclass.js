@@ -37,6 +37,8 @@
     } catch (e) { return null; }
   }
   function showError(msg) { $("dm-error").textContent = msg || ""; $("dm-error").hidden = !msg; }
+  var QUIZ_SIZE = 3;  // each attempt draws this many questions from the lesson's pool
+  function quizSize(l) { return Math.min(QUIZ_SIZE, (l.quiz || []).length); }
   function total(l) { return l.kind === "drill" ? l.items.length : l.steps.length + (l.reads || []).length + (l.try ? 1 : 0); }
   function stepOf(l) { var p = progress[l.id]; return p ? p.step : 0; }
   function done(l) { return stepOf(l) >= total(l); }
@@ -54,7 +56,7 @@
   function saveQuiz(l, correct) {
     var p = progress[l.id] || (progress[l.id] = { step: 0, total: total(l), completed: false });
     if (p.quiz_best == null || correct > p.quiz_best) p.quiz_best = correct;
-    p.quiz_total = l.quiz.length;
+    p.quiz_total = quizSize(l);
     if (!LIVE) { store(PREVIEW_KEY, progress); return; }
     API.call("/api/masterclass/quiz", { lesson: l.id, correct: correct }).catch(function (err) {
       if (err && err.status === 401) { location.href = "/signin.html?next=/masterclass.html"; return; }
@@ -77,6 +79,8 @@
   var ICONS = {
     done: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 L10 17 L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
+  function nextLesson() { return LESSONS.filter(function (l) { return !done(l); })[0]; }
+  var homeScrolled = false;
   function renderHome() {
     var finished = LESSONS.filter(done).length;
     $("dm-done").textContent = finished;
@@ -104,6 +108,9 @@
         '<span class="label dm-unit-count">' + ls.filter(done).length + " of " + ls.length + " done</span></div>" +
         '<ul class="dm-cards">' + ls.map(card).join("") + "</ul></section>";
     }).join("");
+    // Returning students land on the next lesson instead of the top of the list.
+    var up = $("dm-up-next");
+    if (up && !homeScrolled) { homeScrolled = true; up.scrollIntoView({ block: "center" }); }
   }
   function card(l) {
     var s = stepOf(l), n = total(l), state = s >= n ? "done" : s > 0 ? "started" : "new";
@@ -111,10 +118,14 @@
       : state === "started" ? '<span class="dm-status is-started">' + s + " of " + n + " steps</span>"
       : '<span class="dm-status">' + l.minutes + " min</span>";
     var p = progress[l.id];
-    if (p && p.quiz_best != null && l.quiz) status += '<span class="dm-status dm-quiz-best">Quiz ' + p.quiz_best + " of " + l.quiz.length + "</span>";
+    if (p && p.quiz_best != null && l.quiz) status += '<span class="dm-status dm-quiz-best">Quiz ' + p.quiz_best + " of " + quizSize(l) + "</span>";
+    if (state === "done" && l.quiz && l.quiz.length) status += '<span class="dm-status dm-retake">' + (p && p.quiz_best != null ? "Retake quiz" : "Take the quiz") + " →</span>";
     status = '<span class="dm-card-foot">' + status + "</span>";
-    return '<li><a class="dm-card is-' + state + '" href="#' + l.id + '">' +
-      '<span class="dm-card-top"><span class="dm-card-n">' + (isTopic(l) ? "Topic lesson" : "Lesson " + l.n) + '</span><span class="chip chip-quiet">' + esc(isTopic(l) ? (l.quiz || []).length + " quiz questions" : l.technique) + "</span></span>" +
+    var next = !isTopic(l) && nextLesson() === l && LESSONS.some(function (x) { return stepOf(x) > 0; });
+    var href = "#" + l.id + (state === "done" && l.quiz && l.quiz.length ? "/quiz" : "");
+    return '<li><a class="dm-card is-' + state + (next ? " is-next" : "") + '" href="' + href + '"' + (next ? ' id="dm-up-next"' : "") + ">" +
+      (next ? '<span class="dm-next-badge">Up next</span>' : "") +
+      '<span class="dm-card-top"><span class="dm-card-n">' + (isTopic(l) ? "Topic lesson" : "Lesson " + l.n) + '</span><span class="chip chip-quiet">' + esc(isTopic(l) ? "Quiz" : l.technique) + "</span></span>" +
       '<strong class="dm-card-title">' + esc(l.title) + '</strong><span class="dm-card-sum">' + esc(l.summary) + "</span>" + status + "</a></li>";
   }
 
@@ -167,11 +178,13 @@
 
   /* ---------- one lesson ---------- */
   function open(id) {
-    if (location.hash.slice(1) !== id) { location.hash = id; return; }  // the hashchange handler opens it
+    if (location.hash.slice(1) !== id) { location.hash = id; return; }  // the hashchange handler opens it (#id, or #id/quiz)
     show(id);
   }
   function show(id) {
     showError("");
+    var parts = String(id).split("/"), toQuiz = parts[1] === "quiz";
+    id = parts[0];
     var l = BY_ID[id];
     if (!l) { lesson = null; $("dm-lesson").hidden = true; $("dm-home").hidden = false; renderHome(); document.title = "Desmos Masterclass | Graphite SAT Tutoring"; return; }
     lesson = l;
@@ -225,6 +238,7 @@
     if (drill) { renderDrill(); refresh(); return; }
     renderSteps(); renderReads(); renderTry(); refresh();
     checkTry();
+    if (toQuiz && !$("dm-quiz-wrap").hidden) setTimeout(function () { $("dm-quiz-wrap").scrollIntoView({ block: "start" }); }, 0);
     if (!usesCalc(l)) return;
     withCalc(function () {
       var saved = store(calcKey(l.id));
@@ -461,20 +475,33 @@
   /* the practice quiz: after the lesson, one question at a time, each opened by calculator work */
   function quizMeta() {
     var p = progress[lesson.id];
-    return p && p.quiz_best != null ? "Best score: " + p.quiz_best + " of " + lesson.quiz.length : lesson.quiz.length + " questions";
+    return p && p.quiz_best != null ? "Best score: " + p.quiz_best + " of " + quizSize(lesson) : quizSize(lesson) + " questions";
   }
+  // A fresh draw each attempt: questions from the last attempt go to the back of the line, so a retake shows new ones.
+  function drawQuiz(l) {
+    var key = "graphite_masterclass_quiz_last_" + l.id, last = store(key) || [];
+    var all = l.quiz.map(function (q, k) { return k; });
+    for (var a = all.length - 1; a > 0; a--) { var b = Math.floor(Math.random() * (a + 1)), tmp = all[a]; all[a] = all[b]; all[b] = tmp; }
+    var fresh = all.filter(function (k) { return last.indexOf(k) < 0; }), seen = all.filter(function (k) { return last.indexOf(k) >= 0; });
+    var items = fresh.concat(seen).slice(0, quizSize(l));
+    store(key, items);
+    return items;
+  }
+  function quizQ() { return lesson.quiz[quiz.items[quiz.i]]; }
   function startQuiz() {
-    quiz = { i: 0, right: 0, ready: false, answered: false, marks: [] };
-    var gated = lesson.quiz.filter(function (x) { return x.check; }).length, n = lesson.quiz.length;
+    quiz = { i: 0, right: 0, ready: false, answered: false, marks: [], items: drawQuiz(lesson) };
+    var picked = quiz.items.map(function (k) { return lesson.quiz[k]; });
+    var gated = picked.filter(function (x) { return x.check; }).length, n = picked.length;
     $("dm-quiz-lede").textContent = (isTopic(lesson) ? n + " SAT-style questions on this topic. " : n + " new questions on what this lesson taught. ") +
       (gated === n ? "Use the calculator for each one: the answer box opens once your work is in it. "
         : gated ? "Questions marked with a lock need calculator work before you can answer. " : "") + "One try per question, and you can retake it.";
     $("dm-quiz-meta").textContent = quizMeta();
     renderQuizQuestion();
+    showFresh();
     checkQuiz();
   }
   function renderQuizQuestion() {
-    var q = lesson.quiz[quiz.i], n = lesson.quiz.length;
+    var q = quizQ(), n = quiz.items.length;
     var body = q.choices
       ? '<div class="choices dm-choices" role="group" aria-label="Answer choices">' + q.choices.map(function (c, i) {
           return '<button class="choice" type="button" data-zchoice="' + i + '" disabled><span class="bubble">' + LETTERS[i] + '</span><span class="choice-text">' + esc(c) + "</span></button>";
@@ -483,18 +510,23 @@
         '<input id="dm-z-in" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Your answer" disabled>' +
         '<button class="btn btn-primary" type="submit" disabled>Submit</button></form>';
     $("dm-quiz").innerHTML = '<div class="dm-q dm-zq"><div class="dm-quiz-top"><p class="label">Question ' + (quiz.i + 1) + " of " + n + "</p>" +
-      '<ol class="dm-quiz-dots" aria-hidden="true">' + lesson.quiz.map(function (x, i) {
+      '<ol class="dm-quiz-dots" aria-hidden="true">' + quiz.items.map(function (x, i) {
         return '<li class="' + (i < quiz.i ? (quiz.marks[i] ? "is-right" : "is-wrong") : i === quiz.i ? "is-now" : "") + '"></li>';
       }).join("") + "</ol></div>" +
       '<p class="q-stem">' + q.stem + "</p>" +
       (q.check ? '<p class="dm-gate" id="dm-z-gate"><span class="dm-gate-lock" aria-hidden="true"></span><span><strong>Use the calculator first.</strong> ' + esc(q.use) + " Answers open when your work is in the calculator.</span></p>" : "") +
+      (q.check ? '<p class="dm-fresh" id="dm-z-fresh" hidden>Your calculator still has earlier work, and its letters can clash with this question\'s. <button class="btn btn-quiet dm-small" type="button" id="dm-z-clear">Clear the calculator</button></p>' : "") +
       body + '<p class="dm-feedback" id="dm-z-fb" role="status" hidden></p>' +
       '<div class="dm-explain" id="dm-z-ex" hidden><p>' + q.explain + "</p></div>" +
       '<button class="btn btn-primary" type="button" id="dm-z-next" hidden>' + (quiz.i + 1 < n ? "Next question" : "See your score") + "</button></div>";
   }
+  function showFresh() {
+    var f = $("dm-z-fresh");
+    if (f) f.hidden = !(calc && calc.lines().some(function (l) { return l.text || l.columns; }));
+  }
   function checkQuiz() {
     if (!quiz || quiz.ready || quiz.done || !lesson.quiz) return;
-    var check = lesson.quiz[quiz.i].check;
+    var check = quizQ().check;
     if (check && !(calc && C.passes(check, calc.lines(), calc))) return;
     quiz.ready = true;
     if ($("dm-z-gate")) $("dm-z-gate").hidden = true;
@@ -503,7 +535,7 @@
   }
   function answerQuiz(right, picked) {
     if (!quiz || !quiz.ready || quiz.answered) return;  // one try, and only after the calculator work
-    var q = lesson.quiz[quiz.i];
+    var q = quizQ();
     quiz.answered = true;
     quiz.marks = quiz.marks || [];
     quiz.marks[quiz.i] = right;
@@ -523,19 +555,20 @@
     $("dm-z-next").focus();
   }
   function quizNext() {
-    if (quiz.i + 1 < lesson.quiz.length) {
+    if (quiz.i + 1 < quiz.items.length) {
       quiz.i++; quiz.ready = false; quiz.answered = false;
       renderQuizQuestion();
+      showFresh();
       checkQuiz();
       return;
     }
     quiz.done = true;
-    var n = lesson.quiz.length;
+    var n = quiz.items.length;
     saveQuiz(lesson, quiz.right);
     $("dm-quiz-meta").textContent = quizMeta();
     var msg = quiz.right === n ? "A perfect score. You're ready to use this on test day."
-      : quiz.right >= n - 1 ? "Nearly there. Read the explanation for the one you missed, then retake it."
-      : "Go back over the lesson steps above, then retake the quiz. The questions stay the same, so focus on the method.";
+      : quiz.right >= n - 1 ? "Nearly there. Read the explanation for the one you missed, then retake it for a new set."
+      : "Go back over the lesson above, then retake the quiz. Each retake draws different questions.";
     msg += " Retaking clears the calculator, so you'll do the work again.";
     $("dm-quiz").innerHTML = '<div class="dm-q dm-quiz-result"><p class="label">Your score</p><p class="dm-quiz-score"><strong>' + quiz.right + "</strong> of " + n + "</p>" +
       '<ol class="dm-quiz-dots" aria-hidden="true">' + quiz.marks.map(function (m) { return '<li class="' + (m ? "is-right" : "is-wrong") + '"></li>'; }).join("") + "</ol>" +
@@ -543,8 +576,9 @@
   }
   $("dm-quiz").addEventListener("click", function (e) {
     var c = e.target.closest("[data-zchoice]");
-    if (c) { var i = +c.getAttribute("data-zchoice"); answerQuiz(i === lesson.quiz[quiz.i].answer, i); return; }
+    if (c) { var i = +c.getAttribute("data-zchoice"); answerQuiz(i === quizQ().answer, i); return; }
     if (e.target.closest("#dm-z-next")) { quizNext(); return; }
+    if (e.target.closest("#dm-z-clear")) { if (calc) calc.clear(); $("dm-z-fresh").hidden = true; setCalcOpen(true); return; }
     if (e.target.closest("#dm-z-retake")) {
       // A retake starts from a blank calculator, so every answer needs fresh work.
       if (calc) calc.clear();
@@ -557,8 +591,18 @@
     e.preventDefault();
     var v = $("dm-z-in").value;
     if (!v.trim()) return;
-    answerQuiz(C.answerMatches(v, lesson.quiz[quiz.i]));
+    answerQuiz(C.answerMatches(v, quizQ()));
   });
+
+  // On phones the calculator button sits above the cookie banner while the banner is showing.
+  (function () {
+    var banner = document.getElementById("cookie-banner"), fab = $("dm-calc-open");
+    if (!banner || !fab || !window.ResizeObserver) return;
+    function place() { fab.style.bottom = banner.hidden ? "" : (banner.offsetHeight + 16) + "px"; }
+    new ResizeObserver(place).observe(banner);
+    new MutationObserver(place).observe(banner, { attributes: true, attributeFilter: ["hidden", "class", "style"] });
+    place();
+  })();
 
   /* ---------- routing ---------- */
   $("dm-back").addEventListener("click", function (e) { if (lesson && isTopic(lesson)) return; e.preventDefault(); location.hash = ""; });
