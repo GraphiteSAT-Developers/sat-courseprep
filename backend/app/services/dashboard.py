@@ -45,6 +45,19 @@ def study_plan_weeks(user, today):
     return {"weeks": weeks, "fits_test_date": bool(plan.get("test_date")), "study_plan": True}
 
 
+def study_days(user_id, monday, since):
+    """Which days this week (Monday first) the student practiced: a finished set or any answered question."""
+    rows = query("SELECT at AS t FROM activity WHERE user_id = ? AND at >= ? "
+                 "UNION ALL SELECT seen_at AS t FROM practice_seen WHERE user_id = ? AND seen_at >= ?",
+                 (user_id, since, user_id, since))
+    days = [False] * 7
+    for r in rows:
+        i = (date.fromisoformat(r["t"][:10]) - monday).days
+        if 0 <= i < 7:
+            days[i] = True
+    return days
+
+
 def build(user, today=None):
     today = today or date.today()
     attempts = query("SELECT id, test_id, seconds_used, correct, total, results, submitted_at FROM test_attempts "
@@ -108,6 +121,7 @@ def build(user, today=None):
             "change_pct_points": (last["pct"] - first["pct"]) if len(history) > 1 else None,
             "attempts": len(history),
             "practice_minutes_week": minutes_week,
+            "study_days_week": study_days(user["id"], monday, since),
             "weekly_goal_hours": user["weekly_goal_hours"],
             "days_to_test": days_to_test,
             "test_date": user["test_date"],

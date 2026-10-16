@@ -97,6 +97,15 @@ class ConnectionsTest(unittest.TestCase):
         self.assertEqual(self.client.get("/api/dashboard").json["review"][0]["right_count"], 0)
 
 
+    def test_study_days_this_week(self):
+        self.register()
+        self.assertEqual(self.client.get("/api/dashboard").json["summary"]["study_days_week"], [False] * 7)
+        s = self.post("/api/practice/sessions", {"mode": "topic", "domain": "algebra", "count": 5}).json["session"]
+        q0 = bank.all_items()[s["questions"][0]["id"]]
+        self.post(f"/api/practice/sessions/{s['id']}/check", {"index": 0, "answer": right_answer(q0)})
+        days = self.client.get("/api/dashboard").json["summary"]["study_days_week"]
+        self.assertEqual(sum(days), 1)
+
     def test_first_dashboard_visit_goes_to_the_diagnostic_once(self):
         self.register()
         self.assertTrue(self.client.get("/api/dashboard").json["start_with_diagnostic"])

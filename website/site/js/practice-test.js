@@ -246,12 +246,13 @@
       btn.addEventListener("click", checkAnswer);
       return;
     }
-    var verdict = g.correct ? "Correct" : "Not quite";
+    var verdict = g.correct ? PRAISE[i % PRAISE.length] : "Not quite, and that's how you learn.";
     area.innerHTML = '<div class="fb ' + (g.correct ? "ok" : "no") + '" tabindex="-1" id="fb"><p class="fb-verdict"><strong>' + verdict + "</strong>" +
-      (g.correct ? "" : ' <span>The answer is <strong>' + (g.type === "mc" ? g.answer : previewHTML(g.answer.split(" or ")[0])) + "</strong>.</span>") + "</p>" +
+      (g.correct ? "" : ' <span>The answer is <strong>' + (g.type === "mc" ? g.answer : previewHTML(g.answer.split(" or ")[0])) + "</strong>. Here's how to get there.</span>") + "</p>" +
       '<div class="fb-explain"></div></div>';
     area.querySelector(".fb-explain").innerHTML = g.explain_html || "";
   }
+  var PRAISE = ["Nice work!", "You got it!", "Correct!", "Nailed it.", "That's right!", "Spot on."];
   function checkAnswer() {
     var i = S.cur;
     if (checking || checked[i] || !isAnswered(i)) return;
@@ -367,7 +368,9 @@
     if (fin.length) $("res-finished").innerHTML = "<strong>Congratulations! You have finished " + (fin.length > 1 || fin[0].kind === "domain" ? "a whole domain" : "this topic") + "!</strong> <span></span>";
     if (fin.length) $("res-finished").querySelector("span").textContent = finishedText(fin);
     for (var m = 0; m < N; m++) if (S.marked[m]) marked++;
-    $("results-title").textContent = "You got " + r.correct + " of " + r.total + " right";
+    var pct = r.total ? r.correct / r.total : 0;
+    var cheer = pct >= 0.9 ? "Outstanding!" : pct >= 0.7 ? "Solid work!" : pct >= 0.5 ? "Good effort." : "Every miss shows you what to practice.";
+    $("results-title").textContent = cheer + " You got " + r.correct + " of " + r.total + " right.";
     $("res-time").textContent = fmt(r.seconds_used);
     $("res-mc").textContent = r.multiple_choice.right + " of " + r.multiple_choice.total;
     $("res-spr").textContent = r.student_produced.right + " of " + r.student_produced.total;

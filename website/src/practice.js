@@ -13,6 +13,13 @@
   try { count = Number(localStorage.getItem(COUNT_KEY)) || 10; } catch (e) { /* storage blocked */ }
   var busy = false;
 
+  // A small picture for each Math domain, so the topic list is easy to scan.
+  var DOMAIN_ICONS = {
+    "algebra": '<svg viewBox="0 0 24 24"><text x="3" y="17" font-size="13" font-family="Georgia,serif" font-style="italic" fill="currentColor">x=</text></svg>',
+    "advanced-math": '<svg viewBox="0 0 24 24"><path d="M4 5c2 14 14 14 16 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    "psda": '<svg viewBox="0 0 24 24"><path d="M5 19V11M10 19V6M15 19v-5M20 19V9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    "geometry-trig": '<svg viewBox="0 0 24 24"><path d="M4 19 L12 5 L20 19 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>'
+  };
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function showError(msg) { var e = $("pr-error"); e.textContent = msg; e.hidden = !msg; }
   function signIn() { location.href = "/signin.html?next=/practice.html"; }
@@ -99,7 +106,7 @@
       sec.className = "pr-domain";
       var head = document.createElement("div");
       head.className = "pr-domain-head";
-      head.innerHTML = '<h3>' + esc(dm.name) + "</h3>";
+      head.innerHTML = '<h3><span class="dom-icon" aria-hidden="true">' + (DOMAIN_ICONS[dm.key] || "") + "</span>" + esc(dm.name) + "</h3>";
       var all = document.createElement("button");
       all.type = "button"; all.className = "btn btn-secondary pr-all";
       all.textContent = "Practice all";

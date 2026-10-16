@@ -3,13 +3,26 @@
   <div class="wrap dash-stack">
     <p class="sample-note" id="sample-note"><span class="label">Sample student</span> You're seeing example scores and a sample plan. Your own numbers appear here once your account data is connected.</p>
 
-    <div class="dash-top">
-      <div>
+    <section class="hello" aria-labelledby="greeting">
+      <div class="hello-text">
         <p class="label" id="today-date">Thursday, October 15</p>
         <h1 id="greeting">Good evening, Maya</h1>
+        <p class="hello-sub" id="hello-sub">Ready for a quick session? Today's set takes about 25 minutes.</p>
+        <div class="hello-chips">
+          <span class="chip-soft" id="chip-countdown"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span><strong id="chip-days-left">51</strong> days to your SAT</span></span>
+          <span class="chip-soft" id="chip-streak"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c-3.9 0-6.5-2.6-6.5-6.1 0-3.4 2.6-5.3 3.9-8.4.3-.7 1.3-.8 1.6-.1.9 2 2.4 3 3.3 2.2.4-.4 1.1-.3 1.3.3.6 1.6 2.9 3.4 2.9 6 0 3.5-2.6 6.1-6.5 6.1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span><strong id="chip-study-days">3</strong> study days this week</span></span>
+        </div>
+        <ol class="week-dots" id="week-dots" aria-label="Days you studied this week">
+          <li class="on"><span>M</span></li><li class="on"><span>T</span></li><li><span>W</span></li><li class="on"><span>T</span></li><li class="is-today"><span>F</span></li><li><span>S</span></li><li><span>S</span></li>
+        </ol>
       </div>
-      <a class="btn btn-primary" href="#today" data-track="dash_start_top">Start today's set</a>
-    </div>
+      <div class="up-next" id="up-next">
+        <p class="label">Up next</p>
+        <h2 id="up-next-title">Percent change and ratios</h2>
+        <p class="up-next-meta" id="up-next-meta">5 questions · about 10 min</p>
+        <button class="btn btn-primary btn-big" type="button" id="up-next-start" data-track="dash_start_top">Let's go</button>
+      </div>
+    </section>
 
     <dl class="kpis" aria-label="Summary">
       <div>

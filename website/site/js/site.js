@@ -723,6 +723,47 @@
         });
     });
 
+    // The welcome card: what to do next, the countdown, and which days this week had practice.
+    function renderHello(d) {
+      var s = d.summary, items = d.today.items || [];
+      var next = items.filter(function (i) { return !i.done; })[0];
+      var src = d.today.source || (items.length ? "domains" : "none");
+      if (src === "none") {
+        $("#up-next-title").textContent = "Your 10-question diagnostic";
+        $("#up-next-meta").textContent = "About 15 minutes · builds your study plan";
+        $("#up-next-start").textContent = "Start the diagnostic";
+        $("#hello-sub").textContent = "Let's find out where you're strong and where the easy points are.";
+      } else if (d.today.all_done) {
+        $("#up-next-title").textContent = "This week's plan is done";
+        $("#up-next-meta").textContent = "Take an extra quiz, or rest up. You earned it.";
+        $("#up-next-start").textContent = "Extra quiz";
+        $("#hello-sub").textContent = "You finished everything planned for this week. Nice work.";
+      } else if (next) {
+        $("#up-next-title").textContent = next.domain;
+        $("#up-next-meta").textContent = next.count + " questions · about " + Math.max(10, Math.round(next.count * 1.5)) + " min";
+        $("#up-next-start").textContent = "Let's go";
+        $("#hello-sub").textContent = src === "plan" ? "Here's the next step in your plan. Short and focused." : "A short set on the area where you have the most points to gain.";
+      }
+      var days = s.study_days_week || [];
+      var studied = days.filter(Boolean).length, dow = (now.getDay() + 6) % 7, letters = "MTWTFSS";
+      $("#chip-study-days").textContent = String(studied);
+      $("#chip-streak").lastChild.lastChild.nodeValue = studied === 1 ? " study day this week" : " study days this week";
+      $("#week-dots").innerHTML = letters.split("").map(function (l, i) {
+        return '<li class="' + (days[i] ? "on" : "") + (i === dow ? " is-today" : "") + '"><span>' + l + "</span></li>";
+      }).join("");
+      if (s.test_date) {
+        $("#chip-days-left").textContent = String(s.days_to_test);
+        $("#chip-countdown").lastChild.lastChild.nodeValue = (s.days_to_test === 1 ? " day" : " days") + " to your SAT";
+        $("#chip-countdown").hidden = false;
+      } else {
+        $("#chip-countdown").hidden = true;
+      }
+    }
+    $("#up-next-start").addEventListener("click", function () {
+      $("#set-start").click();
+      if (!LIVE) $("#today").scrollIntoView({ block: "start" });
+    });
+
     function renderDashboard(d) {
       if (d.start_with_diagnostic) { location.replace("plan.html?welcome=1"); return; }
       var s = d.summary, u = d.user;
@@ -731,6 +772,7 @@
       if (s.latest) s.latest.label = d.history[d.history.length - 1].label;
       $("#sample-note").hidden = true;
       $("#greeting").textContent = part + ", " + u.first_name;
+      renderHello(d);
       $("#account-email").textContent = u.email;
 
       if (s.latest) {

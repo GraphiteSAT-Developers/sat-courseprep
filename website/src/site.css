@@ -890,3 +890,39 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
   .pl-calc-panel { position: static; }
   .pl-calc-panel .calc-frame { height: 440px; }
 }
+
+/* ---------- Student-friendly pass: warmer cards, one clear next step, encouraging feedback ---------- */
+.dash .panel, .practice .panel { border-radius: 16px; }
+.dash .btn, .practice .btn, .exam .btn { border-radius: 999px; }
+.btn-big { min-height: 56px; padding: 0 var(--s6); font-size: var(--t-md); }
+
+.hello { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--s5); align-items: stretch; }
+@media (max-width: 860px) { .hello { grid-template-columns: minmax(0, 1fr); } }
+.hello-text { display: grid; gap: var(--s3); align-content: start; }
+.hello h1 { font-size: var(--t-xl); }
+.hello-sub { color: var(--muted); font-size: var(--t-md); max-width: 46ch; }
+.hello-chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip-soft { display: inline-flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s3); border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-size: var(--t-sm); }
+.chip-soft svg { width: 18px; height: 18px; color: var(--accent); flex: none; }
+.chip-soft strong { font-family: var(--font-mono); }
+.week-dots { list-style: none; margin: var(--s1) 0 0; padding: 0; display: flex; gap: var(--s2); }
+.week-dots li { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 1.5px solid var(--line); color: var(--muted); font: 700 var(--t-xs)/1 var(--font-mono); }
+.week-dots li.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.week-dots li.is-today { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--control); }
+.up-next { display: grid; gap: var(--s2); align-content: center; padding: var(--s5) var(--s6); border-radius: 20px;
+  background: linear-gradient(140deg, #3a3320 0%, #2b2a24 55%, var(--surface) 100%); border: 1.5px solid #6b5a2b; }
+.up-next .label { color: var(--accent); }
+.up-next h2 { font-size: var(--t-lg); line-height: 1.2; }
+.up-next-meta { color: var(--muted); font-size: var(--t-sm); }
+.up-next .btn { justify-self: start; margin-top: var(--s2); }
+
+.dom-icon { display: inline-grid; place-items: center; width: 32px; height: 32px; margin-right: var(--s2); border-radius: 10px; background: var(--raised); color: var(--accent); vertical-align: middle; }
+.dom-icon svg { width: 20px; height: 20px; }
+.pr-card .label { letter-spacing: 0.06em; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .fb.ok { animation: fb-pop 380ms cubic-bezier(.2, 1.4, .4, 1); }
+  .fb.ok .fb-verdict > strong { display: inline-block; animation: fb-bounce 500ms 120ms cubic-bezier(.2, 1.6, .4, 1) both; }
+}
+@keyframes fb-pop { from { transform: scale(0.97); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
+@keyframes fb-bounce { from { transform: translateY(6px) scale(0.9); } to { transform: none; } }
