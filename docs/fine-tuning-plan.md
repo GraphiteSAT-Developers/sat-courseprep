@@ -2,6 +2,8 @@
 
 _Written 2026-10-15 for the owner and the AI collaborator. Decision it implements: Sonnet (Anthropic SDK) stays the solver, dialogue generator and judge; the live tutor becomes an open-weight model (Qwen/Llama class) fine-tuned on verified tutoring dialogues and served from an OpenAI-compatible endpoint. Until that model passes the eval gate, Sonnet serves live through the same `TutorProvider` seam._
 
+> **2026-10-16: read `docs/fine-tuning-guidelines.md` first.** Research since this plan was written found (1) Anthropic's Usage Policy forbids training a model on Claude outputs without Anthropic's prior authorization, which affects Sonnet-generated dialogues and judge labels (guidelines §0); (2) Together no longer fine-tunes Qwen3-8B/14B, Fireworks needs a dedicated GPU for LoRA serving, and Qwen3 must be trained and served with thinking off (guidelines §4, §6). Where this plan and the guidelines disagree, the guidelines win until this plan is revised.
+
 Figures below are **estimates** unless a source is named. Prices move monthly; check before budgeting.
 
 ## 1. Why open-weight

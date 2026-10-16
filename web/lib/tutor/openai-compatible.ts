@@ -18,6 +18,12 @@ export interface OpenAICompatibleOptions {
   apiKey?: string;
   model?: string;
   timeoutMs?: number;
+  /**
+   * Extra request fields for this endpoint, e.g. {"enable_thinking": false} for
+   * QwenCloud or {"chat_template_kwargs": {"enable_thinking": false}} for vLLM.
+   * From TUTOR_ENDPOINT_EXTRA_BODY (JSON). Cannot replace model or messages.
+   */
+  extraBody?: Record<string, unknown>;
   /** Injected for tests. */
   fetch?: typeof fetch;
 }
@@ -36,6 +42,27 @@ export function endpointConfigured(env: TutorEnv = process.env): boolean {
 export function chatCompletionsUrl(endpointUrl: string): string {
   const trimmed = endpointUrl.replace(/\/+$/, "");
   return trimmed.endsWith("/chat/completions") ? trimmed : `${trimmed}/chat/completions`;
+}
+
+/** Parses TUTOR_ENDPOINT_EXTRA_BODY. Anything but a JSON object is ignored, with a log line. */
+export function parseExtraBody(raw: string | undefined): Record<string, unknown> {
+  if (!raw?.trim()) return {};
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (value && typeof value === "object" && !Array.isArray(value)) return value as Record<string, unknown>;
+  } catch {
+    // fall through
+  }
+  console.error("TUTOR_ENDPOINT_EXTRA_BODY is not a JSON object; ignoring it");
+  return {};
+}
+
+/** Removes reasoning blocks a thinking model may put in its reply (Qwen3, gpt-oss via some servers). */
+export function stripThinking(text: string): string {
+  return text
+    .replace(/<think>[\s\S]*?<\/think>/g, "")
+    .replace(/^[\s\S]*?<\/think>/, "") // opening tag consumed by the chat template
+    .trim();
 }
 
 interface ChatMessage {
@@ -66,6 +93,7 @@ export function createOpenAICompatibleProvider(options: OpenAICompatibleOptions 
   const apiKey = options.apiKey ?? process.env.TUTOR_ENDPOINT_KEY;
   const model = options.model ?? process.env.TUTOR_ENDPOINT_MODEL;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const extraBody = options.extraBody ?? parseExtraBody(process.env.TUTOR_ENDPOINT_EXTRA_BODY);
   const doFetch = options.fetch ?? fetch;
   if (!endpointUrl || !model) {
     throw new Error("OpenAI-compatible tutor provider needs TUTOR_ENDPOINT_URL and TUTOR_ENDPOINT_MODEL");
@@ -87,10 +115,11 @@ export function createOpenAICompatibleProvider(options: OpenAICompatibleOptions 
             ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
           },
           body: JSON.stringify({
-            model,
-            messages: buildMessages(ctx),
             max_tokens: 1024,
             temperature: 0.3,
+            ...extraBody,
+            model,
+            messages: buildMessages(ctx),
             stream: false,
           }),
           signal: controller.signal,
@@ -100,7 +129,7 @@ export function createOpenAICompatibleProvider(options: OpenAICompatibleOptions 
           return { text: FALLBACK_TEXT, showMe };
         }
         const data = (await response.json().catch(() => null)) as ChatCompletionResponse | null;
-        const text = data?.choices?.[0]?.message?.content?.trim() ?? "";
+        const text = stripThinking(data?.choices?.[0]?.message?.content ?? "");
         return { text: text || FALLBACK_TEXT, showMe };
       } catch (err) {
         // Timeout (AbortError), DNS, connection reset, bad JSON: all the same

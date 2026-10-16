@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import type { Item } from "@/content/types";
-import { chatCompletionsUrl, createOpenAICompatibleProvider } from "./openai-compatible";
+import { chatCompletionsUrl, createOpenAICompatibleProvider, parseExtraBody, stripThinking } from "./openai-compatible";
 import { FALLBACK_TEXT, SYSTEM_RULES } from "./prompt";
 import type { TutorContext } from "./types";
 
@@ -121,5 +121,39 @@ describe("OpenAI-compatible tutor provider", () => {
 
   it("refuses to start without a URL and model", () => {
     expect(() => createOpenAICompatibleProvider({ endpointUrl: "", model: "", fetch: fakeFetch({}) })).toThrow(/TUTOR_ENDPOINT_URL/);
+  });
+});
+
+describe("endpoint extras for thinking models", () => {
+  it("merges extra body fields but never lets them replace model or messages", async () => {
+    const fetchFn = fakeFetch({});
+    await createOpenAICompatibleProvider({
+      endpointUrl: "https://example.test/v1",
+      model: "qwen-plus",
+      extraBody: { enable_thinking: false, max_tokens: 400, model: "other", messages: [] },
+      fetch: fetchFn,
+    }).reply(base);
+    const body = JSON.parse(String(fetchFn.mock.calls[0][1].body));
+    expect(body.enable_thinking).toBe(false);
+    expect(body.max_tokens).toBe(400);
+    expect(body.model).toBe("qwen-plus");
+    expect(body.messages.length).toBeGreaterThan(0);
+  });
+
+  it("parses TUTOR_ENDPOINT_EXTRA_BODY and ignores anything but a JSON object", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(parseExtraBody('{"enable_thinking": false}')).toEqual({ enable_thinking: false });
+    expect(parseExtraBody(undefined)).toEqual({});
+    expect(parseExtraBody("[1]")).toEqual({});
+    expect(parseExtraBody("not json")).toEqual({});
+    spy.mockRestore();
+  });
+
+  it("strips reasoning blocks from the reply", async () => {
+    expect(stripThinking("<think>work it out</think>\n\nWhat does line 2 show?")).toBe("What does line 2 show?");
+    expect(stripThinking("reasoning only</think>Look at the vertex.")).toBe("Look at the vertex.");
+    expect(stripThinking("No tags here.")).toBe("No tags here.");
+    const reply = await provider(fakeFetch({ body: { choices: [{ message: { content: "<think>x</think>Try line 1." } }] } })).reply(base);
+    expect(reply.text).toBe("Try line 1.");
   });
 });
