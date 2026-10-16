@@ -657,8 +657,7 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
   .exam-top-left { grid-area: title; }
   .exam-tools { grid-area: tools; }
   .exam-timer { grid-area: timer; grid-auto-flow: column; align-items: center; gap: var(--s3); }
-  .calc-panel { position: absolute; inset: 0; width: 100% !important; max-width: none; z-index: 20; border-right: 0; }
-  .calc-resize, #calc-expand { display: none; }
+  .calc-resize { display: none; }
 }
 @media (max-width: 560px) {
   .tool { min-width: 52px; padding-inline: var(--s1); }
@@ -1259,9 +1258,16 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
   background: linear-gradient(135deg, transparent 0 52%, var(--x-control, var(--control)) 52% 58%, transparent 58% 68%, var(--x-control, var(--control)) 68% 74%, transparent 74% 84%, var(--x-control, var(--control)) 84% 90%, transparent 90%); }
 .calc-grip:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
 @media (max-width: 860px) {
-  .calc-float { inset: 0 !important; width: auto !important; height: auto !important; border-radius: 0; border: 0; z-index: 45; }
-  .calc-float .calc-head { cursor: default; }
-  .calc-grip, .calc-grab, .calc-float #calc-expand, .calc-float #pl-calc-expand { display: none; }
+  /* Phones: a panel along the bottom, above the test's Back/Next bar; drag the top edge to change its height. */
+  .calc-float { left: 0 !important; right: 0; top: auto !important; width: auto !important; border-radius: 14px 14px 0 0; border-width: 1px 0 0; z-index: 45;
+    box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.4); }
+  .calc-float .calc-head { cursor: ns-resize; position: relative; padding-top: 14px; }
+  .calc-float .calc-head::before { content: ""; position: absolute; left: 50%; top: 5px; width: 40px; height: 5px; margin-left: -20px; border-radius: 3px; background: var(--x-control, var(--control)); }
+  .calc-grip, .calc-grab { display: none; }
+  .calc-float .exam-pill { min-height: 32px; }
+  /* room to scroll the question and its choices up above the calculator panel */
+  .exam.calc-open .q-area { padding-bottom: calc(var(--calc-sheet, 0px) + 24px); }
+  .plan-page .pl-quiz-wrap.calc-open { padding-bottom: var(--calc-sheet, 0px); }
 }
 /* the diagnostic: the question no longer shares its row with the calculator */
 .pl-quiz-wrap.calc-open { grid-template-columns: minmax(0, 1fr); }

@@ -319,6 +319,16 @@ li.row{grid-template-columns:52px minmax(0,1fr) 40px;border-bottom:1px solid var
 @media (max-width:560px){ .kb-funcs .key.txt{font-size:12px} }
 @media (max-width:460px){ .kp-in{gap:5px 6px} .kb{gap:4px;--kh:42px} .key.txt{font-size:11.5px} .key.let{font-size:18px} .key.sym{font-size:19px} }
 @media (max-height:640px){ .kb{--kh:36px} }
+/* short windows (the calculator panel on a phone): smaller keys, toolbar and rows so the list keeps room */
+@media (max-height:520px){
+  .app{grid-template-rows:minmax(110px,38%) minmax(0,1fr) auto}
+  .kb{--kh:31px;gap:4px} .kp{padding:4px 5px calc(4px + env(safe-area-inset-bottom, 0px))} .kp-in{gap:4px 8px}
+  .key{font-size:17px}.key.kn{font-size:19px}.key.txt{font-size:11.5px}.key.fn.txt,.kfuncs{font-size:13px!important}.key svg{max-height:60%}
+  .bar{min-height:40px;padding:2px 6px}.tb{height:34px;width:40px}.tb svg{width:21px;height:21px}
+  li.row{min-height:48px}.mf{font-size:19px;padding:9px 6px 6px}
+  .gtools{top:6px;right:6px;gap:4px}.gbtn{width:36px;height:36px}.zoom{gap:4px}.zoom button{width:36px;height:32px}
+  .brandline{display:none}
+}
 @media (prefers-reduced-motion: reduce){ .switch,.switch::after{transition:none} .cur{animation:none} }
 </style>
 

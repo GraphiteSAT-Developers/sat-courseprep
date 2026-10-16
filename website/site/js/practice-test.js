@@ -501,6 +501,8 @@
   function toggleCalc() {
     if (popupOpen()) { closePopup(); return; }
     if (!$("calc-panel").hidden) { setCalc(false); return; }
+    // Phones and tablets open pop-ups as a whole new tab, so the calculator stays on the page there.
+    if (window.matchMedia("(max-width: 860px), (pointer: coarse)").matches) { setCalc(true); return; }
     if (!openPopup()) {
       setCalc(true);
       toast("Your browser blocked the calculator window, so it opened here. Allow pop-ups for this site to get it in its own window.");
@@ -509,7 +511,8 @@
   // The calculator window closes with the test.
   window.addEventListener("pagehide", function () { if (popupOpen()) popup.close(); });
   // The calculator floats over the test in its own window.
-  var calcWin = window.GraphiteFloat($("calc-panel"), { key: "graphite_calc_window", handle: $("calc-head"), grip: $("calc-grip"), expand: $("calc-expand") });
+  var calcWin = window.GraphiteFloat($("calc-panel"), { key: "graphite_calc_window", handle: $("calc-head"), grip: $("calc-grip"), expand: $("calc-expand"),
+    bottomEl: document.querySelector(".exam-bottom") });
 
   /* ---------- dialogs ---------- */
   var lastFocus = null;
