@@ -244,6 +244,11 @@ def public(session):
     }
     if session["results"]:
         out["result"] = json.loads(session["results"])
+    if (session.get("plan_task") or "").startswith("ladder:"):
+        from . import levels
+        tag = levels.parse_tag(session["plan_task"])
+        if tag:
+            out["level"] = {"track": tag[0], "n": tag[1], "tier": levels.tier(tag[1]), "pass": levels.PASS, "top": levels.LEVELS}
     return out
 
 
@@ -301,6 +306,10 @@ def submit(user_id, session, answers, seconds):
             (user_id, f"practice-{session['id']}", seconds, result["correct"], result["total"],
              json.dumps({str(k): v for k, v in answers.items()}), json.dumps(result), stamp))
         result["attempt_id"] = row["id"]
+    if task.startswith("ladder:"):
+        from . import levels  # levels builds on this module
+        if levels.parse_tag(task):
+            result["level"] = levels.result(user_id, session, result["correct"])
     result["submitted_at"] = stamp
     execute("UPDATE practice_sessions SET submitted_at = ?, seconds_used = ?, correct = ?, results = ? WHERE id = ?",
             (stamp, seconds, result["correct"], json.dumps(result), session["id"]))

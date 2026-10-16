@@ -1186,3 +1186,59 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .plan-page input[type="date"]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
 .plan-page input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.85; margin: 0; }
 .plan-page input[type="date"]:invalid, .plan-page input[type="date"]:not(:focus):placeholder-shown { color: var(--muted); }
+
+/* ---------- Level up: sets that get harder one level at a time ---------- */
+.lv-tracks { display: flex; gap: var(--s2); overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+.lv-track { flex: none; display: grid; gap: 2px; text-align: left; padding: var(--s3) var(--s4); min-width: 132px; background: var(--surface); color: var(--text);
+  border: 2px solid var(--line); border-radius: 10px; font: inherit; cursor: pointer; }
+.lv-track:hover { border-color: var(--control); }
+.lv-track[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 -4px 0 var(--accent); }
+.lv-track-name { font: 700 var(--t-md)/1.2 var(--font-display); white-space: nowrap; }
+.lv-track-meta { color: var(--muted); font-size: var(--t-xs); }
+.lv-track[aria-selected="true"] .lv-track-meta { color: var(--accent); }
+
+.lv-meter { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 10px; gap: 3px; vertical-align: middle; }
+.lv-meter i, .lv-legend i { display: block; height: 10px; border-radius: 3px; }
+.lv-e { background: var(--ok); }
+.lv-m { background: var(--accent); }
+.lv-h { background: var(--err); }
+.lv-legend { display: flex; gap: var(--s4); color: var(--muted); font-size: var(--t-xs); }
+.lv-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lv-legend i { width: 10px; }
+
+.lv-next { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--s5); border-color: var(--accent); }
+.lv-next-badge { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+  font: 800 2rem/1 var(--font-display); box-shadow: 0 4px 0 #b88d27; }
+.lv-next-copy { display: grid; gap: var(--s2); }
+.lv-next-copy .label { color: var(--accent); }
+.lv-next h2 { font-size: var(--t-xl); }
+.lv-next .lv-meter { grid-auto-columns: 16px; }
+.lv-next .lv-meter i { height: 12px; }
+@media (max-width: 700px) {
+  .lv-next { grid-template-columns: auto minmax(0, 1fr); }
+  .lv-next-badge { width: 56px; height: 56px; font-size: 1.5rem; }
+  .lv-next .btn { grid-column: 1 / -1; }
+}
+
+.lv-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s3); }
+@media (max-width: 1000px) { .lv-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .lv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lv-rung { position: relative; display: grid; gap: var(--s2); align-content: start; padding: var(--s4); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.lv-num { font: 800 1.6rem/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.lv-tier { color: var(--muted); font-size: var(--t-sm); font-weight: 700; }
+.lv-state { font-size: var(--t-xs); color: var(--muted); }
+.lv-state.ok { color: var(--ok); font-weight: 700; }
+.lv-state.now { color: var(--accent); font-weight: 700; }
+.lv-go { min-height: 36px; justify-self: start; padding: 0 var(--s4); }
+.lv-rung.is-passed { border-color: rgba(143, 220, 166, 0.45); }
+.lv-rung.is-current { border: 2px solid var(--accent); box-shadow: 0 0 0 3px rgba(242, 193, 78, 0.15); }
+.lv-rung.is-locked { opacity: 0.55; }
+.lv-rung.is-locked .lv-meter { filter: grayscale(1); }
+.lv-lock { position: absolute; top: var(--s4); right: var(--s4); width: 16px; height: 16px; color: var(--muted); }
+
+/* The level result on the results page */
+.res-level { padding: var(--s4); border-radius: 10px; background: var(--x-bar); border-left: 4px solid var(--x-control); display: grid; gap: var(--s2); }
+.res-level.is-pass { border-left-color: var(--accent); }
+.res-level strong { font-size: var(--t-lg); }
+.res-level .btn { justify-self: start; }
+.lv-rung .lv-meter { display: grid; grid-auto-flow: row; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 3px; width: 100%; max-width: 130px; }

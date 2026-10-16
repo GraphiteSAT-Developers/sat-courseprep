@@ -12,6 +12,7 @@ BLUEPRINTS = [
     practice.bp,    # /api/practice  random practice tests and topic practice from the question bank
     plan.bp,        # /api/plan      the diagnostic and the study plan
     practice.sample_bp,  # /api/sample  the home page's sample question
+    practice.levels_bp,  # /api/levels  Level up: sets that get harder level by level
     dashboard.bp,   # /api/dashboard, /api/review, /api/activity
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health

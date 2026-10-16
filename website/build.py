@@ -113,6 +113,7 @@ def bank_js():
     bank = importlib.import_module("graphite_services.bank")
     diagnostic = importlib.import_module("graphite_services.diagnostic")
     studyplan = importlib.import_module("graphite_services.studyplan")
+    levels = importlib.import_module("graphite_services.levels")
     keep = ("id", "domain_key", "domain", "skill", "skill_key", "difficulty", "type", "stem", "choices",
             "answer", "keys", "answer_text", "explain_html")
     data = {
@@ -126,6 +127,10 @@ def bank_js():
                        "weight": diagnostic.DIFFICULTY_WEIGHT, "sure": diagnostic.SURE, "guess": diagnostic.GUESS,
                        "strong": diagnostic.STRONG, "weak": diagnostic.WEAK, "phases": studyplan.PHASES,
                        "checklist": studyplan.TEST_WEEK_CHECKLIST},
+        "levels": {"size": levels.SIZE, "pass": levels.PASS, "count": levels.LEVELS,
+                   "tracks": [{"key": t["key"], "name": t["name"], "skills": t["skills"]} for t in levels.tracks()],
+                   "rungs": [{"n": n, "tier": levels.tier(n), "mix": levels.mix(n), "mix_label": studyplan.mix_label(levels.mix(n))}
+                             for n in range(1, levels.LEVELS + 1)]},
     }
     return "window.GRAPHITE_BANK = " + json.dumps(data, separators=(",", ":")).replace("</", "<\\/") + ";"
 
@@ -252,6 +257,7 @@ def build():
     shutil.copy(SRC / "practice-test.js", DIST / "js" / "practice-test.js")
     shutil.copy(SRC / "practice.js", DIST / "js" / "practice.js")
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
+    shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:
@@ -264,7 +270,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

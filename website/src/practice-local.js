@@ -108,6 +108,8 @@
     var o = { id: s.id, mode: s.mode, title: s.title, plan_task: s.plan_task || null, domain: s.domain, skill: s.skill, minutes: s.minutes, created_at: s.created_at,
       submitted: !!s.submitted_at, questions: s.item_ids.map(function (id) { return publicQ(byId[id]); }), checked: checked };
     if (s.result) o.result = s.result;
+    var tag = parseTag(s.plan_task);
+    if (tag) o.level = { track: tag.track, n: tag.level, tier: BANK.levels.rungs[tag.level - 1].tier, pass: BANK.levels.pass, top: BANK.levels.count };
     return o;
   }
 
@@ -195,6 +197,7 @@
     var limit = s.minutes ? s.minutes * 60 + 120 : s.item_ids.length * 600;
     res.seconds_used = Math.max(0, Math.min(Number(data.seconds_used) || 0, limit));
     res.practice_id = s.id; res.mode = s.mode; res.title = s.title; res.submitted_at = now();
+    if (parseTag(s.plan_task)) res.level = levelResult(st, s, res.correct);
     s.submitted_at = res.submitted_at; s.result = res; save(st);
     return Promise.resolve({ result: res });
   }
@@ -466,8 +469,62 @@
     return fail(404, "Not found.");
   }
 
+  /* ---------- Level up (same rules as services/levels.py) ---------- */
+  var LV = BANK.levels;
+  function parseTag(task) {
+    var p = String(task || "").split(":");
+    return p.length === 3 && p[0] === "ladder" && /^\d+$/.test(p[2]) ? { track: p[1], level: Number(p[2]) } : null;
+  }
+  function lvTrack(key) { return LV.tracks.filter(function (t) { return t.key === key; })[0] || null; }
+  function lvProgress(st, key) {
+    var out = {}, top = 0;
+    Object.keys(st.sessions).map(function (k) { return st.sessions[k]; }).sort(function (a, b) { return a.id - b.id; }).forEach(function (s) {
+      var t = parseTag(s.plan_task); if (!t || t.track !== key) return;
+      var lv = out[t.level] = out[t.level] || { best: null, passed: false, open_id: null };
+      if (s.submitted_at) { lv.best = Math.max(lv.best || 0, s.result.correct); lv.passed = lv.passed || s.result.correct >= LV.pass; lv.open_id = null; }
+      else lv.open_id = s.id;
+    });
+    Object.keys(out).forEach(function (n) { if (out[n].passed) top = Math.max(top, Number(n)); });
+    return { levels: out, unlocked: Math.min(LV.count, top + 1) };
+  }
+  function levelResult(st, s, correct) {
+    var t = parseTag(s.plan_task), p = lvProgress(st, t.track), passed = correct >= LV.pass, tr = lvTrack(t.track);
+    return { track: t.track, track_name: tr ? tr.name : t.track, level: t.level, pass: LV.pass, total: s.item_ids.length, passed: passed,
+      next: passed && t.level < LV.count ? t.level + 1 : null, unlocked: passed ? Math.max(p.unlocked, Math.min(LV.count, t.level + 1)) : p.unlocked, top: LV.count };
+  }
+  function levelsCall(path, data) {
+    var st = load();
+    if (path === "/api/levels") {
+      return Promise.resolve({ size: LV.size, pass: LV.pass, levels: LV.count, tracks: LV.tracks.map(function (t) {
+        var p = lvProgress(st, t.key);
+        var levels = LV.rungs.map(function (r) {
+          var x = p.levels[r.n] || {};
+          return { n: r.n, tier: r.tier, mix: r.mix, mix_label: r.mix_label, status: x.passed ? "passed" : (r.n <= p.unlocked ? "open" : "locked"),
+            best: x.best == null ? null : x.best, resume_id: x.open_id || null };
+        });
+        return { key: t.key, name: t.name, unlocked: p.unlocked, levels: levels, all_passed: levels.every(function (l) { return l.status === "passed"; }) };
+      }) });
+    }
+    if (path === "/api/levels/start") {
+      var tr = lvTrack(data && data.track), n = data && data.level;
+      if (!tr) return fail(400, "Pick a track to practice.");
+      if (typeof n !== "number" || n % 1 || n < 1 || n > LV.count) return fail(400, "Pick a level.");
+      var p = lvProgress(st, tr.key);
+      if (n > p.unlocked) return fail(403, "Pass level " + (n - 1) + " first to unlock level " + n + ".");
+      var open = p.levels[n] && p.levels[n].open_id, s = open ? st.sessions[open] : null;
+      if (!s) {
+        s = newSession(st, "quiz", tr.name + " · Level " + n, drawMix(st, tr.skills, LV.rungs[n - 1].mix), 0,
+          { domain: tr.key === "mixed" ? null : tr.key, plan_task: "ladder:" + tr.key + ":" + n });
+        save(st);
+      }
+      return Promise.resolve({ session: publicSession(s) });
+    }
+    return fail(404, "Not found.");
+  }
+
   function call(path, data) {
     path = path.split("?")[0];
+    if (path.indexOf("/api/levels") === 0) return levelsCall(path, data);
     if (path.indexOf("/api/plan") === 0) return planCall(path, data);
     if (path === "/api/practice") return Promise.resolve(overview());
     if (path === "/api/practice/sessions" && data) return create(data);

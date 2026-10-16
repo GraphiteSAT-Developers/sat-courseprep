@@ -1,0 +1,38 @@
+<!--{"file": "levels.html", "path": "/levels.html", "title": "Level Up | Graphite SAT Tutoring", "description": "SAT Math practice sets that get harder one level at a time. Pass a level to unlock the next.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "levels.js"]}-->
+<main id="main" class="practice levels-page">
+  <div class="wrap dash-stack">
+    <p class="sample-note" id="lv-preview-note" hidden><span class="label">Preview</span> This preview saves your levels in this browser only. On the live site they stay with your account.</p>
+
+    <div class="dash-top">
+      <div>
+        <p class="label">Level up</p>
+        <h1>Climb from warm-up to top score</h1>
+      </div>
+    </div>
+    <p class="lede pr-lede">Ten levels, each a little harder than the last. Get <strong id="lv-pass">7</strong> of <span id="lv-size">10</span> right to unlock the next level. Every question comes with a step-by-step explanation.</p>
+
+    <div class="lv-tracks" id="lv-tracks" role="tablist" aria-label="What to practice"></div>
+
+    <p class="field-error pr-error" id="lv-error" role="alert" hidden></p>
+    <p class="fine" id="lv-loading">Loading your levels…</p>
+
+    <section class="panel lv-next" id="lv-next" aria-labelledby="lv-next-title" hidden>
+      <div class="lv-next-badge" aria-hidden="true"><span id="lv-next-n">1</span></div>
+      <div class="lv-next-copy">
+        <p class="label" id="lv-next-kicker">Up next</p>
+        <h2 id="lv-next-title">Level 1 · Warm-up</h2>
+        <div class="lv-meter" id="lv-next-meter"></div>
+        <p class="fine" id="lv-next-meta"></p>
+      </div>
+      <button class="btn btn-primary" type="button" id="lv-next-btn" data-track="level_start">Start level 1</button>
+    </section>
+
+    <section class="panel" aria-labelledby="lv-all-title" id="lv-all" hidden>
+      <div class="panel-head">
+        <h2 id="lv-all-title">All levels</h2>
+        <p class="lv-legend" aria-hidden="true"><span><i class="lv-e"></i>Easy</span><span><i class="lv-m"></i>Medium</span><span><i class="lv-h"></i>Hard</span></p>
+      </div>
+      <ol class="lv-grid" id="lv-grid"></ol>
+    </section>
+  </div>
+</main>

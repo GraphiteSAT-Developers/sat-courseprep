@@ -5,7 +5,7 @@ import random
 from flask import Blueprint, jsonify
 
 from ..security import ApiError, body, current_user, login_required
-from ..services import bank
+from ..services import bank, levels
 from ..services import practice as service
 
 bp = Blueprint("practice", __name__, url_prefix="/api/practice")
@@ -137,3 +137,30 @@ def sample_check():
         raise ApiError(400, "Choose an answer first.", "answer")
     g = bank.graded_question(q, 0, answer)
     return jsonify({"correct": g["correct"], "answer": g["answer"], "answer_index": g["answer_index"], "explain_html": g["explain_html"]})
+
+
+# ---------- Level up: sets that get harder one level at a time ----------
+
+levels_bp = Blueprint("levels", __name__, url_prefix="/api/levels")
+
+
+@levels_bp.get("")
+@login_required
+def levels_overview():
+    return jsonify(levels.overview(current_user()["id"]))
+
+
+@levels_bp.post("/start")
+@login_required
+def levels_start():
+    data = body()
+    track = data.get("track")
+    level = data.get("level")
+    if not isinstance(track, str) or not levels.track(track):
+        raise ApiError(400, "Pick a track to practice.", "track")
+    if not isinstance(level, int) or isinstance(level, bool) or not 1 <= level <= levels.LEVELS:
+        raise ApiError(400, "Pick a level.", "level")
+    session = levels.start(current_user()["id"], track, level)
+    if not session:
+        raise ApiError(403, f"Pass level {level - 1} first to unlock level {level}.", "level")
+    return jsonify({"session": service.public(session)}), 201

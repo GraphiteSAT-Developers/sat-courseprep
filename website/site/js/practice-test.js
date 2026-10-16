@@ -47,8 +47,10 @@
   var Q = T.questions, N = Q.length, LETTERS = "ABCD";
   var TOPIC = T.mode === "topic" || T.mode === "quiz" || T.mode === "review", UNTIMED = !T.minutes;
   var REVIEW = T.mode === "review";
-  var FROM_PLAN = !!(T.session && T.session.plan_task) && !REVIEW;
+  var LEVEL = (T.session && T.session.level) || null; // a Level up set
+  var FROM_PLAN = !!(T.session && T.session.plan_task) && !REVIEW && !LEVEL;
   if (FROM_PLAN) BACK_URL = "plan.html";
+  if (LEVEL) BACK_URL = "levels.html#track=" + LEVEL.track;
   if (REVIEW) BACK_URL = "dashboard.html#review";
   var checked = (T.session && T.session.checked) || {}; // topic practice: graded questions, by index
   var checking = false;
@@ -361,12 +363,38 @@
     $("done-text").textContent = finishedText(list);
     openDialog("done-dialog");
   }
+  // Level up: did this set pass, and what's next.
+  function renderLevel(lv) {
+    var box = $("res-level");
+    box.hidden = !lv;
+    if (!lv) return;
+    box.classList.toggle("is-pass", lv.passed);
+    var head = lv.passed ? (lv.next ? "Level " + lv.level + " passed! Level " + lv.next + " is unlocked." : "You cleared the top level of " + lv.track_name + "!")
+      : "Not quite. You need " + lv.pass + " of " + lv.total + " to pass level " + lv.level + ".";
+    var sub = lv.passed ? (lv.next ? "The next set is a little harder. Keep the streak going." : "Every level in this track is done. Try another track, or replay a level with new questions.")
+      : "Read the explanations below, then try the level again with new questions.";
+    box.innerHTML = "<strong></strong><span></span>";
+    box.querySelector("strong").textContent = head;
+    box.querySelector("span").textContent = sub;
+    var b = $("retake");
+    b.hidden = false;
+    b.setAttribute("data-level", String(lv.passed && lv.next ? lv.next : lv.level));
+    b.textContent = lv.passed && lv.next ? "Start level " + lv.next : "Try level " + lv.level + " again";
+    // The same button up top, so the next step is right under the score.
+    var go = document.createElement("button");
+    go.type = "button"; go.className = "btn " + (lv.passed ? "btn-primary" : "btn-secondary");
+    go.textContent = b.textContent;
+    go.addEventListener("click", function () { go.disabled = true; go.textContent = "Building your set…"; b.click(); });
+    box.appendChild(go);
+  }
+
   function renderResults(r) {
     var marked = 0;
     var fin = r.finished && r.finished.length ? r.finished : (S.finished || []);
     $("res-finished").hidden = !fin.length;
     if (fin.length) $("res-finished").innerHTML = "<strong>Congratulations! You have finished " + (fin.length > 1 || fin[0].kind === "domain" ? "a whole domain" : "this topic") + "!</strong> <span></span>";
     if (fin.length) $("res-finished").querySelector("span").textContent = finishedText(fin);
+    renderLevel(r.level);
     for (var m = 0; m < N; m++) if (S.marked[m]) marked++;
     var pct = r.total ? r.correct / r.total : 0;
     var cheer = pct >= 0.9 ? "Outstanding!" : pct >= 0.7 ? "Solid work!" : pct >= 0.5 ? "Good effort." : "Every miss shows you what to practice.";
@@ -534,11 +562,14 @@
     if (FROM_PLAN) { location.href = "plan.html"; return; }
     var s = T.session, b = $("retake");
     var data = s.mode === "test" ? { mode: "test" } : { mode: "topic", domain: s.domain, skill: s.skill, count: N };
+    var url = "/api/practice/sessions";
+    if (LEVEL) { url = "/api/levels/start"; data = { track: LEVEL.track, level: Number(b.getAttribute("data-level")) || LEVEL.n }; }
+    var label = b.textContent;
     b.disabled = true; b.textContent = "Building your set…";
-    practiceCall("/api/practice/sessions", data).then(function (r) {
+    practiceCall(url, data).then(function (r) {
       location.href = "practice-test.html?session=" + r.session.id;
     }).catch(function (err) {
-      b.disabled = false; b.textContent = "New set, same topic";
+      b.disabled = false; b.textContent = label;
       toast(err && err.status ? err.message : "We couldn't start a new set. Check your connection and try again.");
     });
   });
@@ -557,7 +588,7 @@
   function applyLabels() {
     if (!T.session) return;
     var heading = T.mode === "test" ? "Math practice test" : T.title;
-    var kind = REVIEW ? "Review queue · one question" : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
+    var kind = REVIEW ? "Review queue · one question" : LEVEL ? "Level up · " + LEVEL.tier : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
       : (T.mode === "test" ? "Practice test · Math" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
     $("exam-title").textContent = heading;
     $("start-title").textContent = heading;
@@ -570,22 +601,25 @@
                : "<li><strong>" + T.minutes + "</strong> minutes</li><li>Graphing calculator on every question</li>");
     document.querySelector("#start-overlay .start-facts").innerHTML = facts;
     var intro = document.querySelector("#start-overlay .dialog > p:not(.label)");
-    if (intro) intro.textContent = UNTIMED
+    if (intro) intro.textContent = LEVEL
+      ? "Get " + LEVEL.pass + " of " + N + " right to pass" + (LEVEL.n < LEVEL.top ? " and unlock level " + (LEVEL.n + 1) : " the top level") + ". Check each answer as you go and read the full explanation right away."
+      : UNTIMED
       ? "Answer a question, then press Check answer to see if you got it and read the full explanation, with the Desmos shortcut when one helps. Your progress saves as you go."
       : "New questions you haven't answered before, in the same mix as the real test. The timer starts when you begin. Your answers save as you go, and the module submits itself when time runs out.";
     $("start-btn").textContent = UNTIMED ? "Start practicing" : "Begin module";
     $("submit-open").textContent = TOPIC ? "Finish set" : "Submit module";
     $("confirm-title").textContent = TOPIC ? "Finish this set?" : "Submit this module?";
     if (TOPIC) $("confirm-desc").textContent = "Questions you haven't answered go back into the pool for next time.";
-    $("retake").textContent = FROM_PLAN ? "Back to your plan" : (TOPIC ? "New set, same topic" : "Take another practice test");
+    $("retake").textContent = FROM_PLAN ? "Back to your plan" : LEVEL ? "Try this level again" : (TOPIC ? "New set, same topic" : "Take another practice test");
     Array.prototype.forEach.call(document.querySelectorAll('a[href$="dashboard.html"]'), function (a) {
       if (a.id === "save-exit" || a.closest(".dialog-actions")) a.setAttribute("href", BACK_URL);
     });
-    var back = document.querySelector(".res-actions a"); if (back) { back.setAttribute("href", BACK_URL); back.textContent = FROM_PLAN ? "Back to your plan" : "Back to practice"; }
+    var backText = FROM_PLAN ? "Back to your plan" : LEVEL ? "Back to Level up" : "Back to practice";
+    var back = document.querySelector(".res-actions a"); if (back) { back.setAttribute("href", BACK_URL); back.textContent = backText; }
     if (FROM_PLAN || REVIEW) { var r2 = $("retake"); r2.hidden = true; }
     if (REVIEW && back) back.textContent = "Back to your dashboard";
     var doneLink = document.querySelector("#done-dialog a");
-    if (doneLink) { doneLink.setAttribute("href", BACK_URL); doneLink.textContent = FROM_PLAN ? "Back to your plan" : "Back to practice"; }
+    if (doneLink) { doneLink.setAttribute("href", BACK_URL); doneLink.textContent = backText; }
     document.title = heading + " | Graphite SAT Tutoring";
   }
 

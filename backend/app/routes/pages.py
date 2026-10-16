@@ -8,7 +8,7 @@ from ..security import current_user
 bp = Blueprint("pages", __name__)
 
 # Pages that need a signed-in student. Visitors are sent to sign in first.
-PROTECTED = {"dashboard.html", "practice-test.html", "practice.html", "plan.html"}
+PROTECTED = {"dashboard.html", "practice-test.html", "practice.html", "plan.html", "levels.html"}
 
 API_VERSION = "1"
 

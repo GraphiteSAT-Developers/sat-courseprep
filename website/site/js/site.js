@@ -43,6 +43,11 @@
   /* 3. Mobile menu */
   var toggle = $(".menu-toggle");
   var nav = $("#site-nav");
+  // Mark the app tab for this page (Practice, Level up); the dashboard's tabs are sections of one page.
+  if (nav) {
+    var here = location.pathname.split("/").pop() || "index.html";
+    $all("a", nav).forEach(function (a) { if ((a.getAttribute("href") || "").replace(/^.*\//, "") === here) a.setAttribute("aria-current", "page"); });
+  }
   function closeMenu() {
     if (!toggle || !nav) return;
     toggle.setAttribute("aria-expanded", "false");
