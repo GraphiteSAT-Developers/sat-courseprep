@@ -438,6 +438,18 @@
     });
   }
 
+  /* 7e. Home page calculator: the 3D device leans toward the pointer */
+  var tilt = $("#c3-tilt"), stage = $("#calc3d");
+  if (tilt && stage && window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+    stage.addEventListener("pointermove", function (e) {
+      var r = stage.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+      tilt.style.setProperty("--ry", (-22 + px * 26).toFixed(1) + "deg");
+      tilt.style.setProperty("--rx", (12 - py * 18).toFixed(1) + "deg");
+    });
+    stage.addEventListener("pointerleave", function () { tilt.style.removeProperty("--ry"); tilt.style.removeProperty("--rx"); });
+  }
+
   /* 8. Hero practice question */
   var qcard = $("#qcard");
   if (qcard) {
