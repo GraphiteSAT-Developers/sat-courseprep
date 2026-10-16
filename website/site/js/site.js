@@ -449,6 +449,18 @@
     });
     stage.addEventListener("pointerleave", function () { tilt.style.removeProperty("--ry"); tilt.style.removeProperty("--rx"); });
   }
+  // Click the calculator (or the button) to flip it over and see the back.
+  var flipBtn = $("#c3-flip");
+  if (tilt && flipBtn) {
+    var flip = function () {
+      var on = !tilt.classList.contains("is-flipped");
+      tilt.classList.toggle("is-flipped", on);
+      flipBtn.setAttribute("aria-pressed", String(on));
+      flipBtn.textContent = on ? "Flip it back" : "Flip it over";
+    };
+    flipBtn.addEventListener("click", flip);
+    tilt.addEventListener("click", flip);
+  }
 
   /* 8. Hero practice question */
   var qcard = $("#qcard");
