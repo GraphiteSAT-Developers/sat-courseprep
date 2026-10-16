@@ -41,8 +41,27 @@ class MasterclassContentTest(unittest.TestCase):
                     else:
                         self.assertIsInstance(q["answer"], str)
 
+    def test_every_bank_topic_has_a_lesson(self):
+        from app.services import bank
+        skills = {(d["key"], s["key"]) for d in bank.topics() for s in d["skills"]}
+        topics = masterclass.content()["topics"]
+        self.assertEqual({(t["domain"], t["skill"]) for t in topics}, skills)
+        for t in topics:
+            with self.subTest(topic=t["id"]):
+                self.assertEqual(t["id"], "topic-" + t["skill"])
+                for key in ("title", "summary", "goal", "minutes", "intro", "rules", "example", "try"):
+                    self.assertTrue(t.get(key), key)
+                self.assertEqual(len(t["quiz"]), 3)
+                for q in [t["try"]] + t["quiz"]:
+                    if "choices" in q:
+                        self.assertIn(q["answer"], range(len(q["choices"])))
+                    if "check" in q:
+                        self.assertTrue(q.get("use"))
+                for r in t.get("related", []):
+                    self.assertIn(r, masterclass.lessons())
+
     def test_ids_are_unique(self):
-        ids = [lesson["id"] for lesson in masterclass.content()["lessons"]]
+        ids = [lesson["id"] for lesson in masterclass.content()["lessons"] + masterclass.content()["topics"]]
         self.assertEqual(len(ids), len(set(ids)))
 
 
@@ -81,6 +100,16 @@ class MasterclassApiTest(unittest.TestCase):
         self.assertEqual(data["summary"]["completed"], 1)
         self.assertEqual(data["summary"]["next"]["id"], masterclass.content()["lessons"][1]["id"])
         self.assertEqual(self.client.get("/api/dashboard").json["masterclass"]["completed"], 1)
+
+    def test_topic_lessons_save_but_dont_count_toward_the_masterclass(self):
+        lesson = "topic-percentages"
+        n = masterclass.total(masterclass.lessons()[lesson])
+        r = self.post("/api/masterclass/progress", {"lesson": lesson, "step": n})
+        self.assertTrue(r.json["progress"]["completed"])
+        self.assertEqual(self.post("/api/masterclass/quiz", {"lesson": lesson, "correct": 2}).json["progress"]["quiz_best"], 2)
+        data = self.client.get("/api/masterclass").json
+        self.assertTrue(data["progress"][lesson]["completed"])
+        self.assertEqual(data["summary"]["completed"], 0)
 
     def test_quiz_keeps_the_best_score(self):
         r = self.post("/api/masterclass/quiz", {"lesson": "tilde", "correct": 2})

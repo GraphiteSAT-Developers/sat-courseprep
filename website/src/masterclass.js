@@ -11,8 +11,13 @@
   var LIVE = !!(API && API.live);
   var DATA = window.GRAPHITE_MASTERCLASS;
   var C = window.GraphiteMasterclassChecks;
-  var LESSONS = DATA.lessons, BY_ID = {}, UNITS = {};
+  var LESSONS = DATA.lessons, TOPICS = DATA.topics || [], BY_ID = {}, UNITS = {};
   LESSONS.forEach(function (l, i) { l.n = i + 1; BY_ID[l.id] = l; });
+  TOPICS.forEach(function (l, i) { l.n = i + 1; BY_ID[l.id] = l; });  // optional topic lessons, one per question bank topic
+  var DOMAINS = [["algebra", "Algebra"], ["advanced-math", "Advanced Math"], ["psda", "Problem-Solving and Data Analysis"], ["geometry-trig", "Geometry and Trigonometry"]];
+  var DOMAIN_NAME = {}; DOMAINS.forEach(function (d) { DOMAIN_NAME[d[0]] = d[1]; });
+  function isTopic(l) { return l.kind === "topic"; }
+  function usesCalc(l) { return l.kind !== "drill" && l.calculator !== false; }
   DATA.units.forEach(function (u, i) { u.n = i + 1; UNITS[u.id] = u; });
   var LETTERS = "ABCD";
 
@@ -92,6 +97,13 @@
         '<span class="label dm-unit-count">' + unitDone + " of " + ls.length + " done</span></div>" +
         '<ul class="dm-cards">' + ls.map(card).join("") + "</ul></section>";
     }).join("");
+    $("dm-topics").innerHTML = DOMAINS.map(function (d) {
+      var ls = TOPICS.filter(function (l) { return l.domain === d[0]; });
+      if (!ls.length) return "";
+      return '<section class="dm-unit" aria-labelledby="dm-t-' + d[0] + '"><div class="dm-unit-head dm-topic-head"><div><h3 id="dm-t-' + d[0] + '">' + esc(d[1]) + "</h3></div>" +
+        '<span class="label dm-unit-count">' + ls.filter(done).length + " of " + ls.length + " done</span></div>" +
+        '<ul class="dm-cards">' + ls.map(card).join("") + "</ul></section>";
+    }).join("");
   }
   function card(l) {
     var s = stepOf(l), n = total(l), state = s >= n ? "done" : s > 0 ? "started" : "new";
@@ -102,7 +114,7 @@
     if (p && p.quiz_best != null && l.quiz) status += '<span class="dm-status dm-quiz-best">Quiz ' + p.quiz_best + " of " + l.quiz.length + "</span>";
     status = '<span class="dm-card-foot">' + status + "</span>";
     return '<li><a class="dm-card is-' + state + '" href="#' + l.id + '">' +
-      '<span class="dm-card-top"><span class="dm-card-n">Lesson ' + l.n + '</span><span class="chip chip-quiet">' + esc(l.technique) + "</span></span>" +
+      '<span class="dm-card-top"><span class="dm-card-n">' + (isTopic(l) ? "Topic lesson" : "Lesson " + l.n) + '</span><span class="chip chip-quiet">' + esc(isTopic(l) ? (l.quiz || []).length + " quiz questions" : l.technique) + "</span></span>" +
       '<strong class="dm-card-title">' + esc(l.title) + '</strong><span class="dm-card-sum">' + esc(l.summary) + "</span>" + status + "</a></li>";
   }
 
@@ -170,29 +182,50 @@
     $("dm-lesson").hidden = false;
     document.title = l.title + " | Desmos Masterclass | Graphite";
     window.scrollTo(0, 0);
-    var unit = UNITS[l.unit];
-    $("dm-crumb-unit").textContent = "Unit " + unit.n + ": " + unit.title;
-    $("dm-kicker").textContent = "Lesson " + l.n + " of " + LESSONS.length + " · " + l.technique + " · about " + l.minutes + " min";
+    if (isTopic(l)) {
+      $("dm-back").textContent = "Practice";
+      $("dm-back").setAttribute("href", "practice.html");
+      $("dm-crumb-unit").textContent = "Topic lesson: " + DOMAIN_NAME[l.domain];
+      $("dm-kicker").textContent = "Topic lesson · " + DOMAIN_NAME[l.domain] + " · about " + l.minutes + " min · optional";
+    } else {
+      var unit = UNITS[l.unit];
+      $("dm-back").textContent = "All lessons";
+      $("dm-back").setAttribute("href", "#");
+      $("dm-crumb-unit").textContent = "Unit " + unit.n + ": " + unit.title;
+      $("dm-kicker").textContent = "Lesson " + l.n + " of " + LESSONS.length + " · " + l.technique + " · about " + l.minutes + " min";
+    }
     $("dm-title").textContent = l.title;
     $("dm-goal").textContent = l.goal;
     var prob = $("dm-problem");
     prob.hidden = !l.problem;
     prob.innerHTML = l.problem ? '<p class="label">The question</p><p class="q-stem">' + l.problem + "</p>" + (l.table ? dataTable(l.table) : "") : "";
     $("dm-intro").innerHTML = l.intro.map(function (p) { return "<p>" + p + "</p>"; }).join("");
+    $("dm-rules").hidden = !l.rules;
+    $("dm-rules-list").innerHTML = (l.rules || []).map(function (r) { return "<li>" + r + "</li>"; }).join("");
+    $("dm-example").hidden = !l.example;
+    $("dm-example-body").innerHTML = l.example ? '<p class="q-stem">' + l.example.problem + '</p><ol class="dm-example-steps">' +
+      l.example.solution.map(function (s) { return "<li>" + s + "</li>"; }).join("") + "</ol>" : "";
     var drill = l.kind === "drill";
-    $("dm-steps-wrap").hidden = drill;
+    $("dm-steps-wrap").hidden = drill || !l.steps.length;
     $("dm-reads-wrap").hidden = drill || !(l.reads || []).length;
     $("dm-try-wrap").hidden = drill || !l.try;
     $("dm-drill-wrap").hidden = !drill;
-    $("dm-layout").classList.toggle("no-calc", drill);
-    $("dm-calc-open").hidden = drill;
+    $("dm-layout").classList.toggle("no-calc", !usesCalc(l));
+    $("dm-calc-open").hidden = !usesCalc(l);
     setCalcOpen(false);
     $("dm-wrapup").innerHTML = wrapup(l);
-    var nx = LESSONS[l.n];
-    $("dm-next").textContent = nx ? "Next: " + nx.title : "Back to all lessons";
-    $("dm-next").setAttribute("href", nx ? "#" + nx.id : "#");
+    if (isTopic(l)) {
+      $("dm-next").textContent = "Practice this topic now";
+      $("dm-next").setAttribute("href", "practice.html?topic=" + encodeURIComponent(l.domain + "/" + l.skill));
+    } else {
+      var nx = LESSONS[l.n];
+      $("dm-next").textContent = nx ? "Next: " + nx.title : "Back to all lessons";
+      $("dm-next").setAttribute("href", nx ? "#" + nx.id : "#");
+    }
     if (drill) { renderDrill(); refresh(); return; }
     renderSteps(); renderReads(); renderTry(); refresh();
+    checkTry();
+    if (!usesCalc(l)) return;
     withCalc(function () {
       var saved = store(calcKey(l.id));
       if (saved) calc.restore(saved); else calc.clear();
@@ -205,6 +238,9 @@
   }
   function wrapup(l) {
     var out = "";
+    if (l.related && l.related.length) out += '<div class="dm-note"><h3>Desmos moves for this topic</h3><ul>' + l.related.map(function (id) {
+      var r = BY_ID[id]; return r ? '<li><a href="#' + r.id + '">Lesson ' + r.n + ": " + esc(r.title) + "</a></li>" : "";
+    }).join("") + "</ul></div>";
     if (l.pitfalls) out += '<div class="dm-note"><h3>Watch out for</h3><ul>' + l.pitfalls.map(function (p) { return "<li>" + p + "</li>"; }).join("") + "</ul></div>";
     if (l.checklist) out += '<div class="dm-note"><h3>Pre-flight check before you trust a graph</h3><ol>' + l.checklist.map(function (p) { return "<li>" + p + "</li>"; }).join("") + "</ol></div>";
     if (l.byHand) out += '<div class="dm-note"><h3>When it\'s faster by hand</h3><p>' + l.byHand + "</p></div>";
@@ -257,8 +293,8 @@
   });
   // The SAT-style question opens only once the calculator holds the work for it.
   function checkTry() {
-    if (tryReady || !lesson || !lesson.try || !calc || at !== qIndex("t")) return;
-    if (!lesson.try.check || C.passes(lesson.try.check, calc.lines(), calc)) {
+    if (tryReady || !lesson || !lesson.try || at !== qIndex("t")) return;
+    if (!lesson.try.check || (calc && C.passes(lesson.try.check, calc.lines(), calc))) {
       tryReady = true;
       refresh();
       if (lesson.try.check) $("dm-calc-status").textContent = "Calculator work found";
@@ -419,7 +455,7 @@
     var hasQuiz = !!(l.quiz && l.quiz.length);
     $("dm-quiz-wrap").hidden = !hasQuiz || !complete;
     if (hasQuiz && complete && !quiz) startQuiz();
-    if (complete) $("dm-complete-title").textContent = l.kind === "drill" ? "Nice work. You've got the strategy." : "Nice work. Lesson " + l.n + " is done.";
+    if (complete) $("dm-complete-title").textContent = l.kind === "drill" ? "Nice work. You've got the strategy." : isTopic(l) ? "Nice work. Try the quiz below, then practice this topic." : "Nice work. Lesson " + l.n + " is done.";
   }
 
   /* the practice quiz: after the lesson, one question at a time, each opened by calculator work */
@@ -429,6 +465,10 @@
   }
   function startQuiz() {
     quiz = { i: 0, right: 0, ready: false, answered: false, marks: [] };
+    var gated = lesson.quiz.filter(function (x) { return x.check; }).length, n = lesson.quiz.length;
+    $("dm-quiz-lede").textContent = (isTopic(lesson) ? n + " SAT-style questions on this topic. " : n + " new questions on what this lesson taught. ") +
+      (gated === n ? "Use the calculator for each one: the answer box opens once your work is in it. "
+        : gated ? "Questions marked with a lock need calculator work before you can answer. " : "") + "One try per question, and you can retake it.";
     $("dm-quiz-meta").textContent = quizMeta();
     renderQuizQuestion();
     checkQuiz();
@@ -447,18 +487,19 @@
         return '<li class="' + (i < quiz.i ? (quiz.marks[i] ? "is-right" : "is-wrong") : i === quiz.i ? "is-now" : "") + '"></li>';
       }).join("") + "</ol></div>" +
       '<p class="q-stem">' + q.stem + "</p>" +
-      '<p class="dm-gate" id="dm-z-gate"><span class="dm-gate-lock" aria-hidden="true"></span><span><strong>Use the calculator first.</strong> ' + esc(q.use) + " Answers open when your work is in the calculator.</span></p>" +
+      (q.check ? '<p class="dm-gate" id="dm-z-gate"><span class="dm-gate-lock" aria-hidden="true"></span><span><strong>Use the calculator first.</strong> ' + esc(q.use) + " Answers open when your work is in the calculator.</span></p>" : "") +
       body + '<p class="dm-feedback" id="dm-z-fb" role="status" hidden></p>' +
       '<div class="dm-explain" id="dm-z-ex" hidden><p>' + q.explain + "</p></div>" +
       '<button class="btn btn-primary" type="button" id="dm-z-next" hidden>' + (quiz.i + 1 < n ? "Next question" : "See your score") + "</button></div>";
   }
   function checkQuiz() {
-    if (!quiz || quiz.ready || quiz.done || !calc || !lesson.quiz) return;
-    if (!C.passes(lesson.quiz[quiz.i].check, calc.lines(), calc)) return;
+    if (!quiz || quiz.ready || quiz.done || !lesson.quiz) return;
+    var check = lesson.quiz[quiz.i].check;
+    if (check && !(calc && C.passes(check, calc.lines(), calc))) return;
     quiz.ready = true;
-    $("dm-z-gate").hidden = true;
+    if ($("dm-z-gate")) $("dm-z-gate").hidden = true;
     $("dm-quiz").querySelectorAll("[data-zchoice], #dm-z-in, #dm-z-form button").forEach(function (x) { x.disabled = false; });
-    $("dm-calc-status").textContent = "Calculator work found";
+    if (check) $("dm-calc-status").textContent = "Calculator work found";
   }
   function answerQuiz(right, picked) {
     if (!quiz || !quiz.ready || quiz.answered) return;  // one try, and only after the calculator work
@@ -520,7 +561,7 @@
   });
 
   /* ---------- routing ---------- */
-  $("dm-back").addEventListener("click", function (e) { e.preventDefault(); location.hash = ""; });
+  $("dm-back").addEventListener("click", function (e) { if (lesson && isTopic(lesson)) return; e.preventDefault(); location.hash = ""; });
   window.addEventListener("hashchange", function () { show(location.hash.slice(1)); });
 
   loadProgress().then(function () { show(location.hash.slice(1)); }, function (err) {

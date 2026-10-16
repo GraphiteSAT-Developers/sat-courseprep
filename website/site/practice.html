@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="/css/site.css">
-<script src="/js/site.js" defer></script><script src="/js/practice.js" defer></script>
+<script src="/js/site.js" defer></script><script src="/js/masterclass-data.js" defer></script><script src="/js/practice.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -165,6 +165,19 @@
       </section>
     </div>
   </div>
+  <dialog class="dm-modal" id="pr-lesson-dialog" aria-labelledby="pr-ld-title" aria-describedby="pr-ld-text">
+    <form method="dialog" class="dm-modal-body">
+      <button class="dm-modal-x" value="cancel" aria-label="Close">&times;</button>
+      <p class="label">Optional lesson</p>
+      <h2 id="pr-ld-title">Would you like to do the lesson first?</h2>
+      <p id="pr-ld-text"></p>
+      <label class="dm-modal-check"><input type="checkbox" id="pr-ld-dont"> Don't ask again for this topic</label>
+      <div class="dm-modal-actions">
+        <a class="btn btn-primary" id="pr-ld-lesson" href="/masterclass.html" data-track="practice_lesson_first">Do the lesson first</a>
+        <button class="btn btn-secondary" type="button" id="pr-ld-skip" data-track="practice_lesson_skip">Skip to practice</button>
+      </div>
+    </form>
+  </dialog>
 </main>
 <footer class="app-footer">
   <div class="wrap app-footer-row">

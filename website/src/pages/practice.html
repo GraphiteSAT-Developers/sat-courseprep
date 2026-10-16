@@ -1,4 +1,4 @@
-<!--{"file": "practice.html", "path": "/practice.html", "title": "Practice | Graphite SAT Tutoring", "description": "Choose an SAT section, then take a timed practice test or practice one topic at a time, with a full explanation for every question.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "practice.js"]}-->
+<!--{"file": "practice.html", "path": "/practice.html", "title": "Practice | Graphite SAT Tutoring", "description": "Choose an SAT section, then take a timed practice test or practice one topic at a time, with a full explanation for every question.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "masterclass-data.js", "practice.js"]}-->
 <main id="main" class="practice">
   <div class="wrap dash-stack">
     <p class="sample-note" id="pr-preview-note" hidden><span class="label">Preview</span> This preview saves your answers in this browser only. On the live site they stay with your account.</p>
@@ -111,4 +111,17 @@
       </section>
     </div>
   </div>
+  <dialog class="dm-modal" id="pr-lesson-dialog" aria-labelledby="pr-ld-title" aria-describedby="pr-ld-text">
+    <form method="dialog" class="dm-modal-body">
+      <button class="dm-modal-x" value="cancel" aria-label="Close">&times;</button>
+      <p class="label">Optional lesson</p>
+      <h2 id="pr-ld-title">Would you like to do the lesson first?</h2>
+      <p id="pr-ld-text"></p>
+      <label class="dm-modal-check"><input type="checkbox" id="pr-ld-dont"> Don't ask again for this topic</label>
+      <div class="dm-modal-actions">
+        <a class="btn btn-primary" id="pr-ld-lesson" href="masterclass.html" data-track="practice_lesson_first">Do the lesson first</a>
+        <button class="btn btn-secondary" type="button" id="pr-ld-skip" data-track="practice_lesson_skip">Skip to practice</button>
+      </div>
+    </form>
+  </dialog>
 </main>

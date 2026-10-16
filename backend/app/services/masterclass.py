@@ -24,7 +24,8 @@ def content():
 
 
 def lessons():
-    return {lesson["id"]: lesson for lesson in content()["lessons"]}
+    """Every lesson by id: the masterclass lessons and the optional topic lessons, one per question bank topic."""
+    return {lesson["id"]: lesson for lesson in content()["lessons"] + content().get("topics", [])}
 
 
 def total(lesson):
@@ -85,7 +86,7 @@ def save_quiz(user_id, lesson_id, correct):
 
 
 def summary(user_id):
-    """For the dashboard: lessons finished, and the next lesson to take."""
+    """For the dashboard: masterclass lessons finished, and the next one to take. Topic lessons are optional and not counted."""
     done = progress(user_id)
     order = content()["lessons"]
     finished = sum(1 for lesson in order if done.get(lesson["id"], {}).get("completed"))

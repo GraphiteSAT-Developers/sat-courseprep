@@ -24,10 +24,11 @@ const fail = (where, msg) => problems.push(`${where}: ${msg}`);
 // Content that doesn't need a browser.
 const unitIds = new Set(content.units.map(u => u.id));
 const ids = new Set();
-for (const L of content.lessons) {
+const ALL = [...content.lessons, ...(content.topics || [])];
+for (const L of ALL) {
   if (ids.has(L.id)) fail(L.id, "duplicate lesson id");
   ids.add(L.id);
-  if (!unitIds.has(L.unit)) fail(L.id, `unknown unit ${L.unit}`);
+  if (L.kind !== "topic" && !unitIds.has(L.unit)) fail(L.id, `unknown unit ${L.unit}`);
   const qs = [...(L.reads || []), ...(L.try ? [L.try] : []), ...(L.quiz || [])];
   if (L.kind !== "drill" && !(L.quiz && L.quiz.length)) fail(L.id, "no practice quiz");
   for (const q of qs) {
@@ -44,7 +45,7 @@ await page.goto(pathToFileURL(path.join(here, "../topline/index.html")).href);
 await page.addScriptTag({ content: checks });
 await page.waitForFunction(() => window.Topline && window.GraphiteMasterclassChecks);
 
-for (const L of content.lessons) {
+for (const L of ALL) {
   if (L.kind === "drill") continue;
   const result = await page.evaluate(lesson => {
     const T = window.Topline, C = window.GraphiteMasterclassChecks, out = [];
@@ -69,8 +70,9 @@ for (const L of content.lessons) {
       T.clear();
       lesson.steps.forEach(step => C.applyShow(T, step));
       if (lesson.try) C.applyShow(T, lesson.try);
+      if (!q.check) return;
       if (C.passes(q.check, T.lines(), T)) out.push(`quiz ${i + 1}: its calculator check already passes from the lesson's work`);
-      lesson.quiz.slice(0, i).forEach(prev => { T.clear(); C.applyShow(T, prev); if (C.passes(q.check, T.lines(), T)) out.push(`quiz ${i + 1}: unlocked by an earlier question's work`); });
+      lesson.quiz.slice(0, i).forEach(prev => { if (!prev.show) return; T.clear(); C.applyShow(T, prev); if (C.passes(q.check, T.lines(), T)) out.push(`quiz ${i + 1}: unlocked by an earlier question's work`); });
       T.clear();
       C.applyShow(T, q);
       if (!C.passes(q.check, T.lines(), T)) out.push(`quiz ${i + 1}: check fails after its lines: ` + JSON.stringify(T.lines().map(l => [l.text, l.kind, l.error, l.value ?? l.fit ?? null])));
@@ -95,4 +97,4 @@ if (problems.length) {
   console.error("\n" + problems.join("\n"));
   process.exit(1);
 }
-console.log(`\nAll ${content.lessons.length} lessons check out.`);
+console.log(`\nAll ${ALL.length} lessons check out.`);

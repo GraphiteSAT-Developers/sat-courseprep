@@ -58,9 +58,10 @@
       });
     },
     // The graph of y = <expression>, in any equivalent form, including f(x) = <expression>.
+    // With count, at least that many lines must match: "graph the original and your choice" for equivalent expressions.
     graph: function (c, lines, T) {
       var target = T.fn(c.graph);
-      return live(lines).some(function (l) {
+      return live(lines).filter(function (l) {
         if (!l.f || l.variable !== "x" || (l.op && l.op !== "=")) return false;
         var n = 0;
         for (var i = 0; i < SAMPLE_X.length; i++) {
@@ -70,7 +71,7 @@
           n++;
         }
         return n >= 3;
-      });
+      }).length >= (c.count || 1);
     },
     // A curve through every point in "curve" and through none of the points in "off".
     curve: function (c, lines) {

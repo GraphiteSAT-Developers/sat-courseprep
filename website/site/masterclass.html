@@ -74,6 +74,14 @@
         </div>
       </div>
       <div class="dm-units" id="dm-units"><p class="fine">Loading lessons…</p></div>
+      <section class="dm-topics-wrap" aria-labelledby="dm-topics-title">
+        <div class="dm-topics-intro">
+          <p class="label">Optional</p>
+          <h2 id="dm-topics-title">Topic lessons</h2>
+          <p class="fine">One short lesson for every part of the question bank: key ideas, a worked example and a quiz. Practice also offers each one before you start that topic.</p>
+        </div>
+        <div class="dm-units" id="dm-topics"></div>
+      </section>
       <p class="fine dm-foot">Lessons use Topline, Graphite's graphing calculator. Its typing and graphing work like Desmos, the calculator built into Bluebook, so every move carries over to test day. Where they differ, the lesson says so.</p>
     </div>
 
@@ -89,6 +97,14 @@
           </header>
           <section class="dm-problem" id="dm-problem" aria-label="The question" hidden></section>
           <div class="dm-intro" id="dm-intro"></div>
+          <section class="dm-note dm-rules" id="dm-rules" aria-labelledby="dm-rules-title" hidden>
+            <h2 id="dm-rules-title">Key ideas</h2>
+            <ul id="dm-rules-list"></ul>
+          </section>
+          <section class="dm-example" id="dm-example" aria-labelledby="dm-example-title" hidden>
+            <p class="label" id="dm-example-title">Worked example</p>
+            <div id="dm-example-body"></div>
+          </section>
           <section class="dm-block" id="dm-steps-wrap" aria-labelledby="dm-steps-title">
             <div class="dm-block-head"><h2 id="dm-steps-title">Do it in the calculator</h2><span class="label" id="dm-steps-count"></span></div>
             <ol class="dm-steps" id="dm-steps"></ol>

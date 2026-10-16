@@ -13,6 +13,48 @@
   try { count = Number(localStorage.getItem(COUNT_KEY)) || 10; } catch (e) { /* storage blocked */ }
   var busy = false;
 
+  // Optional topic lessons (masterclass-data.js), offered in a pop-up before a student practices a topic.
+  var TOPIC_LESSONS = {};
+  ((window.GRAPHITE_MASTERCLASS && window.GRAPHITE_MASTERCLASS.topics) || []).forEach(function (l) { TOPIC_LESSONS[l.skill] = l; });
+  var lessonProgress = {};
+  var SKIP_KEY = "graphite_lesson_prompt_skip";
+  function skipped() { try { return JSON.parse(localStorage.getItem(SKIP_KEY)) || {}; } catch (e) { return {}; } }
+  function lessonDone(l) {
+    var p = lessonProgress[l.id];
+    return !!(p && p.completed);
+  }
+  function loadLessonProgress() {
+    if (LIVE) return API.call("/api/masterclass").then(function (r) { lessonProgress = r.progress || {}; }, function () {});
+    try { lessonProgress = JSON.parse(localStorage.getItem("graphite_masterclass_progress")) || {}; } catch (e) { /* storage blocked */ }
+    return Promise.resolve();
+  }
+  var dialog = $("pr-lesson-dialog"), pending = null;
+  function askLesson(skill, go) {
+    var l = TOPIC_LESSONS[skill];
+    if (!l || lessonDone(l) || skipped()[skill] || !dialog || !dialog.showModal) { go(); return; }
+    pending = { skill: skill, go: go };
+    $("pr-ld-text").textContent = l.title + " takes about " + l.minutes + " minutes: the key ideas, a worked example and a short quiz. It's optional, and you can come back to practice right after.";
+    $("pr-ld-lesson").setAttribute("href", "masterclass.html#" + l.id);
+    $("pr-ld-dont").checked = false;
+    dialog.showModal();
+  }
+  function rememberChoice() {
+    if (!pending || !$("pr-ld-dont").checked) return;
+    var s = skipped(); s[pending.skill] = true;
+    try { localStorage.setItem(SKIP_KEY, JSON.stringify(s)); } catch (e) { /* storage blocked */ }
+  }
+  if (dialog) {
+    $("pr-ld-skip").addEventListener("click", function () {
+      rememberChoice();
+      var p = pending; pending = null;
+      dialog.close();
+      if (p) p.go();
+    });
+    $("pr-ld-lesson").addEventListener("click", rememberChoice);
+    dialog.addEventListener("click", function (e) { if (e.target === dialog) dialog.close(); });  // click outside closes
+    dialog.addEventListener("close", function () { pending = null; });
+  }
+
   // A small picture for each Math domain, so the topic list is easy to scan.
   var DOMAIN_ICONS = {
     "algebra": '<svg viewBox="0 0 24 24"><text x="3" y="17" font-size="13" font-family="Georgia,serif" font-style="italic" fill="currentColor">x=</text></svg>',
@@ -120,13 +162,15 @@
       ul.className = "pr-skills";
       dm.skills.forEach(function (sk) {
         var li = document.createElement("li");
-        li.innerHTML = '<span class="pr-skill-name">' + esc(sk.name) + "</span>";
+        var tl = TOPIC_LESSONS[sk.key];
+        li.innerHTML = '<span class="pr-skill-name">' + esc(sk.name) + (tl ? ' <a class="pr-lesson-link' + (lessonDone(tl) ? " is-done" : "") + '" href="masterclass.html#' + tl.id + '">' +
+          (lessonDone(tl) ? "Lesson done" : "Lesson · " + tl.minutes + " min") + "</a>" : "") + "</span>";
         var b = document.createElement("button");
         b.type = "button"; b.className = "btn btn-quiet";
         b.textContent = "Practice";
         b.setAttribute("aria-label", "Practice " + sk.name);
         b.setAttribute("data-track", "practice_topic_start");
-        b.addEventListener("click", function () { start({ mode: "topic", domain: dm.key, skill: sk.key, count: count }, b); });
+        b.addEventListener("click", function () { askLesson(sk.key, function () { start({ mode: "topic", domain: dm.key, skill: sk.key, count: count }, b); }); });
         li.appendChild(b);
         ul.appendChild(li);
       });
@@ -137,7 +181,16 @@
 
   $("pr-test-start").addEventListener("click", function () { start({ mode: "test" }, $("pr-test-start")); });
 
-  call("/api/practice").then(render).catch(function (err) {
+  // Coming back from a topic lesson's "Practice this topic now": start that topic right away.
+  function autoStart() {
+    var m = /[?&]topic=([^&]+)/.exec(location.search);
+    if (!m) return;
+    var parts = decodeURIComponent(m[1]).split("/");
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* old browsers */ }
+    start({ mode: "topic", domain: parts[0], skill: parts[1], count: count }, $("pr-test-start"));
+  }
+
+  Promise.all([call("/api/practice"), loadLessonProgress()]).then(function (r) { render(r[0]); autoStart(); }).catch(function (err) {
     if (err && err.status === 401) { signIn(); return; }
     root.innerHTML = '<p class="fine">We couldn\'t load your topics. Check your connection and refresh the page.</p>';
   });

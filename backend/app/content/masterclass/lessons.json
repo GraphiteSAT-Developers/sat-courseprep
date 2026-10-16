@@ -2470,5 +2470,2440 @@
       ],
       "bluebook": "Bluebook's calculator panel can stay open for the whole Math section. Practice opening it only when it helps."
     }
+  ],
+  "topics": [
+    {
+      "id": "topic-linear-equations-in-one-variable",
+      "kind": "topic",
+      "domain": "algebra",
+      "skill": "linear-equations-in-one-variable",
+      "title": "Linear equations in one variable",
+      "minutes": 8,
+      "summary": "Solve for x cleanly, spot no-solution and infinitely-many cases, and turn a story into an equation.",
+      "goal": "Solve any linear equation and tell how many solutions it has.",
+      "intro": [
+        "A linear equation in one variable has x only to the first power. The SAT asks you to solve them, build them from a story, and decide when they have no solution or infinitely many.",
+        "Solve by undoing operations: distribute, collect the x terms on one side, then divide. The calculator is a check: graph each side and the crossing is the solution."
+      ],
+      "rules": [
+        "Distribute first, then move every x term to one side and every number to the other.",
+        "Clear fractions by multiplying both sides by the common denominator.",
+        "Same x-coefficient, different constants (3x + 5 = 3x + 2): no solution.",
+        "Both sides identical after simplifying (2(x + 1) = 2x + 2): infinitely many solutions.",
+        "In a story, the rate goes with the variable and the one-time amount is the constant."
+      ],
+      "example": {
+        "problem": "Solve 4(x − 3) + 2 = 2x + 8.",
+        "solution": [
+          "Distribute: 4x − 12 + 2 = 2x + 8, so 4x − 10 = 2x + 8.",
+          "Subtract 2x from both sides and add 10: 2x = 18.",
+          "Divide by 2: x = 9.",
+          "Check: 4(6) + 2 = 26 and 2(9) + 8 = 26."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Check the example on the calculator: graph <code>y = 4(x − 3) + 2</code> and <code>y = 2x + 8</code>, then tap where they cross.",
+          "keys": "y = 4(x - 3) + 2, then y = 2x + 8",
+          "check": {
+            "all": [
+              {
+                "graph": "4(x-3)+2"
+              },
+              {
+                "graph": "2x+8"
+              }
+            ]
+          },
+          "hint": "Two lines, one for each side of the equation.",
+          "show": [
+            "y=4(x-3)+2",
+            "y=2x+8"
+          ],
+          "done": "They cross at x = 9, the same answer as the algebra."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "What is the solution to (2/3)(x + 6) = x − 1?",
+        "answer": "15",
+        "explain": "Multiply both sides by 3: 2x + 12 = 3x − 3, so x = 15. On the calculator, y = (2/3)(x + 6) and y = x − 1 cross at (15, 14).",
+        "check": {
+          "all": [
+            {
+              "graph": "(2/3)(x+6)"
+            },
+            {
+              "graph": "x-1"
+            }
+          ]
+        },
+        "use": "Graph each side.",
+        "show": [
+          "y=(2/3)(x+6)",
+          "y=x-1"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "What is the solution to 5x − 3(x − 4) = 20?",
+          "answer": "4",
+          "explain": "5x − 3x + 12 = 20, so 2x = 8 and x = 4. Watch the −3 times −4, which is +12.",
+          "check": {
+            "all": [
+              {
+                "graph": "5x-3(x-4)"
+              },
+              {
+                "graph": "20"
+              }
+            ]
+          },
+          "use": "Graph each side.",
+          "show": [
+            "y=5x-3(x-4)",
+            "y=20"
+          ]
+        },
+        {
+          "stem": "In the equation 6x + k = 2(3x + 5), k is a constant. For what value of k does the equation have infinitely many solutions?",
+          "answer": "10",
+          "explain": "The right side is 6x + 10. The sides match for every x only when k = 10. Make k a slider: at k = 10 the two lines are the same line.",
+          "check": {
+            "all": [
+              {
+                "graph": "6x+10"
+              },
+              {
+                "slider": "k",
+                "near": 10
+              }
+            ]
+          },
+          "use": "Graph both sides with k as a slider and drag until the lines match.",
+          "show": [
+            "y=2(3x+5)",
+            "y=6x+k",
+            {
+              "text": "k=10",
+              "slider": {
+                "min": -20,
+                "max": 20
+              }
+            }
+          ]
+        },
+        {
+          "stem": "A plumber charges a $65 visit fee plus $40 per hour. A bill came to $245. How many hours did the plumber work?",
+          "answer": "4.5",
+          "explain": "65 + 40h = 245, so 40h = 180 and h = 4.5. The $40 goes with the hours; the $65 is charged once.",
+          "check": {
+            "all": [
+              {
+                "graph": "65+40x"
+              },
+              {
+                "graph": "245"
+              }
+            ]
+          },
+          "use": "Graph the cost as a function of hours, and the bill.",
+          "show": [
+            "y=65+40x",
+            "y=245"
+          ]
+        }
+      ],
+      "related": [
+        "intersect"
+      ],
+      "pitfalls": [
+        "Distributing a negative: −3(x − 4) is −3x + 12.",
+        "Forgetting to multiply every term when clearing fractions.",
+        "Answering with x when the question asks for something like 2x + 1."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-linear-functions",
+      "kind": "topic",
+      "domain": "algebra",
+      "skill": "linear-functions",
+      "title": "Linear functions",
+      "minutes": 8,
+      "summary": "Slope as a rate, intercept as a starting value, and moving between tables, graphs and equations.",
+      "goal": "Build a linear function from points or a story and interpret its slope and intercept.",
+      "intro": [
+        "A linear function changes by the same amount every time x goes up by 1. That amount is the slope, m. The value at x = 0 is the y-intercept, b: f(x) = mx + b.",
+        "In a story, the slope is the rate (per hour, per item) and the intercept is the starting amount. From two points, the calculator's regression finds m and b in one line."
+      ],
+      "rules": [
+        "Slope = (y₂ − y₁) / (x₂ − x₁): change in output over change in input.",
+        "In a table, equal steps in x give equal steps in y.",
+        "f(0) is the y-intercept: the value before anything changes.",
+        "Parallel lines have equal slopes; perpendicular slopes multiply to −1."
+      ],
+      "example": {
+        "problem": "A phone plan costs C(m) = 0.05m + 12 dollars for m minutes. What do 0.05 and 12 mean?",
+        "solution": [
+          "0.05 multiplies the minutes, so it's the cost per minute: 5 cents.",
+          "12 is the cost when m = 0: a $12 monthly fee.",
+          "For 300 minutes: C(300) = 15 + 12 = $27."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Find the line through (2, 7) and (6, 19). Make a table with those two points, then fit <code>y_1 ~ mx_1 + b</code>.",
+          "keys": "table, then y_1 ~ m x_1 + b",
+          "check": {
+            "all": [
+              {
+                "table": [
+                  [
+                    2,
+                    6
+                  ],
+                  [
+                    7,
+                    19
+                  ]
+                ]
+              },
+              {
+                "fit": {
+                  "m": 3,
+                  "b": 1
+                },
+                "anyNames": true
+              }
+            ]
+          },
+          "hint": "Type table into an empty line, enter the two points, then the regression on a new line.",
+          "show": [
+            {
+              "table": {
+                "cols": [
+                  {
+                    "name": "x_1",
+                    "cells": [
+                      "2",
+                      "6"
+                    ]
+                  },
+                  {
+                    "name": "y_1",
+                    "cells": [
+                      "7",
+                      "19"
+                    ]
+                  }
+                ]
+              }
+            },
+            "y_1~mx_1+b"
+          ],
+          "done": "m = 3 and b = 1, so the line is y = 3x + 1."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "f is a linear function with f(1) = 5 and f(4) = 17. What is f(10)?",
+        "answer": "41",
+        "explain": "The slope is (17 − 5)/(4 − 1) = 4, and f(1) = 5 gives b = 1, so f(x) = 4x + 1 and f(10) = 41. A table and y_1 ~ mx_1 + b gives m = 4 and b = 1.",
+        "check": {
+          "all": [
+            {
+              "table": [
+                [
+                  1,
+                  4
+                ],
+                [
+                  5,
+                  17
+                ]
+              ]
+            },
+            {
+              "fit": {
+                "m": 4,
+                "b": 1
+              },
+              "anyNames": true
+            }
+          ]
+        },
+        "use": "Put the two points in a table and fit a line.",
+        "show": [
+          {
+            "table": {
+              "cols": [
+                {
+                  "name": "x_1",
+                  "cells": [
+                    "1",
+                    "4"
+                  ]
+                },
+                {
+                  "name": "y_1",
+                  "cells": [
+                    "5",
+                    "17"
+                  ]
+                }
+              ]
+            }
+          },
+          "y_1~mx_1+b"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "A tank holds 500 liters and drains at 12 liters per minute. Which function gives the liters V left after t minutes?",
+          "choices": [
+            "V(t) = 500 − 12t",
+            "V(t) = 12t − 500",
+            "V(t) = 500t − 12",
+            "V(t) = 488t"
+          ],
+          "answer": 0,
+          "explain": "It starts at 500 and loses 12 each minute: V = 500 − 12t. The rate goes with t."
+        },
+        {
+          "stem": "The table shows a linear function: f(0) = 7, f(2) = 13, f(4) = 19. What is f(9)?",
+          "answer": "34",
+          "explain": "y goes up 6 for every 2 in x, so the slope is 3, and f(0) = 7. f(9) = 3(9) + 7 = 34.",
+          "check": {
+            "all": [
+              {
+                "table": [
+                  [
+                    0,
+                    2,
+                    4
+                  ],
+                  [
+                    7,
+                    13,
+                    19
+                  ]
+                ]
+              },
+              {
+                "fit": {
+                  "m": 3,
+                  "b": 7
+                },
+                "anyNames": true
+              }
+            ]
+          },
+          "use": "Put the table in the calculator and fit a line.",
+          "show": [
+            {
+              "table": {
+                "cols": [
+                  {
+                    "name": "x_1",
+                    "cells": [
+                      "0",
+                      "2",
+                      "4"
+                    ]
+                  },
+                  {
+                    "name": "y_1",
+                    "cells": [
+                      "7",
+                      "13",
+                      "19"
+                    ]
+                  }
+                ]
+              }
+            },
+            "y_1~mx_1+b"
+          ]
+        },
+        {
+          "stem": "A line passes through (−2, 5) and has slope −3/2. What is its y-intercept?",
+          "answer": "2",
+          "explain": "y − 5 = −(3/2)(x + 2). At x = 0, y = 5 − 3 = 2. Graph y = −1.5(x + 2) + 5 and tap where it crosses the y-axis.",
+          "check": {
+            "graph": "-1.5x+2"
+          },
+          "use": "Graph the line in point-slope form.",
+          "show": [
+            "y=-1.5(x+2)+5"
+          ]
+        }
+      ],
+      "related": [
+        "regression"
+      ],
+      "pitfalls": [
+        "Slope is change in y over change in x, not the other way round.",
+        "The intercept is the value at x = 0, which isn't always the first row of a table."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-linear-equations-in-two-variables",
+      "kind": "topic",
+      "domain": "algebra",
+      "skill": "linear-equations-in-two-variables",
+      "title": "Linear equations in two variables",
+      "minutes": 7,
+      "summary": "Equations like 12a + 8k = 240: intercepts, slope, and what each number means.",
+      "goal": "Read and use equations of the form Ax + By = C.",
+      "intro": [
+        "Ax + By = C describes every pair (x, y) that fits a constraint, like a budget: 12 adult tickets at a price plus kids' tickets adds up to a total.",
+        "The calculator graphs it as written. The intercepts answer \"what if it's all one kind?\" questions, and the slope is −A/B."
+      ],
+      "rules": [
+        "x-intercept: set y = 0, so x = C/A. y-intercept: set x = 0, so y = C/B.",
+        "Slope of Ax + By = C is −A/B.",
+        "A point is a solution if it makes the equation true: plug it in.",
+        "In context, each coefficient is a price or rate per item."
+      ],
+      "example": {
+        "problem": "Adult tickets cost $12 and kids' tickets $8. A group spent $240: 12a + 8k = 240. If 10 adults went, how many kids went?",
+        "solution": [
+          "Plug in a = 10: 120 + 8k = 240.",
+          "8k = 120, so k = 15.",
+          "With no adults (a = 0), k = 30: that's the y-intercept if k is on the y-axis."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Graph the example's equation with x for adults and y for kids: <code>12x + 8y = 240</code>.",
+          "keys": "12x + 8y = 240",
+          "check": {
+            "curve": [
+              [
+                20,
+                0
+              ],
+              [
+                0,
+                30
+              ]
+            ],
+            "off": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          "hint": "Type it as written. No need to solve for y.",
+          "show": [
+            "12x+8y=240"
+          ],
+          "done": "Tap the line: it crosses at (20, 0) and (0, 30), and (10, 15) is on it."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "Where does the graph of 4x + 5y = 100 cross the x-axis? Enter the x-value.",
+        "answer": "25",
+        "explain": "Set y = 0: 4x = 100, so x = 25. Graph it and tap the x-intercept.",
+        "check": {
+          "curve": [
+            [
+              25,
+              0
+            ],
+            [
+              0,
+              20
+            ]
+          ],
+          "off": [
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        "use": "Graph the equation.",
+        "show": [
+          "4x+5y=100"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "What is the slope of the graph of 6x − 3y = 12?",
+          "answer": "2",
+          "explain": "Solve for y: y = 2x − 4. Or use −A/B = −6/(−3) = 2. The graph rises 2 for every 1 across.",
+          "check": {
+            "curve": [
+              [
+                2,
+                0
+              ],
+              [
+                0,
+                -4
+              ]
+            ],
+            "off": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          "use": "Graph the equation and read the slope.",
+          "show": [
+            "6x-3y=12"
+          ]
+        },
+        {
+          "stem": "A baker has 30 pounds of flour. Each muffin uses 0.25 pound and each loaf 1.5 pounds, so 0.25m + 1.5l = 30 when all the flour is used. If the baker makes 12 loaves, how many muffins can they make?",
+          "answer": "48",
+          "explain": "0.25m + 18 = 30, so 0.25m = 12 and m = 48.",
+          "check": {
+            "curve": [
+              [
+                120,
+                0
+              ],
+              [
+                0,
+                20
+              ]
+            ],
+            "off": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          "use": "Graph the flour equation, with x for muffins and y for loaves.",
+          "show": [
+            "0.25x+1.5y=30"
+          ]
+        },
+        {
+          "stem": "Which point lies on the graph of 2x − 7y = 3?",
+          "choices": [
+            "(5, 1)",
+            "(1, 5)",
+            "(−2, 1)",
+            "(3, 0)"
+          ],
+          "answer": 0,
+          "explain": "2(5) − 7(1) = 3. The others give 2 − 35, −4 − 7 and 6.",
+          "check": {
+            "curve": [
+              [
+                5,
+                1
+              ],
+              [
+                1.5,
+                0
+              ]
+            ],
+            "off": [
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          "use": "Graph the equation, then check the points.",
+          "show": [
+            "2x-7y=3"
+          ]
+        }
+      ],
+      "related": [
+        "systems"
+      ],
+      "pitfalls": [
+        "Mixing up which variable goes on which axis.",
+        "Slope is −A/B: don't drop the minus sign."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-systems-of-two-linear-equations-in-two-variables",
+      "kind": "topic",
+      "domain": "algebra",
+      "skill": "systems-of-two-linear-equations-in-two-variables",
+      "title": "Systems of linear equations",
+      "minutes": 9,
+      "summary": "Substitution, elimination, and the one, none or infinitely many test.",
+      "goal": "Solve a system and decide how many solutions it has.",
+      "intro": [
+        "A system is two equations that are both true at once. Graphically, the solution is where the two lines cross.",
+        "By hand, elimination is fastest when coefficients line up; substitution when one variable is already alone. On the calculator, type both and tap the crossing."
+      ],
+      "rules": [
+        "Elimination: add or subtract the equations to cancel a variable.",
+        "Substitution: solve one equation for a variable and plug it into the other.",
+        "Same slope, different intercepts: parallel, no solution.",
+        "One equation a multiple of the other: same line, infinitely many solutions.",
+        "Word problems usually give a count equation (x + y = total) and a value equation."
+      ],
+      "example": {
+        "problem": "A farm has chickens and rabbits: 20 heads and 56 legs. How many rabbits are there?",
+        "solution": [
+          "Let c be chickens and r rabbits: c + r = 20 and 2c + 4r = 56.",
+          "Double the first: 2c + 2r = 40. Subtract it from the second: 2r = 16.",
+          "r = 8 rabbits, and c = 12 chickens."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Graph both of the example's equations, with x for chickens and y for rabbits: <code>x + y = 20</code> and <code>2x + 4y = 56</code>.",
+          "keys": "x + y = 20, then 2x + 4y = 56",
+          "check": {
+            "all": [
+              {
+                "curve": [
+                  [
+                    20,
+                    0
+                  ],
+                  [
+                    0,
+                    20
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              },
+              {
+                "curve": [
+                  [
+                    28,
+                    0
+                  ],
+                  [
+                    0,
+                    14
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              }
+            ]
+          },
+          "hint": "Type each equation on its own line.",
+          "show": [
+            "x+y=20",
+            "2x+4y=56"
+          ],
+          "done": "They cross at (12, 8): 12 chickens and 8 rabbits."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "Adult movie tickets cost $11 and student tickets $7. A group bought 40 tickets for $356. How many adult tickets did they buy?",
+        "answer": "19",
+        "explain": "a + s = 40 and 11a + 7s = 356. Substitute s = 40 − a: 11a + 280 − 7a = 356, so a = 19. The lines cross at (19, 21).",
+        "check": {
+          "all": [
+            {
+              "curve": [
+                [
+                  40,
+                  0
+                ],
+                [
+                  0,
+                  40
+                ]
+              ],
+              "off": [
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            {
+              "curve": [
+                [
+                  19,
+                  21
+                ],
+                [
+                  26,
+                  10
+                ]
+              ],
+              "off": [
+                [
+                  0,
+                  0
+                ]
+              ]
+            }
+          ]
+        },
+        "use": "Write both equations and graph them.",
+        "show": [
+          "x+y=40",
+          "11x+7y=356"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "3x + 2y = 18 and x − 2y = −2. What is x?",
+          "answer": "4",
+          "explain": "Add the equations: 4x = 16, so x = 4 (and y = 3).",
+          "check": {
+            "all": [
+              {
+                "curve": [
+                  [
+                    4,
+                    3
+                  ],
+                  [
+                    6,
+                    0
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              },
+              {
+                "curve": [
+                  [
+                    4,
+                    3
+                  ],
+                  [
+                    0,
+                    1
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              }
+            ]
+          },
+          "use": "Graph both equations.",
+          "show": [
+            "3x+2y=18",
+            "x-2y=-2"
+          ]
+        },
+        {
+          "stem": "Which system has no solution?",
+          "choices": [
+            "y = 2x + 3 and y = 2x − 1",
+            "y = 2x + 3 and y = −2x + 3",
+            "y = 2x + 3 and 2y = 4x + 6",
+            "y = x and y = 2x"
+          ],
+          "answer": 0,
+          "explain": "y = 2x + 3 and y = 2x − 1 have the same slope and different intercepts, so they're parallel. The third choice is the same line twice: infinitely many."
+        },
+        {
+          "stem": "In the system 2x + ky = 8 and 6x + 9y = 24, k is a constant. The system has infinitely many solutions. What is k?",
+          "answer": "3",
+          "explain": "The second equation is 3 times the first when 3k = 9, so k = 3 (and 3 × 8 = 24 matches).",
+          "check": {
+            "all": [
+              {
+                "curve": [
+                  [
+                    4,
+                    0
+                  ],
+                  [
+                    1,
+                    2
+                  ]
+                ],
+                "off": [
+                  [
+                    0,
+                    0
+                  ]
+                ]
+              },
+              {
+                "slider": "k",
+                "near": 3
+              }
+            ]
+          },
+          "use": "Graph both with k as a slider and drag until the lines overlap.",
+          "show": [
+            "6x+9y=24",
+            "2x+ky=8",
+            {
+              "text": "k=3",
+              "slider": {
+                "min": -10,
+                "max": 10
+              }
+            }
+          ]
+        }
+      ],
+      "related": [
+        "systems",
+        "sliders"
+      ],
+      "pitfalls": [
+        "Answering x when the question asks for y, or x + y.",
+        "Subtracting only some terms when eliminating."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-linear-inequalities-in-one-or-two-variables",
+      "kind": "topic",
+      "domain": "algebra",
+      "skill": "linear-inequalities-in-one-or-two-variables",
+      "title": "Linear inequalities",
+      "minutes": 8,
+      "summary": "Flip the sign at the right time, translate \"at least\" and \"at most\", and read shaded regions.",
+      "goal": "Solve and model linear inequalities, and test points against them.",
+      "intro": [
+        "Inequalities work like equations with one extra rule: multiplying or dividing by a negative flips the sign.",
+        "Word problems hide the sign in phrases. In two variables, the solutions are a shaded region; a point is a solution if it makes every inequality true."
+      ],
+      "rules": [
+        "Multiply or divide by a negative: flip < to >.",
+        "\"At least\" is ≥, \"at most\" or \"no more than\" is ≤, \"more than\" is >.",
+        "Solid edge for ≤ and ≥, dashed for < and >.",
+        "To test a point, plug it into every inequality."
+      ],
+      "example": {
+        "problem": "Solve −3x + 7 < 19.",
+        "solution": [
+          "Subtract 7: −3x < 12.",
+          "Divide by −3 and flip the sign: x > −4."
+        ]
+      },
+      "steps": [
+        {
+          "do": "A gym charges $40 to join plus $15 per class, and you can spend at most $250. Graph <code>y = 40 + 15x</code> and <code>y = 250</code>.",
+          "keys": "y = 40 + 15x, then y = 250",
+          "check": {
+            "all": [
+              {
+                "graph": "40+15x"
+              },
+              {
+                "graph": "250"
+              }
+            ]
+          },
+          "hint": "One line for the cost, one for the budget.",
+          "show": [
+            "y=40+15x",
+            "y=250"
+          ],
+          "done": "They cross at x = 14: up to 14 classes stay under the budget."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "Which value of x satisfies 5 − 2x ≥ 11?",
+        "choices": [
+          "−4",
+          "−2",
+          "0",
+          "3"
+        ],
+        "answer": 0,
+        "explain": "−2x ≥ 6, so x ≤ −3 after flipping. Only −4 works. On the graph, y = 5 − 2x is at or above 11 for x ≤ −3.",
+        "check": {
+          "all": [
+            {
+              "graph": "5-2x"
+            },
+            {
+              "graph": "11"
+            }
+          ]
+        },
+        "use": "Graph each side and see where the left side is higher.",
+        "show": [
+          "y=5-2x",
+          "y=11"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "Sam earns $12 per hour plus $40 in tips and wants to earn at least $300. What is the fewest whole number of hours he can work?",
+          "answer": "22",
+          "explain": "12h + 40 ≥ 300 gives h ≥ 21.67, so 22 hours. Rounding down to 21 falls short.",
+          "check": {
+            "all": [
+              {
+                "graph": "12x+40"
+              },
+              {
+                "graph": "300"
+              }
+            ]
+          },
+          "use": "Graph his earnings and the goal.",
+          "show": [
+            "y=12x+40",
+            "y=300"
+          ]
+        },
+        {
+          "stem": "Which point (x, y) satisfies y < −x + 5 and y > 2x − 4?",
+          "choices": [
+            "(1, 2)",
+            "(4, 3)",
+            "(0, 6)",
+            "(3, 0)"
+          ],
+          "answer": 0,
+          "explain": "(1, 2): 2 < 4 and 2 > −2. (3, 0) fails the second, because 0 isn't more than 2.",
+          "check": {
+            "all": [
+              {
+                "region": {
+                  "op": "<",
+                  "edge": [
+                    [
+                      0,
+                      5
+                    ],
+                    [
+                      5,
+                      0
+                    ]
+                  ],
+                  "in": [
+                    0,
+                    0
+                  ],
+                  "out": [
+                    5,
+                    5
+                  ]
+                }
+              },
+              {
+                "region": {
+                  "op": ">",
+                  "edge": [
+                    [
+                      0,
+                      -4
+                    ],
+                    [
+                      2,
+                      0
+                    ]
+                  ],
+                  "in": [
+                    0,
+                    0
+                  ],
+                  "out": [
+                    5,
+                    0
+                  ]
+                }
+              }
+            ]
+          },
+          "use": "Graph both inequalities.",
+          "show": [
+            "y<-x+5",
+            "y>2x-4"
+          ]
+        },
+        {
+          "stem": "Apples cost $3 per pound and pears $5 per pound. The total cost of x pounds of apples and y pounds of pears is no more than $60. Which inequality shows this?",
+          "choices": [
+            "3x + 5y ≤ 60",
+            "3x + 5y ≥ 60",
+            "3x + 5y < 60",
+            "8(x + y) ≤ 60"
+          ],
+          "answer": 0,
+          "explain": "Cost is 3x + 5y, and \"no more than\" means ≤."
+        }
+      ],
+      "related": [
+        "inequalities"
+      ],
+      "pitfalls": [
+        "Forgetting to flip the sign after dividing by a negative.",
+        "Rounding the wrong way: \"at least 21.67 hours\" means 22."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-equivalent-expressions",
+      "kind": "topic",
+      "domain": "advanced-math",
+      "skill": "equivalent-expressions",
+      "title": "Equivalent expressions",
+      "minutes": 8,
+      "summary": "Factoring, difference of squares, exponent rules and simplifying, with a graph check.",
+      "goal": "Rewrite expressions and prove two are equivalent.",
+      "intro": [
+        "Two expressions are equivalent if they're equal for every x. On the SAT you factor, expand, combine and simplify to find the matching choice.",
+        "The calculator gives a fast check: graph the original and a choice. If the graphs lie exactly on top of each other, they're equivalent."
+      ],
+      "rules": [
+        "Factor out the greatest common factor first: 6x³ + 9x² = 3x²(2x + 3).",
+        "Difference of squares: a² − b² = (a − b)(a + b).",
+        "Trinomials: find two numbers that multiply to c and add to b.",
+        "Exponents: xᵃ · xᵇ = xᵃ⁺ᵇ, and x^(m/n) is the nth root of xᵐ.",
+        "For coefficients in an identity, the tilde trick finds them all at once."
+      ],
+      "example": {
+        "problem": "Which expression is equivalent to 9x² − 16?",
+        "solution": [
+          "9x² is (3x)² and 16 is 4², so it's a difference of squares.",
+          "a² − b² = (a − b)(a + b) gives (3x − 4)(3x + 4).",
+          "Check: (3x − 4)(3x + 4) = 9x² + 12x − 12x − 16 = 9x² − 16."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Graph both forms from the example: <code>y = 9x^2 − 16</code> and <code>y = (3x − 4)(3x + 4)</code>.",
+          "keys": "y = 9x^2 → - 16, then y = (3x - 4)(3x + 4)",
+          "check": {
+            "graph": "9x^2-16",
+            "count": 2
+          },
+          "hint": "Two lines. If they're equivalent, you'll only see one curve.",
+          "show": [
+            "y=9x^2-16",
+            "y=(3x-4)(3x+4)"
+          ],
+          "done": "One curve, drawn twice: the expressions are equivalent."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "Which expression is equivalent to x² − 5x − 14?",
+        "choices": [
+          "(x − 7)(x + 2)",
+          "(x + 7)(x − 2)",
+          "(x − 7)(x − 2)",
+          "(x + 7)(x + 2)"
+        ],
+        "answer": 0,
+        "explain": "−7 and 2 multiply to −14 and add to −5, so (x − 7)(x + 2). Graph the original and your choice: they overlap.",
+        "check": {
+          "graph": "x^2-5x-14",
+          "count": 2
+        },
+        "use": "Graph the original and the choice you pick.",
+        "show": [
+          "y=x^2-5x-14",
+          "y=(x-7)(x+2)"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "Which expression is equivalent to 4x(x − 3) − 2(x² − 6x)?",
+          "choices": [
+            "2x²",
+            "2x² − 24x",
+            "6x² − 24x",
+            "2x² + 24x"
+          ],
+          "answer": 0,
+          "explain": "4x² − 12x − 2x² + 12x = 2x². The x terms cancel.",
+          "check": {
+            "graph": "2x^2",
+            "count": 2
+          },
+          "use": "Graph the expression and the choice you pick.",
+          "show": [
+            "y=4x(x-3)-2(x^2-6x)",
+            "y=2x^2"
+          ]
+        },
+        {
+          "stem": "6x³ + 9x² = 3x²(ax + b) for all x, where a and b are constants. What is a + b?",
+          "answer": "5",
+          "explain": "Factor out 3x²: 6x³ + 9x² = 3x²(2x + 3), so a = 2, b = 3 and a + b = 5.",
+          "check": {
+            "fit": {
+              "a": 2,
+              "b": 3
+            },
+            "anyNames": true
+          },
+          "use": "Use the tilde trick with a list x_1.",
+          "show": [
+            "x_1=[1,2,3,4]",
+            "6x_1^3+9x_1^2~3x_1^2(px_1+q)"
+          ]
+        },
+        {
+          "stem": "Which expression is equivalent to (x² − 9)/(x + 3), for x ≠ −3?",
+          "choices": [
+            "x + 3",
+            "x − 3",
+            "x − 9",
+            "x² − 3"
+          ],
+          "answer": 1,
+          "explain": "x² − 9 = (x − 3)(x + 3). Cancel the (x + 3): x − 3.",
+          "check": {
+            "graph": "x-3",
+            "count": 2
+          },
+          "use": "Graph the expression and the choice you pick.",
+          "show": [
+            "y=(x^2-9)/(x+3)",
+            "y=x-3"
+          ]
+        }
+      ],
+      "related": [
+        "tilde"
+      ],
+      "pitfalls": [
+        "(a + b)² is a² + 2ab + b², not a² + b².",
+        "Distribute a negative to every term inside the parentheses."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-nonlinear-equations-in-one-variable-and-systems-of-equations-in-two-variables",
+      "kind": "topic",
+      "domain": "advanced-math",
+      "skill": "nonlinear-equations-in-one-variable-and-systems-of-equations-in-two-variables",
+      "title": "Nonlinear equations and systems",
+      "minutes": 9,
+      "summary": "Quadratics, radicals, absolute values and line-and-curve systems.",
+      "goal": "Solve nonlinear equations and count solutions without falling for extraneous answers.",
+      "intro": [
+        "Quadratic equations can be solved by factoring, the quadratic formula, or graphing. Radical and rational equations can produce false answers, so always check.",
+        "For any of them, the calculator route is the same: graph both sides (or the expression set to 0) and read the crossings."
+      ],
+      "rules": [
+        "Set the quadratic to 0, then factor or use x = (−b ± √(b² − 4ac)) / 2a.",
+        "Discriminant b² − 4ac: positive means 2 real solutions, zero means 1, negative means none.",
+        "Sum of solutions of ax² + bx + c = 0 is −b/a; product is c/a.",
+        "Radical equations: square both sides, then check every answer in the original.",
+        "Absolute value equations have two cases: inside = k and inside = −k."
+      ],
+      "example": {
+        "problem": "Solve x² − 6x + 5 = 0.",
+        "solution": [
+          "Two numbers that multiply to 5 and add to −6: −1 and −5.",
+          "(x − 1)(x − 5) = 0, so x = 1 or x = 5.",
+          "Check with the sum: 1 + 5 = 6 = −b/a."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Graph the example: <code>y = x^2 − 6x + 5</code>. Tap the curve to see where it crosses the x-axis.",
+          "keys": "y = x^2 → - 6x + 5",
+          "check": {
+            "graph": "x^2-6x+5"
+          },
+          "hint": "Press → after the exponent.",
+          "show": [
+            "y=x^2-6x+5"
+          ],
+          "done": "It crosses at x = 1 and x = 5."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "What is the sum of the solutions to 2x² − 3x − 9 = 0?",
+        "answer": "1.5",
+        "explain": "The solutions are 3 and −1.5, so the sum is 1.5. Shortcut: −b/a = 3/2.",
+        "check": {
+          "graph": "2x^2-3x-9"
+        },
+        "use": "Graph the quadratic and tap its x-intercepts.",
+        "show": [
+          "y=2x^2-3x-9"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "How many real solutions does x² + 4x + 7 = 0 have?",
+          "choices": [
+            "Zero",
+            "Exactly one",
+            "Exactly two",
+            "Infinitely many"
+          ],
+          "answer": 0,
+          "explain": "The discriminant is 16 − 28 = −12, which is negative. The parabola never touches the x-axis.",
+          "check": {
+            "graph": "x^2+4x+7"
+          },
+          "use": "Graph it and look for x-intercepts.",
+          "show": [
+            "y=x^2+4x+7"
+          ]
+        },
+        {
+          "stem": "What is the solution to √(x + 10) = x − 2?",
+          "answer": "6",
+          "explain": "Squaring gives x² − 5x − 6 = 0, so x = 6 or x = −1. But √9 = 3, not −3, so −1 is false. The graphs cross only at x = 6.",
+          "check": {
+            "all": [
+              {
+                "graph": "sqrt(x+10)"
+              },
+              {
+                "graph": "x-2"
+              }
+            ]
+          },
+          "use": "Graph each side.",
+          "show": [
+            "y=sqrt(x+10)",
+            "y=x-2"
+          ]
+        },
+        {
+          "stem": "y = x² − 3 and y = 2x. What is the positive x-value of a solution to the system?",
+          "answer": "3",
+          "explain": "x² − 2x − 3 = 0, so x = 3 or x = −1. The positive one is 3, at the point (3, 6).",
+          "check": {
+            "all": [
+              {
+                "graph": "x^2-3"
+              },
+              {
+                "graph": "2x"
+              }
+            ]
+          },
+          "use": "Graph both equations.",
+          "show": [
+            "y=x^2-3",
+            "y=2x"
+          ]
+        }
+      ],
+      "related": [
+        "intersect",
+        "systems"
+      ],
+      "pitfalls": [
+        "Keeping an extraneous answer from squaring.",
+        "Dividing both sides by x and losing the solution x = 0."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-nonlinear-functions",
+      "kind": "topic",
+      "domain": "advanced-math",
+      "skill": "nonlinear-functions",
+      "title": "Nonlinear functions",
+      "minutes": 9,
+      "summary": "Quadratic and exponential models: vertex, zeros, growth factor and what each number means.",
+      "goal": "Read and use quadratic and exponential functions in context.",
+      "intro": [
+        "Exponential functions, f(x) = a · bˣ, multiply by the same factor b each step: a is the starting value. Quadratics, f(x) = a(x − h)² + k, have a vertex at (h, k).",
+        "Questions ask you to interpret these numbers, or evaluate the function. Graphing shows the vertex, zeros and values at a tap."
+      ],
+      "rules": [
+        "Growth by r%: b = 1 + r/100. Decay by r%: b = 1 − r/100.",
+        "f(0) is the starting value: a for an exponential.",
+        "Vertex form a(x − h)² + k: vertex (h, k), minimum if a > 0, maximum if a < 0.",
+        "\"Doubles every 4 hours\": a · 2^(t/4).",
+        "Linear grows by adding the same amount; exponential by multiplying."
+      ],
+      "example": {
+        "problem": "A town's population is P(t) = 800(1.05)ᵗ, t years from now. What do 800 and 1.05 mean?",
+        "solution": [
+          "800 is P(0): today's population.",
+          "1.05 is the yearly growth factor: the population grows 5% each year.",
+          "After 10 years: 800(1.05)¹⁰ ≈ 1,303."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Graph the example: <code>y = 800(1.05)^x</code>. Zoom out to see it.",
+          "keys": "y = 800(1.05)^x",
+          "check": {
+            "graph": "800(1.05)^x"
+          },
+          "hint": "Use x for t. Press → after the exponent.",
+          "show": [
+            "y=800(1.05)^x"
+          ],
+          "done": "Tap the curve at x = 10: about 1,303."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "A car worth $24,000 loses 15% of its value each year. What is it worth after 3 years, to the nearest dollar?",
+        "answer": "14739",
+        "tol": 0.5,
+        "explain": "Value = 24,000(0.85)³ = 14,739. Each year multiplies the value by 0.85.",
+        "check": {
+          "any": [
+            {
+              "graph": "24000(0.85)^x"
+            },
+            {
+              "value": 14739.0
+            }
+          ]
+        },
+        "use": "Graph the value over time, or work out 24000(0.85)^3.",
+        "show": [
+          "24000(0.85)^3"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "f(x) = 2(x − 3)² + 5. What is the minimum value of f?",
+          "answer": "5",
+          "explain": "In vertex form the vertex is (3, 5), and a = 2 > 0, so the minimum is 5. Faster by hand than on the calculator."
+        },
+        {
+          "stem": "A bacteria population starts at 500 and triples every 4 hours. How many bacteria are there after 12 hours?",
+          "choices": [
+            "13,500",
+            "6,000",
+            "4,500",
+            "1,500"
+          ],
+          "answer": 0,
+          "explain": "12 hours is 3 tripling periods: 500 · 3³ = 13,500. The model is 500 · 3^(t/4).",
+          "check": {
+            "graph": "500*3^(x/4)"
+          },
+          "use": "Graph the model with x for hours.",
+          "show": [
+            "y=500*3^(x/4)"
+          ]
+        },
+        {
+          "stem": "A ball's height in feet after t seconds is h(t) = −16t² + 48t + 64. After how many seconds does it hit the ground?",
+          "answer": "4",
+          "explain": "Graph it and tap the positive x-intercept: t = 4. By hand, −16(t² − 3t − 4) = −16(t − 4)(t + 1).",
+          "check": {
+            "graph": "-16x^2+48x+64"
+          },
+          "use": "Graph the height and tap the positive x-intercept.",
+          "show": [
+            "y=-16x^2+48x+64"
+          ]
+        }
+      ],
+      "related": [
+        "points",
+        "regression"
+      ],
+      "pitfalls": [
+        "A 15% loss means multiplying by 0.85, not 0.15.",
+        "The vertex's y is the maximum value; its x is when it happens."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-ratios-rates-proportional-relationships-and-units",
+      "kind": "topic",
+      "domain": "psda",
+      "skill": "ratios-rates-proportional-relationships-and-units",
+      "title": "Ratios, rates and units",
+      "minutes": 7,
+      "summary": "Proportions, unit rates, scale drawings and unit conversions.",
+      "goal": "Set up proportions and convert units without losing track.",
+      "intro": [
+        "A ratio compares two amounts; a rate is a ratio with units, like miles per gallon. When two quantities are proportional, doubling one doubles the other.",
+        "Unit conversions are chains of fractions equal to 1, arranged so the units you don't want cancel. The calculator handles the arithmetic once the setup is right."
+      ],
+      "rules": [
+        "Proportion: a/b = c/d, then cross multiply.",
+        "Unit rate: divide to get the amount per 1 unit, then multiply.",
+        "Conversions: multiply by fractions like (5,280 ft / 1 mi) so units cancel.",
+        "Part-to-part ratio 4 : 5 means 9 parts in all.",
+        "Scale 1 in : 15 mi means multiply inches by 15."
+      ],
+      "example": {
+        "problem": "A recipe uses 3 cups of flour for 24 cookies. How much flour for 60 cookies?",
+        "solution": [
+          "Set up 3/24 = f/60.",
+          "Cross multiply: 24f = 180.",
+          "f = 7.5 cups."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Convert 72 kilometers per hour to meters per second. Type <code>72*1000/3600</code>.",
+          "keys": "72*1000/3600",
+          "check": {
+            "value": 20,
+            "text": "frac|/"
+          },
+          "hint": "1 km is 1,000 m and 1 hour is 3,600 s: multiply by 1,000 and divide by 3,600.",
+          "show": [
+            "72*1000/3600"
+          ],
+          "done": "20 meters per second."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "A car uses 8 gallons of gas to go 280 miles. At the same rate, how many gallons does it need for 455 miles?",
+        "answer": "13",
+        "explain": "The car gets 280/8 = 35 miles per gallon, so 455/35 = 13 gallons."
+      },
+      "quiz": [
+        {
+          "stem": "On a map, 1 inch represents 15 miles. Two towns are 4.2 inches apart on the map. How many miles apart are they?",
+          "answer": "63",
+          "explain": "4.2 × 15 = 63 miles."
+        },
+        {
+          "stem": "A cyclist rides at 90 feet per second. What is that speed in miles per hour, to the nearest tenth? (1 mile = 5,280 feet)",
+          "answer": "61.4",
+          "tol": 0.05,
+          "explain": "90 × 3,600 seconds per hour ÷ 5,280 feet per mile = 61.36, so 61.4 mph."
+        },
+        {
+          "stem": "The ratio of boys to girls in a club is 4 : 5, and there are 36 members. How many are girls?",
+          "answer": "20",
+          "explain": "4 + 5 = 9 parts, so each part is 4 members. Girls: 5 × 4 = 20."
+        }
+      ],
+      "related": [],
+      "pitfalls": [
+        "Flipping a conversion factor so the units multiply instead of cancel.",
+        "Using a part-to-part ratio as part-to-whole."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-percentages",
+      "kind": "topic",
+      "domain": "psda",
+      "skill": "percentages",
+      "title": "Percentages",
+      "minutes": 7,
+      "summary": "Percent of, percent change, discounts, tax and growth factors.",
+      "goal": "Turn every percent question into one multiplication.",
+      "intro": [
+        "Most percent questions become a single multiplication by a factor: 1.08 for an 8% increase, 0.75 for 25% off.",
+        "Changes in a row multiply. Percent change compares the change to the original amount."
+      ],
+      "rules": [
+        "p% of a number: multiply by p/100.",
+        "Increase by p%: multiply by 1 + p/100. Decrease by p%: multiply by 1 − p/100.",
+        "Several changes: multiply the factors. +10% then −10% is 1.1 × 0.9 = 0.99.",
+        "Percent change = (new − original) / original × 100.",
+        "To undo a change, divide by the factor: after 20% off, original = sale price / 0.8."
+      ],
+      "example": {
+        "problem": "A $80 jacket is 25% off, and then 8% sales tax is added. What is the final price?",
+        "solution": [
+          "25% off: multiply by 0.75, giving $60.",
+          "8% tax: multiply by 1.08, giving $64.80.",
+          "In one line: 80 × 0.75 × 1.08 = 64.80."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Work out the example in one line: <code>80*0.75*1.08</code>.",
+          "keys": "80*0.75*1.08",
+          "check": {
+            "value": 64.8
+          },
+          "hint": "Multiply the price by both factors.",
+          "show": [
+            "80*0.75*1.08"
+          ],
+          "done": "$64.80, with no separate steps."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "A price rises from $40 to $52. By what percent did it increase?",
+        "answer": "30",
+        "explain": "The change is 12, and 12/40 = 0.3, so 30%."
+      },
+      "quiz": [
+        {
+          "stem": "A town of 2,500 people grows 4% per year. How many people live there after 2 years?",
+          "answer": "2704",
+          "explain": "2,500 × 1.04² = 2,704."
+        },
+        {
+          "stem": "After a 20% discount, a shirt costs $36. What was the original price, in dollars?",
+          "answer": "45",
+          "explain": "The sale price is 80% of the original: 36 / 0.8 = 45. Taking 20% of $36 and adding it gives $43.20, the common wrong answer."
+        },
+        {
+          "stem": "A value increases by 10%, and then the new value decreases by 10%. What is the overall change?",
+          "choices": [
+            "It decreases by 1%.",
+            "There's no change.",
+            "It increases by 1%.",
+            "It decreases by 10%."
+          ],
+          "answer": 0,
+          "explain": "1.1 × 0.9 = 0.99, so the value ends 1% lower than it started."
+        }
+      ],
+      "related": [],
+      "pitfalls": [
+        "Taking the percent of the new amount instead of the original.",
+        "Adding percent changes instead of multiplying factors."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-one-variable-data-distributions-and-measures-of-center-and-spread",
+      "kind": "topic",
+      "domain": "psda",
+      "skill": "one-variable-data-distributions-and-measures-of-center-and-spread",
+      "title": "One-variable data",
+      "minutes": 8,
+      "summary": "Mean, median, range and spread, outliers, and frequency tables.",
+      "goal": "Compute and compare measures of center and spread.",
+      "intro": [
+        "The mean is the balance point, so an outlier pulls it; the median is the middle value, so it barely moves. Standard deviation measures how spread out the data is around the mean.",
+        "Put the data in a list and the calculator does mean, median and stdev in one line each."
+      ],
+      "rules": [
+        "Mean = total / count. Median = middle value in order (average the two middle ones for an even count).",
+        "Range = max − min.",
+        "An outlier changes the mean much more than the median.",
+        "Larger standard deviation means more spread out, not bigger values.",
+        "Frequency table: each value counts as many times as its frequency."
+      ],
+      "example": {
+        "problem": "Scores of 1, 2 and 3 have frequencies 3, 5 and 2. What is the mean?",
+        "solution": [
+          "Total of all values: 1·3 + 2·5 + 3·2 = 19.",
+          "Number of values: 3 + 5 + 2 = 10.",
+          "Mean = 19/10 = 1.9."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Make a list of this data with one outlier: <code>L = [4, 7, 7, 9, 10, 12, 50]</code>. Then type <code>mean(L)</code> and <code>median(L)</code>.",
+          "keys": "L = [4, 7, 7, 9, 10, 12, 50], mean(L), median(L)",
+          "check": {
+            "all": [
+              {
+                "list": [
+                  4,
+                  7,
+                  7,
+                  9,
+                  10,
+                  12,
+                  50
+                ]
+              },
+              {
+                "value": 14.142857142857142
+              }
+            ]
+          },
+          "hint": "Square brackets for the list, then mean(L) on a new line.",
+          "show": [
+            "L=[4,7,7,9,10,12,50]",
+            "mean(L)",
+            "median(L)"
+          ],
+          "done": "The mean is about 14.1 but the median is 9: the 50 pulls the mean up."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "Remove the 50 from the list. What is the new mean, to the nearest tenth?",
+        "answer": "8.2",
+        "tol": 0.05,
+        "explain": "mean([4, 7, 7, 9, 10, 12]) = 49/6 ≈ 8.2. The mean drops about 6, while the median only moves from 9 to 8.",
+        "check": {
+          "value": 8.166666666666666
+        },
+        "use": "Work out the mean of the six values in the calculator.",
+        "show": [
+          "mean([4,7,7,9,10,12])"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "Test scores of 70, 80 and 90 have frequencies 2, 5 and 3. What is the mean score?",
+          "answer": "81",
+          "explain": "(70·2 + 80·5 + 90·3) / 10 = 810/10 = 81.",
+          "check": {
+            "value": 81,
+            "text": "mean|total"
+          },
+          "use": "Type out the list with each score repeated, then use mean.",
+          "show": [
+            "mean([70,70,80,80,80,80,80,90,90,90])"
+          ]
+        },
+        {
+          "stem": "What is the median of 3, 8, 8, 12, 15, 20?",
+          "answer": "10",
+          "explain": "With six values, the median is halfway between 8 and 12: 10.",
+          "check": {
+            "value": 10,
+            "text": "median"
+          },
+          "use": "Use median on the list.",
+          "show": [
+            "median([3,8,8,12,15,20])"
+          ]
+        },
+        {
+          "stem": "Data set A is 50, 50, 50, 50. Data set B is 20, 40, 60, 80. Which statement is true?",
+          "choices": [
+            "The data sets have the same standard deviation.",
+            "B has the larger standard deviation.",
+            "A has the larger standard deviation.",
+            "B has the larger mean."
+          ],
+          "answer": 1,
+          "explain": "Both have mean 50. B is spread out and A isn't spread at all, so B has the larger standard deviation."
+        }
+      ],
+      "related": [
+        "stats"
+      ],
+      "pitfalls": [
+        "Forgetting to sort before finding the median.",
+        "Ignoring frequencies in a frequency table."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-two-variable-data-models-and-scatterplots",
+      "kind": "topic",
+      "domain": "psda",
+      "skill": "two-variable-data-models-and-scatterplots",
+      "title": "Scatterplots and models",
+      "minutes": 8,
+      "summary": "Lines of best fit, predictions, residuals, and linear versus exponential.",
+      "goal": "Fit a model to data and use it to predict.",
+      "intro": [
+        "A scatterplot shows how two quantities move together. A line of best fit summarizes the trend, and its slope says how much y changes per unit of x.",
+        "Regression in the calculator fits the line or curve for you. Predictions plug a new x into the model."
+      ],
+      "rules": [
+        "Positive association: y tends to rise as x rises. Negative: y tends to fall.",
+        "The slope of the fit line is the predicted change in y for each 1-unit increase in x.",
+        "Residual = actual − predicted.",
+        "Equal differences in y suggest linear; equal ratios suggest exponential."
+      ],
+      "example": {
+        "problem": "A line of best fit is y = 2.4x + 15, where x is hours studied and y a test score. What does 2.4 mean?",
+        "solution": [
+          "2.4 multiplies the hours.",
+          "So each extra hour of study goes with about 2.4 more points, on average.",
+          "15 is the predicted score for 0 hours."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Fit a line to this data. Make a table with x = 1, 2, 3, 4, 5, 6 and y = 2.1, 3.9, 6.2, 7.8, 10.1, 12.0, then type <code>y_1 ~ mx_1 + b</code>.",
+          "keys": "table, then y_1 ~ m x_1 + b",
+          "check": {
+            "all": [
+              {
+                "table": [
+                  [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6
+                  ],
+                  [
+                    2.1,
+                    3.9,
+                    6.2,
+                    7.8,
+                    10.1,
+                    12.0
+                  ]
+                ]
+              },
+              {
+                "fit": {
+                  "m": 1.9914285714285722,
+                  "b": 0.04666666666667065
+                },
+                "anyNames": true
+              }
+            ]
+          },
+          "hint": "Enter both columns, then the regression on a new line.",
+          "show": [
+            {
+              "table": {
+                "cols": [
+                  {
+                    "name": "x_1",
+                    "cells": [
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "6"
+                    ]
+                  },
+                  {
+                    "name": "y_1",
+                    "cells": [
+                      "2.1",
+                      "3.9",
+                      "6.2",
+                      "7.8",
+                      "10.1",
+                      "12.0"
+                    ]
+                  }
+                ]
+              }
+            },
+            "y_1~mx_1+b"
+          ],
+          "done": "m ≈ 1.99 and b ≈ 0.05: y goes up about 2 per unit of x."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "Using the line of best fit, which is closest to the predicted y-value when x = 8?",
+        "choices": [
+          "12",
+          "14",
+          "16",
+          "18"
+        ],
+        "answer": 2,
+        "explain": "1.99(8) + 0.05 ≈ 16.0. After the regression, type 8m + b.",
+        "check": {
+          "value": 15.978095238095248,
+          "tol": 0.001
+        },
+        "use": "Use the fitted m and b to work out the prediction.",
+        "show": [
+          {
+            "table": {
+              "cols": [
+                {
+                  "name": "x_1",
+                  "cells": [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6"
+                  ]
+                },
+                {
+                  "name": "y_1",
+                  "cells": [
+                    "2.1",
+                    "3.9",
+                    "6.2",
+                    "7.8",
+                    "10.1",
+                    "12.0"
+                  ]
+                }
+              ]
+            }
+          },
+          "y_1~mx_1+b",
+          "8m+b"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "A line of best fit for tree height y (feet) against age x (years) is y = 1.6x + 3. Which is the best interpretation of 1.6?",
+          "choices": [
+            "Each additional year of age goes with about 1.6 more feet of height.",
+            "Trees are 1.6 feet tall when planted.",
+            "Trees grow 1.6 years per foot.",
+            "The tallest tree is 1.6 times the shortest."
+          ],
+          "answer": 0,
+          "explain": "The slope is the predicted change in height for each additional year."
+        },
+        {
+          "stem": "Data: x = 0, 1, 2, 3 and y = 3, 6.2, 11.8, 24.5. Which model fits best?",
+          "choices": [
+            "y = 3(2)ˣ",
+            "y = 7x + 3",
+            "y = 2(3)ˣ",
+            "y = 3x²"
+          ],
+          "answer": 0,
+          "explain": "Each y is about double the one before, so it's exponential with a ≈ 3 and b ≈ 2. Fitting y_1 ~ ab^{x_1} gives a ≈ 3.0 and b ≈ 2.0.",
+          "check": {
+            "table": [
+              [
+                0,
+                1,
+                2,
+                3
+              ],
+              [
+                3,
+                6.2,
+                11.8,
+                24.5
+              ]
+            ]
+          },
+          "use": "Put the data in a table and try a fit.",
+          "show": [
+            {
+              "table": {
+                "cols": [
+                  {
+                    "name": "x_1",
+                    "cells": [
+                      "0",
+                      "1",
+                      "2",
+                      "3"
+                    ]
+                  },
+                  {
+                    "name": "y_1",
+                    "cells": [
+                      "3",
+                      "6.2",
+                      "11.8",
+                      "24.5"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "stem": "A model predicts 52 for a data point whose actual value is 47. What is the residual?",
+          "answer": "-5",
+          "explain": "Residual = actual − predicted = 47 − 52 = −5. Negative means the point lies below the line."
+        }
+      ],
+      "related": [
+        "regression"
+      ],
+      "pitfalls": [
+        "Residual is actual minus predicted, not the other way round.",
+        "Predicting far outside the data's range is unreliable."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-probability-and-conditional-probability",
+      "kind": "topic",
+      "domain": "psda",
+      "skill": "probability-and-conditional-probability",
+      "title": "Probability and conditional probability",
+      "minutes": 7,
+      "summary": "Probabilities from counts and two-way tables, including \"given that\" questions.",
+      "goal": "Find the right numerator and, above all, the right denominator.",
+      "intro": [
+        "Probability is favorable outcomes divided by total outcomes. Most SAT probability questions use a two-way table.",
+        "\"Given that\" narrows the group you're choosing from: the denominator becomes that row or column total, not the grand total."
+      ],
+      "rules": [
+        "P(event) = favorable / total.",
+        "P(A given B) = count of both A and B / count of B.",
+        "Read the question for the group: \"of the seniors\", \"given the student plays a sport\".",
+        "Probabilities are between 0 and 1; P(not A) = 1 − P(A)."
+      ],
+      "example": {
+        "problem": "120 students: 50 juniors and 70 seniors. 20 juniors and 42 seniors play a sport. A senior is picked at random. What is the probability they play a sport?",
+        "solution": [
+          "Given senior: the group is the 70 seniors.",
+          "42 of them play a sport.",
+          "Probability = 42/70 = 0.6."
+        ]
+      },
+      "steps": [],
+      "reads": [],
+      "try": {
+        "stem": "Using the example, a student who plays a sport is picked at random. What is the probability they're a junior?",
+        "answer": "20/62",
+        "accept": [
+          ".3225",
+          ".3226",
+          "10/31"
+        ],
+        "explain": "Now the group is everyone who plays a sport: 20 + 42 = 62. Juniors among them: 20. So 20/62 = 10/31 ≈ 0.3226."
+      },
+      "quiz": [
+        {
+          "stem": "A bag holds 4 red, 6 blue and 10 green marbles. One is picked at random. What is the probability it isn't green?",
+          "answer": "0.5",
+          "explain": "10 of the 20 marbles aren't green: 10/20 = 1/2."
+        },
+        {
+          "stem": "In a survey, 30 of 80 adults and 45 of 60 teens prefer streaming. A teen is picked at random. What is the probability the teen prefers streaming?",
+          "answer": "0.75",
+          "explain": "Given teen, the group is 60: 45/60 = 0.75."
+        },
+        {
+          "stem": "Using the same survey, a person who prefers streaming is picked at random. What is the probability the person is an adult?",
+          "answer": "0.4",
+          "explain": "Streaming total: 30 + 45 = 75. Adults among them: 30/75 = 0.4."
+        }
+      ],
+      "related": [],
+      "pitfalls": [
+        "Using the grand total when the question says \"given that\".",
+        "Mixing up P(A given B) and P(B given A)."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-inference-from-sample-statistics-and-margin-of-error",
+      "kind": "topic",
+      "domain": "psda",
+      "skill": "inference-from-sample-statistics-and-margin-of-error",
+      "title": "Sample statistics and margin of error",
+      "minutes": 6,
+      "summary": "Estimate a population from a sample and interpret a margin of error.",
+      "goal": "Use a sample to estimate, and know what a margin of error does and doesn't say.",
+      "intro": [
+        "A random sample lets you estimate a whole population: if 30% of the sample says yes, about 30% of the population would.",
+        "A margin of error gives a range of plausible values for the population: estimate ± margin. Bigger samples give smaller margins."
+      ],
+      "rules": [
+        "Estimate for a population total = sample proportion × population size.",
+        "Plausible range = sample estimate − margin to sample estimate + margin.",
+        "Larger random samples give smaller margins of error.",
+        "A margin of error doesn't fix a biased sample: the sample still has to be random.",
+        "Values inside the range are plausible; it doesn't say they're certain."
+      ],
+      "example": {
+        "problem": "A random sample of 400 of a school's 2,000 students finds 30% walk to school. About how many students in the school walk?",
+        "solution": [
+          "The sample proportion estimates the school's: 30%.",
+          "0.30 × 2,000 = 600 students."
+        ]
+      },
+      "steps": [],
+      "reads": [],
+      "try": {
+        "stem": "A poll estimates 54% of voters support a measure, with a margin of error of 3%. Which is a plausible value for the true support?",
+        "choices": [
+          "49%",
+          "52%",
+          "58%",
+          "60%"
+        ],
+        "answer": 1,
+        "explain": "The plausible range is 51% to 57%. 52% is inside it; the others aren't."
+      },
+      "quiz": [
+        {
+          "stem": "A random sample of 250 of a town's 12,000 households finds 40 have a pet rabbit. About how many households in the town have a pet rabbit?",
+          "answer": "1920",
+          "explain": "40/250 = 0.16, and 0.16 × 12,000 = 1,920."
+        },
+        {
+          "stem": "A researcher wants a smaller margin of error for the same kind of survey. What should they do?",
+          "choices": [
+            "Survey a larger random sample.",
+            "Survey a smaller random sample.",
+            "Survey only volunteers.",
+            "Round the results."
+          ],
+          "answer": 0,
+          "explain": "Larger random samples give smaller margins of error."
+        },
+        {
+          "stem": "A survey estimates a mean of 6.2 hours of sleep, with a margin of error of 0.4 hours. Which conclusion is best?",
+          "choices": [
+            "Every person sleeps between 5.8 and 6.6 hours.",
+            "The population mean is exactly 6.2 hours.",
+            "The population mean is plausibly between 5.8 and 6.6 hours.",
+            "Half the people sleep more than 6.6 hours."
+          ],
+          "answer": 2,
+          "explain": "The plausible range for the population mean is 5.8 to 6.6 hours. It doesn't say every person sleeps in that range."
+        }
+      ],
+      "related": [],
+      "pitfalls": [
+        "Reading the margin of error as a range for individuals.",
+        "Thinking a large sample fixes a non-random one."
+      ],
+      "calculator": false
+    },
+    {
+      "id": "topic-evaluating-statistical-claims-observational-studies-and-experiments",
+      "kind": "topic",
+      "domain": "psda",
+      "skill": "evaluating-statistical-claims-observational-studies-and-experiments",
+      "title": "Observational studies and experiments",
+      "minutes": 6,
+      "summary": "When a study shows cause and effect, and who its results apply to.",
+      "goal": "Decide what a study's design lets you conclude.",
+      "intro": [
+        "Two questions decide every one of these: was there random assignment to groups, and was there random selection from a population?",
+        "Random assignment lets you conclude cause and effect. Random selection lets you extend results to the population the sample came from, and no further."
+      ],
+      "rules": [
+        "Random assignment to treatments: cause and effect is supported.",
+        "No random assignment (observational study): association only, no cause.",
+        "Random sample from a population: results extend to that population only.",
+        "Volunteers or a convenience sample: results don't extend beyond the people studied."
+      ],
+      "example": {
+        "problem": "Researchers randomly assign 200 volunteers to a new sleep app or no app. The app group sleeps more. What can they conclude?",
+        "solution": [
+          "Random assignment: the app likely caused more sleep for these participants.",
+          "But they're volunteers, not a random sample, so the result can't be extended to all adults."
+        ]
+      },
+      "steps": [],
+      "reads": [],
+      "try": {
+        "stem": "A study selects 500 adults at random from a city and finds that those who drink more coffee report less sleep. Which conclusion is supported?",
+        "choices": [
+          "Coffee causes adults in the city to sleep less.",
+          "In the city, drinking more coffee is associated with less sleep.",
+          "Coffee causes everyone to sleep less.",
+          "No conclusion can be drawn about the city."
+        ],
+        "answer": 1,
+        "explain": "Random selection lets you extend the association to the city's adults. There's no random assignment, so coffee can't be shown to cause less sleep."
+      },
+      "quiz": [
+        {
+          "stem": "Students at one school are randomly assigned to study with music or in silence; the silence group scores higher. To whom do the results apply?",
+          "choices": [
+            "The students who took part in the study.",
+            "All students in the country.",
+            "All students at every school.",
+            "No one, because it isn't an experiment."
+          ],
+          "answer": 0,
+          "explain": "Random assignment supports cause and effect, but only for the students in the study, since they weren't a random sample of a larger group."
+        },
+        {
+          "stem": "Which study design can show that a new fertilizer causes taller plants?",
+          "choices": [
+            "Surveying farmers about their plants.",
+            "Comparing gardens that chose to use it with gardens that didn't.",
+            "Randomly assigning plants to get the fertilizer or not.",
+            "Measuring the tallest plants in a field."
+          ],
+          "answer": 2,
+          "explain": "Only random assignment of plants to fertilizer or no fertilizer supports cause and effect."
+        },
+        {
+          "stem": "A website poll of its own visitors finds 80% want longer summer break. Why can't this be extended to all students?",
+          "choices": [
+            "The sample is too large.",
+            "There was no margin of error.",
+            "80% is too high to be true.",
+            "The respondents weren't randomly selected."
+          ],
+          "answer": 3,
+          "explain": "Visitors chose to respond, so the sample isn't random and may not represent all students."
+        }
+      ],
+      "related": [],
+      "pitfalls": [
+        "Claiming cause from an observational study.",
+        "Extending results beyond the population that was sampled."
+      ],
+      "calculator": false
+    },
+    {
+      "id": "topic-area-and-volume",
+      "kind": "topic",
+      "domain": "geometry-trig",
+      "skill": "area-and-volume",
+      "title": "Area and volume",
+      "minutes": 7,
+      "summary": "Area, perimeter, surface area and volume, plus what scaling does to each.",
+      "goal": "Use the reference formulas and the scale-factor rules quickly.",
+      "intro": [
+        "The SAT gives a reference sheet with the main formulas. What it tests is choosing the right one and handling composite shapes.",
+        "Scaling is a favorite: multiply lengths by k, and areas multiply by k² and volumes by k³."
+      ],
+      "rules": [
+        "Rectangle A = lw, triangle A = ½bh, circle A = πr² and C = 2πr.",
+        "Box V = lwh, cylinder V = πr²h, cone V = ⅓πr²h, sphere V = (4/3)πr³.",
+        "Scale lengths by k: areas by k², volumes by k³.",
+        "Composite figures: add the pieces, or subtract a cut-out."
+      ],
+      "example": {
+        "problem": "A cylinder has radius 3 and height 10. What is its volume?",
+        "solution": [
+          "V = πr²h = π · 9 · 10.",
+          "V = 90π ≈ 282.7."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Work out the example's volume: <code>pi*3^2*10</code>.",
+          "keys": "pi*3^2 → *10",
+          "check": {
+            "value": 282.7433388230814
+          },
+          "hint": "Typing pi gives π. Press → after the exponent.",
+          "show": [
+            "pi*3^2*10"
+          ],
+          "done": "About 282.7, which is 90π."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "A cube has a volume of 64 cubic inches. What is its surface area, in square inches?",
+        "answer": "96",
+        "explain": "The side is ∛64 = 4, and the surface area is 6 · 4² = 96."
+      },
+      "quiz": [
+        {
+          "stem": "A rectangle's length and width are both tripled. Its area becomes how many times the original?",
+          "answer": "9",
+          "explain": "Lengths × 3, so area × 3² = 9."
+        },
+        {
+          "stem": "A cone has radius 6 and height 8. What is its volume, to the nearest whole number?",
+          "answer": "302",
+          "explain": "V = ⅓π · 36 · 8 = 96π ≈ 301.6, so 302."
+        },
+        {
+          "stem": "A square with side 10 has a circle of radius 5 cut out of it. What is the remaining area, to the nearest tenth?",
+          "answer": "21.5",
+          "tol": 0.05,
+          "explain": "100 − 25π ≈ 100 − 78.54 = 21.46, so 21.5."
+        }
+      ],
+      "related": [],
+      "pitfalls": [
+        "Using diameter where the formula needs radius.",
+        "Scaling area by k instead of k²."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-lines-angles-and-triangles",
+      "kind": "topic",
+      "domain": "geometry-trig",
+      "skill": "lines-angles-and-triangles",
+      "title": "Lines, angles and triangles",
+      "minutes": 7,
+      "summary": "Angle facts, parallel lines, and similar triangles.",
+      "goal": "Use angle relationships and similarity to find missing values.",
+      "intro": [
+        "These are by-hand questions. A few facts cover almost all of them: angles on a line, angles in a triangle, vertical angles, and parallel lines cut by a transversal.",
+        "Similar triangles have equal angles and proportional sides, so a missing side comes from a proportion."
+      ],
+      "rules": [
+        "Angles on a straight line add to 180°. Angles in a triangle add to 180°.",
+        "Vertical angles are equal.",
+        "Parallel lines cut by a transversal: corresponding and alternate interior angles are equal; same-side interior angles add to 180°.",
+        "Similar triangles: corresponding sides are in the same ratio.",
+        "Isosceles triangle: the angles opposite equal sides are equal."
+      ],
+      "example": {
+        "problem": "Two angles of a triangle measure 47° and 68°. What is the third angle?",
+        "solution": [
+          "The angles add to 180°.",
+          "180 − 47 − 68 = 65°."
+        ]
+      },
+      "steps": [],
+      "reads": [],
+      "try": {
+        "stem": "Triangle ABC is similar to triangle DEF, with AB = 6, BC = 9, and DE = 10. What is EF?",
+        "answer": "15",
+        "explain": "The scale factor is 10/6 = 5/3, so EF = 9 × 5/3 = 15."
+      },
+      "quiz": [
+        {
+          "stem": "Two parallel lines are cut by a transversal. One of the angles formed is 115°. What is the measure of a same-side interior angle paired with it?",
+          "answer": "65",
+          "explain": "Same-side interior angles add to 180°: 180 − 115 = 65°."
+        },
+        {
+          "stem": "In an isosceles triangle, the two equal angles each measure 52°. What is the third angle?",
+          "answer": "76",
+          "explain": "180 − 52 − 52 = 76°."
+        },
+        {
+          "stem": "Two lines cross, and one of the angles formed is 3x + 10 degrees. The vertical angle across from it is 5x − 30 degrees. What is x?",
+          "answer": "20",
+          "explain": "Vertical angles are equal: 3x + 10 = 5x − 30, so x = 20."
+        }
+      ],
+      "related": [],
+      "pitfalls": [
+        "Assuming a figure is drawn to scale.",
+        "Matching the wrong sides in similar triangles: follow the order of the letters."
+      ],
+      "calculator": false
+    },
+    {
+      "id": "topic-right-triangles-and-trigonometry",
+      "kind": "topic",
+      "domain": "geometry-trig",
+      "skill": "right-triangles-and-trigonometry",
+      "title": "Right triangles and trigonometry",
+      "minutes": 8,
+      "summary": "Pythagorean theorem, special right triangles and SOH-CAH-TOA.",
+      "goal": "Find missing sides and angles in right triangles.",
+      "intro": [
+        "Right triangles come up constantly. The Pythagorean theorem links the three sides, and sine, cosine and tangent link sides to angles.",
+        "Use degree mode on the calculator for trig. Special triangles (30-60-90 and 45-45-90) are faster from memory."
+      ],
+      "rules": [
+        "a² + b² = c², where c is the hypotenuse.",
+        "SOH-CAH-TOA: sin = opposite/hypotenuse, cos = adjacent/hypotenuse, tan = opposite/adjacent.",
+        "45-45-90: sides x, x, x√2. 30-60-90: sides x, x√3, 2x.",
+        "sin x° = cos(90 − x)°.",
+        "Common triples: 3-4-5, 5-12-13, 8-15-17."
+      ],
+      "example": {
+        "problem": "A right triangle has legs 9 and 12. What is the hypotenuse?",
+        "solution": [
+          "c² = 81 + 144 = 225.",
+          "c = 15. (It's a 3-4-5 triangle scaled by 3.)"
+        ]
+      },
+      "steps": [
+        {
+          "do": "Switch to degrees (<strong>Settings → Degrees</strong>), then work out the side opposite a 35° angle in a right triangle with hypotenuse 20: <code>20sin(35)</code>.",
+          "keys": "Settings → Degrees, then 20sin(35)",
+          "check": {
+            "all": [
+              {
+                "deg": true
+              },
+              {
+                "value": 11.471528727020921
+              }
+            ]
+          },
+          "hint": "Opposite = hypotenuse × sine of the angle.",
+          "show": [
+            "20sin(35)"
+          ],
+          "done": "About 11.47.",
+          "showSetting": "deg"
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "In a right triangle, the side adjacent to a 40° angle is 15. What is the side opposite that angle, to the nearest tenth?",
+        "answer": "12.6",
+        "tol": 0.05,
+        "showSetting": "deg",
+        "explain": "tan 40° = opposite/adjacent, so opposite = 15 tan 40° ≈ 12.59, which is 12.6.",
+        "check": {
+          "all": [
+            {
+              "deg": true
+            },
+            {
+              "value": 12.586494467659199
+            }
+          ]
+        },
+        "use": "In degree mode, work out 15 tan 40°.",
+        "show": [
+          "15tan(40)"
+        ]
+      },
+      "quiz": [
+        {
+          "stem": "A ladder 13 feet long leans against a wall with its base 5 feet from the wall. How high up the wall does it reach, in feet?",
+          "answer": "12",
+          "explain": "5² + h² = 13², so h² = 144 and h = 12. A 5-12-13 triangle."
+        },
+        {
+          "stem": "In a 30-60-90 triangle, the shortest side is 7. What is the hypotenuse?",
+          "answer": "14",
+          "explain": "The hypotenuse is twice the shortest side: 14."
+        },
+        {
+          "stem": "In a right triangle, sin A = 0.6. What is cos(90° − A)?",
+          "answer": "0.6",
+          "explain": "sin A = cos(90° − A) for complementary angles, so it's 0.6."
+        }
+      ],
+      "related": [],
+      "pitfalls": [
+        "Radian mode by mistake.",
+        "Using the hypotenuse as a leg in the Pythagorean theorem."
+      ],
+      "calculator": true
+    },
+    {
+      "id": "topic-circles",
+      "kind": "topic",
+      "domain": "geometry-trig",
+      "skill": "circles",
+      "title": "Circles",
+      "minutes": 8,
+      "summary": "Arc length, sector area, radians and the equation of a circle.",
+      "goal": "Use the fraction of the circle, and read center and radius from an equation.",
+      "intro": [
+        "Arc and sector questions are about what fraction of the full circle you have: the central angle over 360° (or over 2π radians).",
+        "A circle's equation is (x − h)² + (y − k)² = r², centered at (h, k). In expanded form, the calculator graphs it as is."
+      ],
+      "rules": [
+        "Arc length = (angle/360) × 2πr. Sector area = (angle/360) × πr².",
+        "Radians: 180° = π radians. Arc length = r × angle in radians.",
+        "(x − h)² + (y − k)² = r²: center (h, k), radius r.",
+        "A tangent line is perpendicular to the radius at the point of contact."
+      ],
+      "example": {
+        "problem": "A circle has radius 9. What is the length of an arc with central angle 80°?",
+        "solution": [
+          "The arc is 80/360 = 2/9 of the circle.",
+          "Circumference = 18π.",
+          "Arc length = (2/9)(18π) = 4π ≈ 12.57."
+        ]
+      },
+      "steps": [
+        {
+          "do": "Graph the circle <code>(x − 2)^2 + (y + 1)^2 = 16</code> and find its top and bottom points.",
+          "keys": "(x - 2)^2 → + (y + 1)^2 → = 16",
+          "check": {
+            "curve": [
+              [
+                6,
+                -1
+              ],
+              [
+                2,
+                3
+              ],
+              [
+                -2,
+                -1
+              ],
+              [
+                2,
+                -5
+              ]
+            ],
+            "off": [
+              [
+                2,
+                -1
+              ]
+            ]
+          },
+          "hint": "Press → after each exponent.",
+          "show": [
+            "(x-2)^2+(y+1)^2=16"
+          ],
+          "done": "Center (2, −1) and radius 4: the top is (2, 3)."
+        }
+      ],
+      "reads": [],
+      "try": {
+        "stem": "A circle has radius 6. What is the area of a sector with central angle 120°, to the nearest tenth?",
+        "answer": "37.7",
+        "tol": 0.05,
+        "explain": "The sector is 120/360 = 1/3 of the circle: (1/3)(36π) = 12π ≈ 37.7."
+      },
+      "quiz": [
+        {
+          "stem": "Which is an equation of the circle with center (−3, 4) and radius 5?",
+          "choices": [
+            "(x − 3)² + (y + 4)² = 25",
+            "(x + 3)² + (y − 4)² = 25",
+            "(x + 3)² + (y − 4)² = 5",
+            "(x − 3)² + (y − 4)² = 25"
+          ],
+          "answer": 1,
+          "explain": "(x − h)² + (y − k)² = r² with h = −3 and k = 4 gives (x + 3)² + (y − 4)² = 25. The radius is squared.",
+          "check": {
+            "curve": [
+              [
+                2,
+                4
+              ],
+              [
+                -3,
+                9
+              ],
+              [
+                -8,
+                4
+              ],
+              [
+                -3,
+                -1
+              ]
+            ],
+            "off": [
+              [
+                -3,
+                4
+              ]
+            ]
+          },
+          "use": "Graph your choice and check its center and radius.",
+          "show": [
+            "(x+3)^2+(y-4)^2=25"
+          ]
+        },
+        {
+          "stem": "An angle measures 3π/4 radians. What is its measure in degrees?",
+          "answer": "135",
+          "explain": "Multiply by 180/π: (3π/4)(180/π) = 135°."
+        },
+        {
+          "stem": "A circle has radius 10. What is the length of an arc with a central angle of 1.2 radians?",
+          "answer": "12",
+          "explain": "Arc length = r × angle in radians = 10 × 1.2 = 12."
+        }
+      ],
+      "related": [
+        "circles"
+      ],
+      "pitfalls": [
+        "Forgetting to square the radius in the equation.",
+        "Sign errors: (x + 3)² means h = −3."
+      ],
+      "calculator": true
+    }
   ]
 }

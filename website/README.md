@@ -50,6 +50,8 @@ The pages run in two modes:
 
 `masterclass.html` teaches the calculator moves that matter on SAT Math, one lesson at a time beside a live Topline calculator. The lessons are in `../backend/app/content/masterclass/lessons.json`. Each step has a `check` (see `src/masterclass-checks.js` for the kinds) that runs against the student's calculator as they type, and `show` lines that the "Show me" button displays for the student to type (it never types for them). Each lesson's SAT-style question (`try`) also has a `check`: its answer box stays locked until the student's calculator passes it. After the lesson comes a 3-question practice quiz (`quiz`), gated the same way, one try per question; the best score is saved and a retake starts from a cleared calculator.
 
+The same file has `topics`: an optional lesson for each of the question bank's 19 topics (key ideas, a worked example, a calculator step where Desmos fits the topic, an SAT-style question and a quiz). The Practice page links to each one and, when a student starts a topic whose lesson they haven't finished, asks whether they'd like to do the lesson first.
+
 After editing a lesson, run `node verify_masterclass.mjs` (needs Playwright). It puts each step's `show` lines into the real calculator and confirms the step passes, and wasn't already passing before.
 
 ## Practice test calculator
