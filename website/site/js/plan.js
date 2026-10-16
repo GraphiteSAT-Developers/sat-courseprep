@@ -24,6 +24,7 @@
     $("pl-intro").hidden = name !== "intro";
     $("pl-quiz").hidden = name !== "quiz";
     $("pl-done").hidden = name !== "done";
+    if (name !== "quiz") setCalc(false);
   }
   function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
 
@@ -90,6 +91,7 @@
     var q = diag.questions[pos], N = diag.questions.length;
     $("pl-q-meta").textContent = "Question " + (pos + 1) + " of " + N + " · " + q.section + " · " + q.domain;
     $("pl-calc").hidden = q.section !== "Math";
+    if (q.section !== "Math") setCalc(false);
     $("pl-steps").innerHTML = diag.questions.map(function (_, i) {
       return '<span class="' + (i === pos ? "is-now" : (answered(i) || saved.answers[i] === null ? "is-done" : "")) + '"></span>';
     }).join("");
@@ -116,6 +118,35 @@
     $("pl-next").textContent = pos === N - 1 ? "See my results" : "Next";
     syncNext();
   }
+  /* ---------- graphing calculator: the same one as the practice test, in a panel beside the question ---------- */
+  var calcBuilt = false;
+  function buildCalc() {
+    if (calcBuilt) return; calcBuilt = true;
+    var f = document.createElement("iframe");
+    f.title = "Graphing calculator";
+    f.addEventListener("load", function () {
+      var l = $("pl-calc-frame").querySelector(".calc-loading"); if (l) l.remove();
+      try { var dark = f.contentDocument.getElementById("thDark"); if (dark) dark.click(); } catch (e) { /* other origin */ }
+    });
+    if (window.TOPLINE_SRC_B64) {  // preview: the calculator is built into the page
+      var bin = atob(window.TOPLINE_SRC_B64), bytes = new Uint8Array(bin.length);
+      for (var k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+      f.srcdoc = new TextDecoder().decode(bytes);
+    } else {
+      f.src = "calculator.html";
+    }
+    $("pl-calc-frame").appendChild(f);
+  }
+  function setCalc(open) {
+    $("pl-calc-panel").hidden = !open;
+    $("pl-calc").setAttribute("aria-expanded", String(open));
+    $("pl-calc").classList.toggle("on", open);
+    $("pl-quiz-wrap").classList.toggle("calc-open", open);
+    if (open) buildCalc();
+  }
+  $("pl-calc").addEventListener("click", function () { setCalc($("pl-calc-panel").hidden); });
+  $("pl-calc-close").addEventListener("click", function () { setCalc(false); $("pl-calc").focus(); });
+
   function syncNext() { $("pl-next").disabled = !(answered(pos) && typeof saved.sure[pos] === "boolean") || busy; }
   function save() { saved.pos = pos; store(key(), saved); }
   $("pl-sure-yes").addEventListener("change", function () { saved.sure[pos] = true; save(); syncNext(); });

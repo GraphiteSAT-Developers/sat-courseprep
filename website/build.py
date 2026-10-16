@@ -171,7 +171,7 @@ def render(meta, mode):
         icons = f'<link rel="icon" href="{fav}" type="image/svg+xml">'
         styles = "<style>" + minify_css(css) + "</style>"
         script = "<script>" + js + "</script>" + "".join("<script>" + script_source(n) + "</script>" for n in meta.get("scripts", []))
-        if meta.get("test"):
+        if meta.get("test") or meta.get("calculator"):
             script = "<script>window.TOPLINE_SRC_B64 = '" + base64.b64encode(calculator_html().encode()).decode() + "';</script>" + script
         canonical = ""
         # The preview is a set of files with no server, so "./" (the home page) must name the file.

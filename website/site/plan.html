@@ -96,10 +96,21 @@
     </section>
 
     <!-- 2. The diagnostic, one question at a time -->
+    <div class="pl-quiz-wrap" id="pl-quiz-wrap">
+    <aside class="panel pl-calc-panel" id="pl-calc-panel" aria-label="Graphing calculator" hidden>
+      <div class="calc-head">
+        <span class="calc-name">Graphing calculator</span>
+        <button class="exam-pill" type="button" id="pl-calc-close" aria-label="Close calculator">Close</button>
+      </div>
+      <div class="calc-frame" id="pl-calc-frame"><p class="calc-loading">Loading calculator…</p></div>
+    </aside>
     <section class="panel pl-quiz" id="pl-quiz" aria-labelledby="pl-q-meta" hidden>
       <div class="pl-quiz-top">
         <p class="label" id="pl-q-meta">Question 1 of 10 · Math</p>
-        <a class="pl-calc" id="pl-calc" href="/calculator.html" target="_blank" rel="noopener">Open the graphing calculator</a>
+        <button class="btn btn-quiet pl-calc" type="button" id="pl-calc" aria-controls="pl-calc-panel" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="8" y="6" width="8" height="3.5" rx=".6" fill="currentColor"/><circle cx="9" cy="13.5" r="1.1" fill="currentColor"/><circle cx="12" cy="13.5" r="1.1" fill="currentColor"/><circle cx="15" cy="13.5" r="1.1" fill="currentColor"/><circle cx="9" cy="17.3" r="1.1" fill="currentColor"/><circle cx="12" cy="17.3" r="1.1" fill="currentColor"/><circle cx="15" cy="17.3" r="1.1" fill="currentColor"/></svg>
+          <span>Graphing calculator</span>
+        </button>
       </div>
       <div class="pl-steps" id="pl-steps" aria-hidden="true"></div>
       <div class="q-stem pl-stem" id="pl-stem"></div>
@@ -117,6 +128,7 @@
         <button class="btn btn-primary" type="button" id="pl-next" disabled>Next</button>
       </div>
     </section>
+    </div>
 
     <!-- 3. Results and the plan -->
     <div class="pl-done" id="pl-done" hidden>
