@@ -3,6 +3,8 @@
     python export_users.py        (on Mac, python3)
 
 Works on your computer's local database, or on the live database if DATABASE_URL is set.
+Also writes retention.csv (did each student come back the next day, in week 1, in week 4?) and
+weekly_active.csv (how many students studied each week), and prints a retention summary.
 Files go into the exports/ folder, which git ignores so student data never gets pushed to GitHub.
 Passwords are never exported: only scrambled hashes are stored, and those are left out too.
 """
@@ -17,6 +19,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 
 from app import create_app  # noqa: E402
 from app.db import query  # noqa: E402
+from app.services import engagement  # noqa: E402
 
 USER_COLUMNS = ["id", "name", "email", "grade", "test_date", "target_score", "plan", "weekly_goal_hours",
                 "parent_email", "created_at", "last_login_at"]
@@ -68,6 +71,7 @@ def main():
             "r.created_at, r.cleared_at FROM review_items r JOIN users u ON u.id = r.user_id ORDER BY r.user_id, r.id")
         for r in reviews:
             r["question_number"] = r.pop("question_index") + 1
+        retention_rows, retention_summary, weekly_active = engagement.retention()
 
     out.mkdir(parents=True, exist_ok=True)
     write_csv(out / "users.csv", users, USER_COLUMNS + ["tests_taken", "best_score", "last_test_at",
@@ -77,6 +81,16 @@ def main():
                                                     "percent", "minutes_used", "submitted_at"] + domain_cols)
     write_csv(out / "review_queue.csv", reviews, ["id", "user_id", "email", "test_id", "question_number", "domain",
                                                   "skill", "right_count", "due_on", "created_at", "cleared_at"])
+
+    write_csv(out / "retention.csv", retention_rows, ["user_id", "email", "signup_date", "signup_week", "study_days",
+                                                      "last_active", "day1", "week1", "week4"])
+    write_csv(out / "weekly_active.csv", weekly_active, ["week_of", "active_students"])
+
+    print("\n  Retention (a window counts once it's over for that student):")
+    for s in retention_summary:
+        pct = f"{s['percent']}%" if s["percent"] is not None else "not enough data yet"
+        print(f"    {s['window']:<32} {s['returned']:>4} of {s['students']:<4} {pct}")
+    print("  Students who studied each week: " + ", ".join(f"{w['week_of'][5:]}: {w['active_students']}" for w in weekly_active))
 
     print(f"\n  Exported from {app.config['DATABASE_URL'].split('@')[-1]}")
     print(f"  {len(users)} accounts, {len(leads)} home page signups, {len(attempts)} test attempts, {len(reviews)} review questions\n")

@@ -38,6 +38,16 @@ def update_me():
         if not 1 <= hours <= 20:
             raise ApiError(400, "Weekly goals run from 1 to 20 hours.", "weekly_goal_hours")
         fields["weekly_goal_hours"] = hours
+    for key in ("weekly_email", "parent_weekly"):
+        if key in data:
+            if not isinstance(data[key], bool):
+                raise ApiError(400, "Send true or false.", key)
+            fields[key] = int(data[key])
+    parent_email = fields.get("parent_email", user["parent_email"])
+    if fields.get("parent_weekly") and not parent_email:
+        raise ApiError(400, "Add a parent email first.", "parent_email")
+    if "parent_email" in fields and not parent_email:
+        fields["parent_weekly"] = 0  # no address, no parent email
     if not fields:
         raise ApiError(400, "Nothing to update.")
     sets = ", ".join(f"{k} = ?" for k in fields)  # keys come from the fixed list above, never from the request

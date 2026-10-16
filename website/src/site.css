@@ -1332,3 +1332,10 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .dm-card { position: relative; }
 .dm-card.is-next { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .dm-next-badge { position: absolute; top: -10px; left: var(--s4); padding: 1px var(--s2); border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 800; }
+.email-prefs { grid-column: 1 / -1; border: 0; padding: 0; margin: 0; display: grid; gap: var(--s2); min-width: 0; }
+.email-prefs legend { font-weight: 700; margin-bottom: var(--s2); padding: 0; }
+.warmup { grid-template-columns: minmax(0, 1fr) auto; align-items: center; border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.warmup.is-done { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.warmup-main { display: grid; gap: var(--s2); min-width: 0; }
+.warmup-side { display: grid; gap: var(--s3); justify-items: end; }
+@media (max-width: 640px) { .warmup { grid-template-columns: minmax(0, 1fr); } .warmup-side { justify-items: start; } }

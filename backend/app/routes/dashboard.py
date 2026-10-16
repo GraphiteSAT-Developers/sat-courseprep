@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request
 
 from ..db import execute, now_iso, query
 from ..security import ApiError, body, current_user, login_required
-from ..services import bank, practice, review, today as today_service
+from ..services import bank, practice, review, warmup, today as today_service
 from ..services import dashboard as dashboard_service
 
 bp = Blueprint("dashboard", __name__, url_prefix="/api")
@@ -17,6 +17,7 @@ ACTIVITY_KINDS = {"practice_question": 300}  # kind: most seconds one entry can 
 def dashboard():
     user = current_user()
     data = dashboard_service.build(user, _local_today())
+    data["warmup"] = warmup.status(user["id"], _local_today())
     # The first visit after a student's first sign-in goes to the diagnostic, once. Skipping it is fine:
     # they aren't sent back, and Today's set offers it until they take it.
     data["start_with_diagnostic"] = False
@@ -48,6 +49,16 @@ def start_today():
     session = today_service.start(current_user(), _local_today())
     if not session:
         return jsonify({"redirect": "plan.html"})
+    return jsonify({"session": practice.public(session)}), 201
+
+
+@bp.post("/warmup")
+@login_required
+def start_warmup():
+    """The daily warm-up: picks up today's unfinished one, or starts a new one."""
+    user = current_user()
+    state = warmup.status(user["id"], _local_today())
+    session = practice.get(user["id"], state["session_id"]) if state["session_id"] else warmup.start(user["id"], _local_today())
     return jsonify({"session": practice.public(session)}), 201
 
 

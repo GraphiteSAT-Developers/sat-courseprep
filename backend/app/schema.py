@@ -157,7 +157,12 @@ MIGRATIONS = [
     (7, "Best practice quiz score for each masterclass lesson", [
         "ALTER TABLE masterclass_progress ADD COLUMN quiz_best INTEGER",
     ]),
-    # (8, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (8, "Weekly progress email settings", [
+        "ALTER TABLE users ADD COLUMN weekly_email INTEGER NOT NULL DEFAULT 1",
+        "ALTER TABLE users ADD COLUMN parent_weekly INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN weekly_sent_at TEXT",
+    ]),
+    # (9, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

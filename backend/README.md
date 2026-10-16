@@ -37,13 +37,22 @@ cd backend
 python -m unittest discover tests
 ```
 
+## Weekly progress emails
+
+```bash
+python send_weekly.py --dry-run   # who would get one
+python send_weekly.py             # send them
+```
+
+Each student gets a summary of their week (study days, questions answered, lessons and topics finished, review questions due, days to the SAT). A parent gets a copy only if the student adds a parent email and turns the copy on in Account. Every email has a one-click unsubscribe link. Students who haven't studied in 4 weeks, or whose account is under 3 days old, are skipped, and running it twice in a week sends once. On Render, `render.yaml` runs it every Sunday as a cron job (cron jobs need a paid instance).
+
 ## See your users' data
 
 ```bash
 python export_users.py
 ```
 
-Run it from the main `sat-courseprep` folder. It saves `users.csv`, `leads.csv`, `test_attempts.csv` and `review_queue.csv` in a new folder under `exports/`, ready to open in Excel or Google Sheets. Passwords are never included. `exports/` is ignored by git, so student data isn't pushed to GitHub. To export from the live site, set `DATABASE_URL` to the live database first.
+Run it from the main `sat-courseprep` folder. It saves `users.csv`, `leads.csv`, `test_attempts.csv`, `review_queue.csv`, `retention.csv` and `weekly_active.csv`, and prints how many students came back the next day, in their first week, and in week 4. Use those numbers to tell whether changes help retention in a new folder under `exports/`, ready to open in Excel or Google Sheets. Passwords are never included. `exports/` is ignored by git, so student data isn't pushed to GitHub. To export from the live site, set `DATABASE_URL` to the live database first.
 
 ## What it does
 
@@ -95,6 +104,8 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `POST /api/masterclass/progress` | Save how far a student got in a lesson: `{"lesson", "step"}` (it only goes up) | Yes |
 | `POST /api/masterclass/quiz` | Save a practice quiz score: `{"lesson", "correct"}` (the best is kept) | Yes |
 | `GET /api/dashboard` | Everything the dashboard shows | Yes |
+| `POST /api/warmup` | Start (or pick up) today's 3-question warm-up | Yes |
+| `GET /api/email/unsubscribe?t=` | One-click stop for the weekly email (signed link) | No |
 | `POST /api/review/<id>/right` | Mark a review question right | Yes |
 | `POST /api/activity` | Log practice time | Yes |
 | `GET /api/health` | Health check for the host | No |
@@ -156,6 +167,6 @@ Don't run production on SQLite there: the server's disk is wiped on every restar
 
 - Payments (Stripe Checkout and webhooks would go in a new `billing` feature)
 - Email verification for new accounts
-- Parent accounts and the weekly progress email
+- Parent accounts (parents get the weekly email, but have no sign-in of their own)
 - An admin page to see leads and students (for now, query the `leads` and `users` tables)
 - Reading and Writing practice tests, and the tutor's AI explanations

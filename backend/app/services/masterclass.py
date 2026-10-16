@@ -57,6 +57,11 @@ def _ensure_row(user_id, lesson_id, stamp):
             "ON CONFLICT (user_id, lesson_id) DO NOTHING", (user_id, lesson_id, stamp))
 
 
+def _log_activity(user_id, lesson_id, stamp):
+    """Lesson steps and quizzes count as studying: study days on the dashboard, retention, the weekly email."""
+    execute("INSERT INTO activity (user_id, kind, seconds, detail, at) VALUES (?, 'lesson', 0, ?, ?)", (user_id, lesson_id, stamp))
+
+
 def _row(user_id, lesson_id):
     return query("SELECT step, quiz_best FROM masterclass_progress WHERE user_id = ? AND lesson_id = ?", (user_id, lesson_id), one=True)
 
@@ -71,6 +76,7 @@ def save(user_id, lesson_id, step):
     _ensure_row(user_id, lesson_id, stamp)
     execute("UPDATE masterclass_progress SET step = ?, updated_at = ? WHERE user_id = ? AND lesson_id = ? AND step < ?",
             (step, stamp, user_id, lesson_id, step))
+    _log_activity(user_id, lesson_id, stamp)
     if step == n:
         execute("UPDATE masterclass_progress SET completed_at = ? WHERE user_id = ? AND lesson_id = ? AND completed_at IS NULL",
                 (stamp, user_id, lesson_id))
@@ -83,6 +89,7 @@ def save_quiz(user_id, lesson_id, correct):
     correct = max(0, min(quiz_total(lesson), correct))
     stamp = now_iso()
     _ensure_row(user_id, lesson_id, stamp)
+    _log_activity(user_id, lesson_id, stamp)
     execute("UPDATE masterclass_progress SET quiz_best = ?, updated_at = ? WHERE user_id = ? AND lesson_id = ? "
             "AND (quiz_best IS NULL OR quiz_best < ?)", (correct, stamp, user_id, lesson_id, correct))
     return _state(lesson, _row(user_id, lesson_id))

@@ -247,6 +247,16 @@ def public(session):
     return out
 
 
+def review_item_for(session, index):
+    """The review queue item a question was reopened from: every question of a review set, or the first of a warm-up."""
+    task = session.get("plan_task") or ""
+    if task.startswith("review:"):
+        return int(task.split(":")[1])
+    if task.startswith("warmup:") and index == 0:
+        return int(task.split(":")[1])
+    return None
+
+
 def check(user_id, session, index, answer):
     """Grades one question in topic practice and locks it. Returns the graded question and any topics it finished."""
     items = bank.all_items()
@@ -258,11 +268,11 @@ def check(user_id, session, index, answer):
         execute("UPDATE practice_sessions SET checked = ? WHERE id = ?", (json.dumps(checked), session["id"]))
         graded = bank.graded_question(items[ids[index]], index, answer)
         finished = mark_seen(user_id, [ids[index]])
-        task = session.get("plan_task") or ""
-        if task.startswith("review:"):
+        review_id = review_item_for(session, index)
+        if review_id:
             # Reopened from the review queue: a right answer counts toward clearing it, a miss resets it.
             if graded["correct"]:
-                graded["review"] = review.mark_right(user_id, int(task.split(":")[1]))
+                graded["review"] = review.mark_right(user_id, review_id)
             else:
                 add_to_review(user_id, [graded])
         else:
@@ -283,15 +293,12 @@ def submit(user_id, session, answers, seconds):
     answered = [ids[i] for i in answers if answers[i] is not None and answers[i] != ""]
     result["finished"] = mark_seen(user_id, answered)
     unchecked = [q for q in result["questions"] if q["answered"] and q["index"] not in checked]
-    task = session.get("plan_task") or ""
-    if task.startswith("review:"):
-        for q in unchecked:
-            if q["correct"]:
-                review.mark_right(user_id, int(task.split(":")[1]))
-            else:
-                add_to_review(user_id, [q])
-    else:
-        add_to_review(user_id, unchecked)
+    for q in unchecked:
+        review_id = review_item_for(session, q["index"])
+        if review_id and q["correct"]:
+            review.mark_right(user_id, review_id)
+        else:
+            add_to_review(user_id, [q])
 
     if session["mode"] == "test":
         # Practice tests count toward the dashboard's score history, like the fixed tests.

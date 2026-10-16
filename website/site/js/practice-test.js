@@ -45,11 +45,12 @@
   function boot(T, user) {
   if (!T) return;
   var Q = T.questions, N = Q.length, LETTERS = "ABCD";
-  var TOPIC = T.mode === "topic" || T.mode === "quiz" || T.mode === "review", UNTIMED = !T.minutes;
-  var REVIEW = T.mode === "review";
-  var FROM_PLAN = !!(T.session && T.session.plan_task) && !REVIEW;
+  var TOPIC = T.mode === "topic" || T.mode === "quiz" || T.mode === "review" || T.mode === "warmup", UNTIMED = !T.minutes;
+  var REVIEW = T.mode === "review", WARMUP = T.mode === "warmup";
+  var FROM_PLAN = !!(T.session && T.session.plan_task) && !REVIEW && !WARMUP;
   if (FROM_PLAN) BACK_URL = "plan.html";
   if (REVIEW) BACK_URL = "dashboard.html#review";
+  if (WARMUP) BACK_URL = "dashboard.html";
   var checked = (T.session && T.session.checked) || {}; // topic practice: graded questions, by index
   var checking = false;
   var KEY = "graphite_test_" + T.id + (user ? "_u" + user.id : "");
@@ -533,6 +534,12 @@
     if (!T.session) { reset(); return; }
     if (FROM_PLAN) { location.href = "plan.html"; return; }
     var s = T.session, b = $("retake");
+    if (WARMUP) {  // another warm-up: three new questions
+      b.disabled = true; b.textContent = "Picking questions…";
+      API.call("/api/warmup", {}).then(function (r) { location.href = "practice-test.html?session=" + r.session.id; })
+        .catch(function () { b.disabled = false; b.textContent = "Another warm-up"; toast("We couldn't start a new warm-up. Check your connection and try again."); });
+      return;
+    }
     var data = s.mode === "test" ? { mode: "test" } : { mode: "topic", domain: s.domain, skill: s.skill, count: N };
     b.disabled = true; b.textContent = "Building your set…";
     practiceCall("/api/practice/sessions", data).then(function (r) {
@@ -557,7 +564,7 @@
   function applyLabels() {
     if (!T.session) return;
     var heading = T.mode === "test" ? "Math practice test" : T.title;
-    var kind = REVIEW ? "Review queue · one question" : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
+    var kind = WARMUP ? "Daily warm-up · about 5 minutes" : REVIEW ? "Review queue · one question" : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
       : (T.mode === "test" ? "Practice test · Math" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
     $("exam-title").textContent = heading;
     $("start-title").textContent = heading;
@@ -577,7 +584,7 @@
     $("submit-open").textContent = TOPIC ? "Finish set" : "Submit module";
     $("confirm-title").textContent = TOPIC ? "Finish this set?" : "Submit this module?";
     if (TOPIC) $("confirm-desc").textContent = "Questions you haven't answered go back into the pool for next time.";
-    $("retake").textContent = FROM_PLAN ? "Back to your plan" : (TOPIC ? "New set, same topic" : "Take another practice test");
+    $("retake").textContent = WARMUP ? "Another warm-up" : FROM_PLAN ? "Back to your plan" : (TOPIC ? "New set, same topic" : "Take another practice test");
     Array.prototype.forEach.call(document.querySelectorAll('a[href$="dashboard.html"]'), function (a) {
       if (a.id === "save-exit" || a.closest(".dialog-actions")) a.setAttribute("href", BACK_URL);
     });

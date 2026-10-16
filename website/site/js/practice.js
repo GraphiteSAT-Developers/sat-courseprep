@@ -134,7 +134,7 @@
     var list = $("pr-unfinished-list"); list.innerHTML = "";
     d.unfinished.forEach(function (s) {
       var li = document.createElement("li");
-      var kind = s.mode === "test" ? "Practice test" : "Topic practice";
+      var kind = s.mode === "test" ? "Practice test" : s.mode === "warmup" ? "Daily warm-up" : "Topic practice";
       var detail = s.mode === "topic" && s.checked ? s.checked + " of " + s.questions + " checked" : s.questions + " questions";
       li.innerHTML = '<div><strong>' + esc(s.title) + '</strong><p class="fine">' + kind + " · " + detail + "</p></div>" +
         '<a class="btn btn-quiet" href="practice-test.html?session=' + s.id + '">Resume</a>';

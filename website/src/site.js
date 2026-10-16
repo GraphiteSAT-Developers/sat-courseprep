@@ -772,11 +772,13 @@
       var h = Number($("#goal-hours").value);
       if (!h) { showStatus(gStatus, "err", "Choose a weekly goal first."); return; }
       if (!LIVE) { store.set("graphite_goal", h); applyGoal(h); showStatus(gStatus, "ok", "Weekly goal saved: " + h + " hours."); return; }
-      var payload = { weekly_goal_hours: h, test_date: $("#acct-test-date").value, target_score: $("#acct-target").value };
+      var payload = { weekly_goal_hours: h, test_date: $("#acct-test-date").value, target_score: $("#acct-target").value,
+                      weekly_email: $("#acct-weekly").checked, parent_email: $("#acct-parent-email").value.trim(),
+                      parent_weekly: $("#acct-parent-weekly").checked && !!$("#acct-parent-email").value.trim() };
       api("/api/me", payload, "PATCH")
         .then(function () { showStatus(gStatus, "ok", "Settings saved."); return loadDashboard(); })
         .catch(function (err) {
-          showFieldError(err, { test_date: "acct-test-date", target_score: "acct-target", weekly_goal_hours: "goal-hours" });
+          showFieldError(err, { test_date: "acct-test-date", target_score: "acct-target", weekly_goal_hours: "goal-hours", parent_email: "acct-parent-email" });
           showStatus(gStatus, "err", "We couldn't save your settings.", networkMessage(err));
         });
     });
@@ -822,8 +824,30 @@
       if (!LIVE) $("#today").scrollIntoView({ block: "start" });
     });
 
+    // The daily warm-up: three questions, about five minutes.
+    var warmBtn = $("#warmup-start");
+    if (warmBtn) warmBtn.addEventListener("click", function () {
+      if (!LIVE) { location.href = "practice.html"; return; }
+      warmBtn.disabled = true; warmBtn.textContent = "Picking your questions…";
+      var day = new Date(), iso = day.getFullYear() + "-" + String(day.getMonth() + 1).padStart(2, "0") + "-" + String(day.getDate()).padStart(2, "0");
+      api("/api/warmup?today=" + iso, {}).then(function (r) { location.href = "practice-test.html?session=" + r.session.id; })
+        .catch(function (err) { warmBtn.disabled = false; warmBtn.textContent = "Start the warm-up"; showStatus($("#goal-status"), "err", "We couldn't start the warm-up.", networkMessage(err)); });
+    });
+    function renderWarmup(w) {
+      if (!w || !warmBtn) return;
+      $("#warmup-meta").textContent = w.done_today ? "Done for today" : w.questions + " questions · about " + w.minutes + " min";
+      $("#warmup-lede").textContent = w.done_today
+        ? "Nice. " + (w.days_this_week > 1 ? "That's " + w.days_this_week + " warm-ups this week. " : "") + "Come back tomorrow for three new questions, or do another now."
+        : w.session_id ? "You started today's warm-up. Pick up where you left off."
+        : "One missed question that's due, one from your weakest topic, and one Desmos move. A few minutes a day keeps it all fresh.";
+      warmBtn.textContent = w.done_today ? "Do another" : w.session_id ? "Finish the warm-up" : "Start the warm-up";
+      warmBtn.className = "btn " + (w.done_today ? "btn-secondary" : "btn-primary");
+      $("#warmup").classList.toggle("is-done", !!w.done_today);
+    }
+
     function renderDashboard(d) {
       if (d.start_with_diagnostic) { location.replace("plan.html?welcome=1"); return; }
+      renderWarmup(d.warmup);
       var s = d.summary, u = d.user;
       // Label each attempt in the student's own time zone.
       d.history.forEach(function (h) { if (h.submitted_at) h.label = new Date(h.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }); });
@@ -943,10 +967,14 @@
         "<div><dt>Student</dt><dd>" + esc(u.name) + (u.grade ? ", " + u.grade + "th grade" : "") + "</dd></div>" +
         "<div><dt>Email</dt><dd>" + esc(u.email) + "</dd></div>" +
         "<div><dt>Plan</dt><dd>" + esc(u.plan.charAt(0).toUpperCase() + u.plan.slice(1)) + "</dd></div>" +
-        "<div><dt>Parent email</dt><dd>" + (u.parent_email ? esc(u.parent_email) : "Not added") + "</dd></div>";
+        "<div><dt>Weekly email</dt><dd>" + (u.weekly_email ? "On" : "Off") +
+        (u.parent_email && u.parent_weekly ? ", with a copy to " + esc(u.parent_email) : "") + "</dd></div>";
       $all(".live-only").forEach(function (f) { f.hidden = false; });
       $("#acct-test-date").value = u.test_date || "";
       $("#acct-target").value = u.target_score || "";
+      $("#acct-weekly").checked = !!u.weekly_email;
+      $("#acct-parent-email").value = u.parent_email || "";
+      $("#acct-parent-weekly").checked = !!u.parent_weekly;
       $("#goal-save").textContent = "Save settings";
       $(".dash").classList.add("is-ready");
     }

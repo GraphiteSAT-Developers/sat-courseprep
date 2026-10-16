@@ -476,6 +476,7 @@ def all_items():
             "type": raw["format"],
             "stem": rich_html(raw["stem"]),
             "explain_html": explanation_html(raw, techniques),
+            "route": raw["route"] if raw.get("desmos") else "hand-primary",
         }
         if raw["format"] == "mc":
             q["choices"] = [rich_html(c) for c in raw["choices"]]

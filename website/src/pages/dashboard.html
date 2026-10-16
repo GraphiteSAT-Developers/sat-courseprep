@@ -47,6 +47,19 @@
     <div class="dash-grid">
       <div class="dash-col">
 
+        <section class="panel warmup" id="warmup" aria-labelledby="warmup-title">
+          <div class="warmup-main">
+            <div class="panel-head">
+              <h2 id="warmup-title">Daily warm-up</h2>
+              <span class="label" id="warmup-meta">3 questions · about 5 min</span>
+            </div>
+            <p class="panel-lede" id="warmup-lede">One missed question that's due, one from your weakest topic, and one Desmos move. A few minutes a day keeps it all fresh.</p>
+          </div>
+          <div class="warmup-side">
+            <button class="btn btn-primary" type="button" id="warmup-start" data-track="dash_warmup">Start the warm-up</button>
+          </div>
+        </section>
+
         <section class="panel" id="today" aria-labelledby="today-title">
           <div class="panel-head">
             <h2 id="today-title">Today's set</h2>
@@ -220,6 +233,14 @@
               <label for="acct-target">Target score</label>
               <input type="number" id="acct-target" name="target_score" min="400" max="1600" step="10" inputmode="numeric">
             </div>
+            <fieldset class="field live-only email-prefs" hidden>
+              <legend>Weekly progress email</legend>
+              <label class="check"><input type="checkbox" id="acct-weekly"> Email me a summary of my week every Sunday</label>
+              <label for="acct-parent-email">Parent or guardian email (optional)</label>
+              <input type="email" id="acct-parent-email" name="parent_email" autocomplete="off" placeholder="parent@example.com">
+              <label class="check"><input type="checkbox" id="acct-parent-weekly"> Send them a copy too</label>
+              <p class="fine">Every email has a one-click link to stop it.</p>
+            </fieldset>
             <button class="btn btn-secondary" type="submit" id="goal-save">Save goal</button>
           </form>
           <div class="status" id="goal-status" role="status" aria-live="polite" tabindex="-1"></div>
