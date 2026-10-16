@@ -37,7 +37,7 @@ The earlier plan (`docs/desmos-integration.md`, `reports/AI Desmos SAT math cour
 | T7 List statistics | ✅ | `mean`, `median`, `stdev` (sample), `stdevp`, `quartile`, `total`, `length`, `min`, `max` are all correct. `{4,7}` used as a list fails, as in Desmos, with the error "Lists use square brackets…". |
 | T8 Inequalities | ✅ | Shading works, with dashed borders for `<` and `>`. `<=` and `\le` are both accepted. |
 | T9 Functions | ✅ | `f(3)`, `f(f(1))`, composition and `f'(x)` all work. |
-| T10 Circles | ✅ | Click a circle to see its top, bottom, leftmost and rightmost points, intercepts and intersections. `midpoint(A,B)`, `distance(A,B)`, `A.x` and `A.y` work. |
+| T10 Circles | ✅ | Click a circle to see its top and bottom points (center = their midpoint), intercepts and intersections. Like Desmos, left and right points aren't marked. `midpoint(A,B)`, `distance(A,B)`, `A.x` and `A.y` work. |
 | T11 Exact answers | ✅ | Results that are exact fractions show an **a/b** toggle, as in Desmos (5.125 ↔ 41/8). Decimals show 6 significant figures. |
 | T12 Trig | ✅ | Radians by default, with Degrees in Settings. `30°` and `30^{\circ}` are accepted and convert correctly in either mode. |
 | T13 Plug in answer choices | ✅ | Define `f`, then evaluate `f(choice)` on each line. |
@@ -51,7 +51,7 @@ The earlier plan (`docs/desmos-integration.md`, `reports/AI Desmos SAT math cour
   - intersections with every other equality curve
 - **Implicit curves** (`3x+2y=12`, circles, other conics) get:
   - intercepts
-  - highest, lowest, leftmost and rightmost points
+  - highest and lowest points (not leftmost and rightmost, matching user reports of Desmos)
   - intersections with every other equality curve
 - **Touching points count.** A tangent line, or a double root such as `y=(x-2)^2` at (2, 0), is marked.
 - Only points **inside the current view** are found, as in Desmos. "Zoom out before concluding no solution" still applies.
@@ -212,11 +212,30 @@ This keeps the no-fine-tuning plan from the report (Gemini 3.x has no tuning). T
 - Whether `x1` is auto-subscripted in Desmos.
 - Whether `distance()` and `midpoint()` exist in the College Board build.
 - Whether `L[1...3]` works in the College Board build.
-- How Desmos marks tangent intersections, implicit-curve intersections, and the extremes of circles, so Topline's markers can be matched exactly. Topline currently also marks the leftmost and rightmost points.
+- How Desmos marks tangent intersections, implicit-curve intersections and double roots, so Topline's markers can be matched exactly. (Users report Desmos marks only the top and bottom of a circle; Topline now does the same.)
+- Whether `midpoint()` and `distance()` work in the College Board build. They are in Desmos's function list, but the default and several state testing builds disable them.
+- Display precision: Desmos may show about 12 significant digits where Topline shows 6.
+- The College Board build's default angle mode (sources disagree).
 - How Desmos handles a regression with too few points.
 - The degree-symbol behaviour, and whether the College Board build shows the fraction toggle.
 - Rounding and display precision, so the AI's decimal-entry advice matches what students see in Bluebook.
 - Each technique-library entry, run once in `desmos.com/testing/collegeboard/graphing`.
+
+### Web evidence gathered so far (2026-10-16)
+
+desmos.com was blocked, so these come from search-result snippets.
+
+| Behaviour | Finding | Confidence |
+|---|---|---|
+| `x1` → x₁ | Desmos auto-subscripts a digit typed after a single letter ([r/Sat Desmos thread](https://reddit.birdcat.cafe/r/Sat/comments/1c8at7a/official_desmos_thread/l0qri87)) | High |
+| `midpoint`, `distance` | Listed in Desmos's Supported Functions (Geometry); disabled in the default testing build and several state builds ([Default testing calculators PDF](https://www.desmos.com/state-pdfs/Default_Desmos_Calculators.pdf)); SAT prep sites teach them for Bluebook | High / Medium for the College Board build |
+| `L[2...4]`, `L[2...]` | Documented in the Desmos Lists help article ([help.desmos.com](https://help.desmos.com/hc/en-us/articles/4407889068557)) | High |
+| `30°` | Accepted in expressions; how it interacts with degree mode isn't documented | Medium |
+| Points of interest | Explicit-function intercepts, extrema and intersections are documented; users report circles show only top and bottom; implicit and tangent cases are undocumented | Low–medium |
+| Too few regression points | Not documented | Low |
+| Fraction toggle | Exists (button and Shift+Alt+A / Shift+Cmd+A); SAT prep sites describe it in Bluebook | High |
+| Disabled in the College Board build | Officially only images, folders and notes ([College Board Desmos PDF](https://www.desmos.com/assessment-pdfs/CollegeBoard_Desmos_Calculator.pdf)); distributions and t-tests reported present (AP Statistics uses Bluebook Desmos from 2026) | High / Low for the rest |
+| `20% of 50` | Typing `%` inserts "of" ([Desmos blog](https://blog.desmos.com/articles/friday-fave-for-september-15)) | High |
 
 ## Sources
 

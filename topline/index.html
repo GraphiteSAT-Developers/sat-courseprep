@@ -3177,31 +3177,21 @@ class MathField {
     const near = (p, i, j) => Math.abs(px(p[0]) - (i + 0.5) * cell) < 3 * cell && Math.abs(py(p[1]) - (j + 0.5) * cell) < 3 * cell;
     const corners = (V, i, j) => [V[j * nx + i], V[j * nx + i + 1], V[(j + 1) * nx + i + 1], V[(j + 1) * nx + i]];
     const crosses = q => q.every(isFinite) && !((q[0] < 0) === (q[1] < 0) && (q[1] < 0) === (q[2] < 0) && (q[2] < 0) === (q[3] < 0));
-    // highest, lowest, leftmost and rightmost points: G = 0 where the curve is horizontal or vertical
+    // highest and lowest points (G = 0 where the curve is horizontal); like Desmos, leftmost and rightmost aren't marked
     const e = x => 1e-5 * Math.max(1, Math.abs(x));
-    const Gx = (x, y) => (G(x + e(x), y) - G(x - e(x), y)) / (2 * e(x)), Gy = (x, y) => (G(x, y + e(y)) - G(x, y - e(y))) / (2 * e(y));
+    const Gx = (x, y) => (G(x + e(x), y) - G(x - e(x), y)) / (2 * e(x));
     let seeds = 0;
     for (let j = 0; j < ny - 1 && seeds < 600; j++) for (let i = 0; i < nx - 1 && seeds < 600; i++) {
       const q = corners(vals, i, j); if (!crosses(q)) continue;
       const gx = (q[1] - q[0] + q[2] - q[3]) / 2, gy = (q[3] - q[0] + q[2] - q[1]) / 2;
       const cx = wx((i + 0.5) * cell), cy = wy((j + 0.5) * cell);
-      for (const flat of [Math.abs(gx) < 0.35 * Math.abs(gy), Math.abs(gy) < 0.35 * Math.abs(gx)]) {
-        if (!flat) continue;
-        seeds++;
-        const horiz = Math.abs(gx) < Math.abs(gy), D = horiz ? Gx : Gy;
-        const p = newton2(G, D, cx, cy, 1e-6); if (!p || !near(p, i, j)) continue;
-        const [x, y] = p, g = G(x, y), gx1 = Gx(x, y), gy1 = Gy(x, y);
-        if (!(Math.abs(g) <= tol) || !numOk(gx1) || !numOk(gy1)) continue;
-        if (horiz) {
-          if (!(Math.abs(gx1) <= 1e-6 * Math.abs(gy1))) continue;
-          const gxx = (Gx(x + e(x), y) - Gx(x - e(x), y)) / (2 * e(x)), curv = -gxx / gy1;
-          if (Math.abs(curv) > 1e-9) push(x, y, curv < 0 ? 'Local maximum' : 'Local minimum');
-        } else {
-          if (!(Math.abs(gy1) <= 1e-6 * Math.abs(gx1))) continue;
-          const gyy = (Gy(x, y + e(y)) - Gy(x, y - e(y))) / (2 * e(y)), curv = -gyy / gx1;
-          if (Math.abs(curv) > 1e-9) push(x, y, curv < 0 ? 'Rightmost point' : 'Leftmost point');
-        }
-      }
+      if (!(Math.abs(gx) < 0.35 * Math.abs(gy))) continue;
+      seeds++;
+      const p = newton2(G, Gx, cx, cy, 1e-6); if (!p || !near(p, i, j)) continue;
+      const [x, y] = p, g = G(x, y), gx1 = Gx(x, y), gy1 = (G(x, y + e(y)) - G(x, y - e(y))) / (2 * e(y));
+      if (!(Math.abs(g) <= tol) || !numOk(gx1) || !numOk(gy1) || !(Math.abs(gx1) <= 1e-6 * Math.abs(gy1))) continue;
+      const gxx = (Gx(x + e(x), y) - Gx(x - e(x), y)) / (2 * e(x)), curv = -gxx / gy1;
+      if (Math.abs(curv) > 1e-9) push(x, y, curv < 0 ? 'Local maximum' : 'Local minimum');
     }
     // intersections with other implicit curves, solved from cells both curves pass through
     for (const { o, G: H2 } of others) {
