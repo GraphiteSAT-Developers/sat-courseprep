@@ -6,6 +6,7 @@ Start here: [`HANDOFF.md`](HANDOFF.md)
 
 ## Contents
 
+- [`web/`](web/README.md): the course site (Next.js, embedded Desmos, Bluebook-rule grading, tutor interface)
 - [`reports/AI Desmos SAT math course plan.md`](reports/AI%20Desmos%20SAT%20math%20course%20plan.md): the full planning report, with the recommended architecture, a phased roadmap, the decisions the owner needs to make, and a list of facts still to verify.
 - [`website/`](website/): Graphite, the marketing site and dashboard sign-in for the AI SAT tutor. The finished site is in `website/site/`.
 - [`topline/`](topline/): Topline, a standalone browser graphing calculator with a live math editor. Open `topline/index.html` in a browser.

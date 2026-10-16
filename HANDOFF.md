@@ -1,9 +1,15 @@
 # Handoff: SAT Math 800 course (Desmos-first, AI tutor)
 
-_Last updated 2026-10-15. Status: the research phase is done and no code exists yet._
+_Last updated 2026-10-15. Status: research done; the site is scaffolded in `web/` (see `web/README.md`)._
 
 ## Project goal
 Build an AI-powered SAT Math course site aimed at an 800. It teaches **Desmos first** and **by-hand methods second**. The planned tutor AI is the **Google Gemini API**. The owner wants the AI trained to be reliably good at Desmos **before** launch.
+
+## Who does what
+This is a collaborative project.
+- **Owner (site and courses):** the course content, the item bank, the site in `web/`, grading, the calculator embed, and the tutoring guardrails.
+- **AI collaborator:** everything behind the `TutorProvider` interface (`web/lib/tutor/types.ts`): model vendor, prompts, technique retrieval, the Solver/Tutor split, the headless Desmos verification service, and evals.
+- **Shared contract:** the item schema (`web/content/types.ts`), the calculator snapshot (`web/lib/desmos/snapshot.ts`), and the College Board calculator options (`web/lib/desmos/config.ts`), which both instances must use.
 
 ## Decisions made so far
 1. **Calculator UX follows OnePrep/Bluebook.** A Desmos graphing calculator is embedded next to each question through the official Desmos API (`Desmos.GraphingCalculator`), configured to match the College Board version. The **student** uses it.
@@ -19,14 +25,16 @@ Build an AI-powered SAT Math course site aimed at an 800. It teaches **Desmos fi
    - a three-layer eval (solver accuracy, expression validity, tutoring quality).
 
 ## Open blockers (resolve first, as Phase 0)
-- **Gemini under-18 terms.** The Gemini API Additional Terms and Google Cloud terms §17(d) reportedly bar apps "directed towards or likely to be accessed by" anyone under 18. Options: a written exception from Google, a different LLM vendor, or an 18+-only product. **Needs a lawyer.** Keep the LLM layer provider-agnostic.
+- **Gemini under-18 terms.** The Gemini API Additional Terms (effective March 2026) bar apps "directed towards or likely to be accessed by" anyone under 18, with no education exception. **Decision (2026-10-15, owner): build on Anthropic; Sonnet (`claude-sonnet-5-5`) is the live tutoring model.** Anthropic allows apps serving minors with safeguards (age screen, AI disclosure, content moderation). A working provider is in `web/lib/tutor/anthropic.ts`; the stub is used when no key is set. Details and sources in `docs/phase0/README.md`. The LLM layer stays provider-agnostic.
 - **Desmos API license.** The free key covers personal use or 90-day internal evaluation only. Production needs a paid plan: Starter is reported at about $100/month for 1,000 users. Ask Desmos whether a server-side headless instance is covered.
 - **College Board content.** Official questions can't be used commercially or with generative AI. **All items must be original**, including the eval benchmark. Every use of "SAT" needs College Board's trademark footnote.
 - **COPPA and minors' privacy.** The amended rule's compliance date was April 22, 2026. Plan for a neutral age screen, parental consent for under-13s, and a parent-paid checkout.
 
 ## Owner decisions still pending
 These are listed in the report's decisions table:
-- LLM vendor and legal path
+- ~~LLM vendor~~ Anthropic, Sonnet (2026-10-15), revised the same day: **Sonnet is the solver, trace generator and judge; the live tutor will be an open-weight model (Qwen/Llama class) fine-tuned on verified tutoring dialogues.** Rationale: no current closed model (Anthropic, OpenAI, Gemini) offers fine-tuning in 2026, and owning the tutor's weights removes vendor-terms risk. Until the fine-tuned model exists, Sonnet serves as the live tutor through the same `TutorProvider` seam. See `docs/fine-tuning-plan.md`. **Revised 2026-10-16 (owner): the interim live tutor is Qwen3.7-Plus on QwenCloud's OpenAI-compatible API** (`TUTOR_ENDPOINT_*` vars, no code change), chosen over Flash for tutoring quality at about $8/month for 10 students (Plus pricing $0.32 in / $1.28 out per 1M tokens, cached input $0.064). Sonnet stays the solver, trace generator and judge, and `TUTOR_PROVIDER=anthropic` is the rollback. Still owed before students use it: an accuracy check on hard items against the SymPy keys, and a read of Alibaba Cloud's terms on under-18 users and data region.
+- **Accounts and data: Firebase** (Auth + Firestore), decided 2026-10-15. Not Supabase. Note the report's warning that Firebase AI Logic ties the LLM to Gemini; use Firebase for auth and data only, and keep the tutor on the Anthropic SDK server-side.
+- Legal path: safeguards per `docs/phase0/age-gate-plan.md`.
 - audience and channel
 - Desmos plan tier
 - launch quality thresholds
@@ -34,18 +42,22 @@ These are listed in the report's decisions table:
 - human review budget
 
 ## Recommended next steps
-1. Phase 0 gating: counsel and Google on the age clause; email Desmos about licensing; audit Bluebook's Desmos features by hand.
-2. Scaffold the repo:
-   - Next.js app with the Desmos embed and KaTeX
-   - a headless Desmos verification service (Playwright)
-   - SymPy verifier
-   - a formatter for typed-in (SPR) answers
-3. Build the technique library: 30–60 Desmos moves, each with a by-hand route.
-4. Build an original benchmark of 300–500 items with a held-out split.
+1. Phase 0: send the Desmos licensing email and do the Bluebook calculator audit (drafts and checklist in `docs/phase0/`). A lawyer is a pre-launch step, not a pre-build one.
+2. ~~Scaffold the repo~~ Done for the site: Next.js app with the Desmos embed, KaTeX, the SPR grader and the tutor seam (`web/`). Still open:
+   - first run against the real Desmos API with a key (only a mock was tested)
+   - the headless Desmos verification service (Playwright) and SymPy verifier (AI collaborator)
+3. ~~Build the technique library~~ T1–T13 done (`web/content/techniques.ts`); T14/T15 proposed pending the Bluebook audit.
+4. ~~Build the item bank~~ **Done 2026-10-16: 1,000 original items** at the official College Board domain and format ratios, every key SymPy-verified, lint-clean (`docs/generation-plan.md`, Phase 2 result). Still owed: owner review, a held-out split, and a near-duplicate check against public items before release. **Storage (decided 2026-10-15): items live in `web/content/items.ts` and are exported to `data/items.jsonl` (`npm run items:export`), which is the feed the AI side sends to Sonnet and uses for traces and fine-tuning. Firebase is deferred. Every item must pass the SymPy verifier and the style lint derived from the College Board framework.**
 
 ## Where things are
 | Path | What |
 |---|---|
+| `web/` | Course site (Next.js). Start with `web/README.md` |
+| `docs/item-style-guide.md` | **The generation framework.** Derived from the official College Board Assessment Framework (Math chapter). Every item batch follows it |
+| `web/content/skills.ts` | The 19 official Math skills and testing points, with the question distribution; items are tested against it |
+| `docs/framework-design-notes.md` | Adaptive design, scoring, calculator rationale, timing; includes corrections to earlier assumptions (notably: "one miss for 800" has no official basis; plan for zero) |
+| `docs/hard-question-map.md` | Hard question types for the 700–800 band with Desmos/hand routes and bank coverage |
+| `docs/item-writing.md` | Checklist and commands every item must pass before entering the database |
 | `reports/AI Desmos SAT math course plan.md` | Full planning report: architecture, 5-phase roadmap, decision table, verification list |
 | `docs/desmos-integration.md` | Calculator design decision (OnePrep-style embed) |
 | `research_notes/AI Desmos SAT math course plan/sat_math_format.md` | Test format, scoring, Bluebook Desmos, typed-answer rules |
