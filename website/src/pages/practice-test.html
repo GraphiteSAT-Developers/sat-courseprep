@@ -35,16 +35,16 @@
   </header>
 
   <div class="exam-body" id="exam-body">
-    <aside class="calc-panel" id="calc-panel" aria-label="Graphing calculator" hidden>
-      <div class="calc-head">
-        <span class="calc-name">Graphing calculator</span>
+    <aside class="calc-panel calc-float" id="calc-panel" role="dialog" aria-label="Graphing calculator" hidden>
+      <div class="calc-head" id="calc-head" tabindex="0" title="Drag to move. Double-click to expand.">
+        <span class="calc-name"><svg class="calc-grab" viewBox="0 0 12 18" aria-hidden="true"><circle cx="3" cy="3" r="1.6"/><circle cx="9" cy="3" r="1.6"/><circle cx="3" cy="9" r="1.6"/><circle cx="9" cy="9" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="9" cy="15" r="1.6"/></svg>Graphing calculator</span>
         <div class="calc-actions">
           <button class="exam-pill" type="button" id="calc-expand" aria-pressed="false">Expand</button>
           <button class="exam-pill" type="button" id="calc-close" aria-label="Close calculator">Close</button>
         </div>
       </div>
       <div class="calc-frame" id="calc-frame"><p class="calc-loading">Loading calculator…</p></div>
-      <div class="calc-resize" id="calc-resize" role="separator" aria-orientation="vertical" aria-label="Resize calculator" tabindex="0"></div>
+      <div class="calc-grip" id="calc-grip" tabindex="0" role="button" aria-label="Resize calculator. Use the arrow keys."></div>
     </aside>
 
     <main class="q-area" id="q-area" tabindex="-1">

@@ -970,3 +970,72 @@
     }
   }
 })();
+
+/* Floating calculator window: drag it by its title bar, resize it from the corner, expand it, and it
+   remembers where it was. On narrow screens it fills the screen instead. Used by the practice test and
+   the diagnostic. */
+window.GraphiteFloat = function (win, o) {
+  "use strict";
+  var narrow = window.matchMedia("(max-width: 860px)");
+  var st = null, restore = null;
+  try { st = JSON.parse(localStorage.getItem(o.key)); } catch (e) { /* storage blocked */ }
+  if (!st || typeof st.w !== "number") st = { w: 460, h: Math.min(720, window.innerHeight - 110), x: 24, y: 84 };
+  function store() { try { localStorage.setItem(o.key, JSON.stringify(st)); } catch (e) { /* storage blocked */ } }
+  function place() {
+    if (narrow.matches) { win.style.left = win.style.top = win.style.width = win.style.height = ""; return; }
+    var vw = window.innerWidth, vh = window.innerHeight;
+    st.w = Math.round(Math.max(320, Math.min(st.w, vw - 16)));
+    st.h = Math.round(Math.max(340, Math.min(st.h, vh - 16)));
+    st.x = Math.round(Math.max(8, Math.min(st.x, vw - st.w - 8)));
+    st.y = Math.round(Math.max(8, Math.min(st.y, vh - st.h - 8)));
+    win.style.left = st.x + "px"; win.style.top = st.y + "px";
+    win.style.width = st.w + "px"; win.style.height = st.h + "px";
+  }
+  function drag(el, onMove) {
+    var start = null;
+    el.addEventListener("pointerdown", function (e) {
+      if (narrow.matches || e.button > 0 || (el === o.handle && e.target.closest("button"))) return;
+      e.preventDefault(); el.setPointerCapture(e.pointerId);
+      start = { px: e.clientX, py: e.clientY, x: st.x, y: st.y, w: st.w, h: st.h };
+      win.classList.add("is-moving");
+    });
+    el.addEventListener("pointermove", function (e) {
+      if (!start) return;
+      onMove(e.clientX - start.px, e.clientY - start.py, start); place();
+    });
+    function end() { if (!start) return; start = null; win.classList.remove("is-moving"); restore = null; syncExpand(); store(); }
+    el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
+  }
+  drag(o.handle, function (dx, dy, s) { st.x = s.x + dx; st.y = s.y + dy; });
+  drag(o.grip, function (dx, dy, s) { st.w = s.w + dx; st.h = s.h + dy; });
+  // Keyboard: arrow keys on the title bar move the window, on the corner grip they resize it.
+  function keys(el, move) {
+    el.addEventListener("keydown", function (e) {
+      var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+      if (!d || narrow.matches || e.target !== el) return;
+      e.preventDefault();
+      if (move) { st.x += d[0] * 32; st.y += d[1] * 32; } else { st.w += d[0] * 32; st.h += d[1] * 32; }
+      place(); store();
+    });
+  }
+  keys(o.handle, true); keys(o.grip, false);
+  function syncExpand() {
+    if (!o.expand) return;
+    o.expand.setAttribute("aria-pressed", String(!!restore));
+    o.expand.textContent = restore ? "Restore" : "Expand";
+  }
+  function toggleExpand() {
+    if (restore) { st = restore; restore = null; }
+    else {
+      restore = { x: st.x, y: st.y, w: st.w, h: st.h };
+      var w = Math.round(window.innerWidth * 0.72), h = window.innerHeight - 96;
+      st = { w: w, h: h, x: Math.round((window.innerWidth - w) / 2), y: 72 };
+    }
+    place(); store(); syncExpand();
+  }
+  if (o.expand) o.expand.addEventListener("click", toggleExpand);
+  o.handle.addEventListener("dblclick", function (e) { if (!e.target.closest("button") && !narrow.matches) toggleExpand(); });
+  window.addEventListener("resize", function () { if (!win.hidden) place(); });
+  if (narrow.addEventListener) narrow.addEventListener("change", function () { if (!win.hidden) place(); });
+  return { place: place };
+};

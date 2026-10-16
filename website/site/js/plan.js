@@ -137,7 +137,10 @@
     }
     $("pl-calc-frame").appendChild(f);
   }
+  // The calculator floats over the page in its own window, like on the practice test.
+  var calcWin = window.GraphiteFloat ? window.GraphiteFloat($("pl-calc-panel"), { key: "graphite_calc_window", handle: $("pl-calc-head"), grip: $("pl-calc-grip"), expand: $("pl-calc-expand") }) : null;
   function setCalc(open) {
+    if (open && calcWin) calcWin.place();
     $("pl-calc-panel").hidden = !open;
     $("pl-calc").setAttribute("aria-expanded", String(open));
     $("pl-calc").classList.toggle("on", open);

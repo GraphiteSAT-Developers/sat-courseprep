@@ -98,12 +98,16 @@
 
     <!-- 2. The diagnostic, one question at a time -->
     <div class="pl-quiz-wrap" id="pl-quiz-wrap">
-    <aside class="panel pl-calc-panel" id="pl-calc-panel" aria-label="Graphing calculator" hidden>
-      <div class="calc-head">
-        <span class="calc-name">Graphing calculator</span>
-        <button class="exam-pill" type="button" id="pl-calc-close" aria-label="Close calculator">Close</button>
+    <aside class="panel pl-calc-panel calc-float" id="pl-calc-panel" role="dialog" aria-label="Graphing calculator" hidden>
+      <div class="calc-head" id="pl-calc-head" tabindex="0" title="Drag to move. Double-click to expand.">
+        <span class="calc-name"><svg class="calc-grab" viewBox="0 0 12 18" aria-hidden="true"><circle cx="3" cy="3" r="1.6"/><circle cx="9" cy="3" r="1.6"/><circle cx="3" cy="9" r="1.6"/><circle cx="9" cy="9" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="9" cy="15" r="1.6"/></svg>Graphing calculator</span>
+        <span class="calc-actions">
+          <button class="exam-pill" type="button" id="pl-calc-expand" aria-pressed="false">Expand</button>
+          <button class="exam-pill" type="button" id="pl-calc-close" aria-label="Close calculator">Close</button>
+        </span>
       </div>
       <div class="calc-frame" id="pl-calc-frame"><p class="calc-loading">Loading calculator…</p></div>
+      <div class="calc-grip" id="pl-calc-grip" tabindex="0" role="button" aria-label="Resize calculator. Use the arrow keys."></div>
     </aside>
     <section class="panel pl-quiz" id="pl-quiz" aria-labelledby="pl-q-meta" hidden>
       <div class="pl-quiz-top">

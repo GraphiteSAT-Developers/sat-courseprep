@@ -459,32 +459,10 @@
     $("calc-toggle").setAttribute("aria-pressed", String(open));
     $("calc-toggle").classList.toggle("on", open);
     root.classList.toggle("calc-open", open);
-    if (open) buildCalc();
+    if (open) { calcWin.place(); buildCalc(); }
   }
-  function setCalcWidth(px) {
-    var max = Math.round(window.innerWidth * 0.75);
-    px = Math.max(320, Math.min(max, px));
-    $("calc-panel").style.width = px + "px";
-    $("calc-resize").setAttribute("aria-valuenow", String(px));
-  }
-  (function resizer() {
-    var handle = $("calc-resize"), dragging = false;
-    handle.addEventListener("pointerdown", function (e) {
-      dragging = true; handle.setPointerCapture(e.pointerId); root.classList.add("is-resizing");
-    });
-    handle.addEventListener("pointermove", function (e) {
-      if (!dragging) return;
-      var left = $("calc-panel").getBoundingClientRect().left;
-      setCalcWidth(e.clientX - left);
-    });
-    function stop() { dragging = false; root.classList.remove("is-resizing"); }
-    handle.addEventListener("pointerup", stop); handle.addEventListener("pointercancel", stop);
-    handle.addEventListener("keydown", function (e) {
-      var w = $("calc-panel").getBoundingClientRect().width;
-      if (e.key === "ArrowRight") { setCalcWidth(w + 32); e.preventDefault(); }
-      if (e.key === "ArrowLeft") { setCalcWidth(w - 32); e.preventDefault(); }
-    });
-  })();
+  // The calculator floats over the test in its own window.
+  var calcWin = window.GraphiteFloat($("calc-panel"), { key: "graphite_calc_window", handle: $("calc-head"), grip: $("calc-grip"), expand: $("calc-expand") });
 
   /* ---------- dialogs ---------- */
   var lastFocus = null;
@@ -515,12 +493,6 @@
   $("timer-toggle").addEventListener("click", function () { S.timerHidden = !S.timerHidden; save(); renderTimer(); });
   $("calc-toggle").addEventListener("click", function () { setCalc($("calc-panel").hidden); });
   $("calc-close").addEventListener("click", function () { setCalc(false); $("calc-toggle").focus(); });
-  $("calc-expand").addEventListener("click", function () {
-    var on = $("calc-expand").getAttribute("aria-pressed") !== "true";
-    $("calc-expand").setAttribute("aria-pressed", String(on));
-    $("calc-expand").textContent = on ? "Collapse" : "Expand";
-    setCalcWidth(on ? window.innerWidth * 0.65 : 480);
-  });
   $("ref-open").addEventListener("click", function () { openDialog("ref-dialog"); });
   $("open-directions").addEventListener("click", function () { openDialog("dir-dialog"); });
   $("more-toggle").addEventListener("click", function () {
