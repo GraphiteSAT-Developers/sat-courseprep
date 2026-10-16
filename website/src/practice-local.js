@@ -13,7 +13,8 @@
   function load() {
     var s = null;
     try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) { /* storage blocked */ }
-    return s && s.sessions ? s : { seen: {}, sessions: {}, nextId: 1 };
+    if (s && s.sessions) { s.completed = s.completed || {}; return s; }
+    return { seen: {}, sessions: {}, completed: {}, nextId: 1 };
   }
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage blocked */ } }
   function fail(status, message) { var e = new Error(message); e.status = status; return Promise.reject(e); }
@@ -24,13 +25,23 @@
     return BANK.items.filter(function (q) { return (!domain || q.domain_key === domain) && (!skill || q.skill_key === skill); })
       .map(function (q) { return q.id; });
   }
-  // n random questions from the pool, unseen first; when the pool runs out, its list starts again.
-  function draw(st, ids, n) {
+  // Up to n questions not yet done. Fewer left than n: just those (fill tops a practice test up with done ones).
+  // Once every question in the pool is done, its list starts again.
+  function draw(st, ids, n, fill) {
     var unseen = shuffle(ids.filter(function (id) { return !st.seen[id]; }));
-    if (unseen.length >= n) return unseen.slice(0, n);
-    ids.forEach(function (id) { delete st.seen[id]; });
-    var rest = shuffle(ids.filter(function (id) { return unseen.indexOf(id) < 0; }));
-    return unseen.concat(rest.slice(0, n - unseen.length));
+    if (!unseen.length) {
+      topicsOf(ids).forEach(function (t) { delete st.completed[t]; });
+      ids.forEach(function (id) { delete st.seen[id]; });
+      unseen = shuffle(ids.slice());
+    }
+    if (unseen.length >= n || !fill) return unseen.slice(0, n);
+    var done = shuffle(ids.filter(function (id) { return unseen.indexOf(id) < 0; }));
+    return unseen.concat(done.slice(0, n - unseen.length));
+  }
+  function topicsOf(ids) {
+    var keys = {};
+    ids.forEach(function (id) { var q = byId[id]; keys["skill:" + q.domain_key + "/" + q.skill_key] = 1; keys["domain:" + q.domain_key] = 1; });
+    return Object.keys(keys).sort(function (a, b) { return (a.indexOf("skill:") ? 1 : 0) - (b.indexOf("skill:") ? 1 : 0) || (a < b ? -1 : 1); });
   }
   function topicTitle(domain, skill) {
     for (var i = 0; i < BANK.topics.length; i++) {
@@ -121,7 +132,7 @@
     var st = load(), ids, title, minutes = 0;
     if (data.mode === "test") {
       ids = [];
-      Object.keys(BANK.mix).forEach(function (d) { ids = ids.concat(draw(st, pool(d), BANK.mix[d])); });
+      Object.keys(BANK.mix).forEach(function (d) { ids = ids.concat(draw(st, pool(d), BANK.mix[d], true)); });
       ids = shuffle(ids).sort(function (a, b) { return BANK.order[byId[a].difficulty] - BANK.order[byId[b].difficulty]; });
       title = "Math practice test"; minutes = BANK.test.minutes;
     } else if (data.mode === "topic") {
@@ -137,7 +148,20 @@
     st.sessions[s.id] = s; save(st);
     return Promise.resolve({ session: publicSession(s) });
   }
-  function markSeen(st, ids) { ids.forEach(function (id) { st.seen[id] = 1; }); }
+  // Adds questions to the done list; returns the topics this finished, like the server does.
+  function markSeen(st, ids) {
+    ids.forEach(function (id) { st.seen[id] = 1; });
+    if (!ids.length) return [];
+    var finished = [];
+    topicsOf(ids).forEach(function (t) {
+      var kind = t.split(":")[0], rest = t.split(":")[1].split("/");
+      var all = pool(rest[0], rest[1] || null).every(function (id) { return st.seen[id]; });
+      if (!all || st.completed[t]) return;
+      st.completed[t] = 1;
+      finished.push({ kind: kind, name: topicTitle(rest[0], rest[1] || null) });
+    });
+    return finished;
+  }
   function check(st, s, data) {
     if (s.mode !== "topic") return fail(400, "Answers on a practice test are checked when you submit it.");
     if (s.submitted_at) return fail(409, "This set is already finished.");
@@ -145,8 +169,9 @@
     if (!(i >= 0 && i < s.item_ids.length)) return fail(400, "That question isn't in this set.");
     var q = byId[s.item_ids[i]], a = cleanAnswer(q, data.answer);
     if (a === null) return fail(400, "Choose or type an answer first.");
-    if (!(String(i) in s.checked)) { s.checked[i] = a; markSeen(st, [q.id]); save(st); }
-    return Promise.resolve({ question: graded(q, i, s.checked[i]) });
+    var finished = [];
+    if (!(String(i) in s.checked)) { s.checked[i] = a; finished = markSeen(st, [q.id]); save(st); }
+    return Promise.resolve({ question: graded(q, i, s.checked[i]), finished: finished });
   }
   function submit(st, s, data) {
     if (s.submitted_at) return Promise.resolve({ result: s.result });
@@ -166,7 +191,7 @@
       dom[q.domain].total++; if (g.correct) dom[q.domain].right++;
       res.questions.push(g);
     });
-    markSeen(st, Object.keys(answers).map(function (k) { return s.item_ids[k]; }));
+    res.finished = markSeen(st, Object.keys(answers).map(function (k) { return s.item_ids[k]; }));
     var limit = s.minutes ? s.minutes * 60 + 120 : s.item_ids.length * 600;
     res.seconds_used = Math.max(0, Math.min(Number(data.seconds_used) || 0, limit));
     res.practice_id = s.id; res.mode = s.mode; res.title = s.title; res.submitted_at = now();

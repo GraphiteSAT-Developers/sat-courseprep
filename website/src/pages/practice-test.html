@@ -98,6 +98,7 @@
       <section class="results" id="results-view" hidden aria-labelledby="results-title">
         <p class="label">Practice test 4 · Math, module 1</p>
         <h2 id="results-title">You got <span id="res-correct">0</span> of 22 right</h2>
+        <div class="res-finished" id="res-finished" hidden></div>
         <dl class="res-stats">
           <div><dt>Time used</dt><dd id="res-time">0:00</dd></div>
           <div><dt>Multiple choice</dt><dd id="res-mc">0 of 14</dd></div>
@@ -145,6 +146,19 @@
       <div class="dialog-actions">
         <a class="btn btn-secondary" href="dashboard.html">Not now</a>
         <button class="btn btn-primary" type="button" id="start-btn">Begin module</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="done-dialog" role="dialog" aria-modal="true" aria-labelledby="done-title" hidden>
+    <div class="dialog done-dialog">
+      <svg class="done-mark" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="currentColor"/><path d="M19 33 L28 42 L46 23" fill="none" stroke="#17181a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h2 id="done-title">Congratulations! You have finished this topic!</h2>
+      <p id="done-text"></p>
+      <p class="fine">Next time you practice it, the topic starts over with the questions in a new order.</p>
+      <div class="dialog-actions">
+        <a class="btn btn-secondary" href="practice.html">Back to practice</a>
+        <button class="btn btn-primary" type="button" data-close>Keep going</button>
       </div>
     </div>
   </div>

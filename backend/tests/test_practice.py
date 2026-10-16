@@ -90,20 +90,45 @@ class PracticeTest(unittest.TestCase):
         self.assertEqual(r.status_code, 201)
         self.assertEqual(self.client.get("/api/practice").json["done"], 0)
 
-    def test_topic_starts_over_after_every_question_is_done(self):
+    def test_finishing_a_topic_congratulates_then_starts_over(self):
         skill = "evaluating-statistical-claims-observational-studies-and-experiments"
         pool = set(bank.pool("psda", skill))
         self.assertEqual(len(pool), 14)
         a = self.start(mode="topic", domain="psda", skill=skill, count=10)
-        self.answer_all(a)
+        self.assertEqual(self.answer_all(a)["finished"], [])
+        # Only 4 are left, so the next set is just those 4: no repeats before the topic is finished.
         b = self.start(mode="topic", domain="psda", skill=skill, count=10)
-        left = pool - {q["id"] for q in a["questions"]}
-        self.assertEqual(len(b["questions"]), 10)
-        self.assertTrue(left <= {q["id"] for q in b["questions"]}, "the 4 never-seen questions come first")
-        self.answer_all(b)
+        self.assertEqual({q["id"] for q in b["questions"]}, pool - {q["id"] for q in a["questions"]})
+        items = bank.all_items()
+        for i, q in enumerate(b["questions"][:-1]):
+            r = self.post(f"/api/practice/sessions/{b['id']}/check", {"index": i, "answer": right_answer(items[q["id"]])})
+            self.assertEqual(r.json["finished"], [])
+        last = len(b["questions"]) - 1
+        r = self.post(f"/api/practice/sessions/{b['id']}/check", {"index": last, "answer": wrong_answer(items[b["questions"][last]["id"]])})
+        self.assertEqual(r.json["finished"], [{"kind": "skill", "name": "Evaluating statistical claims: observational studies and experiments"}])
+        self.assertEqual(self.answer_all(b)["finished"], [], "congratulated once")
+        # The next set starts the topic over, and it can be finished again.
+        c = self.start(mode="topic", domain="psda", skill=skill, count=10)
+        self.assertEqual(len(c["questions"]), 10)
         topic = next(s for d in self.client.get("/api/practice").json["domains"] for s in d["skills"] if s["key"] == skill)
-        # The round restarted when the 4 ran out, so only set b's questions count in the new round.
-        self.assertEqual(topic["done"], 10)
+        self.assertEqual(topic["done"], 0)
+
+    def test_finishing_a_domain(self):
+        with self.app.app_context():
+            from app.services import practice
+            user = 1
+            psda = bank.pool("psda")
+            practice.mark_seen(user, psda[:-1])
+            finished = practice.mark_seen(user, psda[-1:])
+        self.assertIn({"kind": "domain", "name": "Problem-Solving and Data Analysis"}, finished)
+        self.assertEqual(finished[0]["kind"], "skill", "the skill is named first")
+
+    def test_practice_test_keeps_full_size_when_a_domain_runs_low(self):
+        with self.app.app_context():
+            from app.services import practice
+            practice.mark_seen(1, bank.pool("geometry-trig")[:-1])
+        s = self.start(mode="test")
+        self.assertEqual(len(s["questions"]), 22)
 
     def test_topic_check_gives_feedback_and_locks(self):
         s = self.start(mode="topic", domain="algebra", count=5)

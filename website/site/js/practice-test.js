@@ -254,10 +254,13 @@
     checking = true; renderCheck();
     practiceCall("/api/practice/sessions/" + T.session.id + "/check", { index: i, answer: S.answers[i] })
       .then(function (r) {
-        checked[i] = r.question; S.answers[i] = answerValue(r.question); save();
+        checked[i] = r.question; S.answers[i] = answerValue(r.question);
+        if (r.finished && r.finished.length) S.finished = r.finished;
+        save();
         checking = false;
         if (S.cur === i) { renderQuestion(); var fb = $("fb"); if (fb) fb.focus({ preventScroll: false }); }
         renderNav();
+        celebrate(r.finished);
       })
       .catch(function (err) {
         checking = false; renderCheck();
@@ -322,6 +325,7 @@
       S.submitted = true; S.result = result; save();
       if (auto) toast("Time's up. Your module was submitted.");
       renderResults(result); showPage("results");
+      celebrate(result.finished);
     };
     if (!LIVE && !T.session) { finish(gradeLocal(seconds)); return; }
     var answers = {};
@@ -337,8 +341,25 @@
       })
       .then(function () { submitting = false; $("submit-go").disabled = false; $("submit-go").textContent = "Yes, submit"; });
   }
+  /* ---------- finishing a topic ---------- */
+  // finished: [{kind: "skill" | "domain", name}] from the server, for topics this answer or set completed.
+  function finishedText(list) {
+    return list.map(function (t) {
+      return "You've answered every question in " + t.name + (t.kind === "domain" ? ", the whole domain." : ".");
+    }).join(" ");
+  }
+  function celebrate(list) {
+    if (!list || !list.length) return;
+    $("done-title").textContent = "Congratulations! You have finished " + (list.length > 1 || list[0].kind === "domain" ? "a whole domain" : "this topic") + "!";
+    $("done-text").textContent = finishedText(list);
+    openDialog("done-dialog");
+  }
   function renderResults(r) {
     var marked = 0;
+    var fin = r.finished && r.finished.length ? r.finished : (S.finished || []);
+    $("res-finished").hidden = !fin.length;
+    if (fin.length) $("res-finished").innerHTML = "<strong>Congratulations! You have finished " + (fin.length > 1 || fin[0].kind === "domain" ? "a whole domain" : "this topic") + "!</strong> <span></span>";
+    if (fin.length) $("res-finished").querySelector("span").textContent = finishedText(fin);
     for (var m = 0; m < N; m++) if (S.marked[m]) marked++;
     $("results-title").textContent = "You got " + r.correct + " of " + r.total + " right";
     $("res-time").textContent = fmt(r.seconds_used);
@@ -441,7 +462,8 @@
   });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    if (!$("dir-dialog").hidden) closeDialog($("dir-dialog"));
+    if (!$("done-dialog").hidden) closeDialog($("done-dialog"));
+    else if (!$("dir-dialog").hidden) closeDialog($("dir-dialog"));
     else if (!$("ref-dialog").hidden) closeDialog($("ref-dialog"));
     else if (!$("nav-pop").hidden) { closeNav(); $("nav-toggle").focus(); }
     else if (!$("more-menu").hidden) { $("more-menu").hidden = true; $("more-toggle").setAttribute("aria-expanded", "false"); $("more-toggle").focus(); }

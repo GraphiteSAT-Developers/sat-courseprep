@@ -755,3 +755,12 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .g-cell.is-right { border: 1.5px solid var(--ok); }
 .g-cell.is-wrong { border: 1.5px solid var(--err); }
 .res-explain .xp { font-size: var(--t-sm); }
+
+/* Finishing a topic */
+.done-dialog { text-align: center; justify-items: center; }
+.done-dialog .dialog-actions { justify-content: center; }
+.done-mark { width: 64px; height: 64px; color: var(--accent); }
+.exam[data-view="light"] .done-mark { color: #1b6b36; }
+.exam[data-view="light"] .done-mark path { stroke: #ffffff; }
+.res-finished { padding: var(--s4); border-radius: 10px; background: var(--x-bar); border-left: 4px solid var(--accent); display: grid; gap: var(--s1); }
+.exam[data-view="light"] .res-finished { border-left-color: #1b6b36; }

@@ -77,7 +77,8 @@ def check(session_id):
     answer = bank.clean_answer(q, data.get("answer"))
     if answer is None:
         raise ApiError(400, "Choose or type an answer first.", "answer")
-    return jsonify({"question": service.check(current_user()["id"], session, i, answer)})
+    graded, finished = service.check(current_user()["id"], session, i, answer)
+    return jsonify({"question": graded, "finished": finished})
 
 
 @bp.post("/sessions/<int:session_id>/submit")

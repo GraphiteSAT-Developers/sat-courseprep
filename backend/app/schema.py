@@ -109,7 +109,16 @@ MIGRATIONS = [
             UNIQUE (user_id, item_id)
         )""",
     ]),
-    # (3, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (3, "Topics each student has finished in the current round", [
+        """CREATE TABLE practice_completions (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            topic TEXT NOT NULL,
+            completed_at TEXT NOT NULL,
+            UNIQUE (user_id, topic)
+        )""",
+    ]),
+    # (4, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

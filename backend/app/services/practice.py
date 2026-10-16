@@ -4,6 +4,10 @@ Every question a student answers goes on their done list (practice_seen).
 New sets draw only from questions not on that list. When a pool runs out
 (the whole bank for a practice test's domain, or one topic), the questions
 in that pool come off the list and the student starts the pool again.
+
+When the last question of a skill or a domain goes on the list, the student
+has finished that topic: it's recorded once per round (practice_completions)
+and returned so the page can congratulate them.
 """
 import json
 import random
@@ -18,21 +22,26 @@ def seen_ids(user_id):
     return {r["item_id"] for r in query("SELECT item_id FROM practice_seen WHERE user_id = ?", (user_id,))}
 
 
-def draw(user_id, pool, n, seen, rng=random):
-    """n random questions from pool, unseen first. Starts the pool over when it runs out."""
+def draw(user_id, pool, n, seen, rng=random, fill=False):
+    """Up to n random questions from pool that the student hasn't done.
+
+    When fewer than n are left, the set is just those, so the student can finish the topic,
+    unless fill is set (a practice test needs its full count): then it tops up with questions
+    already done. Once every question in the pool is done, its list starts again.
+    """
     unseen = [i for i in pool if i not in seen]
-    if len(unseen) >= n:
-        return rng.sample(unseen, n)
-    picked = list(unseen)
-    rng.shuffle(picked)
-    # Every question in this pool is done (or about to be): start its list again.
-    for item_id in pool:
-        if item_id in seen:
+    if not unseen:
+        # Every question in this pool is done: start its list again.
+        for topic in topics_of(pool):
+            execute("DELETE FROM practice_completions WHERE user_id = ? AND topic = ?", (user_id, topic))
+        for item_id in pool:
             execute("DELETE FROM practice_seen WHERE user_id = ? AND item_id = ?", (user_id, item_id))
             seen.discard(item_id)
-    rest = [i for i in pool if i not in picked]
-    picked += rng.sample(rest, min(n - len(picked), len(rest)))
-    return picked
+        unseen = list(pool)
+    if len(unseen) >= n or not fill:
+        return rng.sample(unseen, min(n, len(unseen)))
+    done = [i for i in pool if i not in unseen]
+    return rng.sample(unseen, len(unseen)) + rng.sample(done, min(n - len(unseen), len(done)))
 
 
 def build_test(user_id, rng=random):
@@ -41,7 +50,7 @@ def build_test(user_id, rng=random):
     items = bank.all_items()
     picked = []
     for domain, n in bank.MODULE_MIX.items():
-        picked += draw(user_id, bank.pool(domain=domain), n, seen, rng)
+        picked += draw(user_id, bank.pool(domain=domain), n, seen, rng, fill=True)
     rng.shuffle(picked)
     picked.sort(key=lambda i: bank.DIFFICULTY_ORDER[items[i]["difficulty"]])
     return picked
@@ -78,11 +87,47 @@ def get(user_id, session_id):
     return query("SELECT * FROM practice_sessions WHERE id = ? AND user_id = ?", (session_id, user_id), one=True)
 
 
+def topics_of(item_ids):
+    """The skill and domain topics these questions belong to, as keys like skill:algebra/linear-functions."""
+    items = bank.all_items()
+    keys = set()
+    for item_id in item_ids:
+        q = items[item_id]
+        keys.add(f"skill:{q['domain_key']}/{q['skill_key']}")
+        keys.add(f"domain:{q['domain_key']}")
+    return keys
+
+
+def topic_pool(topic):
+    kind, _, rest = topic.partition(":")
+    domain, _, skill = rest.partition("/")
+    return bank.pool(domain, skill or None)
+
+
+def topic_name(topic):
+    kind, _, rest = topic.partition(":")
+    domain, _, skill = rest.partition("/")
+    return topic_title(domain, skill or None)
+
+
 def mark_seen(user_id, item_ids):
+    """Adds questions to the done list. Returns the topics this finished, skills first: [{kind, name}]."""
     stamp = now_iso()
     for item_id in item_ids:
         execute("INSERT INTO practice_seen (user_id, item_id, seen_at) VALUES (?, ?, ?) "
                 "ON CONFLICT (user_id, item_id) DO NOTHING", (user_id, item_id, stamp))
+    if not item_ids:
+        return []
+    seen = seen_ids(user_id)
+    finished = []
+    for topic in sorted(topics_of(item_ids), key=lambda t: (not t.startswith("skill:"), t)):
+        if not all(i in seen for i in topic_pool(topic)):
+            continue
+        if query("SELECT 1 FROM practice_completions WHERE user_id = ? AND topic = ?", (user_id, topic), one=True):
+            continue
+        execute("INSERT INTO practice_completions (user_id, topic, completed_at) VALUES (?, ?, ?)", (user_id, topic, stamp))
+        finished.append({"kind": topic.partition(":")[0], "name": topic_name(topic)})
+    return finished
 
 
 def add_to_review(user_id, graded):
@@ -115,7 +160,7 @@ def public(session):
 
 
 def check(user_id, session, index, answer):
-    """Grades one question in topic practice and locks it. Returns the graded question."""
+    """Grades one question in topic practice and locks it. Returns the graded question and any topics it finished."""
     items = bank.all_items()
     ids = json.loads(session["item_ids"])
     checked = json.loads(session["checked"] or "{}")
@@ -124,10 +169,10 @@ def check(user_id, session, index, answer):
         checked[key] = answer
         execute("UPDATE practice_sessions SET checked = ? WHERE id = ?", (json.dumps(checked), session["id"]))
         graded = bank.graded_question(items[ids[index]], index, answer)
-        mark_seen(user_id, [ids[index]])
+        finished = mark_seen(user_id, [ids[index]])
         add_to_review(user_id, [graded])
-        return graded
-    return bank.graded_question(items[ids[index]], index, checked[key])
+        return graded, finished
+    return bank.graded_question(items[ids[index]], index, checked[key]), []
 
 
 def submit(user_id, session, answers, seconds):
@@ -140,7 +185,7 @@ def submit(user_id, session, answers, seconds):
     result.update({"seconds_used": seconds, "practice_id": session["id"], "mode": session["mode"], "title": session["title"]})
     stamp = now_iso()
     answered = [ids[i] for i in answers if answers[i] is not None and answers[i] != ""]
-    mark_seen(user_id, answered)
+    result["finished"] = mark_seen(user_id, answered)
     add_to_review(user_id, [q for q in result["questions"] if q["answered"] and q["index"] not in checked])
 
     if session["mode"] == "test":

@@ -51,7 +51,8 @@ Run it from the main `sat-courseprep` folder. It saves `users.csv`, `leads.csv`,
 | Home page form | Saved to `leads`, with an email to the student and, if `ADMIN_EMAIL` is set, to you. |
 | Practice tests | The browser gets questions without answers. The server grades, saves the attempt, and returns explanations. |
 | Question bank | 1,000 original questions in `app/content/bank/`, each with a full explanation: best approach, Desmos steps, by-hand steps, why the wrong choices tempt, and how to enter typed answers. |
-| Practice sets | Random practice tests (22 questions, 35 minutes, the real test's domain mix) and topic practice (5–20 questions, untimed, checked one at a time). Every answered question goes on the student's done list and isn't drawn again until every question in that pool is done; then the pool starts over. |
+| Practice sets | Random practice tests (22 questions, 35 minutes, the real test's domain mix) and topic practice (5–20 questions, untimed, checked one at a time). Every answered question goes on the student's done list and isn't drawn again until every question in that pool is done; then the pool starts over. When only a few are left in a topic, the set is just those, so the student can finish it. |
+| Finished topics | Answering the last question of a skill or domain records it once per round and returns it (`finished` in check and submit responses), so the page can congratulate the student. |
 | Review queue | Every missed question. After the first right answer it comes back in three days; a second right answer clears it. |
 | Dashboard | Latest score, score history, domain breakdown, today's set, review queue and a week-by-week plan to the test date, all from the student's own data. |
 
