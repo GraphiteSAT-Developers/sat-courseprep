@@ -1155,7 +1155,13 @@ function compile(n, locals) {
     case 'v': return varRef(n.name, locals);
     case 'u': { const a = compile(n.a, locals); return L => neg(a(L)); }
     case 'fact': { const a = compile(n.a, locals); return L => fact(a(L)); }
-    case 'b': { const a = compile(n.a, locals), b = compile(n.b, locals), op = n.op; return L => binop(op, a(L), b(L)); }
+    case 'b': {
+      // a(x-h)^2 parses as (a(x-h))^2; when a is a variable rather than a function, the power belongs to the parentheses
+      const A = n.a;
+      if (n.op === '^' && A.k === 'app' && !A.primes && A.args.length === 1 && !(CTX.funcs.has(A.name) && !locals.includes(A.name)))
+        return compile({ k: 'b', op: '*', imp: true, a: { k: 'v', name: A.name }, b: { k: 'b', op: '^', a: A.args[0], b: n.b } }, locals);
+      const a = compile(n.a, locals), b = compile(n.b, locals), op = n.op; return L => binop(op, a(L), b(L));
+    }
     case 'pt': {
       const a = compile(n.a, locals), b = compile(n.b, locals);
       return L => { const x = a(L), y = b(L); return isArr(x) || isArr(y) ? bcast((p, q) => new Pt(p, q), [x, y]) : new Pt(x, y); };

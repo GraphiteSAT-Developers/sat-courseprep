@@ -15,6 +15,7 @@ Start here: [`HANDOFF.md`](HANDOFF.md)
   - `desmos_techniques.md`: Desmos technique library (T1–T13) and existing resources
   - `gemini_desmos_ai.md`: Gemini API features, the Desmos API, and how to make an AI reliably good at Desmos
   - `competitive_landscape.md`: competing AI SAT tutors and Desmos courses
+  - `topline_ai_training.md`: how to train the AI tutor on Topline instead of Desmos, with tested compatibility, AI rules, and needed Topline changes
   - `architecture_legal_pedagogy.md`: tech stack, legal and compliance (Gemini age terms, College Board, Desmos licensing, COPPA), and learning science
 
 > Note: the research environment could not open official pages (collegeboard.org, desmos.com, ai.google.dev) directly. The findings come from search-result summaries, so check the items in the report's verification table before relying on them.

@@ -52,6 +52,7 @@ These are listed in the report's decisions table:
 | `research_notes/.../desmos_techniques.md` | Technique library T1–T13 with syntax, pitfalls, by-hand alternatives, and competitor resources |
 | `research_notes/.../gemini_desmos_ai.md` | Gemini models and pricing, Desmos API, Solver/Tutor design, evals |
 | `research_notes/.../competitive_landscape.md` | Competitors, pricing, gap (no competitor's AI operates Desmos) |
+| `research_notes/.../topline_ai_training.md` | Training the AI on Topline (our calculator, replaces paid Desmos API): tested compatibility with T1–T13, AI rules, Topline changes needed |
 | `research_notes/.../architecture_legal_pedagogy.md` | Stack, legal and compliance, learning-science evidence, item generation |
 
 ## Caveats
