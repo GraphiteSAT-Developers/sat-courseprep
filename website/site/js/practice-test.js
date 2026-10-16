@@ -45,7 +45,9 @@
   function boot(T, user) {
   if (!T) return;
   var Q = T.questions, N = Q.length, LETTERS = "ABCD";
-  var TOPIC = T.mode === "topic", UNTIMED = !T.minutes;
+  var TOPIC = T.mode === "topic" || T.mode === "quiz", UNTIMED = !T.minutes;
+  var FROM_PLAN = !!(T.session && T.session.plan_task);
+  if (FROM_PLAN) BACK_URL = "plan.html";
   var checked = (T.session && T.session.checked) || {}; // topic practice: graded questions, by index
   var checking = false;
   var KEY = "graphite_test_" + T.id + (user ? "_u" + user.id : "");
@@ -522,6 +524,7 @@
   $("submit-go").addEventListener("click", function () { submit(false); });
   $("retake").addEventListener("click", function () {
     if (!T.session) { reset(); return; }
+    if (FROM_PLAN) { location.href = "plan.html"; return; }
     var s = T.session, b = $("retake");
     var data = s.mode === "test" ? { mode: "test" } : { mode: "topic", domain: s.domain, skill: s.skill, count: N };
     b.disabled = true; b.textContent = "Building your set…";
@@ -547,7 +550,8 @@
   function applyLabels() {
     if (!T.session) return;
     var heading = T.mode === "test" ? "Math practice test" : T.title;
-    var kind = T.mode === "test" ? "Practice test · Math" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain");
+    var kind = FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
+      : (T.mode === "test" ? "Practice test · Math" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
     $("exam-title").textContent = heading;
     $("start-title").textContent = heading;
     document.querySelector("#start-overlay .label").textContent = kind;
@@ -566,11 +570,14 @@
     $("submit-open").textContent = TOPIC ? "Finish set" : "Submit module";
     $("confirm-title").textContent = TOPIC ? "Finish this set?" : "Submit this module?";
     if (TOPIC) $("confirm-desc").textContent = "Questions you haven't answered go back into the pool for next time.";
-    $("retake").textContent = TOPIC ? "New set, same topic" : "Take another practice test";
+    $("retake").textContent = FROM_PLAN ? "Back to your plan" : (TOPIC ? "New set, same topic" : "Take another practice test");
     Array.prototype.forEach.call(document.querySelectorAll('a[href$="dashboard.html"]'), function (a) {
       if (a.id === "save-exit" || a.closest(".dialog-actions")) a.setAttribute("href", BACK_URL);
     });
-    var back = document.querySelector(".res-actions a"); if (back) { back.setAttribute("href", BACK_URL); back.textContent = "Back to practice"; }
+    var back = document.querySelector(".res-actions a"); if (back) { back.setAttribute("href", BACK_URL); back.textContent = FROM_PLAN ? "Back to your plan" : "Back to practice"; }
+    if (FROM_PLAN) { var r2 = $("retake"); r2.hidden = true; }
+    var doneLink = document.querySelector("#done-dialog a");
+    if (doneLink) { doneLink.setAttribute("href", BACK_URL); doneLink.textContent = FROM_PLAN ? "Back to your plan" : "Back to practice"; }
     document.title = heading + " | Graphite SAT Tutoring";
   }
 

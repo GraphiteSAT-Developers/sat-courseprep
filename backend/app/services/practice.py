@@ -13,7 +13,7 @@ import json
 import random
 
 from ..db import days_from_today, execute, now_iso, query
-from . import bank
+from . import bank, studyplan
 
 TOPIC_COUNTS = (5, 10, 15, 20)
 
@@ -76,11 +76,87 @@ def create(user_id, mode, domain=None, skill=None, count=10, rng=random):
         title = topic_title(domain, skill)
         ids = draw(user_id, bank.pool(domain, skill), count, seen_ids(user_id), rng)
         minutes = 0  # topic practice is untimed
+    return save_session(user_id, mode, title, ids, minutes, domain, skill)
+
+
+def save_session(user_id, mode, title, ids, minutes, domain=None, skill=None, plan_id=None, plan_task=None):
     row = execute(
-        "INSERT INTO practice_sessions (user_id, mode, domain, skill, title, item_ids, minutes, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
-        (user_id, mode, domain, skill, title, json.dumps(ids), minutes, now_iso()))
+        "INSERT INTO practice_sessions (user_id, mode, domain, skill, title, item_ids, minutes, created_at, plan_id, plan_task) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
+        (user_id, mode, domain, skill, title, json.dumps(ids), minutes, now_iso(), plan_id, plan_task))
     return get(user_id, row["id"])
+
+
+# ---------- study plan sets ----------
+
+NEIGHBORS = {"easy": ["medium", "hard"], "medium": ["easy", "hard"], "hard": ["medium", "easy"]}
+
+
+def draw_mix(user_id, skills, mix, rng=random):
+    """Questions from these skills in the given difficulty mix ({easy: n, medium: n, hard: n}).
+
+    Takes questions the student hasn't done first. A difficulty that runs short borrows from the
+    nearest other difficulty; if the skills run out altogether, it falls back to draw(), which
+    starts the pool over.
+    """
+    items = bank.all_items()
+    seen = seen_ids(user_id)
+    pool = [i for s in skills for i in bank.pool(s["domain"], s["skill"])]
+    unseen = {d: [i for i in pool if i not in seen and items[i]["difficulty"] == d] for d in ("easy", "medium", "hard")}
+    for d in unseen:
+        rng.shuffle(unseen[d])
+    picked = []
+    for d, n in mix.items():
+        for source in [d] + NEIGHBORS[d]:
+            while n and unseen[source]:
+                picked.append(unseen[source].pop())
+                n -= 1
+        if n:
+            rest = [i for i in pool if i not in picked]
+            more = draw(user_id, rest, n, seen, rng, fill=True)
+            picked += [i for i in more if i not in picked]
+    picked.sort(key=lambda i: bank.DIFFICULTY_ORDER[items[i]["difficulty"]])
+    return picked
+
+
+def adjusted_mix(user_id, plan_id, difficulty, n):
+    """The week's difficulty, nudged by the student's last two plan quiz scores: up after 80% or better, down at 50% or worse."""
+    rows = query("SELECT correct, item_ids FROM practice_sessions WHERE user_id = ? AND plan_id = ? AND mode = 'quiz' "
+                 "AND submitted_at IS NOT NULL ORDER BY submitted_at DESC, id DESC LIMIT 2", (user_id, plan_id))
+    if rows:
+        pct = sum(r["correct"] for r in rows) / sum(len(json.loads(r["item_ids"])) for r in rows)
+        if pct >= 0.8:
+            difficulty += 0.1
+        elif pct <= 0.5:
+            difficulty -= 0.1
+    return studyplan.mix_for(min(0.95, max(0.05, difficulty)), n)
+
+
+def create_plan_task(user_id, plan_id, plan, week_index, task_key, rng=random):
+    """Starts (or resumes) the practice set for one task in the student's plan."""
+    week = plan["weeks"][week_index]
+    task = next((t for t in week["tasks"] if t["key"] == task_key), None)
+    if not task:
+        return None
+    open_row = query("SELECT id FROM practice_sessions WHERE user_id = ? AND plan_id = ? AND plan_task = ? AND submitted_at IS NULL "
+                     "ORDER BY id DESC LIMIT 1", (user_id, plan_id, task_key), one=True)
+    if open_row:
+        return get(user_id, open_row["id"])
+    if task["kind"] == "test":
+        return save_session(user_id, "test", "Math practice test", build_test(user_id, rng), bank.MODULE_MINUTES,
+                            plan_id=plan_id, plan_task=task_key)
+    if task["kind"] == "drill":
+        skills = [task["skill"]]
+        title = f"Week {week['n']}: {task['skill']['name']}"
+    else:
+        skills = week["focus"] + ([week["review"]] if week.get("review") else [])
+        title = task["title"]
+    if week["phase"] == "test":
+        mix = week["mix"]
+    else:
+        mix = adjusted_mix(user_id, plan_id, week["difficulty"], task["count"])
+    ids = draw_mix(user_id, skills, mix, rng)
+    return save_session(user_id, "quiz", title, ids, 0, plan_id=plan_id, plan_task=task_key)
 
 
 def get(user_id, session_id):
@@ -148,7 +224,7 @@ def public(session):
     ids = json.loads(session["item_ids"])
     checked = json.loads(session["checked"] or "{}")
     out = {
-        "id": session["id"], "mode": session["mode"], "title": session["title"],
+        "id": session["id"], "mode": session["mode"], "title": session["title"], "plan_task": session.get("plan_task"),
         "domain": session["domain"], "skill": session["skill"], "minutes": session["minutes"],
         "created_at": session["created_at"], "submitted": bool(session["submitted_at"]),
         "questions": [bank.public_question(items[i]) for i in ids],

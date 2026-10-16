@@ -105,7 +105,7 @@
   function publicSession(s) {
     var checked = {};
     Object.keys(s.checked).forEach(function (k) { checked[k] = graded(byId[s.item_ids[k]], Number(k), s.checked[k]); });
-    var o = { id: s.id, mode: s.mode, title: s.title, domain: s.domain, skill: s.skill, minutes: s.minutes, created_at: s.created_at,
+    var o = { id: s.id, mode: s.mode, title: s.title, plan_task: s.plan_task || null, domain: s.domain, skill: s.skill, minutes: s.minutes, created_at: s.created_at,
       submitted: !!s.submitted_at, questions: s.item_ids.map(function (id) { return publicQ(byId[id]); }), checked: checked };
     if (s.result) o.result = s.result;
     return o;
@@ -163,7 +163,7 @@
     return finished;
   }
   function check(st, s, data) {
-    if (s.mode !== "topic") return fail(400, "Answers on a practice test are checked when you submit it.");
+    if (s.mode !== "topic" && s.mode !== "quiz") return fail(400, "Answers on a practice test are checked when you submit it.");
     if (s.submitted_at) return fail(409, "This set is already finished.");
     var i = Number(data.index);
     if (!(i >= 0 && i < s.item_ids.length)) return fail(400, "That question isn't in this set.");
@@ -199,7 +199,276 @@
     return Promise.resolve({ result: res });
   }
 
+
+  /* ---------- study plan (same rules as services/diagnostic.py, studyplan.py and practice.py) ---------- */
+  var RW = {}, DG = BANK.diagnostic;
+  (BANK.rw || []).forEach(function (q) { RW[q.id] = q; });
+  function itemAny(id) { return RW[id] || byId[id]; }
+  function newSession(st, mode, title, ids, minutes, extra) {
+    var s = { id: st.nextId++, mode: mode, domain: null, skill: null, title: title, item_ids: ids, minutes: minutes,
+      checked: {}, created_at: now(), submitted_at: null, result: null, plan_id: null, plan_task: null };
+    Object.keys(extra || {}).forEach(function (k) { s[k] = extra[k]; });
+    st.sessions[s.id] = s;
+    return s;
+  }
+  function buildTest(st) {
+    var ids = [];
+    Object.keys(BANK.mix).forEach(function (d) { ids = ids.concat(draw(st, pool(d), BANK.mix[d], true)); });
+    return shuffle(ids).sort(function (a, b) { return BANK.order[byId[a].difficulty] - BANK.order[byId[b].difficulty]; });
+  }
+  function pickDiagnostic(st) {
+    var ids = [], used = {};
+    DG.math_slots.forEach(function (slot) {
+      var cands = BANK.items.filter(function (q) { return q.domain_key === slot[0] && q.difficulty === slot[1] && !used[q.skill_key]; });
+      var fresh = cands.filter(function (q) { return !st.seen[q.id]; });
+      var list = fresh.length ? fresh : cands, q = list[Math.floor(Math.random() * list.length)];
+      used[q.skill_key] = 1; ids.push(q.id);
+    });
+    DG.rw_domains.forEach(function (d) {
+      var c = (BANK.rw || []).filter(function (q) { return q.domain === d; });
+      ids.push(c[Math.floor(Math.random() * c.length)].id);
+    });
+    return ids;
+  }
+  function publicDiagQ(id) {
+    var q = itemAny(id), o = { id: id, section: q.section || "Math", domain: q.domain, skill: q.skill, type: q.type, stem: q.stem };
+    if (q.type === "mc") o.choices = q.choices;
+    return o;
+  }
+  function gradeDiagnostic(ids, answers, sure) {
+    var questions = [], byDom = {}, order = [], pts = 0, wt = 0;
+    ids.forEach(function (id, i) {
+      var q = itemAny(id), rw = q.section === "Reading and Writing", a = answers[i], g;
+      if (rw) {
+        g = { index: i, id: id, type: "mc", domain: q.domain, skill: q.skill, stem: q.stem, choices: q.choices, answer_index: q.answer,
+          answer: LETTERS[q.answer], answered: a !== undefined, correct: a === q.answer, your_answer: a !== undefined ? LETTERS[a] : null, explain_html: q.explain_html };
+      } else {
+        g = graded(q, i, a);
+      }
+      g.section = rw ? "Reading and Writing" : "Math";
+      g.sure = !!sure[i];
+      g.score = g.correct ? (g.sure ? DG.sure : DG.guess) : 0;
+      if (!rw) { g.skill_key = q.skill_key; g.domain_key = q.domain_key; var w = DG.weight[q.difficulty]; pts += g.score * w; wt += w; }
+      if (!byDom[q.domain]) { byDom[q.domain] = { section: g.section, domain: q.domain, domain_key: q.domain_key || null, points: 0, count: 0 }; order.push(q.domain); }
+      byDom[q.domain].points += g.score; byDom[q.domain].count++;
+      questions.push(g);
+    });
+    var rank = BANK.topics.map(function (t) { return t.name; }).concat(DG.rw_domains);
+    var domains = order.map(function (k) {
+      var d = byDom[k], score = Math.round(d.points / d.count * 100) / 100;
+      return { section: d.section, domain: d.domain, domain_key: d.domain_key, score: score, label: score >= DG.strong ? "Strength" : (score < DG.weak ? "Focus" : "Building") };
+    }).sort(function (a, b) { return rank.indexOf(a.domain) - rank.indexOf(b.domain); });
+    var skills = {};
+    questions.forEach(function (q) { if (q.section === "Math") skills[q.skill_key] = q.score; });
+    return { questions: questions, correct: questions.filter(function (q) { return q.correct; }).length, total: questions.length,
+      domains: domains, skills: skills, level: wt ? Math.round(pts / wt * 100) / 100 : 0.5,
+      strengths: domains.slice().sort(function (a, b) { return b.score - a.score; }).filter(function (d) { return d.score >= DG.strong; }).map(function (d) { return d.domain; }),
+      focus: domains.slice().sort(function (a, b) { return a.score - b.score; }).filter(function (d) { return d.score < DG.weak; }).map(function (d) { return d.domain; }) };
+  }
+
+  function isoDate(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function parseDate(s) { var p = s.split("-"); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); }
+  function addDays(d, n) { var x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+  function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+  function r2(x) { return Math.round(x * 100) / 100; }
+  function difficultyAt(level, p) { var s = 0.2 + 0.3 * level, e = 0.75 + 0.2 * level; return r2(Math.min(0.95, Math.max(0.05, s + (e - s) * p))); }
+  function mixFor(d, n) {
+    n = n || 10;
+    var hard = Math.min(1, Math.max(0, (d - 0.3) / 0.7)) * 0.8, easy = Math.min(1, Math.max(0, (0.5 - d) / 0.5)) * 0.6;
+    var shares = { easy: easy, medium: Math.max(0, 1 - easy - hard), hard: hard }, counts = {}, sum = 0;
+    Object.keys(shares).forEach(function (k) { counts[k] = Math.floor(shares[k] * n); sum += counts[k]; });
+    Object.keys(shares).sort(function (a, b) { return (shares[b] * n - counts[b]) - (shares[a] * n - counts[a]); })
+      .slice(0, n - sum).forEach(function (k) { counts[k]++; });
+    return counts;
+  }
+  function mixLabel(mix) {
+    var parts = Object.keys(mix).filter(function (k) { return mix[k]; }).sort(function (a, b) { return mix[b] - mix[a] || (a < b ? 1 : -1); });
+    if (!parts.length) return "";
+    return "Mostly " + parts[0] + (parts.length > 1 ? ", some " + parts[1] : "");
+  }
+  function buildPlan(results, testDate, hours, today) {
+    var monday = addDays(today, -((today.getDay() + 6) % 7)), exam = testDate ? parseDate(testDate) : null;
+    if (exam && exam < today) exam = null;
+    var total = exam ? Math.min(26, Math.floor(daysBetween(monday, exam) / 7) + 1) : 8;
+    var hasTest = !!exam && total >= 2, study = hasTest ? total - 1 : total, level = results.level;
+    hours = hours || 3;
+    var domScore = {};
+    results.domains.forEach(function (d) { if (d.section === "Math") domScore[d.domain_key] = d.score; });
+    var skills = [];
+    BANK.topics.forEach(function (d) { d.skills.forEach(function (s) {
+      var base = domScore[d.key] !== undefined ? domScore[d.key] : 0.5, t = results.skills[s.key];
+      skills.push({ domain: d.key, skill: s.key, name: s.name, est: r2(t !== undefined ? 0.7 * t + 0.3 * base : base) });
+    }); });
+    var prio = {}, growth = {}, by = {}, ord = {};
+    skills.forEach(function (s, i) { prio[s.skill] = (1 - s.est) + 0.05; growth[s.skill] = 0.06 + 0.12 * (1 - s.est); by[s.skill] = s; ord[s.skill] = i; });
+    var focused = [], lastSeen = {};
+    var rwSorted = results.domains.filter(function (d) { return d.section === "Reading and Writing"; }).sort(function (a, b) { return a.score - b.score; }).map(function (d) { return d.domain; });
+    var rwOrder = rwSorted.length ? rwSorted : DG.rw_domains;
+    function ref(k) { return { domain: by[k].domain, skill: k, name: by[k].name }; }
+    var weeks = [];
+    for (var w = 0; w < study; w++) {
+      var p = study > 1 ? w / (study - 1) : 1;
+      var phase = p >= 0.75 ? "sharpen" : ((p >= 0.34 || study < 3) ? "build" : "foundation");
+      var d = difficultyAt(level, p), mix = mixFor(d);
+      var picks = Object.keys(prio).sort(function (a, b) { return (prio[b] - prio[a]) || (ord[a] - ord[b]); }).slice(0, 2);
+      Object.keys(prio).forEach(function (k) { prio[k] += growth[k]; });
+      picks.forEach(function (k) { prio[k] = (1 - by[k].est) * 0.25; });
+      var earlier = {};
+      focused.forEach(function (f) { if (f[0] <= w - 2 && picks.indexOf(f[1]) < 0) earlier[f[1]] = 1; });
+      var ek = Object.keys(earlier).sort(function (a, b) { return (lastSeen[a] - lastSeen[b]) || (by[a].est - by[b].est) || (ord[a] - ord[b]); });
+      var review = ek.length ? ek[0] : null;
+      picks.forEach(function (k) { focused.push([w, k]); });
+      picks.concat(review ? [review] : []).forEach(function (k) { lastSeen[k] = w; });
+      var focus = picks.map(ref), n = w + 1;
+      var tasks = [{ key: "w" + n + "-drill-1", kind: "drill", title: focus[0].name, skill: focus[0], count: 10 }];
+      if (hours >= 2) tasks.push({ key: "w" + n + "-drill-2", kind: "drill", title: focus[1].name, skill: focus[1], count: 10 });
+      tasks.push({ key: "w" + n + "-quiz", kind: "quiz", title: "Week " + n + " quiz", count: 10 });
+      if (phase !== "foundation" && (phase === "sharpen" || w % 2 === 1)) tasks.push({ key: "w" + n + "-test", kind: "test", title: "Math practice test" });
+      weeks.push({ n: n, week_of: isoDate(addDays(monday, 7 * w)), phase: phase, phase_label: DG.phases[phase], difficulty: d, mix: mix,
+        difficulty_label: mixLabel(mix), focus: focus, review: review ? ref(review) : null, rw_focus: rwOrder[w % rwOrder.length], tasks: tasks });
+    }
+    var byEst = skills.slice().sort(function (a, b) { return (a.est - b.est) || (ord[a.skill] - ord[b.skill]); });
+    if (hasTest) {
+      var best = skills.slice().sort(function (a, b) { return (b.est - a.est) || (ord[a.skill] - ord[b.skill]); })[0];
+      weeks.push({ n: study + 1, week_of: isoDate(addDays(monday, 7 * study)), phase: "test", phase_label: DG.phases.test, difficulty: 0.3,
+        mix: { easy: 5, medium: 5, hard: 0 }, difficulty_label: "Easy and medium, to build confidence",
+        focus: [byEst[0], best].map(function (s) { return ref(s.skill); }), review: null, rw_focus: null,
+        tasks: [{ key: "w" + (study + 1) + "-quiz", kind: "quiz", title: "Warm-up quiz", count: 10 }], checklist: DG.checklist });
+    }
+    var math = results.domains.filter(function (d) { return d.section === "Math"; }).sort(function (a, b) { return b.score - a.score; });
+    var parts = [];
+    if (results.strengths.length) parts.push("Your strongest area is " + results.strengths[0] + ".");
+    else if (math.length) parts.push("Your strongest Math area right now is " + math[0].domain + ".");
+    parts.push("Your plan opens with " + byEst[0].name + " and " + byEst[1].name + ", where you have the most points to gain, and brings every Math topic back around before test day.");
+    var sw = weeks.filter(function (x) { return x.phase !== "test"; }), first = sw[0].difficulty_label.toLowerCase(), last = sw[sw.length - 1].difficulty_label.toLowerCase();
+    parts.push(last !== first ? "Quizzes start " + first + " and build to " + last + (exam ? " by " + exam.toLocaleDateString("en-US", { month: "long" }) + " " + exam.getDate() + "." : ".") : "Quizzes run " + first + ".");
+    return { version: 1, created: isoDate(today), start: isoDate(monday), test_date: exam ? isoDate(exam) : null, hours: hours, level: level,
+      summary: parts.join(" "), strengths: results.strengths, focus_areas: results.focus, weeks: weeks };
+  }
+  function currentWeek(plan, today) { return Math.max(0, Math.min(plan.weeks.length - 1, Math.floor(daysBetween(parseDate(plan.start), today) / 7))); }
+  var NEIGHBORS = { easy: ["medium", "hard"], medium: ["easy", "hard"], hard: ["medium", "easy"] };
+  function drawMix(st, skills, mix) {
+    var poolIds = [];
+    skills.forEach(function (s) { poolIds = poolIds.concat(pool(s.domain, s.skill)); });
+    var un = {};
+    ["easy", "medium", "hard"].forEach(function (d) { un[d] = shuffle(poolIds.filter(function (id) { return !st.seen[id] && byId[id].difficulty === d; })); });
+    var picked = [];
+    Object.keys(mix).forEach(function (d) {
+      var n = mix[d];
+      [d].concat(NEIGHBORS[d]).forEach(function (src) { while (n && un[src].length) { picked.push(un[src].pop()); n--; } });
+      if (n) {
+        var rest = poolIds.filter(function (id) { return picked.indexOf(id) < 0; });
+        draw(st, rest, n, true).forEach(function (id) { if (picked.indexOf(id) < 0) picked.push(id); });
+      }
+    });
+    return picked.sort(function (a, b) { return BANK.order[byId[a].difficulty] - BANK.order[byId[b].difficulty]; });
+  }
+  function adjustedMix(st, planId, difficulty, n) {
+    var rows = Object.keys(st.sessions).map(function (k) { return st.sessions[k]; })
+      .filter(function (s) { return s.plan_id === planId && s.mode === "quiz" && s.submitted_at; })
+      .sort(function (a, b) { return b.id - a.id; }).slice(0, 2);
+    if (rows.length) {
+      var right = 0, tot = 0;
+      rows.forEach(function (s) { right += s.result.correct; tot += s.item_ids.length; });
+      if (right / tot >= 0.8) difficulty += 0.1; else if (right / tot <= 0.5) difficulty -= 0.1;
+    }
+    return mixFor(Math.min(0.95, Math.max(0.05, difficulty)), n);
+  }
+  function latestPlan(st) { return st.plans.length ? st.plans[st.plans.length - 1] : null; }
+  function planTasks(st, planId) {
+    var out = {};
+    Object.keys(st.sessions).map(function (k) { return st.sessions[k]; }).filter(function (s) { return s.plan_id === planId; })
+      .sort(function (a, b) { return a.id - b.id; }).forEach(function (s) {
+        var prev = out[s.plan_task];
+        out[s.plan_task] = { session_id: s.id, submitted: !!s.submitted_at, done: (prev && prev.done) || !!s.submitted_at,
+          correct: s.result ? s.result.correct : null, total: s.item_ids.length };
+      });
+    return out;
+  }
+  function planOut(st, row, today) {
+    var o = JSON.parse(JSON.stringify(row.plan));
+    o.id = row.id; o.current_week = currentWeek(row.plan, today); o.tasks = planTasks(st, row.id);
+    o.results = st.diagnostics[row.diagnostic_id].results;
+    return o;
+  }
+  function savePlan(st, diagId, today) {
+    var row = { id: st.plans.length + 1, diagnostic_id: diagId,
+      plan: buildPlan(st.diagnostics[diagId].results, st.profile.test_date, st.profile.weekly_goal_hours, today) };
+    st.plans.push(row);
+    return row;
+  }
+  function setProfile(st, data) {
+    if (data.test_date) st.profile.test_date = data.test_date;
+    var h = Number(data.weekly_goal_hours);
+    if (h >= 1 && h <= 20) st.profile.weekly_goal_hours = h;
+  }
+  function planCall(path, data) {
+    var st = load(), today = new Date(); today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    st.diagnostics = st.diagnostics || {}; st.plans = st.plans || []; st.profile = st.profile || { test_date: null, weekly_goal_hours: 3 };
+    var diags = Object.keys(st.diagnostics).map(function (k) { return st.diagnostics[k]; }).sort(function (a, b) { return a.id - b.id; });
+    var lastDiag = diags[diags.length - 1];
+    function pubDiag(d) { var o = { id: d.id, submitted: !!d.submitted_at, questions: d.item_ids.map(publicDiagQ) }; if (d.results) o.results = d.results; return o; }
+    if (path === "/api/plan") {
+      var row = latestPlan(st);
+      return Promise.resolve({ user: st.profile, diagnostic: lastDiag ? pubDiag(lastDiag) : null, plan: row ? planOut(st, row, today) : null });
+    }
+    if (path === "/api/plan/diagnostic") {
+      setProfile(st, data || {});
+      var open = diags.filter(function (d) { return !d.submitted_at; }).pop();
+      if (!open) { open = { id: (lastDiag ? lastDiag.id : 0) + 1, item_ids: pickDiagnostic(st), submitted_at: null, results: null }; st.diagnostics[open.id] = open; }
+      save(st);
+      return Promise.resolve({ diagnostic: pubDiag(open) });
+    }
+    var m = /^\/api\/plan\/diagnostic\/(\d+)\/submit$/.exec(path);
+    if (m) {
+      var d = st.diagnostics[m[1]];
+      if (!d) return fail(404, "That diagnostic doesn't exist.");
+      if (d.submitted_at) return fail(409, "This diagnostic is already finished.");
+      var answers = {}, sure = {};
+      Object.keys((data && data.answers) || {}).forEach(function (k) {
+        var i = Number(k), id = d.item_ids[i]; if (!id) return;
+        var q = itemAny(id), v = data.answers[k];
+        var a = q.section === "Reading and Writing" ? (typeof v === "number" && v >= 0 && v < 4 ? v : null) : cleanAnswer(q, v);
+        if (a !== null) { answers[i] = a; sure[i] = data.sure && data.sure[k] === true; }
+      });
+      d.results = gradeDiagnostic(d.item_ids, answers, sure); d.submitted_at = now();
+      markSeen(st, Object.keys(answers).map(function (k) { return d.item_ids[k]; }).filter(function (id) { return !RW[id]; }));
+      var r = savePlan(st, d.id, today); save(st);
+      return Promise.resolve({ results: d.results, plan: planOut(st, r, today) });
+    }
+    if (path === "/api/plan/rebuild") {
+      setProfile(st, data || {});
+      var done = diags.filter(function (x) { return x.submitted_at; }).pop();
+      if (!done) return fail(400, "Take the diagnostic first.");
+      var r3 = savePlan(st, done.id, today); save(st);
+      return Promise.resolve({ plan: planOut(st, r3, today) });
+    }
+    if (path === "/api/plan/tasks") {
+      var pr = latestPlan(st);
+      if (!pr) return fail(400, "Take the diagnostic first.");
+      var wi = Number(data.week), week = pr.plan.weeks[wi];
+      if (!week) return fail(400, "That week isn't in your plan.");
+      var task = week.tasks.filter(function (t) { return t.key === data.task; })[0];
+      if (!task) return fail(400, "That task isn't in your plan.");
+      var openS = Object.keys(st.sessions).map(function (k) { return st.sessions[k]; })
+        .filter(function (s) { return s.plan_id === pr.id && s.plan_task === task.key && !s.submitted_at; }).pop();
+      var s;
+      if (openS) s = openS;
+      else if (task.kind === "test") s = newSession(st, "test", "Math practice test", buildTest(st), BANK.test.minutes, { plan_id: pr.id, plan_task: task.key });
+      else {
+        var sk = task.kind === "drill" ? [task.skill] : week.focus.concat(week.review ? [week.review] : []);
+        var mix = week.phase === "test" ? week.mix : adjustedMix(st, pr.id, week.difficulty, task.count);
+        s = newSession(st, "quiz", task.kind === "drill" ? "Week " + week.n + ": " + task.skill.name : task.title, drawMix(st, sk, mix), 0, { plan_id: pr.id, plan_task: task.key });
+      }
+      save(st);
+      return Promise.resolve({ session: publicSession(s) });
+    }
+    return fail(404, "Not found.");
+  }
+
   function call(path, data) {
+    path = path.split("?")[0];
+    if (path.indexOf("/api/plan") === 0) return planCall(path, data);
     if (path === "/api/practice") return Promise.resolve(overview());
     if (path === "/api/practice/sessions" && data) return create(data);
     var m = /^\/api\/practice\/sessions\/(\d+)(\/(check|submit))?$/.exec(path);

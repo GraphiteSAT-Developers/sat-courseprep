@@ -739,6 +739,7 @@
 
       $("#plan-title").textContent = d.plan.fits_test_date ? "Your plan to " + niceDate(s.test_date) : "Your next " + d.plan.weeks.length + " weeks";
       $("#plan-meta").textContent = d.plan.weeks.length + (d.plan.weeks.length === 1 ? " week" : " weeks");
+      $("#plan-link").textContent = d.plan.study_plan ? "Open your study plan" : "Take the diagnostic for a personal plan";
       $("#weeks").innerHTML = d.plan.weeks.map(function (w) {
         return "<li" + (w.is_now ? ' class="is-now"' : "") + '><span class="mono">' + esc(niceDate(w.week_of)) + "</span><span>" + esc(w.focus) + (w.is_now ? ' <em class="now-tag">This week</em>' : "") + "</span></li>";
       }).join("");

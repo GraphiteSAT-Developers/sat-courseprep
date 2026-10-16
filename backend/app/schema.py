@@ -118,7 +118,29 @@ MIGRATIONS = [
             UNIQUE (user_id, topic)
         )""",
     ]),
-    # (4, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (4, "Diagnostic, study plans, and practice sets that belong to a plan", [
+        """CREATE TABLE diagnostics (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            item_ids TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            submitted_at TEXT,
+            answers TEXT,
+            results TEXT
+        )""",
+        "CREATE INDEX idx_diagnostics_user ON diagnostics (user_id, created_at)",
+        """CREATE TABLE study_plans (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            diagnostic_id INTEGER NOT NULL REFERENCES diagnostics(id) ON DELETE CASCADE,
+            plan TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_plans_user ON study_plans (user_id, created_at)",
+        "ALTER TABLE practice_sessions ADD COLUMN plan_id INTEGER",
+        "ALTER TABLE practice_sessions ADD COLUMN plan_task TEXT",
+    ]),
+    # (5, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

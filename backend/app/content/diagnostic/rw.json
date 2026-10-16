@@ -1,0 +1,200 @@
+{
+  "note": "Original Reading and Writing diagnostic questions, written for Graphite (not College Board content). Two to four per domain; the diagnostic draws one per domain. People, studies and places in the passages are fictional unless a note says otherwise.",
+  "items": [
+    {
+      "id": "rw-garden-pollinators",
+      "domain": "Information and Ideas",
+      "skill": "Central ideas and details",
+      "stem": "Ecologist Maya Brandt studied community gardens in three cities. She expected the gardens with the most flower species to attract the most pollinators. Instead, she found that pollinator visits depended mainly on how close a garden was to a park or other green space, and only weakly on how many flower species it had.<br><br>Which choice best states the main idea of the text?",
+      "choices": [
+        "Community gardens usually contain more flower species than parks do.",
+        "Brandt found that a garden's location mattered more for attracting pollinators than its variety of flowers.",
+        "Brandt's study showed that pollinators avoid gardens with many flower species.",
+        "Gardens in cities attract fewer pollinators than gardens outside cities."
+      ],
+      "answer": 1,
+      "explain": "The text sets up Brandt's expectation (more species, more pollinators) and then reports what she actually found: closeness to green space mattered most, and the number of species mattered only weakly. Choice B states that finding. A and D compare things the text never compares. C overstates the result: species count had a weak effect, not a negative one.",
+      "tip": "Main-idea questions reward the sentence that covers the whole text. Look for a turn word like \"Instead\" or \"However\": the main idea usually comes right after it."
+    },
+    {
+      "id": "rw-printing-press",
+      "domain": "Information and Ideas",
+      "skill": "Central ideas and details",
+      "stem": "Printing presses arrived in many European cities during the late 1400s. Historian Lena Ortiz points out that while printed books cost far less than hand-copied ones, most people at the time still could not read. In her view, the ideas in printed texts spread mainly because people who could read shared them aloud with groups in homes, shops and town squares.<br><br>Which choice best states the main idea of the text?",
+      "choices": [
+        "Printed books cost about the same as hand-copied books in the late 1400s.",
+        "Ortiz argues that reading aloud, not just cheaper books, explains how printed ideas reached many people.",
+        "Ortiz believes that most people in the late 1400s learned to read from printed books.",
+        "Printing presses were first built in town squares so that groups could gather around them."
+      ],
+      "answer": 1,
+      "explain": "The text grants that printed books were cheaper, then gives Ortiz's main claim: because most people couldn't read, ideas spread mainly through reading aloud. Choice B captures that claim. A contradicts the text, C isn't stated, and D misreads where the reading aloud happened.",
+      "tip": "When a text names a person and says \"In her view,\" the main idea is usually that person's claim."
+    },
+    {
+      "id": "rw-library-survey",
+      "domain": "Information and Ideas",
+      "skill": "Command of evidence: quantitative",
+      "stem": "A student surveyed 200 visitors at a public library about their main reason for visiting. 92 came mainly to borrow books, 54 mainly to use computers, 38 mainly to study, and 16 mainly for events. The student claims that although borrowing books is still the single most common reason for visiting, more than half of visitors come mainly for something else.<br><br>Which choice best describes data from the survey that support the student's claim?",
+      "choices": [
+        "92 of the 200 visitors came mainly to borrow books, and the other 108 came mainly for other reasons.",
+        "54 visitors came mainly to use computers, which is more than the 38 who came mainly to study.",
+        "16 visitors came mainly for events, the fewest of any group.",
+        "92 visitors came mainly to borrow books, and 38 came mainly to study."
+      ],
+      "answer": 0,
+      "explain": "The claim has two parts: borrowing is the most common reason (92 is the largest group), and more than half came for something else (200 − 92 = 108, and 108 is more than 100). Only choice A supports both parts. B and C compare the smaller groups, and D leaves out the total needed for \"more than half.\"",
+      "tip": "Split the claim into its parts and check that the data cover every part. A choice with true numbers can still miss half the claim."
+    },
+    {
+      "id": "rw-glass-furnace",
+      "domain": "Information and Ideas",
+      "skill": "Inferences",
+      "stem": "For generations, the glassmakers in one small workshop used wood-fired furnaces. When they switched to electric furnaces to lower their costs, they found that certain colors of glass, which depend on the uneven heat of a wood fire, no longer came out the same. As a result, ______<br><br>Which choice most logically completes the text?",
+      "choices": [
+        "the workshop stopped making colored glass of any kind.",
+        "the glassmakers may have had to change their methods to reproduce those colors in the electric furnaces.",
+        "electric furnaces cost more to run than wood-fired furnaces.",
+        "colors that depend on uneven heat were never popular with customers."
+      ],
+      "answer": 1,
+      "explain": "The text says only certain colors changed, and that they depend on uneven heat. A logical result is that the glassmakers would need to adjust their methods to get those colors back, which is choice B. A goes too far (only certain colors were affected), C contradicts the reason for switching (to lower costs), and D isn't supported by anything in the text.",
+      "tip": "The right inference follows from the text without adding new facts. Be suspicious of words like \"any\" and \"never.\""
+    },
+    {
+      "id": "rw-octopus-learning",
+      "domain": "Craft and Structure",
+      "skill": "Text structure and purpose",
+      "stem": "Many people assume that octopuses, which usually live only a year or two, have little time to learn. Yet in a recent study by marine biologist Tomas Reyes, young octopuses learned to open a sealed jar after watching another octopus do it, some within a single afternoon. Reyes suggests that a short life may actually favor fast learning rather than prevent it.<br><br>Which choice best describes the overall structure of the text?",
+      "choices": [
+        "It presents a common assumption, describes evidence that challenges it, and offers an alternative explanation.",
+        "It describes an experiment, lists the experiment's flaws, and calls for a new study.",
+        "It compares two species and concludes that one of them is more intelligent.",
+        "It explains how octopuses open jars and why that method works."
+      ],
+      "answer": 0,
+      "explain": "Sentence 1 states what many people assume. Sentence 2 (\"Yet...\") gives evidence against it. Sentence 3 offers Reyes's alternative idea. That's choice A. The text never lists flaws (B), compares two species (C), or explains the jar-opening method (D).",
+      "tip": "For structure questions, label each sentence's job in a word or two (claim, evidence, twist, conclusion), then match the sequence."
+    },
+    {
+      "id": "rw-architect-sketches",
+      "domain": "Craft and Structure",
+      "skill": "Words in context",
+      "stem": "The architect's early sketches were deliberately ______: she drew only rough outlines of each building so that her team would feel free to suggest major changes.<br><br>Which choice completes the text with the most logical and precise word?",
+      "choices": [
+        "provisional",
+        "ornate",
+        "permanent",
+        "meticulous"
+      ],
+      "answer": 0,
+      "explain": "The sketches were rough and meant to invite major changes, so they were temporary and open to revision: provisional. Ornate (highly decorated) and meticulous (extremely careful and detailed) contradict \"rough outlines,\" and permanent contradicts \"suggest major changes.\"",
+      "tip": "Predict your own word from the clue after the colon (here: \"rough, changeable\") before you look at the choices."
+    },
+    {
+      "id": "rw-two-texts-printing",
+      "domain": "Craft and Structure",
+      "skill": "Cross-text connections",
+      "stem": "<strong>Text 1</strong><br>Some historians argue that the printing press spread new ideas quickly in the 1500s simply because books became much cheaper to produce.<br><br><strong>Text 2</strong><br>Historian Lena Ortiz agrees that printed books were cheaper than hand-copied ones, but she notes that most people in the 1500s could not read. In her view, ideas spread mainly because people who could read shared printed texts aloud with groups.<br><br>Based on the texts, how would Ortiz (Text 2) most likely respond to the historians in Text 1?",
+      "choices": [
+        "By rejecting the idea that printed books were cheaper than hand-copied ones.",
+        "By arguing that cheaper books alone don't explain how ideas reached people who couldn't read.",
+        "By claiming that the printing press had no effect on the spread of ideas.",
+        "By agreeing that most people in the 1500s bought printed books."
+      ],
+      "answer": 1,
+      "explain": "Ortiz accepts the cost point but says it isn't enough, because most people couldn't read. So she'd say cheaper books alone don't explain the spread, which is choice B. A contradicts her (she agrees books were cheaper), C overstates her view, and D conflicts with her point that most people couldn't read.",
+      "tip": "Find where the second author agrees and where they add a \"but.\" The response usually keeps the agreement and pushes back on the rest."
+    },
+    {
+      "id": "rw-bird-songs",
+      "domain": "Craft and Structure",
+      "skill": "Words in context",
+      "stem": "Biologists once thought that young songbirds learned their songs only from their fathers. Recent recordings complicate that view: in several species, young birds ______ notes from many neighbors, combining them into songs of their own.<br><br>Which choice completes the text with the most logical and precise word?",
+      "choices": [
+        "borrow",
+        "forget",
+        "avoid",
+        "repeat"
+      ],
+      "answer": 0,
+      "explain": "The young birds take notes from several neighbors and combine them into their own songs, so they borrow them. Forget and avoid contradict the idea of using the notes. Repeat misses the point that the birds combine notes into something new rather than copying a song.",
+      "tip": "Plug each choice into the sentence and check it against the clue that follows (\"combining them into songs of their own\")."
+    },
+    {
+      "id": "rw-bus-route",
+      "domain": "Expression of Ideas",
+      "skill": "Transitions",
+      "stem": "City planners expected the new bus route to reduce traffic downtown. ______ traffic actually increased during the route's first month, as many drivers avoided the new bus lanes by crowding onto side streets.<br><br>Which choice completes the text with the most logical transition?",
+      "choices": [
+        "Similarly,",
+        "However,",
+        "For example,",
+        "Therefore,"
+      ],
+      "answer": 1,
+      "explain": "The planners expected less traffic, but traffic increased: the second sentence contrasts with the first, so \"However\" fits. \"Similarly\" signals agreement, \"For example\" signals an illustration of the same point, and \"Therefore\" signals a result that follows from the first sentence.",
+      "tip": "Decide how the two sentences relate (same direction, contrast, cause and effect, example) before reading the choices."
+    },
+    {
+      "id": "rw-solar-evening",
+      "domain": "Expression of Ideas",
+      "skill": "Transitions",
+      "stem": "Rooftop solar panels produce the most electricity around midday. Many households, ______ use the most electricity in the early evening, after the panels' output has already dropped.<br><br>Which choice completes the text with the most logical transition?",
+      "choices": [
+        "for instance,",
+        "however,",
+        "as a result,",
+        "likewise,"
+      ],
+      "answer": 1,
+      "explain": "Panels peak at midday, but households use the most power in the evening: a contrast, so \"however\" fits. \"For instance\" and \"likewise\" suggest the second sentence continues the first, and \"as a result\" wrongly says the evening use is caused by the midday peak.",
+      "tip": "A transition in the middle of a sentence works the same way as one at the start. Read the sentence without it, then ask what relationship is missing."
+    },
+    {
+      "id": "rw-hedy-lamarr",
+      "domain": "Expression of Ideas",
+      "skill": "Rhetorical synthesis",
+      "stem": "While researching a topic, a student has taken the following notes:<ul><li>Hedy Lamarr was a film actress in the 1930s and 1940s.</li><li>During World War II, she and composer George Antheil developed a frequency-hopping system meant to keep radio-guided torpedoes from being jammed.</li><li>They received a patent for the system in 1942.</li><li>Ideas from frequency hopping were later used in wireless technologies such as Bluetooth.</li></ul>The student wants to emphasize Lamarr's contribution to modern technology. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+      "choices": [
+        "Hedy Lamarr, a film actress, co-developed a frequency-hopping system whose ideas were later used in wireless technologies such as Bluetooth.",
+        "Hedy Lamarr acted in films during the 1930s and 1940s.",
+        "In 1942, Hedy Lamarr and George Antheil received a patent.",
+        "George Antheil was a composer who worked with Hedy Lamarr during World War II."
+      ],
+      "answer": 0,
+      "explain": "The goal is Lamarr's contribution to modern technology. Only choice A connects her invention to a modern technology (Bluetooth). B is about her acting, C mentions a patent without saying what it led to, and D is about Antheil.",
+      "tip": "Rhetorical synthesis is about the goal, not the notes. Underline the goal's key words (\"contribution to modern technology\") and pick the choice that delivers them."
+    },
+    {
+      "id": "rw-museum-farmers",
+      "domain": "Standard English Conventions",
+      "skill": "Boundaries",
+      "stem": "The museum's newest exhibit features tools used by early ______ visitors can even try grinding grain with a replica stone.<br><br>Which choice completes the text so that it conforms to the conventions of Standard English?",
+      "choices": [
+        "farmers,",
+        "farmers;",
+        "farmers",
+        "farmers and"
+      ],
+      "answer": 1,
+      "explain": "\"The museum's newest exhibit features tools used by early farmers\" and \"visitors can even try grinding grain\" are both complete sentences. A semicolon can join two complete sentences, so choice B is right. A comma alone (A) creates a comma splice, no punctuation (C) creates a run-on, and \"and\" without a comma (D) makes the sentence read as if the farmers and visitors used the tools together.",
+      "tip": "Check whether both sides of the blank could stand alone as sentences. If they can, you need a period, a semicolon, or a comma plus a word like \"and.\""
+    },
+    {
+      "id": "rw-letters-collection",
+      "domain": "Standard English Conventions",
+      "skill": "Form, structure, and sense",
+      "stem": "The collection of letters written by the explorer's crew ______ now kept in a climate-controlled room at the city archive.<br><br>Which choice completes the text so that it conforms to the conventions of Standard English?",
+      "choices": [
+        "are",
+        "is",
+        "have been",
+        "were being"
+      ],
+      "answer": 1,
+      "explain": "The subject is \"collection,\" which is singular. \"Letters\" and \"crew\" sit inside modifying phrases and don't control the verb. So the verb must be singular: \"is.\" The other choices are plural (and \"were being\" is also in the wrong tense for \"now\").",
+      "tip": "Cross out the phrases between the subject and the verb (\"of letters written by the explorer's crew\") and read \"The collection ___ now kept.\""
+    }
+  ]
+}

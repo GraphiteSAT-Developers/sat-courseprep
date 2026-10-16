@@ -67,7 +67,7 @@ def _index(session, value):
 @login_required
 def check(session_id):
     session = _session_or_404(session_id)
-    if session["mode"] != "topic":
+    if session["mode"] not in ("topic", "quiz"):
         raise ApiError(400, "Answers on a practice test are checked when you submit it.")
     if session["submitted_at"]:
         raise ApiError(409, "This set is already finished.")

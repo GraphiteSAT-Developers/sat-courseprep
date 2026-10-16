@@ -6,6 +6,7 @@ from ..db import query
 from ..security import public_user
 from .content import MATH_DOMAINS, RW_DOMAINS, all_tests, summary
 from .planner import build_plan
+from .studyplan import current_week
 
 SET_SIZES = [5, 4, 3]
 SHORT = {"Algebra": "Math", "Advanced Math": "Math", "Problem-Solving and Data Analysis": "Math",
@@ -22,6 +23,25 @@ def _due_label(due_on, today):
     if delta < 7:
         return "Due " + due.strftime("%A"), False
     return f"Due {due.strftime('%b')} {due.day}", False
+
+
+def study_plan_weeks(user, today):
+    """The student's study plan from the diagnostic, in the dashboard's week list shape. None before the diagnostic."""
+    row = query("SELECT plan FROM study_plans WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user["id"],), one=True)
+    if not row:
+        return None
+    plan = json.loads(row["plan"])
+    now = current_week(plan, today)
+    weeks = []
+    for i, w in enumerate(plan["weeks"]):
+        if i < now:
+            continue
+        if w["phase"] == "test":
+            focus = "Test week: warm-up quiz, rest and test-day prep"
+        else:
+            focus = f"{w['phase_label']}: " + " and ".join(f["name"] for f in w["focus"]) + f". {w['difficulty_label']}"
+        weeks.append({"week_of": w["week_of"], "focus": focus, "is_now": i == now})
+    return {"weeks": weeks, "fits_test_date": bool(plan.get("test_date")), "study_plan": True}
 
 
 def build(user, today=None):
@@ -96,6 +116,6 @@ def build(user, today=None):
         "today": {"items": today_items, "questions": sum(i["count"] for i in today_items),
                   "minutes": 25 if today_items else 0},
         "review": review,
-        "plan": build_plan(user["test_date"], domain_pct, today),
+        "plan": study_plan_weeks(user, today) or build_plan(user["test_date"], domain_pct, today),
         "tests": tests,
     }
