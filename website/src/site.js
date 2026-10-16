@@ -972,70 +972,66 @@
 })();
 
 /* Floating calculator window: drag it by its title bar, resize it from the corner, expand it, and it
-   remembers where it was. On phones it's a panel along the bottom (drag its top edge to change its
-   height) so the question stays in view. Used by the practice test and the diagnostic. */
+   remembers where it was. On phones it opens small (about 30% of the screen, above the test's bottom bar)
+   and can be moved and resized the same way. Used by the practice test and the diagnostic. */
 window.GraphiteFloat = function (win, o) {
   "use strict";
-  var narrow = window.matchMedia("(max-width: 860px)");
-  var st = null, restore = null;
-  try { st = JSON.parse(localStorage.getItem(o.key)); } catch (e) { /* storage blocked */ }
-  if (!st || typeof st.w !== "number") st = { w: 460, h: Math.min(720, window.innerHeight - 110), x: 24, y: 84 };
-  var sheetH = null, sheetFull = false; // phones: the bottom panel's height
-  try { sheetH = Number(localStorage.getItem(o.key + "_sheet")) || null; } catch (e) { /* storage blocked */ }
+  var phone = window.matchMedia("(max-width: 860px)");
+  var saved = {}, restore = null;
+  function key() { return o.key + (phone.matches ? "_phone" : ""); }
   function below() { return o.bottomEl ? o.bottomEl.getBoundingClientRect().height : 0; }
-  function sheetRoom() { return window.innerHeight - below() - 8; }
-  function store() { try { localStorage.setItem(o.key, JSON.stringify(st)); } catch (e) { /* storage blocked */ } }
-  function place() {
-    if (narrow.matches) {
-      var room = sheetRoom();
-      if (!sheetH) sheetH = Math.round(room * 0.6);
-      sheetH = Math.round(Math.max(Math.min(260, room), Math.min(sheetH, room)));
-      win.style.left = win.style.top = win.style.width = "";
-      win.style.height = (sheetFull ? room : sheetH) + "px";
-      document.documentElement.style.setProperty("--calc-sheet", (sheetFull ? room : sheetH) + "px"); // so the page can scroll clear of it
-      win.style.bottom = below() + "px";
-      win.classList.add("is-sheet");
-      return;
-    }
-    win.classList.remove("is-sheet"); win.style.bottom = "";
+  function defaults() {
     var vw = window.innerWidth, vh = window.innerHeight;
-    st.w = Math.round(Math.max(320, Math.min(st.w, vw - 16)));
-    st.h = Math.round(Math.max(340, Math.min(st.h, vh - 16)));
+    if (!phone.matches) return { w: 460, h: Math.min(720, vh - 110), x: 24, y: 84 };
+    var h = Math.round(Math.max(220, vh * 0.3));
+    return { w: vw - 16, h: h, x: 8, y: vh - below() - h - 8 };
+  }
+  function state() {
+    var k = key();
+    if (!saved[k]) {
+      try { saved[k] = JSON.parse(localStorage.getItem(k)); } catch (e) { saved[k] = null; }
+      if (!saved[k] || typeof saved[k].w !== "number") saved[k] = defaults();
+    }
+    return saved[k];
+  }
+  function store() { try { localStorage.setItem(key(), JSON.stringify(state())); } catch (e) { /* storage blocked */ } }
+  function place() {
+    var st = state(), vw = window.innerWidth, vh = window.innerHeight;
+    var minW = phone.matches ? 240 : 320, minH = phone.matches ? 200 : 340;
+    st.w = Math.round(Math.max(Math.min(minW, vw - 16), Math.min(st.w, vw - 16)));
+    st.h = Math.round(Math.max(Math.min(minH, vh - 16), Math.min(st.h, vh - 16)));
     st.x = Math.round(Math.max(8, Math.min(st.x, vw - st.w - 8)));
     st.y = Math.round(Math.max(8, Math.min(st.y, vh - st.h - 8)));
     win.style.left = st.x + "px"; win.style.top = st.y + "px";
     win.style.width = st.w + "px"; win.style.height = st.h + "px";
+    // Room for the page to scroll clear of the window when it sits low on a phone.
+    document.documentElement.style.setProperty("--calc-sheet", phone.matches ? Math.max(0, vh - st.y) + "px" : "0px");
   }
   function drag(el, onMove) {
     var start = null;
     el.addEventListener("pointerdown", function (e) {
-      if ((narrow.matches && el !== o.handle) || e.button > 0 || (el === o.handle && e.target.closest("button"))) return;
+      if (e.button > 0 || (el === o.handle && e.target.closest("button"))) return;
+      var st = state();
       e.preventDefault(); el.setPointerCapture(e.pointerId);
-      start = { px: e.clientX, py: e.clientY, x: st.x, y: st.y, w: st.w, h: st.h, sh: sheetFull ? sheetRoom() : sheetH };
+      start = { px: e.clientX, py: e.clientY, x: st.x, y: st.y, w: st.w, h: st.h };
       win.classList.add("is-moving");
     });
     el.addEventListener("pointermove", function (e) {
       if (!start) return;
-      onMove(e.clientX - start.px, e.clientY - start.py, start); place();
+      onMove(state(), e.clientX - start.px, e.clientY - start.py, start); place();
     });
-    function end() {
-      if (!start) return; start = null; win.classList.remove("is-moving"); restore = null; syncExpand(); store();
-      try { localStorage.setItem(o.key + "_sheet", String(sheetH)); } catch (e) { /* storage blocked */ }
-    }
+    function end() { if (!start) return; start = null; win.classList.remove("is-moving"); restore = null; syncExpand(); store(); }
     el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
   }
-  drag(o.handle, function (dx, dy, s) {
-    if (narrow.matches) { sheetFull = false; sheetH = s.sh - dy; return; } // phones: drag the top edge up or down
-    st.x = s.x + dx; st.y = s.y + dy;
-  });
-  drag(o.grip, function (dx, dy, s) { st.w = s.w + dx; st.h = s.h + dy; });
+  drag(o.handle, function (st, dx, dy, s) { st.x = s.x + dx; st.y = s.y + dy; });
+  drag(o.grip, function (st, dx, dy, s) { st.w = s.w + dx; st.h = s.h + dy; });
   // Keyboard: arrow keys on the title bar move the window, on the corner grip they resize it.
   function keys(el, move) {
     el.addEventListener("keydown", function (e) {
       var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
       if (!d || e.target !== el) return;
       e.preventDefault();
-      if (narrow.matches) { if (move && d[1]) { sheetFull = false; sheetH = (sheetH || 300) - d[1] * 48; place(); } return; }
+      var st = state();
       if (move) { st.x += d[0] * 32; st.y += d[1] * 32; } else { st.w += d[0] * 32; st.h += d[1] * 32; }
       place(); store();
     });
@@ -1043,23 +1039,23 @@ window.GraphiteFloat = function (win, o) {
   keys(o.handle, true); keys(o.grip, false);
   function syncExpand() {
     if (!o.expand) return;
-    var on = narrow.matches ? sheetFull : !!restore;
-    o.expand.setAttribute("aria-pressed", String(on));
-    o.expand.textContent = on ? (narrow.matches ? "Smaller" : "Restore") : "Expand";
+    o.expand.setAttribute("aria-pressed", String(!!restore));
+    o.expand.textContent = restore ? (phone.matches ? "Smaller" : "Restore") : "Expand";
   }
   function toggleExpand() {
-    if (narrow.matches) { sheetFull = !sheetFull; place(); syncExpand(); return; }
-    if (restore) { st = restore; restore = null; }
+    var st = state();
+    if (restore) { saved[key()] = restore; restore = null; }
     else {
       restore = { x: st.x, y: st.y, w: st.w, h: st.h };
-      var w = Math.round(window.innerWidth * 0.72), h = window.innerHeight - 96;
-      st = { w: w, h: h, x: Math.round((window.innerWidth - w) / 2), y: 72 };
+      var vw = window.innerWidth, vh = window.innerHeight;
+      saved[key()] = phone.matches ? { x: 8, y: 8, w: vw - 16, h: vh - below() - 16 }
+        : { w: Math.round(vw * 0.72), h: vh - 96, x: Math.round(vw * 0.14), y: 72 };
     }
     place(); store(); syncExpand();
   }
   if (o.expand) o.expand.addEventListener("click", toggleExpand);
   o.handle.addEventListener("dblclick", function (e) { if (!e.target.closest("button")) toggleExpand(); });
   window.addEventListener("resize", function () { if (!win.hidden) place(); });
-  if (narrow.addEventListener) narrow.addEventListener("change", function () { if (!win.hidden) { place(); syncExpand(); } });
+  if (phone.addEventListener) phone.addEventListener("change", function () { restore = null; if (!win.hidden) { place(); syncExpand(); } });
   return { place: function () { place(); syncExpand(); } };
 };
