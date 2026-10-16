@@ -54,3 +54,7 @@ class Config:
     REMEMBER_DAYS = 30
 
     TESTING = False
+
+    # A test account, username "beta" and password "beta", for trying the site locally.
+    # Never on in production, whatever the environment says: anyone could sign in with it.
+    TEST_ACCOUNT = _bool("TEST_ACCOUNT", True) and not IS_PRODUCTION

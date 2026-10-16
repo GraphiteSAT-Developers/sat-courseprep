@@ -10,6 +10,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from .config import Config
 from .db import close_db
 from .routes import BLUEPRINTS
+from . import testaccount
 from .schema import migrate
 from .security import ApiError, check_same_origin, error_response, prune_events
 
@@ -36,6 +37,9 @@ def create_app(overrides=None):
         app.logger.warning("Running in production on SQLite. On hosts without a persistent disk (like Render's free "
                            "plan) the database is wiped on every restart. Set DATABASE_URL to a Postgres database.")
     migrate(app.config["DATABASE_URL"])
+    if app.config["TEST_ACCOUNT"]:
+        testaccount.ensure(app.config["DATABASE_URL"])
+        app.logger.info('Test account ready: sign in with username "beta" and password "beta".')
     for bp in BLUEPRINTS:
         app.register_blueprint(bp)
     app.teardown_appcontext(close_db)

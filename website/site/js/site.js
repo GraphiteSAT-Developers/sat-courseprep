@@ -154,6 +154,7 @@
 
   /* 7. Form helpers: validation, spam protection, status messages */
   var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var TEST_USERNAME = "beta";
 
   function setError(field, msg) {
     var input = field.querySelector("input, select, textarea");
@@ -307,9 +308,12 @@
       clearStatus(aStatus);
       if (Date.now() < lockUntil) return;
       var email = $("#signin-email"), em = email.value.trim();
-      var emMsg = !em ? "Enter your email address." : (!EMAIL.test(em) ? "Enter an email like name@school.org." : "");
+      // The test account (beta / beta) has no email and a short password. The server only accepts it when
+      // it runs locally, never on the hosted site (backend/app/testaccount.py).
+      var testAccount = em.toLowerCase() === TEST_USERNAME;
+      var emMsg = !em ? "Enter your email address." : (!testAccount && !EMAIL.test(em) ? "Enter an email like name@school.org." : "");
       setError(email.parentNode, emMsg);
-      var pMsg = !pw.value ? "Enter your password." : (pw.value.length < 8 ? "Passwords are at least 8 characters." : "");
+      var pMsg = !pw.value ? "Enter your password." : (!testAccount && pw.value.length < 8 ? "Passwords are at least 8 characters." : "");
       setError(pw.closest(".field"), pMsg);
       if (emMsg || pMsg) {
         attempts++;

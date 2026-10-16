@@ -26,6 +26,10 @@ That means no server is running at that address.
 - **"python is not recognized" or "command not found":** Python isn't installed or isn't on your PATH. Try `python3` or `py`, or reinstall Python.
 - **"No such file start.py":** the terminal is in the wrong folder. Run `cd` to the `sat-courseprep` folder first, or open that folder in VS Code.
 
+### Test account
+
+When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and its practice history is kept between starts. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
+
 Run the tests:
 
 ```bash

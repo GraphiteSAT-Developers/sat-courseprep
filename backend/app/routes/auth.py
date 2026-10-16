@@ -5,6 +5,7 @@ from datetime import timedelta
 from flask import Blueprint, current_app, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from .. import testaccount
 from ..db import execute, iso, now, now_iso, parse_iso, query
 from ..security import (ApiError, body, clean_date, clean_email, clean_grade, clean_name, clean_password,
                         clean_target, clear_events, client_ip, hash_text, login_user, logout_user, public_user,
@@ -48,7 +49,10 @@ def register():
 @bp.post("/login")
 def login():
     data = body()
-    email = clean_email(data.get("email"))
+    if testaccount.is_test_login(current_app, data.get("email")):
+        email = testaccount.USERNAME
+    else:
+        email = clean_email(data.get("email"))
     password = data.get("password") or ""
     email_bucket, ip_bucket = "login:" + email, "login-ip:" + client_ip()
     if rate_limited(email_bucket, 5, 15) or rate_limited(ip_bucket, 30, 15):
