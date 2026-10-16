@@ -16,3 +16,4 @@ A browser graphing calculator with a live math editor, built as a single self-co
 
 - Fonts load from Google Fonts. Everything else is inline in the one file.
 - Tap a curve on the graph to trace it. Select a function's line to see its intercepts, extrema and intersections.
+- To stretch one axis, drag its numbers on the graph, hold Shift (x) or Alt (y) while scrolling, pinch sideways or up and down, or type exact ranges in Settings.

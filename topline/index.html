@@ -49,6 +49,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
 canvas.grabbing{cursor:grabbing}
 canvas.on-curve{cursor:pointer}
+canvas.ax-x{cursor:ew-resize}
+canvas.ax-y{cursor:ns-resize}
 
 .bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--rule)}
 .brand{display:flex;align-items:center;gap:8px;font-family:var(--font-math);font-style:italic;font-weight:600;font-size:22px;letter-spacing:.01em}
@@ -61,6 +63,10 @@ canvas.on-curve{cursor:pointer}
 .sec-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .sec-row .grow{flex:1 1 140px;color:var(--muted);font-size:12.5px}
 .set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13.5px}
+.set-row.win{justify-content:flex-start;gap:8px}
+.set-row .wl{min-width:52px}
+.winin{width:84px;min-width:0;flex:1 1 60px;font-family:var(--font-data);font-size:12.5px;padding:5px 6px;border:1px solid var(--rule);border-radius:5px;background:var(--panel);color:var(--ink);text-align:center}
+.set-hint{margin:0;color:var(--muted);font-size:11.5px;line-height:1.5}
 .set-row small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
 .seg{display:inline-flex;border:1px solid var(--rule);border-radius:7px;overflow:hidden;flex:none}
 .seg button{border:0;background:var(--panel);padding:5px 10px;font-size:12.5px;display:inline-flex;align-items:center;gap:5px}
@@ -215,6 +221,9 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
       <label class="set-row" for="optComplex"><span>Complex numbers<small>Use i, and allow results like √−9 = 3i</small></span><input type="checkbox" class="switch" id="optComplex"></label>
       <label class="set-row" for="optLogX"><span>Log scale x-axis</span><input type="checkbox" class="switch" id="optLogX"></label>
       <label class="set-row" for="optLogY"><span>Log scale y-axis</span><input type="checkbox" class="switch" id="optLogY"></label>
+      <div class="set-row win"><span class="wl">x from</span><input class="winin" id="xMin" aria-label="x-axis minimum"><span>to</span><input class="winin" id="xMax" aria-label="x-axis maximum"></div>
+      <div class="set-row win"><span class="wl">y from</span><input class="winin" id="yMin" aria-label="y-axis minimum"><span>to</span><input class="winin" id="yMax" aria-label="y-axis maximum"></div>
+      <p class="set-hint">To stretch one axis on the graph, drag its numbers. You can also hold Shift (x-axis) or Alt (y-axis) while scrolling, or pinch sideways or up and down.</p>
     </div>
     <div class="sec" id="confirm" hidden>
       <div class="sec-row"><span class="grow" style="color:var(--ink);font-size:13.5px">Delete every expression?</span>
@@ -2754,7 +2763,7 @@ class MathField {
     panel.hidden = !show; if (btn) btn.setAttribute('aria-expanded', String(show));
     return show;
   }
-  $('#setBtn').addEventListener('click', () => togglePanel($('#setBtn'), $('#settings')));
+  $('#setBtn').addEventListener('click', () => { togglePanel($('#setBtn'), $('#settings')); syncWindow(); });
   $('#clearBtn').addEventListener('click', () => { togglePanel(null, $('#confirm'), true); $('#confirmYes').focus(); });
   $('#confirmNo').addEventListener('click', () => { $('#confirm').hidden = true; });
   $('#confirmYes').addEventListener('click', () => {
@@ -2822,6 +2831,39 @@ class MathField {
     view.cx = ux - (mx - W / 2) / view.sx; view.cy = uy + (my - H / 2) / view.sy;
     requestDraw(); save();
   }
+
+  function zoomAxis(axis, f, anchorPx) {
+    if (axis === 'x') { const a = anchorPx ?? W / 2, u0 = view.cx + (a - W / 2) / view.sx; view.sx = clampS(view.sx * f); view.cx = u0 - (a - W / 2) / view.sx; }
+    else { const a = anchorPx ?? H / 2, u0 = view.cy - (a - H / 2) / view.sy; view.sy = clampS(view.sy * f); view.cy = u0 + (a - H / 2) / view.sy; }
+  }
+  function axisAnchors() {
+    const ax = settings.logX ? NaN : px(0), ay = settings.logY ? NaN : py(0);
+    return { ax: ax >= 0 && ax <= W ? ax : NaN, ay: ay >= 0 && ay <= H ? ay : NaN };
+  }
+  function axisHit(X, Y) {
+    const { ax, ay } = axisAnchors();
+    const ly = isFinite(ay) ? Math.max(4, Math.min(H - 18, ay + 5)) : H - 18;
+    const dX = Math.min(isFinite(ay) ? Math.abs(Y - ay) : Infinity, Y >= ly - 6 && Y <= ly + 16 ? 0 : Infinity);
+    let dY = isFinite(ax) ? Math.abs(X - ax) : Infinity;
+    const right = isFinite(ax) && ax >= 30;
+    if (right ? X >= ax - 40 && X <= ax : X <= 44) dY = Math.min(dY, 0);
+    if (dX > 10 && dY > 10) return null;
+    if (X > W - 60 && Y < 160) return null;
+    return dX <= dY ? 'x' : 'y';
+  }
+  // the graph window fields in Settings
+  const winIds = ['xMin', 'xMax', 'yMin', 'yMax'];
+  function syncWindow() {
+    if ($('#settings').hidden) return;
+    const v = { xMin: wx(0), xMax: wx(W), yMin: wy(H), yMax: wy(0) };
+    winIds.forEach(id => { const el = $('#' + id); if (document.activeElement !== el) el.value = fmtNum(v[id], 4); });
+  }
+  winIds.forEach(id => $('#' + id).addEventListener('change', () => {
+    const val = id2 => { const t = $('#' + id2).value.replace(/[−–]/g, '-').trim(); const n = Number(t); return isFinite(n) && t !== '' ? n : evalText(t); };
+    const [a, b, c, d] = winIds.map(val);
+    if (![a, b, c, d].every(v => typeof v === 'number' && isFinite(v)) || a >= b || c >= d || (settings.logX && a <= 0) || (settings.logY && c <= 0)) { syncWindow(); return; }
+    setRange([a, b], [c, d]); requestDraw(); save();
+  }));
 
   // ---------- drawing ----------
   let drawQueued = false;
@@ -3117,6 +3159,7 @@ class MathField {
   function draw() {
     drawQueued = false;
     if (!W || !H) return;
+    syncWindow();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = TH.canvas; ctx.fillRect(0, 0, W, H);
     drawGrid();
@@ -3170,7 +3213,7 @@ class MathField {
     const [X, Y] = local(e); ptrs.set(e.pointerId, [X, Y]);
     if (ptrs.size === 2) {
       const [a, b] = [...ptrs.values()], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
-      drag = { mode: 'pinch', d0: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, sx0: view.sx, sy0: view.sy, ux: view.cx + (mx - W / 2) / view.sx, uy: view.cy - (my - H / 2) / view.sy };
+      drag = { mode: 'pinch', d0: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, dx0: Math.abs(a[0] - b[0]), dy0: Math.abs(a[1] - b[1]), sx0: view.sx, sy0: view.sy, ux: view.cx + (mx - W / 2) / view.sx, uy: view.cy - (my - H / 2) / view.sy };
       return;
     }
     if (ptrs.size > 2) return;
@@ -3183,16 +3226,34 @@ class MathField {
       selectRow(hit.c.row.id); trace = null; pinned = { kind: 'pt', key: hit.c.key, idx: hit.i }; drag = { mode: 'tap' }; requestDraw();
     } else if (hit && hit.type === 'poi') {
       trace = null; pinned = { kind: 'poi', ...hit.p }; drag = { mode: 'tap' }; requestDraw();
-    } else beginPan(X, Y);
+    } else {
+      const axis = axisHit(X, Y);
+      if (axis) {
+        const { ax, ay } = axisAnchors(), anchor = axis === 'x' ? (isFinite(ax) ? ax : W / 2) : (isFinite(ay) ? ay : H / 2);
+        drag = { mode: 'axis', axis, X0: X, Y0: Y, anchor, cx: view.cx, cy: view.cy, sx: view.sx, sy: view.sy,
+          dir: axis === 'x' ? (X >= anchor ? 1 : -1) : (Y <= anchor ? 1 : -1) };
+        cv.classList.add(axis === 'x' ? 'ax-x' : 'ax-y');
+      } else beginPan(X, Y);
+    }
   });
   cv.addEventListener('pointermove', e => {
     const [X, Y] = local(e);
-    if (!ptrs.has(e.pointerId)) { if (e.pointerType === 'mouse') cv.classList.toggle('on-curve', !!hitTest(X, Y)); return; }
+    if (!ptrs.has(e.pointerId)) {
+      if (e.pointerType === 'mouse') {
+        const onCurve = !!hitTest(X, Y), axis = onCurve ? null : axisHit(X, Y);
+        cv.classList.toggle('on-curve', onCurve); cv.classList.toggle('ax-x', axis === 'x'); cv.classList.toggle('ax-y', axis === 'y');
+      }
+      return;
+    }
     ptrs.set(e.pointerId, [X, Y]);
     if (!drag) return;
     if (drag.mode === 'pinch' && ptrs.size >= 2) {
       const [a, b] = [...ptrs.values()], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      view.sx = clampS(drag.sx0 * d / drag.d0); view.sy = clampS(drag.sy0 * d / drag.d0);
+      const dx = Math.abs(a[0] - b[0]), dy = Math.abs(a[1] - b[1]);
+      if (drag.dx0 > 50 && drag.dy0 > 50) { view.sx = clampS(drag.sx0 * dx / drag.dx0); view.sy = clampS(drag.sy0 * dy / drag.dy0); }
+      else if (drag.dx0 > 50) view.sx = clampS(drag.sx0 * dx / drag.dx0);
+      else if (drag.dy0 > 50) view.sy = clampS(drag.sy0 * dy / drag.dy0);
+      else { view.sx = clampS(drag.sx0 * d / drag.d0); view.sy = clampS(drag.sy0 * d / drag.d0); }
       view.cx = drag.ux - (mx - W / 2) / view.sx; view.cy = drag.uy + (my - H / 2) / view.sy;
       requestDraw();
     } else if (drag.mode === 'pan') {
@@ -3200,20 +3261,27 @@ class MathField {
       view.cx = drag.cx - (X - drag.sx) / view.sx; view.cy = drag.cy + (Y - drag.sy) / view.sy;
       requestDraw();
     } else if (drag.mode === 'trace') { trace.t = drag.c.type === 'fx' ? wx(X) : wy(Y); requestDraw(); }
+    else if (drag.mode === 'axis') {
+      view.cx = drag.cx; view.cy = drag.cy; view.sx = drag.sx; view.sy = drag.sy;
+      const f = drag.axis === 'x' ? Math.exp((X - drag.X0) * drag.dir / 200) : Math.exp((drag.Y0 - Y) * drag.dir / 200);
+      zoomAxis(drag.axis, f, drag.anchor); requestDraw();
+    }
   });
   function endPtr(e) {
     if (!ptrs.has(e.pointerId)) return;
     ptrs.delete(e.pointerId);
     if (drag && drag.mode === 'pan' && !drag.moved && ptrs.size === 0) { trace = null; pinned = null; requestDraw(); }
     if (drag && drag.mode === 'pinch' && ptrs.size === 1) { const [p] = [...ptrs.values()]; beginPan(p[0], p[1]); drag.moved = true; return; }
-    if (ptrs.size === 0) { if (drag && (drag.mode === 'pan' || drag.mode === 'pinch')) save(); drag = null; cv.classList.remove('grabbing'); }
+    if (ptrs.size === 0) { if (drag && (drag.mode === 'pan' || drag.mode === 'pinch' || drag.mode === 'axis')) save(); drag = null; cv.classList.remove('grabbing', 'ax-x', 'ax-y'); }
   }
   cv.addEventListener('pointerup', endPtr);
   cv.addEventListener('pointercancel', endPtr);
   cv.addEventListener('wheel', e => {
     e.preventDefault();
-    const [X, Y] = local(e), dy = e.deltaY * (e.deltaMode === 1 ? 30 : 1);
-    zoomAt(X, Y, Math.exp(-dy * 0.0015));
+    const [X, Y] = local(e), dy = (e.deltaY || e.deltaX) * (e.deltaMode === 1 ? 30 : 1), f = Math.exp(-dy * 0.0015);
+    if (e.shiftKey) { zoomAxis('x', f, X); requestDraw(); save(); }
+    else if (e.altKey) { zoomAxis('y', f, Y); requestDraw(); save(); }
+    else zoomAt(X, Y, f);
   }, { passive: false });
   $('#zin').addEventListener('click', () => zoomAt(W / 2, H / 2, 1.5));
   $('#zout').addEventListener('click', () => zoomAt(W / 2, H / 2, 1 / 1.5));
