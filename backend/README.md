@@ -33,6 +33,14 @@ cd backend
 python -m unittest discover tests
 ```
 
+## See your users' data
+
+```bash
+python export_users.py
+```
+
+Run it from the main `sat-courseprep` folder. It saves `users.csv`, `leads.csv`, `test_attempts.csv` and `review_queue.csv` in a new folder under `exports/`, ready to open in Excel or Google Sheets. Passwords are never included. `exports/` is ignored by git, so student data isn't pushed to GitHub. To export from the live site, set `DATABASE_URL` to the live database first.
+
 ## What it does
 
 | Area | What's stored or computed |
