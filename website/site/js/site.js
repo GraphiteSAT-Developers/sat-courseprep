@@ -857,6 +857,21 @@
         $("#kpi-test-sub").textContent = "Add it in Account to fit your plan";
       }
 
+      if (d.masterclass) {
+        var mc = d.masterclass;
+        $("#dm-dash-count").textContent = mc.completed + " of " + mc.lessons + " lessons";
+        $("#dm-dash-meter").style.width = Math.round(100 * mc.completed / mc.lessons) + "%";
+        var lede = $("#dm-dash-lede"), link = $("#dm-dash-link");
+        if (mc.next) {
+          lede.innerHTML = (mc.completed || mc.next.started ? "Up next: " : "Start with ") + "<strong>" + esc(mc.next.title) + "</strong>, about " + mc.next.minutes + " minutes. Every step checks itself as you type.";
+          link.textContent = mc.completed || mc.next.started ? "Continue the masterclass" : "Start the masterclass";
+          link.setAttribute("href", "masterclass.html#" + mc.next.id);
+        } else {
+          lede.textContent = "You've finished every lesson. Come back to any of them before test day.";
+          link.textContent = "Review the lessons";
+        }
+      }
+
       var setList = $("#set-list");
       setTotal = d.today.questions || 12;
       todaySource = d.today.source || (d.today.items.length ? "domains" : "none");

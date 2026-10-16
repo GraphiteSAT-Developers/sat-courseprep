@@ -1,0 +1,74 @@
+<!--{"file": "masterclass.html", "path": "/masterclass.html", "title": "Desmos Masterclass | Graphite SAT Tutoring", "description": "Hands-on lessons in the graphing calculator moves that save the most time on SAT Math, checked step by step as you type.", "robots": "noindex, nofollow", "app": true, "calculator": true, "scripts": ["masterclass-data.js", "masterclass-checks.js", "masterclass.js"]}-->
+<main id="main" class="practice dm-page">
+  <div class="wrap dash-stack">
+    <p class="sample-note" id="dm-preview-note" hidden><span class="label">Preview</span> This preview saves your progress in this browser only. On the live site it stays with your account.</p>
+    <p class="field-error pr-error" id="dm-error" role="alert" hidden></p>
+
+    <!-- All lessons -->
+    <div class="dm-home" id="dm-home">
+      <div class="dm-hero">
+        <div>
+          <p class="label">Desmos masterclass</p>
+          <h1>Learn the calculator moves that save the most time</h1>
+          <p class="lede">Short hands-on lessons. You type every step into the graphing calculator, and each step checks itself as you go.</p>
+        </div>
+        <div class="panel dm-progress" aria-labelledby="dm-progress-title">
+          <p class="label" id="dm-progress-title">Your progress</p>
+          <p class="dm-progress-num"><strong id="dm-done">0</strong> of <span id="dm-total">13</span> lessons</p>
+          <span class="meter" aria-hidden="true"><span id="dm-meter" style="width: 0%"></span></span>
+          <button class="btn btn-primary" type="button" id="dm-continue">Start the first lesson</button>
+        </div>
+      </div>
+      <div class="dm-units" id="dm-units"><p class="fine">Loading lessons…</p></div>
+      <p class="fine dm-foot">Lessons use Topline, Graphite's graphing calculator. Its typing and graphing work like Desmos, the calculator built into Bluebook, so every move carries over to test day. Where they differ, the lesson says so.</p>
+    </div>
+
+    <!-- One lesson -->
+    <div class="dm-lesson" id="dm-lesson" hidden>
+      <nav class="dm-crumbs" aria-label="Breadcrumb"><a href="#" id="dm-back">All lessons</a><span aria-hidden="true">/</span><span id="dm-crumb-unit"></span></nav>
+      <div class="dm-layout" id="dm-layout">
+        <article class="dm-main" aria-labelledby="dm-title">
+          <header class="dm-head">
+            <p class="label" id="dm-kicker"></p>
+            <h1 id="dm-title"></h1>
+            <p class="dm-goal" id="dm-goal"></p>
+          </header>
+          <section class="dm-problem" id="dm-problem" aria-label="The question" hidden></section>
+          <div class="dm-intro" id="dm-intro"></div>
+          <section class="dm-block" id="dm-steps-wrap" aria-labelledby="dm-steps-title">
+            <div class="dm-block-head"><h2 id="dm-steps-title">Do it in the calculator</h2><span class="label" id="dm-steps-count"></span></div>
+            <ol class="dm-steps" id="dm-steps"></ol>
+          </section>
+          <section class="dm-block" id="dm-reads-wrap" aria-labelledby="dm-reads-title">
+            <div class="dm-block-head"><h2 id="dm-reads-title">Read the answer</h2></div>
+            <div id="dm-reads"></div>
+          </section>
+          <section class="dm-block" id="dm-drill-wrap" aria-labelledby="dm-drill-title" hidden>
+            <div class="dm-block-head"><h2 id="dm-drill-title">Desmos or by hand?</h2><span class="label" id="dm-drill-score"></span></div>
+            <ol class="dm-drill" id="dm-drill"></ol>
+          </section>
+          <section class="dm-block dm-try" id="dm-try-wrap" aria-labelledby="dm-try-title">
+            <div class="dm-block-head"><h2 id="dm-try-title">Your turn: an SAT-style question</h2></div>
+            <div id="dm-try"></div>
+          </section>
+          <section class="dm-done" id="dm-complete" aria-live="polite" hidden>
+            <p class="label">Lesson complete</p>
+            <h2 id="dm-complete-title">Nice work.</h2>
+            <a class="btn btn-primary" id="dm-next" href="#">Next lesson</a>
+          </section>
+          <section class="dm-wrap" id="dm-wrapup" aria-label="Remember"></section>
+        </article>
+        <aside class="panel dm-calc" id="dm-calc" aria-label="Graphing calculator">
+          <div class="calc-head">
+            <span class="calc-name">Graphing calculator</span>
+            <span class="dm-calc-status" id="dm-calc-status" aria-live="polite"></span>
+            <button class="exam-pill dm-calc-reset" type="button" id="dm-calc-clear">Clear</button>
+            <button class="exam-pill dm-calc-close" type="button" id="dm-calc-close">Close</button>
+          </div>
+          <div class="calc-frame" id="dm-calc-frame"><p class="calc-loading">Loading calculator…</p></div>
+        </aside>
+      </div>
+      <button class="btn btn-primary dm-calc-fab" type="button" id="dm-calc-open" aria-controls="dm-calc" aria-expanded="false">Calculator</button>
+    </div>
+  </div>
+</main>

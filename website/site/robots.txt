@@ -4,6 +4,7 @@ Disallow: /dashboard.html
 Disallow: /practice-test.html
 Disallow: /practice.html
 Disallow: /plan.html
+Disallow: /masterclass.html
 Disallow: /calculator.html
 
 Sitemap: https://www.graphiteprep.com/sitemap.xml

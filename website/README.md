@@ -32,6 +32,7 @@ The pages run in two modes:
 | Dashboard (signed-in students) | `dashboard.html` |
 | Practice: random practice test or one topic | `practice.html` |
 | Math practice test with graphing calculator | `practice-test.html` |
+| Desmos masterclass: hands-on calculator lessons | `masterclass.html` |
 | Privacy policy | `privacy.html` |
 | Cookie policy | `cookies.html` |
 | Terms of service | `terms.html` |
@@ -44,6 +45,12 @@ The pages run in two modes:
 3. Set up the backend's environment variables, including email. See `../backend/README.md`.
 4. Have a lawyer review the privacy policy, cookie policy and terms.
 5. Run `python3 build.py` and deploy the repository with the backend.
+
+## Desmos masterclass
+
+`masterclass.html` teaches the calculator moves that matter on SAT Math, one lesson at a time beside a live Topline calculator. The lessons are in `../backend/app/content/masterclass/lessons.json`. Each step has a `check` (see `src/masterclass-checks.js` for the kinds) that runs against the student's calculator as they type, and `show` lines for the "Show me" button.
+
+After editing a lesson, run `node verify_masterclass.mjs` (needs Playwright). It puts each step's `show` lines into the real calculator and confirms the step passes, and wasn't already passing before.
 
 ## Practice test calculator
 

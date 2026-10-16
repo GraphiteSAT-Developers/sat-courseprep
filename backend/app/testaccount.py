@@ -33,7 +33,7 @@ def ensure(url):
 
 # Everything a student's practice leaves behind. study_plans goes before diagnostics, which it points to.
 STUDENT_TABLES = ["practice_sessions", "practice_seen", "practice_completions", "study_plans", "diagnostics",
-                  "review_items", "test_attempts", "activity"]
+                  "review_items", "test_attempts", "activity", "masterclass_progress"]
 
 
 def reset(user_id):

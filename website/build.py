@@ -130,6 +130,15 @@ def bank_js():
     return "window.GRAPHITE_BANK = " + json.dumps(data, separators=(",", ":")).replace("</", "<\\/") + ";"
 
 
+MASTERCLASS = ROOT.parent / "backend" / "app" / "content" / "masterclass" / "lessons.json"
+
+
+def masterclass_js():
+    """The Desmos masterclass lessons, from the backend's content (the server stores progress only)."""
+    data = json.loads(MASTERCLASS.read_text())
+    return "window.GRAPHITE_MASTERCLASS = " + json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/") + ";"
+
+
 def script_source(name):
     """Page scripts. questions.js is generated from the backend's test JSON, the single source of questions."""
     if name == "questions.js":
@@ -137,6 +146,8 @@ def script_source(name):
         return "var GRAPHITE_TEST = " + json.dumps(test) + ";"
     if name == "bank.js":
         return bank_js()
+    if name == "masterclass-data.js":
+        return masterclass_js()
     return (SRC / name).read_text()
 
 
@@ -252,6 +263,9 @@ def build():
     shutil.copy(SRC / "practice-test.js", DIST / "js" / "practice-test.js")
     shutil.copy(SRC / "practice.js", DIST / "js" / "practice.js")
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
+    shutil.copy(SRC / "masterclass.js", DIST / "js" / "masterclass.js")
+    shutil.copy(SRC / "masterclass-checks.js", DIST / "js" / "masterclass-checks.js")
+    (DIST / "js" / "masterclass-data.js").write_text(masterclass_js())
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:
@@ -264,7 +278,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /masterclass.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

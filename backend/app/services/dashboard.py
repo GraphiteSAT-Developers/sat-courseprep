@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from ..db import query
 from ..security import public_user
+from . import masterclass
 from .content import MATH_DOMAINS, RW_DOMAINS, all_tests, summary
 from .planner import build_plan
 from .studyplan import current_week
@@ -135,4 +136,5 @@ def build(user, today=None):
         "review": review,
         "plan": study_plan_weeks(user, today) or build_plan(user["test_date"], domain_pct, today),
         "tests": tests,
+        "masterclass": masterclass.summary(user["id"]),
     }

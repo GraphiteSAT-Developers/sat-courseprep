@@ -2340,7 +2340,9 @@ class MathField {
     } catch (e) { return false; }
   }
   let saveTimer = 0;
+  let saving = true;
   function save() {
+    if (!saving) return;
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => { try { localStorage.setItem(STORE, JSON.stringify(serialize())); } catch (e) { /* storage unavailable */ } }, 300);
   }
@@ -2451,7 +2453,9 @@ class MathField {
       if (!row.hidden) CURVES.push(...made);
     });
     if (pinned && pinned.kind === 'poi') pinned = null;
+    if (watchers.length) { clearTimeout(watchTimer); watchTimer = setTimeout(() => watchers.forEach(fn => { try { fn(); } catch (e) { /* the page's problem */ } }), 60); }
   }
+  const watchers = []; let watchTimer = 0;
   function ensureTrailing() {
     const last = rows[rows.length - 1];
     if (last && kindOf(last) === 'math' && !last.text.trim()) return false;
@@ -3304,6 +3308,43 @@ class MathField {
   try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', themeChanged); } catch (e) { /* older browsers */ }
   new MutationObserver(() => { readTheme(); requestDraw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { themeChanged(); fitKeys(); });
+
+  // ---------- embedding ----------
+  // A page on the same site that puts Topline in an iframe can read what the student typed and set the lines,
+  // for example a lesson that checks each step. Everything is read live from the last recompute.
+  function plain(v) {
+    if (typeof v === 'number') return v;
+    if (v instanceof Pt) return { x: v.x, y: v.y };
+    if (isArr(v) && !isMat(v)) return v.map(plain);
+    return null;
+  }
+  function describe(R, i) {
+    const row = rows[i];
+    const d = { index: i, text: row.text, kind: R.kind, type: row.type, hidden: row.hidden, error: R.error || null, missing: R.missing || [] };
+    if (R.name) d.name = R.name;
+    if (R.kind === 'vdef' || R.kind === 'val') { d.value = plain(R.value); d.slider = !!row.slider; }
+    if (R.op) d.op = R.op;
+    if (typeof R.f === 'function' && (R.kind === 'yx' || R.kind === 'xy' || R.plotsFn)) { d.f = R.f; d.variable = R.kind === 'xy' ? 'y' : 'x'; }
+    if (R.conds) d.conds = R.conds.map(c => ({ op: c.op, G: c.G }));
+    if (R.kind === 'reg' && R.res) { d.fit = {}; R.params.forEach((nm, k) => (d.fit[nm] = R.res.p[k])); d.r2 = R.res.r2; }
+    if (R.kind === 'table') d.columns = R.cols.map((c, k) => ({ name: c.name, values: isArr(R.colVals && R.colVals[k]) ? R.colVals[k].map(plain) : [] }));
+    return d;
+  }
+  function relaunch() { ensureTrailing(); syncSettings(); recompute(); renderList(); requestDraw(); save(); }
+  window.Topline = {
+    lines: () => RES.map(describe),
+    settings: () => ({ deg: settings.deg }),
+    // A function of x from a typed expression such as "x^2-6x+11", for comparing against the student's lines.
+    fn(text) { const fx = compile(parse(tokenize(text)).lhs, ['x']), L = {}; return x => { L.x = x; return fx(L); }; },
+    add(specs) { if (!rows[rows.length - 1].text.trim() && rows[rows.length - 1].type !== 'table') rows.pop(); specs.forEach(sp => rows.push(rowFromSpec(sp))); relaunch(); },
+    set(index, sp) { if (!rows[index]) return; const r = rowFromSpec(sp); r.color = rows[index].color; rows[index] = r; relaunch(); },
+    setDeg(on) { settings.deg = !!on; relaunch(); },
+    clear() { rows = [newRow('')]; colorCounter = 0; settings.deg = false; view.ready = false; resize(); relaunch(); },
+    snapshot: () => serialize(),
+    restore(st) { if (st && Array.isArray(st.rows) && st.rows.length) { restore(st); resize(); relaunch(); } else this.clear(); },
+    keepSaved(on) { saving = !!on; },
+    onChange(fn) { watchers.push(fn); },
+  };
 
   // ---------- boot ----------
   if (!load()) rows = window.TOPLINE_EMBED ? (colorCounter = 0, [newRow('')]) : exampleRows();

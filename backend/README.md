@@ -58,6 +58,7 @@ Run it from the main `sat-courseprep` folder. It saves `users.csv`, `leads.csv`,
 | Practice sets | Random practice tests (22 questions, 35 minutes, the real test's domain mix) and topic practice (5–20 questions, untimed, checked one at a time). Every answered question goes on the student's done list and isn't drawn again until every question in that pool is done; then the pool starts over. When only a few are left in a topic, the set is just those, so the student can finish it. |
 | Finished topics | Answering the last question of a skill or domain records it once per round and returns it (`finished` in check and submit responses), so the page can congratulate the student. |
 | Review queue | Every missed question. After the first right answer it comes back in three days; a second right answer clears it. |
+| Desmos masterclass | 13 hands-on lessons in `app/content/masterclass/lessons.json`. The page checks each step against the student's calculator; the server stores how far each student got. |
 | Dashboard | Latest score, score history, domain breakdown, today's set, review queue and a week-by-week plan to the test date, all from the student's own data. |
 
 ## Security built in
@@ -90,6 +91,8 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `GET /api/practice/sessions/<id>` | A set's questions (no answers) and any checked answers | Yes |
 | `POST /api/practice/sessions/<id>/check` | Topic practice: grade one answer and return its explanation | Yes |
 | `POST /api/practice/sessions/<id>/submit` | Finish a set; returns graded results | Yes |
+| `GET /api/masterclass` | Desmos masterclass progress, and the next lesson | Yes |
+| `POST /api/masterclass/progress` | Save how far a student got in a lesson: `{"lesson", "step"}` (it only goes up) | Yes |
 | `GET /api/dashboard` | Everything the dashboard shows | Yes |
 | `POST /api/review/<id>/right` | Mark a review question right | Yes |
 | `POST /api/activity` | Log practice time | Yes |

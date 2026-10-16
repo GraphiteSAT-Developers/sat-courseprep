@@ -143,7 +143,18 @@ MIGRATIONS = [
     (5, "When a student was first sent to the diagnostic", [
         "ALTER TABLE users ADD COLUMN diagnostic_prompted_at TEXT",
     ]),
-    # (6, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (6, "Desmos masterclass progress", [
+        """CREATE TABLE masterclass_progress (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            lesson_id TEXT NOT NULL,
+            step INTEGER NOT NULL,
+            completed_at TEXT,
+            updated_at TEXT NOT NULL,
+            UNIQUE (user_id, lesson_id)
+        )""",
+    ]),
+    # (7, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

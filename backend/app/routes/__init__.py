@@ -2,7 +2,7 @@
 
 The pages blueprint stays last: it catches every path that isn't an API route.
 """
-from . import account, auth, dashboard, leads, pages, plan, practice, tests
+from . import account, auth, dashboard, leads, masterclass, pages, plan, practice, tests
 
 BLUEPRINTS = [
     auth.bp,        # /api/auth/...  create account, sign in and out, password reset
@@ -13,6 +13,7 @@ BLUEPRINTS = [
     plan.bp,        # /api/plan      the diagnostic and the study plan
     practice.sample_bp,  # /api/sample  the home page's sample question
     dashboard.bp,   # /api/dashboard, /api/review, /api/activity
+    masterclass.bp, # /api/masterclass  Desmos masterclass progress
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health
 ]
