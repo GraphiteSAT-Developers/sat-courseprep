@@ -252,6 +252,9 @@ li.row{grid-template-columns:52px minmax(0,1fr) 40px;border-bottom:1px solid var
 .row:hover .del,.row.sel .del{opacity:1}
 .mf{font-size:22px;padding:14px 8px 10px}
 .info .val{font-family:var(--font-math)}
+.info .rlab{color:var(--muted);font-size:12.5px}
+.info .root{border:1px solid var(--rule);border-radius:999px;padding:3px 10px;background:var(--panel);color:var(--ink);font-size:16px;cursor:pointer}
+.info .root:hover,.info .root:focus-visible{border-color:var(--cc);box-shadow:inset 0 0 0 1px var(--cc)}
 .brandline{margin:28px 0 22px;text-align:center;font:400 12px var(--font-ui);color:var(--muted);opacity:.7;letter-spacing:.02em}
 .kbshow{position:absolute;left:10px;bottom:10px;width:44px;height:34px;display:grid;place-items:center;border:1px solid var(--key-line);border-radius:6px;background:var(--tool);color:var(--tool-ink);padding:0}
 .kbshow svg{width:24px;height:24px}
@@ -1507,6 +1510,38 @@ function checkKnown(R, set, locals) {
     throw err(missing.length === 1 ? `${list} isn't defined yet` : `${list} aren't defined yet`);
   }
 }
+// Real solutions of g(t) = 0 for t in [-100, 100]: sign changes (bisection) and touching roots like (x - 3)^2 = 0.
+// Returns null when there are too many to list (sin x = 0 and the like).
+function solveRoots(g, max = 8) {
+  const ok = v => typeof v === 'number' && isFinite(v), out = [];
+  const add = r => {
+    if (!ok(r)) return;
+    const k = Math.round(r); if (Math.abs(r - k) < 1e-7) r = k;
+    if (Math.abs(r) < 1e-12) r = 0;
+    if (!out.some(q => Math.abs(q - r) < 1e-6 * Math.max(1, Math.abs(r)))) out.push(r);
+  };
+  const lo = -100, hi = 100, N = 4000, dx = (hi - lo) / N, xs = [], gs = [];
+  for (let i = 0; i <= N; i++) { const x = lo + i * dx; xs.push(x); const v = g(x); gs.push(ok(v) ? v : NaN); }
+  for (let i = 0; i < N; i++) {
+    const a = gs[i], b = gs[i + 1];
+    if (!ok(a) || !ok(b)) continue;
+    if (a === 0) { add(xs[i]); continue; }
+    if (a * b < 0) {
+      let l = xs[i], r = xs[i + 1], fl = a;
+      for (let k = 0; k < 80; k++) { const m = (l + r) / 2, fm = g(m); if (!ok(fm)) break; if (fl * fm <= 0) r = m; else { l = m; fl = fm; } }
+      const x = (l + r) / 2, fx = g(x);
+      if (ok(fx) && Math.abs(fx) <= Math.min(Math.abs(a), Math.abs(b))) add(x); // a jump across an asymptote isn't a root
+    } else if (i > 0 && ok(gs[i - 1]) && Math.abs(a) < Math.abs(gs[i - 1]) && Math.abs(a) <= Math.abs(b) && a * gs[i - 1] > 0) {
+      // |g| dips toward zero without crossing: look for a touching root
+      let l = xs[i - 1], r = xs[i + 1];
+      for (let k = 0; k < 90; k++) { const m1 = l + (r - l) / 3, m2 = r - (r - l) / 3; if (Math.abs(g(m1)) < Math.abs(g(m2))) r = m2; else l = m1; }
+      const x = (l + r) / 2, fx = g(x);
+      if (ok(fx) && Math.abs(fx) < 1e-9 * Math.max(1, Math.abs(gs[i - 1]))) add(x);
+    }
+    if (out.length > max) return null;
+  }
+  return out.sort((p, q) => p - q);
+}
 function compileRow(R) {
   CTX.seed = R.seed || 1; CTX.rc = 0;
   if (R.kind === 'expr') {
@@ -1529,6 +1564,8 @@ function compileRow(R) {
       checkKnown(R, names(...parts), ['x', 'y']);
       const fs = parts.map(q => compile(q, ['x', 'y'])), L = { x: 0, y: 0 };
       R.conds = ops.map((op, i) => ({ op, G: (x, y) => { L.x = x; L.y = y; const a = fs[i](L), b = fs[i + 1](L); return typeof a === 'number' && typeof b === 'number' ? a - b : NaN; } }));
+      // An equation in just x (like x^2 - 5x + 6 = 0) or just y: solve it, and show the solutions as points.
+      if (ops.length === 1 && ops[0] === '=') { const S = names(...parts); if (S.has('x') !== S.has('y')) R.solveVar = S.has('x') ? 'x' : 'y'; }
       break;
     }
     case 'val': { checkKnown(R, names(R.e), []); R.fv = compile(R.e, []); break; }
@@ -1691,6 +1728,8 @@ function analyzeAll(items) {
       if (R.kind === 'vdef') R.value = getVar(R.name);
       else if (R.kind === 'val') { CTX.seed = R.seed; R.value = R.fv({}); }
       else if (R.kind === 'table') R.colVals = R.cols.map(c => (c.ok ? getVar(c.name) : null));
+      else if (R.kind === 'imp' && R.solveVar) { const G = R.conds[0].G; R.roots = solveRoots(R.solveVar === 'x' ? t => G(t, 0) : t => G(0, t)); }
+      else if (R.kind === 'yx' && R.op === '=' && R.f) R.roots = solveRoots(R.f, 6);
       else if (R.kind === 'reg') {
         const res = fitReg(R);
         if (!res || res.error) { R.kind = 'err'; R.error = res ? res.error : 'This regression depends on itself'; continue; }
@@ -2803,6 +2842,16 @@ class MathField {
       build = () => maths.map((_, i) => `<span class="mstatic smath" data-i="${i}"></span>`).join('') + `<span class="stat">RMSE ${fmtNum(r.rmse, 4)}</span><span class="stat">n = ${r.n}</span>` +
         (r.r2 < 0 ? '<span class="line">R² is negative: this model fits worse than a flat line at the mean of the data.</span>' : '');
       after = () => el.querySelectorAll('.smath').forEach(s => renderStatic(s, maths[+s.dataset.i]));
+    } else if (R.roots && R.roots.length && (R.kind === 'imp' || R.kind === 'yx')) {
+      const v = R.kind === 'imp' ? R.solveVar : 'x', label = R.kind === 'imp' ? (R.roots.length > 1 ? 'Solutions' : 'Solution') : (R.roots.length > 1 ? 'x-intercepts' : 'x-intercept');
+      const maths = R.roots.map(r => `${v}=${numTex(r, 6)}`);
+      key = 'roots:' + v + R.roots.join(',');
+      build = () => `<span class="rlab">${label}</span>` + maths.map((_, i) => `<button type="button" class="root mstatic smath" data-i="${i}" aria-label="Show ${esc(maths[i])} on the graph"></button>`).join('');
+      after = () => el.querySelectorAll('.smath').forEach(b => renderStatic(b, maths[+b.dataset.i]));
+    } else if (R.roots && !R.roots.length && R.kind === 'imp') {
+      key = 'roots:none'; build = () => '<span>No real solutions</span>';
+    } else if (R.roots === null && R.kind === 'imp' && R.solveVar) {
+      key = 'roots:many'; build = () => '<span>Too many solutions to list.</span>';
     } else if (R.kind === 'val' || (R.kind === 'vdef' && !R.isSlider)) {
       if (val instanceof Test) {
         key = 'test:' + val.t + val.p;
@@ -2933,6 +2982,18 @@ class MathField {
     const opt = e.target.closest('.opt');
     if (opt) { row.style[opt.dataset.opt] = !row.style[opt.dataset.opt]; changed(); return; }
     if (e.target.closest('.addcol')) { row.table.cols.push({ name: freshColName(), cells: [] }); buildTable(li, row); changed(); li._heads[li._heads.length - 1].focus('end'); return; }
+    // A solution chip: show that point on the graph, moving the view to it if it's off screen.
+    const root = e.target.closest('.root');
+    if (root) {
+      const R = RES[rows.indexOf(row)], r = R && R.roots && R.roots[+root.dataset.i];
+      if (r == null) return;
+      const p = R.kind === 'imp' && R.solveVar === 'y' ? { x: 0, y: r } : { x: r, y: 0 };
+      const X = px(p.x), Y = py(p.y);
+      if (!(X > 30 && X < W - 30 && Y > 30 && Y < H - 30)) { view.cx = p.x; view.cy = p.y; }
+      selectRow(id); trace = null;
+      pinned = { kind: 'poi', ...p, title: R.kind === 'imp' ? 'Solution' : 'x-intercept', color: row.color };
+      requestDraw(); save(); return;
+    }
     const add = e.target.closest('.add-slider');
     if (add) { insertRowAfter(id, `${add.dataset.name} = 1`, { slider: { min: -10, max: 10 } }); selected = id; syncRows(); return; }
     if (!e.target.closest('input,button,.mf')) selectRow(id);
@@ -3480,14 +3541,17 @@ class MathField {
         ctx.setLineDash(dash); pathFn(c.f, c.type === 'fx' ? 'x' : 'y'); ctx.stroke(); break;
       }
       case 'imp': {
+        const fade = !!c.R.solveVar; // x^2 - 5x + 6 = 0: the lines are guides; the solutions are the points
+        if (fade) { ctx.save(); ctx.globalAlpha = 0.35; }
         const grids = c.conds.map(k => gridEval(k.G));
         if (c.conds.every(k => k.op !== '=')) shade(grids, c.conds, rgb);
         c.conds.forEach((k, i) => {
           const others = c.conds.filter((_, j) => j !== i);
           const mask = others.length ? (x, y) => others.every(o => { const v = o.G(x, y); return isFinite(v) && testInc(o.op, v); }) : null;
-          ctx.setLineDash(k.op === '<' || k.op === '>' ? [8, 6] : c.row.style.dash ? [10, 7] : []);
+          ctx.setLineDash(fade ? [6, 6] : k.op === '<' || k.op === '>' ? [8, 6] : c.row.style.dash ? [10, 7] : []);
           contour(grids[i], k.G, mask); ctx.stroke();
         });
+        if (fade) ctx.restore();
         break;
       }
       case 'pts': if (c.row.style.connect && c.pts.length > 1) { ctx.setLineDash(c.row.style.dash ? [10, 7] : []); ctx.beginPath(); let pen = false; for (const p of c.pts) { const X = px(p.x), Y = py(p.y); if (!isFinite(X) || !isFinite(Y)) { pen = false; continue; } if (pen) ctx.lineTo(X, Y); else { ctx.moveTo(X, Y); pen = true; } } ctx.stroke(); } break;
@@ -3508,6 +3572,15 @@ class MathField {
     POIS = [];
     const selCurve = CURVES.find(c => c.row.id === selected && c.type === 'fx' && c.op === '=');
     if (selCurve) { try { POIS = findPOIs(selCurve); } catch (e) { POIS = []; } for (const p of POIS) dot(px(p.x), py(p.y), TH.c[p.color], true); }
+    // Solutions of one-variable equations are always shown as points you can tap.
+    for (const R of RES) {
+      if (R.kind !== 'imp' || !R.roots || !R.row || R.row.hidden) continue;
+      for (const r of R.roots) {
+        const p = R.solveVar === 'x' ? { x: r, y: 0 } : { x: 0, y: r };
+        POIS.push({ ...p, title: 'Solution', color: R.row.color });
+        dot(px(p.x), py(p.y), TH.c[R.row.color], false, 6);
+      }
+    }
     for (const c of CURVES) {
       if (c.type !== 'pts') continue;
       const col = TH.c[c.color];
@@ -3526,14 +3599,19 @@ class MathField {
       if (pinned.kind === 'pt') {
         const c = CURVES.find(k => k.key === pinned.key), p = c && c.pts[pinned.idx];
         if (p) tag(px(p.x), py(p.y), c.table ? 'Table point' : 'Point', coord(p.x, p.y)); else pinned = null;
-      } else { dot(px(pinned.x), py(pinned.y), TH.c[pinned.color], false); tag(px(pinned.x), py(pinned.y), pinned.title, coord(pinned.x, pinned.y)); }
+      } else {
+        const X = px(pinned.x), Y = py(pinned.y);
+        dot(X, Y, TH.c[pinned.color], false);
+        ctx.beginPath(); ctx.arc(X, Y, 11, 0, Math.PI * 2); ctx.lineWidth = 2.5; ctx.strokeStyle = TH.c[pinned.color]; ctx.stroke(); // ring: this is the point the label is about
+        tag(X, Y, pinned.title, coord(pinned.x, pinned.y));
+      }
     }
   }
 
   // ---------- interaction ----------
   function hitTest(X, Y) {
     for (const c of CURVES) if (c.type === 'pts') for (let i = 0; i < c.pts.length; i++) { const p = c.pts[i]; if (Math.hypot(px(p.x) - X, py(p.y) - Y) < 12) return { type: 'pt', c, i }; }
-    for (const p of POIS) if (Math.hypot(px(p.x) - X, py(p.y) - Y) < 10) return { type: 'poi', p };
+    for (const p of POIS) if (Math.hypot(px(p.x) - X, py(p.y) - Y) < 16) return { type: 'poi', p };
     let best = null, bd = 14;
     for (const c of CURVES) {
       let d = Infinity;
