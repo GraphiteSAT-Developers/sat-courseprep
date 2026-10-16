@@ -35,7 +35,7 @@ class Config:
     SITE_DIR = Path(os.environ.get("SITE_DIR", REPO_DIR / "website" / "site"))
     CONTENT_DIR = Path(__file__).resolve().parent / "content"
 
-    BASE_URL = os.environ.get("BASE_URL", "http://localhost:5000").rstrip("/")
+    BASE_URL = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
     FORCE_HTTPS = _bool("FORCE_HTTPS", IS_PRODUCTION)
 
     # Email. Without SMTP_HOST, emails are written to the log instead of sent.

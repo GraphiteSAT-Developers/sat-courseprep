@@ -4,18 +4,27 @@ A Flask server that runs the whole Graphite site: it serves every page in `websi
 
 ## Run it on your computer
 
-You need Python 3.10 or newer.
+You need Python 3.10 or newer ([python.org](https://www.python.org/downloads/); on Windows, tick "Add python.exe to PATH" in the installer).
 
-```bash
-cd backend
-pip install -r requirements.txt
-cp .env.example .env        # optional, the defaults work locally
-python wsgi.py
-```
+1. Get the latest code: `git pull` in the `sat-courseprep` folder (or clone it again).
+2. In VS Code, open the **whole `sat-courseprep` folder** (File > Open Folder), not just `backend` or `website`.
+3. Start the server, either way:
+   - Press **F5** and pick **Start Graphite**, or
+   - Open a terminal (Terminal > New Terminal) and run `python start.py` (on a Mac, `python3 start.py`).
+4. Wait for the line **Graphite is running. Open http://127.0.0.1:8000** and open that exact address. The port can be 8080 or 5050 if 8000 is busy, so use the one it prints.
+5. Keep that terminal open. Closing it, or pressing Ctrl+C, stops the site.
 
-Open http://localhost:5000. Create an account from the sign-in page, take the practice test, then open the dashboard.
+`start.py` installs Flask if it's missing and picks a free port. Emails (welcome, password reset, diagnostic link) are printed in the terminal until you set `SMTP_HOST`.
 
-Emails (welcome, password reset, diagnostic link) are printed in the terminal until you set `SMTP_HOST`.
+### If the browser says "refused to connect"
+
+That means no server is running at that address.
+
+- **The terminal shows an error in red:** the server crashed while starting. Copy the last few lines of the error to get help with it.
+- **You opened an HTML file directly,** with VS Code's Live Server, "Open in browser", or by double-clicking: those show the pages without the server, so sign-in and the dashboard won't work. Use `start.py` instead.
+- **The address doesn't match:** use the exact address `start.py` prints, including the port number.
+- **"python is not recognized" or "command not found":** Python isn't installed or isn't on your PATH. Try `python3` or `py`, or reinstall Python.
+- **"No such file start.py":** the terminal is in the wrong folder. Run `cd` to the `sat-courseprep` folder first, or open that folder in VS Code.
 
 Run the tests:
 
@@ -70,7 +79,7 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 
 ```
 backend/
-  wsgi.py                 entry point (python wsgi.py, or gunicorn wsgi:app)
+  wsgi.py                 entry point for hosts (gunicorn wsgi:app); locally, use ../start.py
   app/
     __init__.py           builds the app: security headers, HTTPS, error pages
     config.py             settings from environment variables

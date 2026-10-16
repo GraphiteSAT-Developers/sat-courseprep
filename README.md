@@ -4,6 +4,8 @@ Planning for an AI-powered SAT Math course aimed at an 800. It teaches Desmos fi
 
 Start here: [`HANDOFF.md`](HANDOFF.md)
 
+To run the Graphite website on your computer: open this folder in VS Code and press F5, or run `python start.py`. Details are in [`backend/README.md`](backend/README.md).
+
 ## Contents
 
 - [`reports/AI Desmos SAT math course plan.md`](reports/AI%20Desmos%20SAT%20math%20course%20plan.md): the full planning report, with the recommended architecture, a phased roadmap, the decisions the owner needs to make, and a list of facts still to verify.
