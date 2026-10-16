@@ -1,0 +1,309 @@
+<!--{"file": "index.html", "path": "/", "title": "Graphite | AI SAT Tutoring for High School Students", "description": "Graphite is an AI SAT tutor for high school students. Take a free adaptive diagnostic, get a daily plan, and learn why each wrong answer was wrong."}-->
+<main id="main">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <h1>SAT prep that starts with the <em>questions you miss.</em></h1>
+        <p class="lede">Graphite's AI tutor reads every wrong answer, figures out why you picked it, and builds tomorrow's practice around that mistake. Built for the digital SAT, scored 400 to 1600.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#start" data-track="hero_start">Take the free diagnostic</a>
+          <a class="btn btn-secondary" href="#how" data-track="hero_how">See how it works</a>
+        </div>
+        <ul class="hero-facts">
+          <li><strong>2 h 14 min</strong> full-length adaptive diagnostic</li>
+          <li><strong>20–40 min</strong> a day after that</li>
+          <li><strong>$0</strong> to start</li>
+        </ul>
+      </div>
+
+      <div class="qcard" id="qcard" aria-labelledby="qcard-title">
+        <div class="qcard-top">
+          <span class="label" id="qmeta">Math · Module 1</span>
+          <span class="label mono" id="qnum">Question 7 of 22</span>
+        </div>
+        <div class="qcard-body">
+          <h2 class="visually-hidden" id="qcard-title">Try a practice question</h2>
+          <p class="qcard-stem" id="qstem">If 3x + 7 = 25, what is the value of 6x − 4?</p>
+          <fieldset class="choices" id="qchoices"><legend class="visually-hidden">Answer choices</legend></fieldset>
+          <div class="tutor-note" id="qnote" aria-live="polite" hidden></div>
+          <div class="qcard-foot">
+            <span class="label">Pick an answer. Wrong ones get explained too.</span>
+            <button class="btn btn-quiet" type="button" id="qnext" data-track="demo_next">Next question</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="how-title">
+    <div class="wrap section-grid">
+      <div class="section-rail"><p class="label">How it works</p></div>
+      <div>
+        <div class="section-head">
+          <h2 id="how-title">Four steps from first diagnostic to test day</h2>
+          <p class="lede">The plan is built backward from your test date, so every week has a job.</p>
+        </div>
+        <ol class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <div><h3>Take the diagnostic</h3><p>A full practice test with the same structure as the real one: two Reading and Writing modules, two Math modules, and a second module in each section that adapts to how you did on the first.</p></div>
+            <span class="label step-time">2 h 14 min</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <div><h3>Get your plan</h3><p>Your score report breaks results into the eight skill domains the College Board reports. Graphite ranks them by how many points each one can still give you and sets a daily schedule.</p></div>
+            <span class="label step-time">Ready in 1 min</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <div><h3>Practice with the tutor</h3><p>Each daily set targets your weakest domains. When you miss a question, the tutor explains the mistake you made, gives you a similar question, and checks that it stuck.</p></div>
+            <span class="label step-time">20–40 min a day</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <div><h3>Retest and adjust</h3><p>A new full-length practice test every three weeks shows what moved. The plan shifts time toward whatever is still costing you points.</p></div>
+            <span class="label step-time">Every 3 weeks</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="tutor" aria-labelledby="tutor-title">
+    <div class="wrap section-grid">
+      <div class="section-rail"><p class="label">The tutor</p></div>
+      <div class="split">
+        <div>
+          <div class="section-head">
+            <h2 id="tutor-title">Hints first. Answers when you've earned them.</h2>
+            <p class="lede">Looking at a worked solution feels like learning. Working it out yourself is what raises scores. The tutor gives you three levels of help, one at a time.</p>
+          </div>
+          <ol class="ladder">
+            <li><span class="label">Level 1</span><p><strong>A nudge</strong><span>Points at the part of the question you skipped or misread.</span></p></li>
+            <li><span class="label">Level 2</span><p><strong>The method</strong><span>Names the approach, such as setting up a percent-change equation, without doing it for you.</span></p></li>
+            <li><span class="label">Level 3</span><p><strong>The full solution</strong><span>Every step, plus why each wrong choice is tempting.</span></p></li>
+          </ol>
+          <figure class="figure">
+            <img src="assets/hint-ladder.svg" width="560" height="200" loading="lazy" decoding="async" alt="Diagram of the hint ladder: three steps rising from a nudge, to the method, to the full worked solution.">
+            <figcaption>Most students need level 1 or 2. Level 3 is always one tap away.</figcaption>
+          </figure>
+        </div>
+        <div class="transcript" aria-label="Example tutor conversation">
+          <div class="transcript-head"><span class="label">Example session</span><span class="label">Math · Problem-solving</span></div>
+          <div class="msg msg-student"><span class="who">Student</span><p>I picked C on number 12. Why is it wrong?</p></div>
+          <div class="msg msg-tutor"><span class="who">Graphite tutor</span><p>You set up 0.15x = 42, which finds 15% of the original price. The question gives the price after a 15% discount. What percent of the original price is left after the discount?</p></div>
+          <div class="msg msg-student"><span class="who">Student</span><p>85%. So 0.85x = 42?</p></div>
+          <div class="msg msg-tutor"><span class="who">Graphite tutor</span><p>Yes. Solve it and compare to the choices. This is your third percent-change miss this week, so tomorrow's set has six more of these.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="test" aria-labelledby="test-title">
+    <div class="wrap section-grid">
+      <div class="section-rail"><p class="label">The digital SAT</p></div>
+      <div>
+        <div class="section-head">
+          <h2 id="test-title">What you're practicing for</h2>
+          <p class="lede">Graphite's practice tests match the timing and routing of the digital SAT you'll take in Bluebook.</p>
+        </div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Digital SAT structure">
+          <table>
+            <thead><tr><th scope="col">Section</th><th scope="col" class="num">Modules</th><th scope="col" class="num">Questions</th><th scope="col" class="num">Time</th><th scope="col" class="num">Score range</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Reading and Writing</th><td class="num">2</td><td class="num">54 (27 + 27)</td><td class="num">64 min</td><td class="num">200–800</td></tr>
+              <tr><th scope="row">Math</th><td class="num">2</td><td class="num">44 (22 + 22)</td><td class="num">70 min</td><td class="num">200–800</td></tr>
+            </tbody>
+            <tfoot><tr><th scope="row">Total</th><td class="num">4</td><td class="num">98</td><td class="num">2 h 14 min</td><td class="num">400–1600</td></tr></tfoot>
+          </table>
+        </div>
+        <ul class="note-list">
+          <li>Your first module in each section decides the difficulty of the second. A strong first module opens up the harder second module, where the highest scores are.</li>
+          <li>The Desmos graphing calculator is built in for the whole Math section. Graphite teaches when it's faster than solving by hand.</li>
+          <li>Totals move in steps of 10, so a 1290 and a 1300 are one step apart.</li>
+        </ul>
+        <div class="domains">
+          <div>
+            <h3>Reading and Writing domains</h3>
+            <ul>
+              <li><span>Information and Ideas</span><span>~26%</span></li>
+              <li><span>Craft and Structure</span><span>~28%</span></li>
+              <li><span>Expression of Ideas</span><span>~20%</span></li>
+              <li><span>Standard English Conventions</span><span>~26%</span></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Math domains</h3>
+            <ul>
+              <li><span>Algebra</span><span>~35%</span></li>
+              <li><span>Advanced Math</span><span>~35%</span></li>
+              <li><span>Problem-Solving and Data Analysis</span><span>~15%</span></li>
+              <li><span>Geometry and Trigonometry</span><span>~15%</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing" aria-labelledby="pricing-title">
+    <div class="wrap section-grid">
+      <div class="section-rail"><p class="label">Pricing</p></div>
+      <div>
+        <div class="section-head">
+          <h2 id="pricing-title">Start free. Pay monthly if it's working.</h2>
+          <p class="lede">Every plan starts with the same full diagnostic. No contract, and you can cancel from your dashboard.</p>
+        </div>
+        <div class="plans">
+          <article class="plan" aria-labelledby="plan-diag">
+            <div><h3 id="plan-diag">Diagnostic</h3><p>See where your points are.</p></div>
+            <p class="price"><span class="amount">$0</span><span class="per">one time</span></p>
+            <ul>
+              <li>One full-length adaptive practice test</li>
+              <li>Score report across all 8 skill domains</li>
+              <li>Tutor explanations for every question you missed</li>
+            </ul>
+            <a class="btn btn-secondary btn-block" href="#start" data-track="plan_diagnostic">Take the diagnostic</a>
+          </article>
+          <article class="plan" aria-labelledby="plan-daily">
+            <div><h3 id="plan-daily">Daily</h3><p>For students studying on their own.</p></div>
+            <p class="price"><span class="amount">$24</span><span class="per">per month</span></p>
+            <ul>
+              <li>Unlimited tutor sessions and hints</li>
+              <li>A daily set built from your misses</li>
+              <li>A new practice test every 3 weeks</li>
+              <li>Weekly progress email for a parent</li>
+            </ul>
+            <a class="btn btn-secondary btn-block" href="#start" data-track="plan_daily">Start with the diagnostic</a>
+          </article>
+          <article class="plan plan-featured" aria-labelledby="plan-coached">
+            <div><h3 id="plan-coached">Coached</h3><p>Everything in Daily, plus a person checking in.</p></div>
+            <p class="price"><span class="amount">$119</span><span class="per">per month</span></p>
+            <ul>
+              <li>A 30-minute video check-in each week with a human coach</li>
+              <li>Plan reviews after every practice test</li>
+              <li>A test-week plan for timing and pacing</li>
+              <li>Parent call once a month</li>
+            </ul>
+            <a class="btn btn-primary btn-block" href="#start" data-track="plan_coached">Start with the diagnostic</a>
+          </article>
+        </div>
+        <p class="plan-fine">Prices in US dollars. Family discounts and need-based pricing are available. <a href="#contact">Ask us</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" aria-labelledby="faq-title">
+    <div class="wrap section-grid">
+      <div class="section-rail"><p class="label">FAQ</p></div>
+      <div>
+        <div class="section-head"><h2 id="faq-title">Questions parents and students ask</h2></div>
+        <div class="faq">
+          <details>
+            <summary>How much will my score go up?</summary>
+            <div class="answer"><p>We don't promise a number. Gains depend on your starting score, how many weeks you have, and how many days you practice. Your dashboard shows your score after each practice test, so you can see what's working within the first three weeks.</p></div>
+          </details>
+          <details>
+            <summary>How early should we start?</summary>
+            <div class="answer"><p>Eight to twelve weeks before the test works well for most students. If your test is closer, Graphite shortens the plan and puts more time on the domains with the most points available.</p></div>
+          </details>
+          <details>
+            <summary>Does the tutor just give out answers?</summary>
+            <div class="answer"><p>No. It starts with a hint, then the method, and shows the full solution only when you ask for it. Students who work through the hints remember the method on the next question.</p></div>
+          </details>
+          <details>
+            <summary>Can parents see progress?</summary>
+            <div class="answer"><p>Yes. On Daily and Coached plans, a parent gets a weekly email with practice time, practice test scores, and the skills being worked on. Students can see exactly what parents see.</p></div>
+          </details>
+          <details>
+            <summary>What device do I need?</summary>
+            <div class="answer"><p>Daily sets work on a phone, tablet, Chromebook or laptop. Take full practice tests on a laptop, Chromebook or tablet, since that's what you'll use in Bluebook on test day.</p></div>
+          </details>
+          <details>
+            <summary>Is Graphite the official SAT?</summary>
+            <div class="answer"><p>No. Graphite is independent and isn't affiliated with the College Board. Our practice tests follow the published structure of the digital SAT. For official practice tests, use the College Board's Bluebook app alongside Graphite.</p></div>
+          </details>
+          <details>
+            <summary>What do you do with student data?</summary>
+            <div class="answer"><p>We use it to run the tutor and build the study plan. We don't sell it, and we don't show ads. The <a href="privacy.html">privacy policy</a> lists everything we collect.</p></div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="start" aria-labelledby="start-title">
+    <div class="wrap section-grid">
+      <div class="section-rail"><p class="label">Get started</p></div>
+      <div class="contact-grid">
+        <div id="contact">
+          <div class="section-head">
+            <h2 id="start-title">Get your free diagnostic link</h2>
+            <p class="lede">Tell us a little about the student. We'll email a link to a full-length adaptive practice test.</p>
+          </div>
+          <ul class="contact-list">
+            <li>
+              <span class="label">Call or text</span>
+              <span class="contact-line"><a href="tel:+19545550142" data-track="contact_phone">(954) 555-0142</a><button class="copy-btn" type="button" data-copy="(954) 555-0142" aria-label="Copy phone number">Copy</button></span>
+            </li>
+            <li>
+              <span class="label">Email</span>
+              <span class="contact-line"><a href="mailto:hello@graphiteprep.com" data-track="contact_email">hello@graphiteprep.com</a><button class="copy-btn" type="button" data-copy="hello@graphiteprep.com" aria-label="Copy email address">Copy</button></span>
+            </li>
+            <li>
+              <span class="label">Hours</span>
+              <span>Monday to Friday, 3 pm to 9 pm ET. Saturday, 10 am to 4 pm ET.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="form-panel">
+          <form class="form" id="start-form" data-guard novalidate>
+            <div class="form-row">
+              <div class="field"><label for="start-name">Student's first name</label><input type="text" id="start-name" name="name" autocomplete="given-name" required></div>
+              <div class="field"><label for="start-email">Email</label><input type="email" id="start-email" name="email" autocomplete="email" inputmode="email" required></div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="start-grade">Grade</label>
+                <select id="start-grade" name="grade" required>
+                  <option value="">Choose a grade</option>
+                  <option value="9">9th grade</option>
+                  <option value="10">10th grade</option>
+                  <option value="11">11th grade</option>
+                  <option value="12">12th grade</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="start-date">Planned test date</label>
+                <select id="start-date" name="test_date">
+                  <option value="not-registered">Not registered yet</option>
+                  <option value="2026-11">November 2026</option>
+                  <option value="2026-12">December 2026</option>
+                  <option value="2027-03">March 2027</option>
+                  <option value="2027-05">May 2027</option>
+                  <option value="2027-06">June 2027</option>
+                  <option value="2027-08">August 2027</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="start-target">Target score <span class="hint">(optional, 400 to 1600)</span></label>
+              <input type="number" id="start-target" name="target" min="400" max="1600" step="10" inputmode="numeric">
+            </div>
+            <div class="field">
+              <label for="start-message">Anything we should know? <span class="hint">(optional)</span></label>
+              <textarea id="start-message" name="message" rows="4"></textarea>
+            </div>
+            <div class="hp" aria-hidden="true"><label for="start-company">Company</label><input type="text" id="start-company" name="company" tabindex="-1" autocomplete="off"></div>
+            <div class="field">
+              <label class="check" for="start-agree"><input type="checkbox" id="start-agree" name="agree" required><span>I'm 13 or older, or I'm a parent or guardian signing up a student. I agree to the <a href="terms.html">terms</a> and <a href="privacy.html">privacy policy</a>.</span></label>
+            </div>
+            <div class="status" id="start-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <button class="btn btn-primary btn-block" type="submit" data-track="form_submit">Send my diagnostic link</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
