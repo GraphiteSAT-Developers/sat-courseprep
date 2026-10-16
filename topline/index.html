@@ -60,6 +60,15 @@ canvas.ax-y{cursor:ns-resize}
 .chip:hover{border-color:var(--muted)}
 .chip[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .sec{display:flex;flex-direction:column;gap:10px;padding:12px;background:var(--paper);border-bottom:1px solid var(--rule)}
+.add-chip{display:inline-flex;align-items:center;gap:5px}
+.add-menu{gap:12px}
+.add-group{display:flex;flex-direction:column;gap:6px}
+.add-h{font-family:var(--font-data);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.add-h small{text-transform:none;letter-spacing:0;margin-left:4px}
+.add-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:6px}
+.add-grid button{display:flex;align-items:center;gap:7px;min-height:34px;padding:6px 8px;border:1px solid var(--rule);border-radius:6px;background:transparent;font-family:var(--font-ui);font-size:13px;white-space:nowrap;text-align:left;cursor:pointer;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.add-grid button:hover,.add-grid button:focus-visible{border-color:var(--accent);color:var(--accent)}
+.add-grid b{flex:none;min-width:22px;font-family:var(--font-math);font-style:italic;font-weight:600;font-size:13px;color:var(--accent)}
 .sec-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .sec-row .grow{flex:1 1 140px;color:var(--muted);font-size:12.5px}
 .set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13.5px}
@@ -206,6 +215,7 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
         Topline
       </div>
       <div class="bar-actions">
+        <button id="addBtn" class="chip add-chip" type="button" aria-expanded="false" aria-controls="addMenu" aria-label="Add an item"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5v9M1.5 6h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Add</button>
         <button id="setBtn" class="chip" type="button" aria-expanded="false" aria-controls="settings">Settings</button>
         <button id="clearBtn" class="chip" type="button">Clear</button>
       </div>
@@ -224,6 +234,31 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
       <div class="set-row win"><span class="wl">x from</span><input class="winin" id="xMin" aria-label="x-axis minimum"><span>to</span><input class="winin" id="xMax" aria-label="x-axis maximum"></div>
       <div class="set-row win"><span class="wl">y from</span><input class="winin" id="yMin" aria-label="y-axis minimum"><span>to</span><input class="winin" id="yMax" aria-label="y-axis maximum"></div>
       <p class="set-hint">To stretch one axis on the graph, drag its numbers. You can also hold Shift (x-axis) or Alt (y-axis) while scrolling, or pinch sideways or up and down.</p>
+    </div>
+    <div class="sec add-menu" id="addMenu" hidden>
+      <div class="add-group"><span class="add-h">Add</span>
+        <div class="add-grid">
+          <button type="button" data-add="expr"><b>f(x)</b>Expression</button>
+          <button type="button" data-add="table"><b>⊞</b>Table</button>
+          <button type="button" data-add="note"><b>"</b>Note</button>
+          <button type="button" data-add="slider"><b>a</b>Slider</button>
+          <button type="button" data-add="point"><b>(•)</b>Point</button>
+        </div></div>
+      <div class="add-group"><span class="add-h">Statistics <small>uses your newest table</small></span>
+        <div class="add-grid">
+          <button type="button" data-add="mean"><b><span style="text-decoration:overline">x</span></b>Mean</button>
+          <button type="button" data-add="median"><b>M</b>Median</button>
+          <button type="button" data-add="stdev"><b>s</b>Std. deviation</button>
+          <button type="button" data-add="range"><b>↕</b>Min and max</button>
+          <button type="button" data-add="count"><b>n</b>Count</button>
+          <button type="button" data-add="corr"><b>r</b>Correlation</button>
+        </div></div>
+      <div class="add-group"><span class="add-h">Line of best fit</span>
+        <div class="add-grid">
+          <button type="button" data-add="linreg"><b>mx+b</b>Linear</button>
+          <button type="button" data-add="quadreg"><b>ax²</b>Quadratic</button>
+          <button type="button" data-add="expreg"><b>abˣ</b>Exponential</button>
+        </div></div>
     </div>
     <div class="sec" id="confirm" hidden>
       <div class="sec-row"><span class="grow" style="color:var(--ink);font-size:13.5px">Delete every expression?</span>
@@ -2682,7 +2717,7 @@ class MathField {
   }
   function insertRowAfter(id, text = '', extra = {}) {
     let idx = id == null ? -1 : rows.findIndex(r => r.id === id);
-    if (idx < 0) { idx = rows.length - 1; if (rows[idx] && kindOf(rows[idx]) === 'math' && !rows[idx].text.trim()) idx--; }
+    if (id !== 'top' && idx < 0) { idx = rows.length - 1; if (rows[idx] && kindOf(rows[idx]) === 'math' && !rows[idx].text.trim()) idx--; }
     const r = newRow(text, extra);
     rows.splice(idx + 1, 0, r);
     renderList(); changed();
@@ -2758,12 +2793,71 @@ class MathField {
   // ---------- header panels ----------
   function togglePanel(btn, panel, open) {
     const show = open ?? panel.hidden;
-    ['#settings', '#confirm'].forEach(s => { $(s).hidden = true; });
-    $('#setBtn').setAttribute('aria-expanded', 'false');
+    ['#settings', '#confirm', '#addMenu'].forEach(s => { $(s).hidden = true; });
+    $('#setBtn').setAttribute('aria-expanded', 'false'); $('#addBtn').setAttribute('aria-expanded', 'false');
     panel.hidden = !show; if (btn) btn.setAttribute('aria-expanded', String(show));
     return show;
   }
   $('#setBtn').addEventListener('click', () => { togglePanel($('#setBtn'), $('#settings')); syncWindow(); });
+  // ---------- the Add menu: tables, notes, sliders, statistics and regressions without typing ----------
+  $('#addBtn').addEventListener('click', () => { if (togglePanel($('#addBtn'), $('#addMenu'))) $('#addMenu button').focus(); });
+  $('#addMenu').addEventListener('keydown', e => { if (e.key === 'Escape') { togglePanel($('#addBtn'), $('#addMenu'), false); $('#addBtn').focus(); } });
+  function freshName(base) { const u = usedNames(); if (!u.has(base)) return base; let k = 1; while (u.has(`${base}_${k}`)) k++; return `${base}_${k}`; }
+  function newestTable() { for (let i = rows.length - 1; i >= 0; i--) if (rows[i].type === 'table' && rows[i].table) return rows[i]; return null; }
+  function addTable(after) {
+    const r = insertRowAfter(after, '', { type: 'table', table: { cols: freshCols() } });
+    return r;
+  }
+  // Statistics need data: use the newest table's columns, or start a table to fill in.
+  function dataCols(after) {
+    let t = newestTable(), made = false;
+    if (!t) { t = addTable(after); made = true; }
+    const c = t.table.cols;
+    return { x: c[0].name.trim(), y: (c[1] || c[0]).name.trim(), table: t, made };
+  }
+  let lastStat = null;
+  const STAT = {
+    mean: d => `mean(${d.y})`, median: d => `median(${d.y})`, stdev: d => `stdev(${d.y})`,
+    range: d => [`min(${d.y})`, `max(${d.y})`], count: d => `length(${d.y})`, corr: d => `corr(${d.x}, ${d.y})`,
+    linreg: d => { const k = fitIndex(['m', 'b']); return `${d.y} ~ m_${k} ${d.x} + b_${k}`; },
+    quadreg: d => { const k = fitIndex(['a', 'b', 'c']); return `${d.y} ~ a_${k} ${d.x}^2 + b_${k} ${d.x} + c_${k}`; },
+    expreg: d => { const k = fitIndex(['a', 'b']); return `${d.y} ~ a_${k} b_${k}^{${d.x}}`; },
+  };
+  // Each fit gets its own numbered letters (m_1, b_1, ...) so fits and sliders never share a name.
+  function fitIndex(letters) {
+    const used = usedNames(), text = rows.map(r => r.text || '').join(' ');
+    for (let k = 1; ; k++) if (letters.every(l => !used.has(`${l}_${k}`) && !new RegExp(`(?<![A-Za-z])${l}_${k}(?![0-9])`).test(text))) return k;
+  }
+  $('#addMenu').addEventListener('click', e => {
+    const b = e.target.closest('[data-add]'); if (!b) return;
+    const what = b.dataset.add;
+    togglePanel($('#addBtn'), $('#addMenu'), false);
+    // An empty line that's selected gets used up rather than left behind.
+    let after = rowById(selected) ? selected : null;
+    const sel = rowById(after);
+    if (sel && kindOf(sel) === 'math' && !sel.text.trim()) {
+      const idx = rows.indexOf(sel);
+      if (idx < rows.length - 1) rows.splice(idx, 1);
+      after = idx > 0 ? rows[idx - 1].id : 'top';
+    }
+    let focus = null;
+    if (what === 'expr') focus = insertRowAfter(after, '');
+    else if (what === 'note') focus = insertRowAfter(after, '"');
+    else if (what === 'table') focus = addTable(after);
+    else if (what === 'slider') focus = insertRowAfter(after, `${freshName('a')} = 1`);
+    else if (what === 'point') focus = insertRowAfter(after, '(1, 2)');
+    else if (STAT[what]) {
+      const d = dataCols(after), out = [].concat(STAT[what](d));
+      // Stack results under their table, in the order they were added.
+      let at = d.table.id;
+      if (lastStat && lastStat.table === d.table.id && rowById(lastStat.id)) at = lastStat.id;
+      else if (!d.made && after != null && after !== 'top' && after !== d.table.id) at = after;
+      out.forEach(t => { const r = insertRowAfter(at, t); at = r.id; if (!focus) focus = r; });
+      lastStat = { id: at, table: d.table.id };
+      if (d.made) { focus = d.table; toast('Type your data into the table. The results update as you go.'); }
+    }
+    if (focus) { selected = focus.id; syncRows(); focusRow(focus.id, 'end'); }
+  });
   $('#clearBtn').addEventListener('click', () => { togglePanel(null, $('#confirm'), true); $('#confirmYes').focus(); });
   $('#confirmNo').addEventListener('click', () => { $('#confirm').hidden = true; });
   $('#confirmYes').addEventListener('click', () => {
