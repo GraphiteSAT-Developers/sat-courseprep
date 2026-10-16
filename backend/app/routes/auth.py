@@ -64,6 +64,9 @@ def login():
         record_event(ip_bucket)
         raise ApiError(401, "That email and password don't match.", code="bad_credentials")
     clear_events(email_bucket)
+    if email == testaccount.USERNAME and current_app.config.get("TEST_ACCOUNT"):
+        testaccount.reset(user["id"])
+        user = query("SELECT * FROM users WHERE id = ?", (user["id"],), one=True)
     login_user(user, remember=bool(data.get("remember")))
     return jsonify({"user": public_user(user)})
 

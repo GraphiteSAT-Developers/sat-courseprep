@@ -332,6 +332,13 @@
       btn.disabled = true; btn.textContent = "Signing in…";
       send(CONFIG.authEndpoint, { email: em, password: pw.value, remember: $("#signin-remember").checked })
         .then(function () {
+          // Preview: the test account starts fresh on every sign-in, as it does on the server.
+          if (testAccount && !LIVE) {
+            try {
+              Object.keys(localStorage).filter(function (k) { return k.indexOf("graphite_") === 0 && k !== CONFIG.consentKey; })
+                .forEach(function (k) { localStorage.removeItem(k); });
+            } catch (err) { /* storage blocked */ }
+          }
           showStatus(aStatus, "ok", "Signed in as " + em + ".", CONFIG.dashboardUrl ? "Opening your dashboard." : "Your dashboard is ready.");
           Analytics.track("sign_in");
           try { sessionStorage.setItem("graphite_user", em); } catch (err) { /* storage blocked */ }

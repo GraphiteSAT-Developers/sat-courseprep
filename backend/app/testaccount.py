@@ -1,8 +1,8 @@
 """The local test account: username "beta", password "beta".
 
 It exists only when the app isn't running in production (Config.TEST_ACCOUNT). On every start
-its password is set back to "beta", so it always works. Its practice history is kept between
-starts; delete it with `DELETE FROM users WHERE email = 'beta'` to start fresh.
+its password is set back to "beta", so it always works. Every sign-in wipes its practice
+history, so it starts fresh with the diagnostic each time, like a brand-new student.
 """
 from datetime import datetime, timezone
 
@@ -29,6 +29,20 @@ def ensure(url):
         conn.commit()
     finally:
         conn.close()
+
+
+# Everything a student's practice leaves behind. study_plans goes before diagnostics, which it points to.
+STUDENT_TABLES = ["practice_sessions", "practice_seen", "practice_completions", "study_plans", "diagnostics",
+                  "review_items", "test_attempts", "activity"]
+
+
+def reset(user_id):
+    """Clears the test account back to a brand-new student. Runs inside a request."""
+    from .db import execute
+    for table in STUDENT_TABLES:
+        execute(f"DELETE FROM {table} WHERE user_id = ?", (user_id,))  # table names come from the fixed list above
+    execute("UPDATE users SET diagnostic_prompted_at = NULL, test_date = NULL, target_score = NULL, "
+            "weekly_goal_hours = 3 WHERE id = ?", (user_id,))
 
 
 def is_test_login(app, email):

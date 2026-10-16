@@ -29,6 +29,20 @@ class TestAccountTest(unittest.TestCase):
         self.assertEqual(client.get("/api/me").status_code, 200)
         self.assertEqual(self.login(self.make(), password="wrong").status_code, 401)
 
+    def test_every_sign_in_starts_fresh(self):
+        client = self.make()
+        self.login(client)
+        self.assertTrue(client.get("/api/dashboard").json["start_with_diagnostic"])
+        d = client.post("/api/plan/diagnostic", json={"test_date": "2030-12-07"}, headers=ORIGIN).json["diagnostic"]
+        client.post(f"/api/plan/diagnostic/{d['id']}/submit", json={"answers": {}, "sure": {}}, headers=ORIGIN)
+        client.post("/api/practice/sessions", json={"mode": "test"}, headers=ORIGIN)
+        self.assertIsNotNone(client.get("/api/plan").json["plan"])
+        self.login(client)  # sign in again
+        self.assertIsNone(client.get("/api/plan").json["plan"])
+        self.assertIsNone(client.get("/api/plan").json["diagnostic"])
+        self.assertEqual(client.get("/api/practice").json["unfinished"], [])
+        self.assertIsNone(client.get("/api/me").json["user"]["test_date"])
+
     def test_off_when_disabled(self):
         self.assertEqual(self.login(self.make(TEST_ACCOUNT=False)).status_code, 400)
 

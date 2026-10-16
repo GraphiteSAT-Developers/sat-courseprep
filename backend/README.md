@@ -28,7 +28,7 @@ That means no server is running at that address.
 
 ### Test account
 
-When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and its practice history is kept between starts. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
+When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and every sign-in wipes its practice history, so it always starts fresh with the diagnostic. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
 
 Run the tests:
 
