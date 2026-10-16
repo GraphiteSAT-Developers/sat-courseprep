@@ -57,7 +57,7 @@
   }
 
   function render(d) {
-    $("pr-done").textContent = num(d.done) + " of " + num(d.total) + " done";
+    $("pr-done").textContent = num(d.done) + (d.done === 1 ? " question done" : " questions done");
     $("pr-meter").style.width = (d.total ? Math.round(d.done / d.total * 100) : 0) + "%";
     $("pr-test-q").textContent = String(d.test.questions);
     $("pr-test-min").textContent = String(d.test.minutes);
@@ -80,7 +80,7 @@
       sec.className = "pr-domain";
       var head = document.createElement("div");
       head.className = "pr-domain-head";
-      head.innerHTML = '<h3>' + esc(dm.name) + '</h3><span class="mono">' + num(dm.done) + " of " + num(dm.total) + " done</span>";
+      head.innerHTML = '<h3>' + esc(dm.name) + "</h3>";
       var all = document.createElement("button");
       all.type = "button"; all.className = "btn btn-secondary pr-all";
       all.textContent = "Practice all";
@@ -94,8 +94,7 @@
       ul.className = "pr-skills";
       dm.skills.forEach(function (sk) {
         var li = document.createElement("li");
-        li.innerHTML = '<span class="pr-skill-name">' + esc(sk.name) + "</span>" + progress(sk.done, sk.total) +
-          '<span class="pr-skill-count mono">' + sk.done + "/" + sk.total + "</span>";
+        li.innerHTML = '<span class="pr-skill-name">' + esc(sk.name) + "</span>" + progress(sk.done, sk.total);
         var b = document.createElement("button");
         b.type = "button"; b.className = "btn btn-quiet";
         b.textContent = "Practice";
