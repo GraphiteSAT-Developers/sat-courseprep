@@ -174,6 +174,8 @@ def render(meta, mode):
         if meta.get("test"):
             script = "<script>window.TOPLINE_SRC_B64 = '" + base64.b64encode(calculator_html().encode()).decode() + "';</script>" + script
         canonical = ""
+        # The preview is a set of files with no server, so "./" (the home page) must name the file.
+        body = re.sub(r'href="\./(#[^"]*)?"', lambda m: 'href="index.html' + (m.group(1) or "") + '"', body)
         svg = (SRC / "assets/hint-ladder.svg").read_text().strip()
         body = body.replace('src="assets/hint-ladder.svg"', 'src="data:image/svg+xml;base64,' + base64.b64encode(svg.encode()).decode() + '"')
 
