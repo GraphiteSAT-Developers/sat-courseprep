@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Topline Grapher</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400;1,600&display=swap">
 <style>
 /* Layout: two-pane instrument. Expression ledger on the left, engineering graph paper on the right; graph stacks above the ledger on phones. */
 :root{
@@ -15,9 +12,11 @@
   --accent:#2347a6; --accent-soft:#e7edf9; --danger:#b3261e;
   --canvas:#ffffff; --grid-minor:#ebf0f5; --grid-major:#cdd7e2; --axis:#384455;
   --c1:#c8372d; --c2:#2a62c9; --c3:#2b8746; --c4:#7a45b8; --c5:#d4721a; --c6:#202a37;
-  --font-ui:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
-  --font-math:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
-  --font-data:"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-ui:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-math:"Times New Roman", Times, "STIX Two Text", Georgia, serif;
+  --font-data:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --tool:#f2f2f2; --tool2:#e6e6e6; --tool-ink:#3d3d3d; --gut:#f3f3f3; --sel:#2f72dc;
+  --kp:#e9e9e9; --key:#fbfbfb; --key-num:#d3d3d3; --key-fn:#c9c9c9; --key-line:#bdbdbd; --key-ink:#222;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -25,6 +24,8 @@
     --accent:#93abff; --accent-soft:#1c2640; --danger:#ff8a80;
     --canvas:#10161e; --grid-minor:#18202a; --grid-major:#29333f; --axis:#a8b5c5;
     --c1:#ff6a5c; --c2:#6c9bff; --c3:#4cc178; --c4:#bb8dff; --c5:#ffa24a; --c6:#e4e8ee;
+    --tool:#1b222c; --tool2:#151b23; --tool-ink:#d5dbe3; --gut:#18202a; --sel:#4f86e8;
+    --kp:#10161e; --key:#222b36; --key-num:#2f3a47; --key-fn:#3a4655; --key-line:#0b0f14; --key-ink:#e8edf3;
     color-scheme:dark;
   }
 }
@@ -33,6 +34,8 @@
   --accent:#93abff; --accent-soft:#1c2640; --danger:#ff8a80;
   --canvas:#10161e; --grid-minor:#18202a; --grid-major:#29333f; --axis:#a8b5c5;
   --c1:#ff6a5c; --c2:#6c9bff; --c3:#4cc178; --c4:#bb8dff; --c5:#ffa24a; --c6:#e4e8ee;
+  --tool:#1b222c; --tool2:#151b23; --tool-ink:#d5dbe3; --gut:#18202a; --sel:#4f86e8;
+  --kp:#10161e; --key:#222b36; --key-num:#2f3a47; --key-fn:#3a4655; --key-line:#0b0f14; --key-ink:#e8edf3;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -202,106 +205,216 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
   .stage{grid-row:1}
   .panel{grid-row:2}
 }
+
+/* ===== Classic graphing-calculator layout: list | graph, toolbar on the list, keypad along the bottom ===== */
+.app{grid-template-columns:minmax(300px,380px) minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"list graph" "keys keys";gap:0;padding:0}
+.panel{grid-area:list;position:relative;border:0;border-right:1px solid var(--key-line);border-radius:0}
+.stage{grid-area:graph;border:0;border-radius:0}
+.app.list-off{grid-template-columns:0 minmax(0,1fr)}
+.app.list-off .panel{display:none}
+.app.list-off .kp,.app.kp-off .kp{display:none}
+.bar{position:relative;justify-content:flex-start;gap:4px;padding:6px 8px;min-height:52px;background:linear-gradient(var(--tool),var(--tool2));border-bottom:1px solid var(--key-line)}
+.tb{width:44px;height:40px;display:grid;place-items:center;padding:0;border:0;border-radius:6px;background:transparent;color:var(--tool-ink)}
+.tb svg{width:24px;height:24px}
+.tb:hover:not(:disabled),.tb[aria-expanded="true"]{background:rgba(127,127,127,.18)}
+.tb:disabled{opacity:.32;cursor:default}
+#addBtn svg{width:26px;height:26px}
+.tb-mid{display:flex;gap:2px;margin:0 auto}
+/* popovers */
+.pop{position:absolute;z-index:20;background:var(--panel);border:1px solid var(--key-line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.22)}
+.add-menu{top:8px;left:62px;width:min(260px,calc(100% - 72px));max-height:calc(100% - 20px);overflow-y:auto;padding:6px 0;display:flex;flex-direction:column}
+.add-menu::before{content:"";position:absolute;left:-8px;top:18px;width:14px;height:14px;background:var(--panel);border-left:1px solid var(--key-line);border-bottom:1px solid var(--key-line);transform:rotate(45deg)}
+.add-menu button{display:flex;align-items:center;gap:14px;padding:9px 16px;border:0;background:transparent;font:400 17px/1.2 var(--font-ui);color:var(--muted);text-align:left}
+.add-menu button:hover,.add-menu button:focus-visible{background:var(--accent-soft);color:var(--ink)}
+.add-menu .ai{flex:none;width:44px;display:flex;align-items:center;justify-content:center;white-space:nowrap;font:400 20px/1 var(--font-math);color:var(--muted)}
+.add-menu .ai i{font-style:italic}
+.add-menu .ai svg{width:28px;height:24px}
+.add-menu .ai.q{font-weight:700;font-size:24px;font-family:Georgia,serif}
+.add-menu .add-h{margin:8px 16px 2px;padding-top:8px;border-top:1px solid var(--rule);font:600 11.5px/1.3 var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.add-menu .add-h small{text-transform:none;letter-spacing:0;font-weight:400;margin-left:4px}
+.list-menu{top:50px;right:8px;padding:6px 0;display:flex;flex-direction:column;min-width:210px}
+.list-menu button{padding:10px 16px;border:0;background:transparent;text-align:left;font:15px var(--font-ui)}
+.list-menu button:hover{background:var(--accent-soft)}
+.danger-t{color:var(--danger)}
+#confirm{position:relative;z-index:5}
+/* rows */
+li.row{grid-template-columns:52px minmax(0,1fr) 40px;border-bottom:1px solid var(--rule);min-height:68px}
+.gut{background:var(--gut);border-right:1px solid var(--rule);padding-top:6px;gap:8px}
+.num{align-self:flex-start;margin-left:7px;font:400 13px var(--font-ui);color:var(--muted)}
+.row.sel{box-shadow:inset 0 0 0 2px var(--sel)}
+.row.sel .gut{background:var(--sel);border-right-color:var(--sel)}
+.row.sel .num{color:#fff}
+.del{opacity:0;margin-top:14px;color:#a8a8a8}
+.del svg{width:20px;height:20px;stroke-width:2.6}
+.row:hover .del,.row.sel .del{opacity:1}
+.mf{font-size:22px;padding:14px 8px 10px}
+.info .val{font-family:var(--font-math)}
+.brandline{margin:28px 0 22px;text-align:center;font:400 12px var(--font-ui);color:var(--muted);opacity:.7;letter-spacing:.02em}
+.kbshow{position:absolute;left:10px;bottom:10px;width:44px;height:34px;display:grid;place-items:center;border:1px solid var(--key-line);border-radius:6px;background:var(--tool);color:var(--tool-ink);padding:0}
+.kbshow svg{width:24px;height:24px}
+/* graph tools: wrench + zoom, top right; settings popover */
+.gtools{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;z-index:3}
+.zoom{position:static}
+.gbtn{width:46px;height:46px;display:grid;place-items:center;padding:0;border:1px solid var(--key-line);border-radius:8px;background:var(--tool);color:var(--tool-ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.gbtn svg{width:24px;height:24px}
+.gbtn[aria-expanded="true"]{background:var(--tool2)}
+.zoom button{width:46px;height:40px;background:var(--tool);border-color:var(--key-line)}
+.showlist{position:absolute;left:10px;bottom:10px;z-index:3}
+.app{position:relative}
+.gset{top:10px;right:66px;width:min(340px,calc(100% - 80px));max-height:calc(100% - 20px);overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;font-size:14.5px}
+.gset hr{border:0;border-top:1px solid var(--rule);margin:2px 0;width:100%}
+.seg.wide{display:flex}
+.seg.wide button{flex:1;justify-content:center;padding:8px 10px;font-size:14px}
+.gs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.ck{display:flex;align-items:center;gap:8px;cursor:pointer}
+.ck input{width:20px;height:20px;margin:0;accent-color:var(--sel);flex:none}
+.ck small{display:block;color:var(--muted);font-size:11.5px}
+.gs-axis{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lblin{width:130px;min-width:0;padding:6px 8px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);font:14px var(--font-ui)}
+.set-row.win{gap:6px}
+.set-row.win .le{flex:none;font-family:var(--font-math);font-size:17px}
+.winin{font-family:var(--font-math);font-size:16px;border:0;border-bottom:1px solid var(--muted);border-radius:0;background:transparent}
+.gs-more summary{cursor:pointer;font-weight:600}
+.gs-more[open]{display:flex;flex-direction:column;gap:10px}
+.gs-more[open] summary{margin-bottom:2px}
+/* keypad */
+.kp{grid-area:keys;background:var(--kp);border-top:1px solid var(--key-line);padding:8px max(8px, env(safe-area-inset-left, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-right, 0px))}
+.kp-in{display:grid;grid-template-columns:4fr 4fr 2fr;gap:10px 3%;max-width:980px;margin:0 auto}
+.kb{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:var(--kh,46px);gap:6px}
+.kb-right{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kb-funcs,.kb-abc{grid-column:1 / 3;grid-template-columns:repeat(8,minmax(0,1fr))}
+.kb-abc{grid-template-columns:repeat(10,minmax(0,1fr))}
+.kp[data-page="main"] .kb-funcs,.kp[data-page="main"] .kb-abc,.kp[data-page="funcs"] .kb-left,.kp[data-page="funcs"] .kb-mid,.kp[data-page="funcs"] .kb-abc,.kp[data-page="abc"] .kb-left,.kp[data-page="abc"] .kb-mid,.kp[data-page="abc"] .kb-funcs{display:none}
+.key{min-width:0;width:100%;height:100%;padding:0 2px;border:1px solid var(--key-line);border-bottom-width:2px;border-radius:5px;background:var(--key);color:var(--key-ink);font:400 22px/1 var(--font-math);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:none}
+.key:hover{filter:brightness(.97)}
+.key:active{transform:translateY(1px);border-bottom-width:1px}
+.key.kn{background:var(--key-num);font-size:25px}
+.key.fn{background:var(--key-fn)}
+.key.txt{font:500 15px/1 var(--font-ui)}
+.key.fn.txt{font-size:16px}
+.kfuncs{font-size:20px!important}
+.key.let{font-style:italic;font-size:21px}
+.key.sym{font-size:23px}
+.key svg{width:26px;height:auto;max-height:70%}
+.key.kbs svg{width:34px;color:var(--key-ink)}
+.key.enter{background:var(--sel);border-color:#1f55b0;color:#fff}
+.key.enter svg{width:36px}
+.key .mstatic{font-size:20px}
+.kp[data-page="funcs"] .kfuncs,.kp[data-page="abc"] .kfuncs{background:var(--sel);color:#fff;border-color:#1f55b0}
+@media (max-width:760px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(150px,40%) minmax(0,1fr) auto;grid-template-areas:"graph" "list" "keys";gap:0;padding:0}
+  .app.list-off{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 0 0}
+  .stage{grid-row:auto}
+  .panel{grid-row:auto;border-right:0;border-top:1px solid var(--key-line)}
+  .kp{padding:6px 6px calc(6px + env(safe-area-inset-bottom, 0px))}
+  .kp-in{gap:6px 10px}
+  .kb{gap:5px;--kh:44px}
+  .key{font-size:20px}.key.kn{font-size:22px}.key.txt{font-size:13px}.key.fn.txt,.kfuncs{font-size:15px!important}
+  .gset{right:10px;top:66px;width:calc(100% - 20px);max-height:calc(100% - 76px)}
+}
+.kb-funcs .key.txt{font-size:14px;letter-spacing:-.01em}
+@media (max-width:560px){ .kb-funcs .key.txt{font-size:12px} }
+@media (max-width:460px){ .kp-in{gap:5px 6px} .kb{gap:4px;--kh:42px} .key.txt{font-size:11.5px} .key.let{font-size:18px} .key.sym{font-size:19px} }
+@media (max-height:640px){ .kb{--kh:36px} }
 @media (prefers-reduced-motion: reduce){ .switch,.switch::after{transition:none} .cur{animation:none} }
 </style>
 
 </head>
 <body>
-<div class="app">
+<div class="app" id="app">
+  <main class="stage">
+    <canvas id="cv" aria-label="Graph"></canvas>
+    <div class="gtools">
+      <button id="wrenchBtn" class="gbtn" type="button" aria-label="Graph settings" aria-expanded="false" aria-controls="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.6 6.2a5.6 5.6 0 0 1-7.4 6.6l-8 8a2.1 2.1 0 0 1-3-3l8-8a5.6 5.6 0 0 1 6.6-7.4l-3.3 3.3.6 2.8 2.8.6z"/></svg></button>
+      <div class="zoom">
+        <button id="zin" type="button" aria-label="Zoom in"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 3v12M3 9h12"/></svg></button>
+        <button id="zout" type="button" aria-label="Zoom out"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 9h12"/></svg></button>
+        <button id="zhome" type="button" aria-label="Reset view"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 8.5 9 3l6 5.5V15H3z"/></svg></button>
+      </div>
+    </div>
+    <button class="gbtn showlist" id="showList" type="button" aria-label="Show expressions" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 18 7-6 7 6M5 12l7-6 7 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </main>
   <aside class="panel" aria-label="Expressions">
     <header class="bar">
-      <div class="brand">
-        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="4" fill="none" stroke="var(--rule)" stroke-width="1.5"/><path d="M4 18 C 8 18, 9 6, 12 9 S 16 16, 20 5" fill="none" stroke="var(--c1)" stroke-width="2.2" stroke-linecap="round"/></svg>
-        Topline
+      <button id="addBtn" class="tb" type="button" aria-expanded="false" aria-controls="addMenu" aria-label="Add item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></svg></button>
+      <div class="tb-mid">
+        <button id="undoBtn" class="tb" type="button" aria-label="Undo" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 4 12l5 5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 12H14a6 6 0 0 1 6 6v1" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+        <button id="redoBtn" class="tb" type="button" aria-label="Redo" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 7 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5 12H10a6 6 0 0 0-6 6v1" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
       </div>
-      <div class="bar-actions">
-        <button id="addBtn" class="chip add-chip" type="button" aria-expanded="false" aria-controls="addMenu" aria-label="Add an item"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5v9M1.5 6h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Add</button>
-        <button id="setBtn" class="chip" type="button" aria-expanded="false" aria-controls="settings">Settings</button>
-        <button id="clearBtn" class="chip" type="button">Clear</button>
-      </div>
+      <button id="setBtn" class="tb" type="button" aria-expanded="false" aria-controls="listMenu" aria-label="Edit list"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10.3 2h3.4l.5 2.6a8 8 0 0 1 1.9 1.1l2.5-.9 1.7 2.9-2 1.7a8 8 0 0 1 0 2.2l2 1.7-1.7 2.9-2.5-.9a8 8 0 0 1-1.9 1.1l-.5 2.6h-3.4l-.5-2.6a8 8 0 0 1-1.9-1.1l-2.5.9-1.7-2.9 2-1.7a8 8 0 0 1 0-2.2l-2-1.7 1.7-2.9 2.5.9a8 8 0 0 1 1.9-1.1zM12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8z"/></svg></button>
+      <button id="hideList" class="tb" type="button" aria-label="Hide expressions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 6 7 6 7-6M5 12l7 6 7-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </header>
-    <div class="sec" id="settings" hidden>
-      <div class="set-row"><span>Theme</span>
-        <div class="seg" role="group" aria-label="Theme">
-          <button type="button" id="thLight"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg>Light</button>
-          <button type="button" id="thDark"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.8 5.8 0 0 1 6.4 2.5a5.8 5.8 0 1 0 7.1 7.1z"/></svg>Dark</button>
-        </div></div>
-      <div class="set-row"><span>Angles</span>
-        <div class="seg" role="group" aria-label="Angle units"><button type="button" id="angRad">Radians</button><button type="button" id="angDeg">Degrees</button></div></div>
-      <label class="set-row" for="optComplex"><span>Complex numbers<small>Use i, and allow results like √−9 = 3i</small></span><input type="checkbox" class="switch" id="optComplex"></label>
-      <label class="set-row" for="optLogX"><span>Log scale x-axis</span><input type="checkbox" class="switch" id="optLogX"></label>
-      <label class="set-row" for="optLogY"><span>Log scale y-axis</span><input type="checkbox" class="switch" id="optLogY"></label>
-      <div class="set-row win"><span class="wl">x from</span><input class="winin" id="xMin" aria-label="x-axis minimum"><span>to</span><input class="winin" id="xMax" aria-label="x-axis maximum"></div>
-      <div class="set-row win"><span class="wl">y from</span><input class="winin" id="yMin" aria-label="y-axis minimum"><span>to</span><input class="winin" id="yMax" aria-label="y-axis maximum"></div>
-      <p class="set-hint">To stretch one axis on the graph, drag its numbers. You can also hold Shift (x-axis) or Alt (y-axis) while scrolling, or pinch sideways or up and down.</p>
+    <div class="pop add-menu" id="addMenu" role="menu" hidden>
+      <button type="button" role="menuitem" data-add="expr"><b class="ai"><i>f(x)</i></b>expression</button>
+      <button type="button" role="menuitem" data-add="note"><b class="ai q">“ ”</b>note</button>
+      <button type="button" role="menuitem" data-add="table"><b class="ai"><svg viewBox="0 0 26 22" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="19" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1.5 7h23M1.5 13.5h23M13 7v13.5" stroke="currentColor" stroke-width="2"/><path d="M1.5 1.5h23V7h-23z" fill="currentColor"/></svg></b>table</button>
+      <button type="button" role="menuitem" data-add="slider"><b class="ai"><i>a</i>=</b>slider</button>
+      <button type="button" role="menuitem" data-add="point"><b class="ai">(•)</b>point</button>
+      <p class="add-h">Statistics <small>from your newest table</small></p>
+      <button type="button" role="menuitem" data-add="mean"><b class="ai"><i style="text-decoration:overline">x</i></b>mean</button>
+      <button type="button" role="menuitem" data-add="median"><b class="ai"><i>M</i></b>median</button>
+      <button type="button" role="menuitem" data-add="stdev"><b class="ai"><i>s</i></b>standard deviation</button>
+      <button type="button" role="menuitem" data-add="range"><b class="ai">↕</b>min and max</button>
+      <button type="button" role="menuitem" data-add="count"><b class="ai"><i>n</i></b>count</button>
+      <button type="button" role="menuitem" data-add="corr"><b class="ai"><i>r</i></b>correlation</button>
+      <p class="add-h">Line of best fit</p>
+      <button type="button" role="menuitem" data-add="linreg"><b class="ai"><i>mx</i>+<i>b</i></b>linear</button>
+      <button type="button" role="menuitem" data-add="quadreg"><b class="ai"><i>ax</i>²</b>quadratic</button>
+      <button type="button" role="menuitem" data-add="expreg"><b class="ai"><i>ab<sup>x</sup></i></b>exponential</button>
     </div>
-    <div class="sec add-menu" id="addMenu" hidden>
-      <div class="add-group"><span class="add-h">Add</span>
-        <div class="add-grid">
-          <button type="button" data-add="expr"><b>f(x)</b>Expression</button>
-          <button type="button" data-add="table"><b>⊞</b>Table</button>
-          <button type="button" data-add="note"><b>"</b>Note</button>
-          <button type="button" data-add="slider"><b>a</b>Slider</button>
-          <button type="button" data-add="point"><b>(•)</b>Point</button>
-        </div></div>
-      <div class="add-group"><span class="add-h">Statistics <small>uses your newest table</small></span>
-        <div class="add-grid">
-          <button type="button" data-add="mean"><b><span style="text-decoration:overline">x</span></b>Mean</button>
-          <button type="button" data-add="median"><b>M</b>Median</button>
-          <button type="button" data-add="stdev"><b>s</b>Std. deviation</button>
-          <button type="button" data-add="range"><b>↕</b>Min and max</button>
-          <button type="button" data-add="count"><b>n</b>Count</button>
-          <button type="button" data-add="corr"><b>r</b>Correlation</button>
-        </div></div>
-      <div class="add-group"><span class="add-h">Line of best fit</span>
-        <div class="add-grid">
-          <button type="button" data-add="linreg"><b>mx+b</b>Linear</button>
-          <button type="button" data-add="quadreg"><b>ax²</b>Quadratic</button>
-          <button type="button" data-add="expreg"><b>abˣ</b>Exponential</button>
-        </div></div>
+    <div class="pop list-menu" id="listMenu" role="menu" hidden>
+      <button type="button" role="menuitem" id="kbToggle">Hide keypad</button>
+      <button type="button" role="menuitem" id="clearBtn" class="danger-t">Delete all expressions</button>
     </div>
     <div class="sec" id="confirm" hidden>
       <div class="sec-row"><span class="grow" style="color:var(--ink);font-size:13.5px">Delete every expression?</span>
         <button class="btn danger" id="confirmYes" type="button">Delete all</button><button class="btn" id="confirmNo" type="button">Keep</button></div>
     </div>
-    <div class="keys" id="keys" aria-label="Insert math">
-      <button class="key" type="button" data-k="left" aria-label="Move left">←</button>
-      <button class="key" type="button" data-k="right" aria-label="Move right">→</button>
-      <button class="key" type="button" data-k="x" data-m="x"></button>
-      <button class="key" type="button" data-k="y" data-m="y"></button>
-      <button class="key" type="button" data-k="^" data-m="a^{b}" aria-label="Exponent"></button>
-      <button class="key" type="button" data-k="_" data-m="a_{1}" aria-label="Subscript"></button>
-      <button class="key" type="button" data-k="frac" data-m="\frac{a}{b}" aria-label="Fraction"></button>
-      <button class="key" type="button" data-k="sqrt" data-m="\sqrt{x}" aria-label="Square root"></button>
-      <button class="key" type="button" data-k="π" data-m="\pi" aria-label="Pi"></button>
-      <button class="key" type="button" data-k="(" data-m="\left(\right)" aria-label="Parentheses"></button>
-      <button class="key" type="button" data-k="[" data-m="\left[\right]" aria-label="List brackets"></button>
-      <button class="key" type="button" data-k="{" data-m="\left\{\right\}" aria-label="Braces"></button>
-      <button class="key" type="button" data-k="|" data-m="\left|a\right|" aria-label="Absolute value"></button>
-      <button class="key" type="button" data-k="≤" data-m="\le" aria-label="Less than or equal"></button>
-      <button class="key" type="button" data-k="≥" data-m="\ge" aria-label="Greater than or equal"></button>
-      <button class="key" type="button" data-k="~" data-m="\sim" aria-label="Regression tilde"></button>
-      <button class="key" type="button" data-k="'" data-m="f'" aria-label="Prime"></button>
-      <button class="key" type="button" data-k="ddx" data-m="\frac{d}{dx}" aria-label="Derivative"></button>
-      <button class="key" type="button" data-k="int" data-m="\int_{a}^{b}" aria-label="Integral"></button>
-      <button class="key" type="button" data-k="sum" data-m="\sum_{n}^{N}" aria-label="Sum"></button>
-      <button class="key" type="button" data-k="sin(" data-m="\sin"></button>
-      <button class="key" type="button" data-k="cos(" data-m="\cos"></button>
-      <button class="key" type="button" data-k="ln(" data-m="\ln"></button>
-      <button class="key" type="button" data-k="e^" data-m="e^{x}" aria-label="e to the power"></button>
-    </div>
     <div class="scroll">
       <ol class="list" id="list"></ol>
+      <p class="brandline">Topline graphing calculator</p>
     </div>
+    <button class="kbshow" id="kbShow" type="button" aria-label="Show keypad" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 10h1M9.5 10h1M13 10h1M16.5 10h1M6 13.5h1M17 13.5h1M9 14h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
   </aside>
-  <main class="stage">
-    <canvas id="cv" aria-label="Graph"></canvas>
-    <div class="zoom">
-      <button id="zin" type="button" aria-label="Zoom in"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 3v12M3 9h12"/></svg></button>
-      <button id="zout" type="button" aria-label="Zoom out"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 9h12"/></svg></button>
-      <button id="zhome" type="button" aria-label="Reset view"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M3 8.5 9 3l6 5.5V15H3z"/></svg></button>
+    <div class="pop gset" id="settings" role="dialog" aria-label="Graph settings" hidden>
+      <div class="seg wide" role="group" aria-label="Theme"><button type="button" id="thLight">Light</button><button type="button" id="thDark">Dark</button></div>
+      <div class="gs-grid">
+        <label class="ck"><input type="checkbox" id="optGrid"><span>Grid</span></label>
+        <label class="ck"><input type="checkbox" id="optNums"><span>Axis numbers</span></label>
+        <label class="ck"><input type="checkbox" id="optMinor"><span>Minor gridlines</span></label>
+        <label class="ck"><input type="checkbox" id="optArrows"><span>Arrows</span></label>
+      </div>
+      <hr>
+      <div class="gs-axis">
+        <label class="ck"><input type="checkbox" id="optXAxis"><span>X-axis</span></label>
+        <input class="lblin" id="xLabel" placeholder="Label, e.g. x" aria-label="x-axis label">
+      </div>
+      <div class="set-row win"><input class="winin" id="xMin" aria-label="x-axis minimum"><span class="le">≤ <i>x</i> ≤</span><input class="winin" id="xMax" aria-label="x-axis maximum"></div>
+      <div class="gs-axis">
+        <label class="ck"><input type="checkbox" id="optYAxis"><span>Y-axis</span></label>
+        <input class="lblin" id="yLabel" placeholder="Label, e.g. y" aria-label="y-axis label">
+      </div>
+      <div class="set-row win"><input class="winin" id="yMin" aria-label="y-axis minimum"><span class="le">≤ <i>y</i> ≤</span><input class="winin" id="yMax" aria-label="y-axis maximum"></div>
+      <details class="gs-more">
+        <summary>More options</summary>
+        <div class="set-row"><span>X-axis</span><div class="seg" role="group" aria-label="x-axis scale"><button type="button" id="xLin">Linear</button><button type="button" id="xLog">Logarithmic</button></div></div>
+        <div class="set-row"><span>Y-axis</span><div class="seg" role="group" aria-label="y-axis scale"><button type="button" id="yLin">Linear</button><button type="button" id="yLog">Logarithmic</button></div></div>
+        <label class="ck"><input type="checkbox" id="optLock"><span>Lock viewport <small>stops dragging and zooming the graph</small></span></label>
+        <p class="set-hint">To stretch one axis, drag its numbers. You can also hold Shift (x-axis) or Alt (y-axis) while scrolling.</p>
+      </details>
+      <hr>
+      <label class="set-row" for="optComplex"><span>Complex mode<small>Use i, and allow results like √−9 = 3i</small></span><input type="checkbox" class="switch" id="optComplex"></label>
+      <div class="seg wide" role="group" aria-label="Angle units"><button type="button" id="angRad">Radians</button><button type="button" id="angDeg">Degrees</button></div>
     </div>
-  </main>
+  <div class="kp" id="keys" aria-label="Keypad" data-page="main">
+    <div class="kp-in">
+      <div class="kb kb-left"><button class="key" type="button" data-k="x" data-m="x"></button><button class="key" type="button" data-k="y" data-m="y"></button><button class="key" type="button" data-m="a^{2}" data-seq='["^","2","right"]' aria-label="Squared"></button><button class="key" type="button" data-k="^" data-m="a^{b}" aria-label="Exponent"></button><button class="key sym" type="button" data-k="(">(</button><button class="key sym" type="button" data-k=")">)</button><button class="key sym" type="button" data-k="<">&lt;</button><button class="key sym" type="button" data-k=">">&gt;</button><button class="key" type="button" data-k="|" data-m="\left|a\right|" aria-label="Absolute value"></button><button class="key sym" type="button" data-k=",">,</button><button class="key sym" type="button" data-k="≤" aria-label="Less than or equal">≤</button><button class="key sym" type="button" data-k="≥" aria-label="Greater than or equal">≥</button><button class="key fn txt" type="button" data-act="page:abc" aria-label="Letters">ABC</button><button class="key" type="button" data-k="_" data-m="a_{1}" aria-label="Subscript"></button><button class="key sym" type="button" data-k="sqrt" aria-label="Square root">√</button><button class="key sym" type="button" data-k="π" aria-label="Pi">π</button></div>
+      <div class="kb kb-mid"><button class="key kn" type="button" data-k="7">7</button><button class="key kn" type="button" data-k="8">8</button><button class="key kn" type="button" data-k="9">9</button><button class="key sym" type="button" data-k="/" aria-label="Divide">÷</button><button class="key kn" type="button" data-k="4">4</button><button class="key kn" type="button" data-k="5">5</button><button class="key kn" type="button" data-k="6">6</button><button class="key sym" type="button" data-k="*" aria-label="Times">×</button><button class="key kn" type="button" data-k="1">1</button><button class="key kn" type="button" data-k="2">2</button><button class="key kn" type="button" data-k="3">3</button><button class="key sym" type="button" data-k="-" aria-label="Minus">−</button><button class="key kn" type="button" data-k="0">0</button><button class="key kn" type="button" data-k=".">.</button><button class="key sym" type="button" data-k="=">=</button><button class="key sym" type="button" data-k="+">+</button></div>
+      <div class="kb kb-funcs"><button class="key txt" type="button" data-k="sin(">sin</button><button class="key txt" type="button" data-k="cos(">cos</button><button class="key txt" type="button" data-k="tan(">tan</button><button class="key txt" type="button" data-k="ln(">ln</button><button class="key txt" type="button" data-k="log(">log</button><button class="key" type="button" data-k="e^" data-m="e^{x}" aria-label="e to the power"></button><button class="key" type="button" data-k="frac" data-m="\frac{a}{b}" aria-label="Fraction"></button><button class="key sym" type="button" data-k="°" aria-label="Degrees">°</button><button class="key txt" type="button" data-k="mean(">mean</button><button class="key txt" type="button" data-k="median(">median</button><button class="key txt" type="button" data-k="stdev(">stdev</button><button class="key txt" type="button" data-k="min(">min</button><button class="key txt" type="button" data-k="max(">max</button><button class="key txt" type="button" data-k="total(">total</button><button class="key txt" type="button" data-k="round(">round</button><button class="key txt" type="button" data-k="abs(">abs</button><button class="key" type="button" data-k="ddx" data-m="\frac{d}{dx}" aria-label="Derivative"></button><button class="key" type="button" data-k="int" data-m="\int_{a}^{b}" aria-label="Integral"></button><button class="key" type="button" data-k="sum" data-m="\sum_{n}^{N}" aria-label="Sum"></button><button class="key sym" type="button" data-k="'" aria-label="Prime">f′</button><button class="key sym" type="button" data-k="[" aria-label="List brackets">[ ]</button><button class="key sym" type="button" data-k="{" aria-label="Braces">{ }</button><button class="key sym" type="button" data-k="~" aria-label="Regression">~</button><button class="key txt" type="button" data-k="nCr(">nCr</button><button class="key txt" type="button" data-k="floor(">floor</button><button class="key txt" type="button" data-k="ceil(">ceil</button><button class="key txt" type="button" data-k="length(">length</button><button class="key txt" type="button" data-k="corr(">corr</button><button class="key sym" type="button" data-k="θ">θ</button><button class="key sym" type="button" data-k="!">!</button><button class="key sym" type="button" data-k=":">:</button><button class="key sym" type="button" data-k="%">%</button></div>
+      <div class="kb kb-abc"><button class="key let" type="button" data-k="q">q</button><button class="key let" type="button" data-k="w">w</button><button class="key let" type="button" data-k="e">e</button><button class="key let" type="button" data-k="r">r</button><button class="key let" type="button" data-k="t">t</button><button class="key let" type="button" data-k="y">y</button><button class="key let" type="button" data-k="u">u</button><button class="key let" type="button" data-k="i">i</button><button class="key let" type="button" data-k="o">o</button><button class="key let" type="button" data-k="p">p</button><button class="key let" type="button" data-k="a">a</button><button class="key let" type="button" data-k="s">s</button><button class="key let" type="button" data-k="d">d</button><button class="key let" type="button" data-k="f">f</button><button class="key let" type="button" data-k="g">g</button><button class="key let" type="button" data-k="h">h</button><button class="key let" type="button" data-k="j">j</button><button class="key let" type="button" data-k="k">k</button><button class="key let" type="button" data-k="l">l</button><button class="key let" type="button" data-k="θ">θ</button><button class="key let" type="button" data-k="z">z</button><button class="key let" type="button" data-k="x">x</button><button class="key let" type="button" data-k="c">c</button><button class="key let" type="button" data-k="v">v</button><button class="key let" type="button" data-k="b">b</button><button class="key let" type="button" data-k="n">n</button><button class="key let" type="button" data-k="m">m</button><button class="key sym" type="button" data-k=",">,</button><button class="key sym" type="button" data-k="'" aria-label="Prime">′</button><button class="key sym" type="button" data-k=""" aria-label="Quote">"</button><button class="key fn txt" type="button" data-act="page:main" aria-label="Numbers" style="grid-column:span 3">123</button><button class="key txt" type="button" data-k=" " aria-label="Space" style="grid-column:span 4">space</button><button class="key sym" type="button" data-k="_" aria-label="Subscript">_</button><button class="key sym" type="button" data-k="^" aria-label="Exponent">^</button><button class="key sym" type="button" data-k="!">!</button></div>
+      <div class="kb kb-right"><button class="key fn txt kfuncs" type="button" data-act="page:funcs" aria-label="Functions" style="grid-column:span 2">funcs</button><button class="key fn" type="button" data-k="left" aria-label="Move left"><svg viewBox="0 0 28 14" aria-hidden="true"><path d="M27 7H3m6-6L2 7l7 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="key fn" type="button" data-k="right" aria-label="Move right"><svg viewBox="0 0 28 14" aria-hidden="true"><path d="M1 7h24m-6-6 7 6-7 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="key fn kbs" type="button" data-k="bs" aria-label="Backspace" style="grid-column:span 2"><svg viewBox="0 0 28 20" aria-hidden="true"><path d="M9 2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H9L1 10z" fill="currentColor"/><path d="m13 6 8 8m0-8-8 8" stroke="var(--key-fn)" stroke-width="2.6" stroke-linecap="round"/></svg></button><button class="key enter" type="button" data-act="enter" aria-label="Enter" style="grid-column:span 2"><svg viewBox="0 0 28 20" aria-hidden="true"><path d="M24 3v7a3 3 0 0 1-3 3H6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="m10 8-5 5 5 5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast" hidden role="status"><span id="toastMsg"></span><button id="toastUndo" type="button">Undo</button></div>
 
@@ -2296,7 +2409,8 @@ class MathField {
   const STORE = 'plotline-state-v1';
 
   let rows = [], nextId = 1, colorCounter = 0, selected = null;
-  const settings = { deg: false, complex: false, logX: false, logY: false, theme: null };
+  const GRAPH_DEFAULTS = { grid: true, nums: true, minor: true, arrows: false, xAxis: true, yAxis: true, xLabel: '', yLabel: '', lock: false };
+  const settings = { deg: false, complex: false, logX: false, logY: false, theme: null, ...GRAPH_DEFAULTS };
   let RES = [], CURVES = [], POIS = [];
   let W = 0, H = 0, dpr = 1;
   const view = { cx: 0, cy: 0, sx: 50, sy: 50, ready: false };
@@ -2345,6 +2459,7 @@ class MathField {
     const s = st.settings || {};
     settings.deg = !!(s.deg ?? st.deg); settings.complex = !!s.complex; settings.logX = !!s.logX; settings.logY = !!s.logY;
     settings.theme = s.theme === 'light' || s.theme === 'dark' ? s.theme : null;
+    for (const k in GRAPH_DEFAULTS) settings[k] = typeof s[k] === typeof GRAPH_DEFAULTS[k] ? s[k] : GRAPH_DEFAULTS[k];
     const v = st.view;
     if (v && isFinite(v.cx) && isFinite(v.cy)) {
       view.cx = v.cx; view.cy = v.cy; view.sx = v.sx || v.s; view.sy = v.sy || v.s;
@@ -2374,8 +2489,11 @@ class MathField {
   let saveTimer = 0;
   function save() {
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => { try { localStorage.setItem(STORE, JSON.stringify(serialize())); } catch (e) { /* storage unavailable */ } }, 300);
+    saveTimer = setTimeout(flushSave, 300);
   }
+  function flushSave() { saveTimer = null; try { localStorage.setItem(STORE, JSON.stringify(serialize())); } catch (e) { /* storage unavailable */ } }
+  // Leaving right after an edit (closing the calculator panel, reloading) still saves it.
+  addEventListener('pagehide', () => { if (saveTimer) { clearTimeout(saveTimer); flushSave(); } });
 
   // ---------- theme ----------
   function applyTheme() {
@@ -2491,7 +2609,38 @@ class MathField {
     if (listEl.children.length) listEl.appendChild(buildRow(r));
     return true;
   }
-  function changed() { ensureTrailing(); recompute(); syncRows(); requestDraw(); save(); }
+  function changed() { ensureTrailing(); recompute(); syncRows(); requestDraw(); save(); record(); }
+  // ---------- undo / redo: snapshots of the list and settings; quick edits in a row count as one step ----------
+  const hist = { past: [], future: [], cur: null, t: 0, lock: false };
+  function snap() { const st = serialize(); delete st.view; return JSON.stringify(st); }
+  function record() {
+    if (hist.lock || !$('#undoBtn')) return;
+    const st = snap(); if (st === hist.cur) return;
+    const now = Date.now();
+    // Quick edits to the same row are one step; anything else starts a new one.
+    const same = hist.typing && hist.row === selected && now - hist.t < 800;
+    if (hist.cur !== null && !(same && hist.past.length)) { hist.past.push(hist.cur); if (hist.past.length > 200) hist.past.shift(); }
+    hist.typing = true; hist.row = selected; hist.t = now; hist.cur = st; hist.future = [];
+    syncUndo();
+  }
+  function syncUndo() { $('#undoBtn').disabled = !hist.past.length; $('#redoBtn').disabled = !hist.future.length; }
+  function travel(from, to) {
+    if (!from.length) return;
+    to.push(hist.cur); hist.cur = from.pop(); hist.typing = false;
+    hist.lock = true;
+    restore(JSON.parse(hist.cur)); // no view in a snapshot, so the graph stays where it is
+    renderList(); syncSettings(); changed();
+    hist.lock = false; syncUndo();
+  }
+  const undo = () => travel(hist.past, hist.future), redo = () => travel(hist.future, hist.past);
+  $('#undoBtn').addEventListener('click', undo);
+  $('#redoBtn').addEventListener('click', redo);
+  document.addEventListener('keydown', e => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || (e.key !== 'z' && e.key !== 'Z' && e.key !== 'y')) return;
+    if (e.target.closest && e.target.closest('input, textarea:not(.mf-ta)')) return;
+    e.preventDefault();
+    if (e.key === 'y' || e.shiftKey) redo(); else undo();
+  }, true);
 
   // ---------- list UI ----------
   const rowEls = new Map();
@@ -2783,22 +2932,63 @@ class MathField {
   keys.addEventListener('pointerdown', e => { if (e.target.closest('.key')) e.preventDefault(); });
   keys.addEventListener('click', e => {
     const k = e.target.closest('.key'); if (!k) return;
+    if (k.dataset.act && k.dataset.act.startsWith('page:')) return;
     let f = lastField && document.body.contains(lastField.host) ? lastField : null;
     if (!f) { const last = rows.filter(r => kindOf(r) === 'math').pop(); if (!last) { const r = insertRowAfter(null); f = fields.get(r.id); } else f = fields.get(last.id); }
     if (!f) return;
     if (!f.focused) f.focus('end');
-    f.keypad(k.dataset.k);
+    const act = k.dataset.act;
+    if (act === 'enter') { if (f.o.onEnter) f.o.onEnter(f); return; }
+    if (k.dataset.seq) JSON.parse(k.dataset.seq).forEach(a => f.keypad(a));
+    else if (k.dataset.k != null) f.keypad(k.dataset.k);
+    if (keys.dataset.page === 'abc' && k.classList.contains('let')) return;
   });
+  // keypad pages: numbers, functions, letters
+  keys.addEventListener('click', e => {
+    const k = e.target.closest('[data-act^="page:"]'); if (!k) return;
+    e.stopImmediatePropagation();
+    let page = k.dataset.act.slice(5);
+    if (page === 'funcs' && keys.dataset.page !== 'main') page = 'main';
+    keys.dataset.page = page;
+    $('.kfuncs').textContent = page === 'main' ? 'funcs' : '123';
+    fitKeys();
+  }, true);
 
   // ---------- header panels ----------
   function togglePanel(btn, panel, open) {
     const show = open ?? panel.hidden;
-    ['#settings', '#confirm', '#addMenu'].forEach(s => { $(s).hidden = true; });
-    $('#setBtn').setAttribute('aria-expanded', 'false'); $('#addBtn').setAttribute('aria-expanded', 'false');
+    ['#settings', '#confirm', '#addMenu', '#listMenu'].forEach(s => { $(s).hidden = true; });
+    ['#setBtn', '#addBtn', '#wrenchBtn'].forEach(b => $(b).setAttribute('aria-expanded', 'false'));
     panel.hidden = !show; if (btn) btn.setAttribute('aria-expanded', String(show));
     return show;
   }
-  $('#setBtn').addEventListener('click', () => { togglePanel($('#setBtn'), $('#settings')); syncWindow(); });
+  $('#wrenchBtn').addEventListener('click', () => { togglePanel($('#wrenchBtn'), $('#settings')); syncWindow(); });
+  $('#setBtn').addEventListener('click', () => { if (togglePanel($('#setBtn'), $('#listMenu'))) $('#listMenu button').focus(); });
+  // Click anywhere else, or press Escape, to close a menu.
+  document.addEventListener('pointerdown', e => {
+    if (e.target.closest('.pop, #addBtn, #setBtn, #wrenchBtn')) return;
+    if (!$('#settings').hidden || !$('#addMenu').hidden || !$('#listMenu').hidden) togglePanel(null, $('#addMenu'), false);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && (!$('#settings').hidden || !$('#listMenu').hidden)) {
+      const b = !$('#settings').hidden ? $('#wrenchBtn') : $('#setBtn'); togglePanel(null, $('#addMenu'), false); b.focus();
+    }
+  });
+  // Hide or show the expression list (the graph fills the space) and the keypad.
+  function setListOn(on) {
+    $('#app').classList.toggle('list-off', !on); $('#showList').hidden = on;
+    if (on) $('#hideList').focus(); else $('#showList').focus();
+  }
+  $('#hideList').addEventListener('click', () => setListOn(false));
+  $('#showList').addEventListener('click', () => setListOn(true));
+  function setKeypad(on) {
+    $('#app').classList.toggle('kp-off', !on); $('#kbShow').hidden = on;
+    $('#kbToggle').textContent = on ? 'Hide keypad' : 'Show keypad';
+    if (on) requestAnimationFrame(fitKeys);
+  }
+  $('#kbToggle').addEventListener('click', () => { setKeypad($('#app').classList.contains('kp-off')); togglePanel(null, $('#listMenu'), false); });
+  $('#kbShow').addEventListener('click', () => setKeypad(true));
+  setKeypad(true);
   // ---------- the Add menu: tables, notes, sliders, statistics and regressions without typing ----------
   $('#addBtn').addEventListener('click', () => { if (togglePanel($('#addBtn'), $('#addMenu'))) $('#addMenu button').focus(); });
   $('#addMenu').addEventListener('keydown', e => { if (e.key === 'Escape') { togglePanel($('#addBtn'), $('#addMenu'), false); $('#addBtn').focus(); } });
@@ -2870,14 +3060,24 @@ class MathField {
   function syncSettings() {
     $('#angRad').setAttribute('aria-pressed', String(!settings.deg));
     $('#angDeg').setAttribute('aria-pressed', String(settings.deg));
-    $('#optComplex').checked = settings.complex; $('#optLogX').checked = settings.logX; $('#optLogY').checked = settings.logY;
+    $('#optComplex').checked = settings.complex;
+    $('#xLin').setAttribute('aria-pressed', String(!settings.logX)); $('#xLog').setAttribute('aria-pressed', String(settings.logX));
+    $('#yLin').setAttribute('aria-pressed', String(!settings.logY)); $('#yLog').setAttribute('aria-pressed', String(settings.logY));
+    for (const [id, k] of GRAPH_CHECKS) $(id).checked = settings[k];
+    $('#optMinor').disabled = !settings.grid;
+    if (document.activeElement !== $('#xLabel')) $('#xLabel').value = settings.xLabel;
+    if (document.activeElement !== $('#yLabel')) $('#yLabel').value = settings.yLabel;
     applyTheme();
   }
+  const GRAPH_CHECKS = [['#optGrid', 'grid'], ['#optNums', 'nums'], ['#optMinor', 'minor'], ['#optArrows', 'arrows'], ['#optXAxis', 'xAxis'], ['#optYAxis', 'yAxis'], ['#optLock', 'lock']];
+  for (const [id, k] of GRAPH_CHECKS) $(id).addEventListener('change', e => { settings[k] = e.target.checked; syncSettings(); requestDraw(); save(); hist.typing = false; record(); });
+  for (const [id, k] of [['#xLabel', 'xLabel'], ['#yLabel', 'yLabel']]) $(id).addEventListener('input', e => { settings[k] = e.target.value.slice(0, 40); requestDraw(); save(); record(); });
+  const setScale = (k, on) => { if (settings[k] === on) return; settings[k] = on; syncSettings(); defaultView(); hist.typing = false; changed(); };
+  $('#xLin').addEventListener('click', () => setScale('logX', false)); $('#xLog').addEventListener('click', () => setScale('logX', true));
+  $('#yLin').addEventListener('click', () => setScale('logY', false)); $('#yLog').addEventListener('click', () => setScale('logY', true));
   $('#angRad').addEventListener('click', () => { settings.deg = false; syncSettings(); changed(); });
   $('#angDeg').addEventListener('click', () => { settings.deg = true; syncSettings(); changed(); });
   $('#optComplex').addEventListener('change', e => { settings.complex = e.target.checked; changed(); });
-  $('#optLogX').addEventListener('change', e => { settings.logX = e.target.checked; defaultView(); changed(); });
-  $('#optLogY').addEventListener('change', e => { settings.logY = e.target.checked; defaultView(); changed(); });
 
   // slider animation
   let animOn = false, lastT = 0;
@@ -2997,23 +3197,38 @@ class MathField {
       for (const y of ys) { const p = Math.round(py(y)) + 0.5; if (isFinite(p)) { ctx.moveTo(0, p); ctx.lineTo(W, p); } }
       ctx.stroke();
     };
-    lines(tx.min, ty.min, TH.minor); lines(tx.maj, ty.maj, TH.major);
-    const ax = settings.logX ? NaN : px(0), ay = settings.logY ? NaN : py(0);
+    if (settings.grid) { if (settings.minor) lines(tx.min, ty.min, TH.minor); lines(tx.maj, ty.maj, TH.major); }
+    // The y-axis is the vertical line x = 0, drawn when the y-axis is on; the x-axis likewise.
+    const ax = settings.logX || !settings.yAxis ? NaN : px(0), ay = settings.logY || !settings.xAxis ? NaN : py(0);
+    const AX = Math.round(ax) + 0.5, AY = Math.round(ay) + 0.5;
     ctx.strokeStyle = TH.axis; ctx.lineWidth = 1.5; ctx.beginPath();
-    if (ax >= 0 && ax <= W) { ctx.moveTo(Math.round(ax) + 0.5, 0); ctx.lineTo(Math.round(ax) + 0.5, H); }
-    if (ay >= 0 && ay <= H) { ctx.moveTo(0, Math.round(ay) + 0.5); ctx.lineTo(W, Math.round(ay) + 0.5); }
+    if (ax >= 0 && ax <= W) { ctx.moveTo(AX, 0); ctx.lineTo(AX, H); }
+    if (ay >= 0 && ay <= H) { ctx.moveTo(0, AY); ctx.lineTo(W, AY); }
     ctx.stroke();
+    if (settings.arrows) {
+      ctx.fillStyle = TH.axis;
+      const head = (x, y, dx, dy) => { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - dx * 11 - dy * 5, y - dy * 11 + dx * 5); ctx.lineTo(x - dx * 11 + dy * 5, y - dy * 11 - dx * 5); ctx.closePath(); ctx.fill(); };
+      if (ax >= 0 && ax <= W) { head(AX, 1, 0, -1); head(AX, H - 1, 0, 1); }
+      if (ay >= 0 && ay <= H) { head(W - 1, AY, 1, 0); head(1, AY, -1, 0); }
+    }
     ctx.font = `11.5px ${TH.data}`; ctx.lineJoin = 'round';
     const label = (t, x, y, align, base) => {
       ctx.textAlign = align; ctx.textBaseline = base;
       ctx.strokeStyle = TH.canvas; ctx.lineWidth = 4; ctx.strokeText(t, x, y);
       ctx.fillStyle = TH.muted; ctx.fillText(t, x, y);
     };
+    if (settings.xLabel || settings.yLabel) {
+      ctx.font = `italic 16px ${TH.math || 'serif'}`;
+      if (settings.xLabel) label(settings.xLabel, W - 70, isFinite(ay) ? Math.max(6, Math.min(H - 24, ay - 24)) : H - 24, 'right', 'top'); // clear of the zoom buttons
+      if (settings.yLabel) label(settings.yLabel, isFinite(ax) ? Math.max(8, Math.min(W - 60, ax + 10)) : 8, 8, 'left', 'top');
+      ctx.font = `11.5px ${TH.data}`;
+    }
+    if (!settings.nums) return;
     const ly = isFinite(ay) ? Math.max(4, Math.min(H - 18, ay + 5)) : H - 18;
-    for (const x of tx.maj) { if (tx.zeroSkip && Math.abs(x) < 1e-12) continue; const p = px(x); if (p < 12 || p > W - 12) continue; label(tx.label(x), p, ly, 'center', 'top'); }
+    if (settings.xAxis) for (const x of tx.maj) { if (tx.zeroSkip && Math.abs(x) < 1e-12) continue; const p = px(x); if (p < 12 || p > W - 12) continue; label(tx.label(x), p, ly, 'center', 'top'); }
     let lx = 6, al = 'left';
     if (isFinite(ax) && ax >= 30) { lx = Math.min(ax, W) - 6; al = 'right'; }
-    for (const y of ty.maj) { if (ty.zeroSkip && Math.abs(y) < 1e-12) continue; const p = py(y); if (p < 10 || p > H - 10) continue; label(ty.label(y), lx, p, al, 'middle'); }
+    if (settings.yAxis) for (const y of ty.maj) { if (ty.zeroSkip && Math.abs(y) < 1e-12) continue; const p = py(y); if (p < 10 || p > H - 10) continue; label(ty.label(y), lx, p, al, 'middle'); }
     if (ax >= 0 && ax <= W && ay >= 0 && ay <= H) label('0', ax - 6, ay + 5, 'right', 'top');
   }
   const numOk = v => typeof v === 'number' && isFinite(v);
@@ -3305,6 +3520,7 @@ class MathField {
   cv.addEventListener('pointerdown', e => {
     cv.setPointerCapture(e.pointerId);
     const [X, Y] = local(e); ptrs.set(e.pointerId, [X, Y]);
+    if (ptrs.size === 2 && settings.lock) return;
     if (ptrs.size === 2) {
       const [a, b] = [...ptrs.values()], mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
       drag = { mode: 'pinch', d0: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, dx0: Math.abs(a[0] - b[0]), dy0: Math.abs(a[1] - b[1]), sx0: view.sx, sy0: view.sy, ux: view.cx + (mx - W / 2) / view.sx, uy: view.cy - (my - H / 2) / view.sy };
@@ -3321,13 +3537,14 @@ class MathField {
     } else if (hit && hit.type === 'poi') {
       trace = null; pinned = { kind: 'poi', ...hit.p }; drag = { mode: 'tap' }; requestDraw();
     } else {
-      const axis = axisHit(X, Y);
+      const axis = settings.lock ? null : axisHit(X, Y);
       if (axis) {
         const { ax, ay } = axisAnchors(), anchor = axis === 'x' ? (isFinite(ax) ? ax : W / 2) : (isFinite(ay) ? ay : H / 2);
         drag = { mode: 'axis', axis, X0: X, Y0: Y, anchor, cx: view.cx, cy: view.cy, sx: view.sx, sy: view.sy,
           dir: axis === 'x' ? (X >= anchor ? 1 : -1) : (Y <= anchor ? 1 : -1) };
         cv.classList.add(axis === 'x' ? 'ax-x' : 'ax-y');
-      } else beginPan(X, Y);
+      } else if (settings.lock) drag = { mode: 'tap' };
+      else beginPan(X, Y);
     }
   });
   cv.addEventListener('pointermove', e => {
@@ -3372,14 +3589,15 @@ class MathField {
   cv.addEventListener('pointercancel', endPtr);
   cv.addEventListener('wheel', e => {
     e.preventDefault();
+    if (settings.lock) return;
     const [X, Y] = local(e), dy = (e.deltaY || e.deltaX) * (e.deltaMode === 1 ? 30 : 1), f = Math.exp(-dy * 0.0015);
     if (e.shiftKey) { zoomAxis('x', f, X); requestDraw(); save(); }
     else if (e.altKey) { zoomAxis('y', f, Y); requestDraw(); save(); }
     else zoomAt(X, Y, f);
   }, { passive: false });
-  $('#zin').addEventListener('click', () => zoomAt(W / 2, H / 2, 1.5));
-  $('#zout').addEventListener('click', () => zoomAt(W / 2, H / 2, 1 / 1.5));
-  $('#zhome').addEventListener('click', () => { defaultView(); requestDraw(); save(); });
+  $('#zin').addEventListener('click', () => { if (!settings.lock) zoomAt(W / 2, H / 2, 1.5); });
+  $('#zout').addEventListener('click', () => { if (!settings.lock) zoomAt(W / 2, H / 2, 1 / 1.5); });
+  $('#zhome').addEventListener('click', () => { if (settings.lock) return; defaultView(); requestDraw(); save(); });
 
   // ---------- size & theme ----------
   function resize() {
@@ -3407,6 +3625,8 @@ class MathField {
   recompute();
   renderList();
   resize();
+  hist.cur = snap();
+  if (matchMedia('(max-width: 760px)').matches === false && !window.TOPLINE_EMBED) setKeypad(false);
 })();
 </script>
 
