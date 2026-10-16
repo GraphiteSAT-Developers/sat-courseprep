@@ -1169,3 +1169,11 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .nk-pair .nk-face b { width: 100%; text-align: center; }
 .pad-ring { transform: translateZ(2px); box-shadow: 0 3px 0 #4a4d52, 0 4px 5px rgba(0, 0, 0, 0.5), 0 0 0 1px #000; }
 .pad-click { transform: translateZ(1px); }
+
+/* Flipped: hide the front's screen and keys once the turn passes halfway. Some GPUs draw the animated
+   screen layers on top of the back, so depth sorting alone isn't enough. */
+.c3-front, .c3-front *, .c3-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.c3-front > * { transition: visibility 0s linear 380ms; }
+.c3-tilt.is-flipped .c3-front > * { visibility: hidden; }
+.c3-back > * { transition: visibility 0s linear 380ms; }
+.c3-tilt:not(.is-flipped) .c3-back > * { visibility: hidden; }
