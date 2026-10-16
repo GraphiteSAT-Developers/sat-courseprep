@@ -13,7 +13,7 @@ import json
 import random
 
 from ..db import days_from_today, execute, now_iso, query
-from . import bank, studyplan
+from . import bank, review, studyplan
 
 TOPIC_COUNTS = (5, 10, 15, 20)
 
@@ -132,6 +132,18 @@ def adjusted_mix(user_id, plan_id, difficulty, n):
     return studyplan.mix_for(min(0.95, max(0.05, difficulty)), n)
 
 
+def plan_task_states(user_id, plan_id):
+    """Each plan task's latest set: {task key: {session_id, submitted, done, correct, total}}."""
+    rows = query("SELECT id, plan_task, submitted_at, correct, item_ids FROM practice_sessions "
+                 "WHERE user_id = ? AND plan_id = ? ORDER BY id", (user_id, plan_id))
+    out = {}
+    for r in rows:
+        done = out.get(r["plan_task"], {}).get("done", False) or bool(r["submitted_at"])
+        out[r["plan_task"]] = {"session_id": r["id"], "submitted": bool(r["submitted_at"]), "done": done,
+                               "correct": r["correct"], "total": len(json.loads(r["item_ids"]))}
+    return out
+
+
 def create_plan_task(user_id, plan_id, plan, week_index, task_key, rng=random):
     """Starts (or resumes) the practice set for one task in the student's plan."""
     week = plan["weeks"][week_index]
@@ -246,7 +258,15 @@ def check(user_id, session, index, answer):
         execute("UPDATE practice_sessions SET checked = ? WHERE id = ?", (json.dumps(checked), session["id"]))
         graded = bank.graded_question(items[ids[index]], index, answer)
         finished = mark_seen(user_id, [ids[index]])
-        add_to_review(user_id, [graded])
+        task = session.get("plan_task") or ""
+        if task.startswith("review:"):
+            # Reopened from the review queue: a right answer counts toward clearing it, a miss resets it.
+            if graded["correct"]:
+                graded["review"] = review.mark_right(user_id, int(task.split(":")[1]))
+            else:
+                add_to_review(user_id, [graded])
+        else:
+            add_to_review(user_id, [graded])
         return graded, finished
     return bank.graded_question(items[ids[index]], index, checked[key]), []
 
@@ -262,7 +282,16 @@ def submit(user_id, session, answers, seconds):
     stamp = now_iso()
     answered = [ids[i] for i in answers if answers[i] is not None and answers[i] != ""]
     result["finished"] = mark_seen(user_id, answered)
-    add_to_review(user_id, [q for q in result["questions"] if q["answered"] and q["index"] not in checked])
+    unchecked = [q for q in result["questions"] if q["answered"] and q["index"] not in checked]
+    task = session.get("plan_task") or ""
+    if task.startswith("review:"):
+        for q in unchecked:
+            if q["correct"]:
+                review.mark_right(user_id, int(task.split(":")[1]))
+            else:
+                add_to_review(user_id, [q])
+    else:
+        add_to_review(user_id, unchecked)
 
     if session["mode"] == "test":
         # Practice tests count toward the dashboard's score history, like the fixed tests.

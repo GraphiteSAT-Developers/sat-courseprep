@@ -45,9 +45,11 @@
   function boot(T, user) {
   if (!T) return;
   var Q = T.questions, N = Q.length, LETTERS = "ABCD";
-  var TOPIC = T.mode === "topic" || T.mode === "quiz", UNTIMED = !T.minutes;
-  var FROM_PLAN = !!(T.session && T.session.plan_task);
+  var TOPIC = T.mode === "topic" || T.mode === "quiz" || T.mode === "review", UNTIMED = !T.minutes;
+  var REVIEW = T.mode === "review";
+  var FROM_PLAN = !!(T.session && T.session.plan_task) && !REVIEW;
   if (FROM_PLAN) BACK_URL = "plan.html";
+  if (REVIEW) BACK_URL = "dashboard.html#review";
   var checked = (T.session && T.session.checked) || {}; // topic practice: graded questions, by index
   var checking = false;
   var KEY = "graphite_test_" + T.id + (user ? "_u" + user.id : "");
@@ -262,6 +264,8 @@
         checking = false;
         if (S.cur === i) { renderQuestion(); var fb = $("fb"); if (fb) fb.focus({ preventScroll: false }); }
         renderNav();
+        var rv = r.question.review;
+        if (rv) toast(rv.cleared ? "Cleared from your review queue. Right twice means it stuck." : "Nice. One more right answer clears it. It comes back in 3 days.");
         celebrate(r.finished);
       })
       .catch(function (err) {
@@ -550,7 +554,7 @@
   function applyLabels() {
     if (!T.session) return;
     var heading = T.mode === "test" ? "Math practice test" : T.title;
-    var kind = FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
+    var kind = REVIEW ? "Review queue · one question" : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
       : (T.mode === "test" ? "Practice test · Math" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
     $("exam-title").textContent = heading;
     $("start-title").textContent = heading;
@@ -575,7 +579,8 @@
       if (a.id === "save-exit" || a.closest(".dialog-actions")) a.setAttribute("href", BACK_URL);
     });
     var back = document.querySelector(".res-actions a"); if (back) { back.setAttribute("href", BACK_URL); back.textContent = FROM_PLAN ? "Back to your plan" : "Back to practice"; }
-    if (FROM_PLAN) { var r2 = $("retake"); r2.hidden = true; }
+    if (FROM_PLAN || REVIEW) { var r2 = $("retake"); r2.hidden = true; }
+    if (REVIEW && back) back.textContent = "Back to your dashboard";
     var doneLink = document.querySelector("#done-dialog a");
     if (doneLink) { doneLink.setAttribute("href", BACK_URL); doneLink.textContent = FROM_PLAN ? "Back to your plan" : "Back to practice"; }
     document.title = heading + " | Graphite SAT Tutoring";

@@ -1,5 +1,6 @@
 """Practice from the question bank: random practice tests and topic practice, with no repeats."""
 import json
+import random
 
 from flask import Blueprint, jsonify
 
@@ -67,7 +68,7 @@ def _index(session, value):
 @login_required
 def check(session_id):
     session = _session_or_404(session_id)
-    if session["mode"] not in ("topic", "quiz"):
+    if session["mode"] not in ("topic", "quiz", "review"):
         raise ApiError(400, "Answers on a practice test are checked when you submit it.")
     if session["submitted_at"]:
         raise ApiError(409, "This set is already finished.")
@@ -110,3 +111,29 @@ def submit(session_id):
     seconds = max(0, min(seconds, limit))
     result = service.submit(current_user()["id"], session, answers, seconds)
     return jsonify({"result": result}), 201
+
+
+# ---------- the home page's sample question (no sign-in) ----------
+
+sample_bp = Blueprint("sample", __name__, url_prefix="/api/sample")
+SAMPLE_DIFFICULTIES = ("easy", "medium")
+
+
+@sample_bp.get("")
+def sample():
+    """A random easy or medium multiple-choice question from the bank, without its answer."""
+    pool = [q for q in bank.all_items().values() if q["type"] == "mc" and q["difficulty"] in SAMPLE_DIFFICULTIES]
+    return jsonify({"question": bank.public_question(random.choice(pool))})
+
+
+@sample_bp.post("/check")
+def sample_check():
+    data = body()
+    q = bank.all_items().get(str(data.get("id") or ""))
+    if not q or q["type"] != "mc" or q["difficulty"] not in SAMPLE_DIFFICULTIES:
+        raise ApiError(404, "That question isn't available.")
+    answer = bank.clean_answer(q, data.get("answer"))
+    if answer is None:
+        raise ApiError(400, "Choose an answer first.", "answer")
+    g = bank.graded_question(q, 0, answer)
+    return jsonify({"correct": g["correct"], "answer": g["answer"], "answer_index": g["answer_index"], "explain_html": g["explain_html"]})

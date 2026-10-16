@@ -393,10 +393,11 @@
       var payload = { name: name.value, email: em, password: pass.value, grade: $("#create-grade").value, test_date: $("#create-date").value, target_score: tv };
       (LIVE ? api("/api/auth/register", payload) : send(null))
         .then(function () {
-          showStatus(cs, "ok", "Your account is ready.", "Opening your dashboard.");
+          var hasNext = !!new URLSearchParams(location.search).get("next");
+          showStatus(cs, "ok", "Your account is ready.", hasNext ? "Taking you back." : "Opening your 10-question diagnostic.");
           Analytics.track("account_created");
           try { sessionStorage.setItem("graphite_user", em); } catch (err) { /* storage blocked */ }
-          setTimeout(function () { location.href = CONFIG.dashboardUrl; }, 500);
+          setTimeout(function () { location.href = hasNext ? safeNext() : "plan.html"; }, 500);
         })
         .catch(function (err) {
           showFieldError(err, { name: "create-name", email: "create-email", password: "create-password", grade: "create-grade", test_date: "create-date", target_score: "create-target" });
@@ -466,6 +467,46 @@
     ];
     var qi = 0;
     var fs = $("#qchoices"), note = $("#qnote"), nextBtn = $("#qnext");
+    // Live: the home page's question comes from the question bank (/api/sample) and is checked there,
+    // with the full explanation. The dashboard's Today's set opens real practice sets instead (section 9).
+    var onDash = !!$(".dash");
+    if (LIVE && !onDash) {
+      var current = null;
+      var loadSample = function () {
+        nextBtn.disabled = true;
+        api("/api/sample").then(function (r) {
+          current = r.question;
+          $("#qmeta").textContent = "Math · " + current.domain; $("#qnum").textContent = "Try one";
+          $("#qstem").innerHTML = current.stem;
+          fs.innerHTML = '<legend class="visually-hidden">Answer choices</legend>';
+          current.choices.forEach(function (c, i) {
+            var letter = "ABCD"[i];
+            var lab = document.createElement("label"); lab.className = "choice";
+            lab.innerHTML = '<input type="radio" name="q" value="' + i + '" id="q-s-' + letter + '"><span class="bubble" aria-hidden="true">' + letter +
+              '</span><span class="visually-hidden">Choice ' + letter + ': </span><span class="choice-text">' + c + "</span>";
+            fs.appendChild(lab);
+          });
+          note.hidden = true; note.innerHTML = "";
+        }).catch(function () { /* keep the built-in question */ }).then(function () { nextBtn.disabled = false; });
+      };
+      fs.addEventListener("change", function (e) {
+        if (!current) return;
+        var pick = Number(e.target.value);
+        $all("input", fs).forEach(function (i) { i.disabled = true; });
+        api("/api/sample/check", { id: current.id, answer: pick }).then(function (r) {
+          $all(".choice", fs).forEach(function (l, i) {
+            l.classList.toggle("is-right", i === r.answer_index);
+            l.classList.toggle("is-wrong", i === pick && !r.correct);
+          });
+          note.innerHTML = '<p class="verdict ' + (r.correct ? "ok" : "no") + '">' + (r.correct ? "Correct. Choice " + "ABCD"[pick] + "." : "Not quite. The answer is " + r.answer + ".") + "</p>" +
+            '<div class="tutor-xp">' + r.explain_html + "</div>";
+          note.hidden = false;
+          Analytics.track("demo_answer", { correct: r.correct });
+        }).catch(function () { $all("input", fs).forEach(function (i) { i.disabled = false; }); });
+      }, true);
+      nextBtn.addEventListener("click", function (e) { e.stopImmediatePropagation(); loadSample(); }, true);
+      loadSample();
+    }
     function render() {
       var q = QUESTIONS[qi];
       $("#qmeta").textContent = q.meta; $("#qnum").textContent = q.num; $("#qstem").textContent = q.stem;
@@ -484,6 +525,7 @@
       note.hidden = true; note.innerHTML = "";
     }
     fs.addEventListener("change", function (e) {
+      if (LIVE && !onDash) return;
       var q = QUESTIONS[qi], pick = Number(e.target.value);
       $all(".choice", fs).forEach(function (l, i) {
         l.classList.toggle("is-right", i === q.answer);
@@ -498,7 +540,7 @@
       Analytics.track("demo_answer", { q: qi, correct: pick === q.answer });
     });
     nextBtn.addEventListener("click", function () { qi = (qi + 1) % QUESTIONS.length; render(); fs.querySelector("input").focus(); });
-    render();
+    if (!(LIVE && !onDash)) render();
   }
   /* 9. Dashboard */
   $all("[data-sign-out]").forEach(function (b) {
@@ -587,7 +629,21 @@
     // Today's set
     var startBtn = $("#set-start"), runner = $("#set-runner"), prog = $("#set-progress");
     var done = 0, answeredThis = false, shownAt = Date.now();
-    startBtn.addEventListener("click", function () {
+    var todaySource = null;
+    startBtn.addEventListener("click", function (e) {
+      if (LIVE) {
+        e.preventDefault();
+        if (todaySource === "none") { location.href = "plan.html"; return; }
+        startBtn.disabled = true; startBtn.textContent = "Building your set…";
+        var t = new Date(), day = t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
+        api("/api/today?today=" + day, {}).then(function (r) {
+          location.href = r.redirect ? r.redirect : "practice-test.html?session=" + r.session.id;
+        }).catch(function (err) {
+          startBtn.disabled = false; startBtn.textContent = "Start today's set";
+          prog.textContent = networkMessage(err);
+        });
+        return;
+      }
       runner.hidden = false;
       startBtn.setAttribute("aria-expanded", "true");
       startBtn.textContent = "Keep going";
@@ -612,6 +668,13 @@
     function bindReview(li) {
       var btn = li.querySelector("button");
       btn.addEventListener("click", function () {
+        if (LIVE && btn.getAttribute("data-practice")) {
+          btn.disabled = true;
+          api("/api/review/" + li.getAttribute("data-id") + "/practice", {})
+            .then(function (r) { location.href = "practice-test.html?session=" + r.session.id; })
+            .catch(function (err) { btn.disabled = false; showStatus(qStatus, "err", "We couldn't open that question.", networkMessage(err)); });
+          return;
+        }
         var apply = function (right, cleared) {
           if (cleared) {
             li.remove();
@@ -665,7 +728,7 @@
       } else {
         $("#kpi-latest-label").textContent = "Latest practice test";
         $("#kpi-latest").textContent = "None yet";
-        $("#kpi-latest-sub").textContent = "Take practice test 4 to start";
+        $("#kpi-latest-sub").textContent = "Take a practice test from Practice";
       }
       $("#kpi-target").textContent = s.target_score || "Not set";
       $("#kpi-target-sub").textContent = s.target_score ? "Your goal score" : "Add one in Account";
@@ -684,18 +747,23 @@
 
       var setList = $("#set-list");
       setTotal = d.today.questions || 12;
-      prog.textContent = Math.min(done, setTotal) + " of " + setTotal + " done";
+      todaySource = d.today.source || (d.today.items.length ? "domains" : "none");
       if (d.today.items.length) {
-        $("#today-meta").textContent = d.today.questions + " questions · about " + d.today.minutes + " min";
-        $("#today-lede").textContent = "Built from the domains costing you the most points right now.";
+        $("#today-meta").textContent = d.today.all_done ? "This week is done" : d.today.questions + " questions · about " + d.today.minutes + " min";
+        $("#today-lede").textContent = todaySource === "plan"
+          ? (d.today.all_done ? "You've finished this week's plan. Start an extra quiz on this week's topics, or rest up." : "This week's tasks from your study plan. Today's set starts the next one.")
+          : "Built from the domains costing you the most points right now.";
         setList.innerHTML = d.today.items.map(function (it) {
-          return "<li><span>" + esc(it.domain) + '</span><span class="mono">' + it.count + ' questions</span><span class="set-why">' + esc(it.why) + "</span></li>";
+          return '<li class="' + (it.done ? "is-done" : "") + '"><span>' + esc(it.domain) + '</span><span class="mono">' + (it.done ? "Done" : it.count + " questions") + '</span><span class="set-why">' + esc(it.why) + "</span></li>";
         }).join("");
         setList.hidden = false;
+        startBtn.textContent = d.today.all_done ? "Start an extra quiz" : "Start today's set";
+        prog.textContent = todaySource === "plan" ? d.today.items.filter(function (i) { return i.done; }).length + " of " + d.today.items.length + " tasks done this week" : "";
       } else {
-        $("#today-meta").textContent = "Warm-up";
-        $("#today-lede").textContent = "Take practice test 4 first. After that, your daily sets come from the questions you miss.";
+        $("#today-meta").textContent = "Start here";
+        $("#today-lede").textContent = "Take the 10-question diagnostic. It finds your strengths and weak spots and builds your study plan, and your daily sets come from it.";
         setList.innerHTML = ""; setList.hidden = true;
+        startBtn.textContent = "Take the diagnostic"; prog.textContent = "";
       }
 
       var test = d.tests[0];
@@ -732,7 +800,7 @@
       queue.innerHTML = d.review.map(function (it) {
         return '<li data-id="' + it.id + '" data-right="' + it.right_count + '"><div><span class="label">' + esc(it.section) + " · " + esc(it.domain) + "</span><p>" + esc(it.skill) +
           '</p></div><span class="queue-meta"><span class="mono queue-score">' + it.right_count + ' of 2</span><span class="due' + (it.due_now ? " due-now" : "") + '">' + esc(it.due_label) +
-          '</span></span><button class="btn btn-quiet" type="button">I got it right</button></li>';
+          '</span></span><button class="btn btn-quiet" type="button"' + (it.practice ? ' data-practice="1">Practice it again' : ">I got it right") + "</button></li>";
       }).join("");
       $all("li", queue).forEach(bindReview);
       updateCount();

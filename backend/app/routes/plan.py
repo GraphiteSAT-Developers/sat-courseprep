@@ -51,18 +51,6 @@ def _save_plan(user, diagnostic_id, results, today):
     return row["id"], plan
 
 
-def _tasks(user_id, plan_id):
-    """Each plan task's latest set: {task key: {session_id, submitted, correct, total}}."""
-    rows = query("SELECT id, plan_task, submitted_at, correct, item_ids FROM practice_sessions "
-                 "WHERE user_id = ? AND plan_id = ? ORDER BY id", (user_id, plan_id))
-    out = {}
-    for r in rows:
-        done = out.get(r["plan_task"], {}).get("done", False) or bool(r["submitted_at"])
-        out[r["plan_task"]] = {"session_id": r["id"], "submitted": bool(r["submitted_at"]), "done": done,
-                               "correct": r["correct"], "total": len(json.loads(r["item_ids"]))}
-    return out
-
-
 @bp.get("")
 @login_required
 def overview():
@@ -78,7 +66,7 @@ def overview():
     if row:
         plan = json.loads(row["plan"])
         source = query("SELECT results FROM diagnostics WHERE id = ?", (row["diagnostic_id"],), one=True)
-        out["plan"] = dict(plan, id=row["id"], current_week=studyplan.current_week(plan, _today()), tasks=_tasks(user["id"], row["id"]),
+        out["plan"] = dict(plan, id=row["id"], current_week=studyplan.current_week(plan, _today()), tasks=practice.plan_task_states(user["id"], row["id"]),
                            results=json.loads(source["results"]))
     return jsonify(out)
 

@@ -7,6 +7,7 @@ from ..security import public_user
 from .content import MATH_DOMAINS, RW_DOMAINS, all_tests, summary
 from .planner import build_plan
 from .studyplan import current_week
+from .today import summary as today_summary
 
 SET_SIZES = [5, 4, 3]
 SHORT = {"Algebra": "Math", "Advanced Math": "Math", "Problem-Solving and Data Analysis": "Math",
@@ -88,6 +89,7 @@ def build(user, today=None):
     for it in items:
         label, now_due = _due_label(it["due_on"], today)
         review.append({"id": it["id"], "section": SHORT.get(it["domain"], "R&W"), "skill": it["skill"],
+                       "practice": it["test_id"].startswith("bank:"),
                        "domain": it["domain"], "right_count": it["right_count"], "due_label": label, "due_now": now_due})
 
     days_to_test = None
@@ -113,8 +115,9 @@ def build(user, today=None):
         },
         "history": history,
         "domains": domains,
-        "today": {"items": today_items, "questions": sum(i["count"] for i in today_items),
-                  "minutes": 25 if today_items else 0},
+        "today": today_summary(user["id"], today) or {
+            "items": today_items, "questions": sum(i["count"] for i in today_items),
+            "minutes": 25 if today_items else 0, "source": "domains" if today_items else "none"},
         "review": review,
         "plan": study_plan_weeks(user, today) or build_plan(user["test_date"], domain_pct, today),
         "tests": tests,

@@ -861,3 +861,11 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
   .pl-wk-date { grid-column: 2; grid-row: 1; }
   .pl-wk-focus, .pl-wk-diff { grid-column: 1 / -1; text-align: left; }
 }
+
+/* Today's set from the study plan, and the home page's live sample question */
+.set-list li.is-done > span:first-child { color: var(--muted); text-decoration: line-through; }
+.set-list li.is-done .mono { color: var(--ok); }
+.tutor-xp { max-height: 360px; overflow-y: auto; padding-right: var(--s2); }
+.tutor-xp .xp { font-size: var(--t-sm); gap: var(--s3); }
+.tutor-xp .xp-desmos { padding: var(--s3); }
+.qcard-stem var, .choice-text var { font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 1.1em; }

@@ -3,19 +3,22 @@ from datetime import date, datetime, timezone
 
 from flask import Blueprint, jsonify, request
 
-from ..db import days_from_today, execute, now_iso, query
+from ..db import execute, now_iso, query
 from ..security import ApiError, body, current_user, login_required
+from ..services import bank, practice, review, today as today_service
 from ..services import dashboard as dashboard_service
 
 bp = Blueprint("dashboard", __name__, url_prefix="/api")
-
-REVIEW_GAP_DAYS = 3
 ACTIVITY_KINDS = {"practice_question": 300}  # kind: most seconds one entry can log
 
 
 @bp.get("/dashboard")
 @login_required
 def dashboard():
+    return jsonify(dashboard_service.build(current_user(), _local_today()))
+
+
+def _local_today():
     # The browser sends its own date (?today=YYYY-MM-DD) so due dates and countdowns follow the
     # student's time zone, not the server's. Accepted only within a day of the server's date.
     local = None
@@ -26,23 +29,41 @@ def dashboard():
     server_today = datetime.now(timezone.utc).date()
     if local is None or abs((local - server_today).days) > 1:
         local = server_today
-    return jsonify(dashboard_service.build(current_user(), local))
+    return local
+
+
+@bp.post("/today")
+@login_required
+def start_today():
+    """Today's set: the next task in this week of the study plan, or the weakest domain, or the diagnostic."""
+    session = today_service.start(current_user(), _local_today())
+    if not session:
+        return jsonify({"redirect": "plan.html"})
+    return jsonify({"session": practice.public(session)}), 201
+
+
+@bp.post("/review/<int:item_id>/practice")
+@login_required
+def review_practice(item_id):
+    """Opens a missed question from the question bank again, as a one-question set."""
+    user = current_user()
+    item = query("SELECT * FROM review_items WHERE id = ? AND user_id = ? AND cleared_at IS NULL", (item_id, user["id"]), one=True)
+    if not item:
+        raise ApiError(404, "That review question is already cleared.")
+    bank_id = item["test_id"][len("bank:"):] if item["test_id"].startswith("bank:") else None
+    if not bank_id or bank_id not in bank.all_items():
+        raise ApiError(400, "This question can't be reopened. Mark it when you've reworked it.")
+    session = practice.save_session(user["id"], "review", f"Review: {item['skill']}", [bank_id], 0, plan_task=f"review:{item_id}")
+    return jsonify({"session": practice.public(session)}), 201
 
 
 @bp.post("/review/<int:item_id>/right")
 @login_required
 def review_right(item_id):
-    user = current_user()
-    item = query("SELECT * FROM review_items WHERE id = ? AND user_id = ? AND cleared_at IS NULL", (item_id, user["id"]), one=True)
-    if not item:
+    state = review.mark_right(current_user()["id"], item_id)
+    if not state:
         raise ApiError(404, "That review question is already cleared.")
-    count = item["right_count"] + 1
-    if count >= 2:
-        execute("UPDATE review_items SET right_count = ?, cleared_at = ? WHERE id = ?", (count, now_iso(), item_id))
-        return jsonify({"id": item_id, "right_count": count, "cleared": True})
-    due = days_from_today(REVIEW_GAP_DAYS)
-    execute("UPDATE review_items SET right_count = ?, due_on = ? WHERE id = ?", (count, due, item_id))
-    return jsonify({"id": item_id, "right_count": count, "cleared": False, "due_on": due})
+    return jsonify(state)
 
 
 @bp.post("/activity")

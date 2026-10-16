@@ -40,8 +40,8 @@ def register():
     user = query("SELECT * FROM users WHERE id = ?", (row["id"],), one=True)
     login_user(user, remember=True)
     mailer.send(email, "Welcome to Graphite",
-                f"Hi {user['name'].split(' ')[0]},\n\nYour Graphite account is ready. Start with practice test 4 "
-                f"to build your study plan:\n{current_app.config['BASE_URL']}/practice-test.html\n\nGraphite")
+                f"Hi {user['name'].split(' ')[0]},\n\nYour Graphite account is ready. Start with the 10-question diagnostic "
+                f"to build your study plan:\n{current_app.config['BASE_URL']}/plan.html\n\nGraphite")
     return jsonify({"user": public_user(user)}), 201
 
 
