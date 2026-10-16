@@ -41,6 +41,18 @@ const CASES = [
   { name: 'implicit multiplication', lines: ['a=2', 'b=3', 'ab'], want: 6 },
   { name: 'point coordinate', lines: ['A=(-2,1)', 'A.x'], want: -2 },
   { name: 'list filter', lines: ['L=[5,6,7]', '\\operatorname{length}(L[L>5])'], want: 2 },
+  // Desmos syntax added for parity
+  { name: 'midpoint', lines: ['A=(-2,1)', 'B=(4,9)', 'M=\\operatorname{midpoint}(A,B)', 'M.y'], want: 5 },
+  { name: 'distance', lines: ['A=(-2,1)', 'B=(4,9)', '\\operatorname{distance}(A,B)'], want: 10 },
+  { name: 'percent of', lines: ['20\\%\\operatorname{of}50'], want: 10 },
+  { name: 'percent of binds before +', lines: ['50\\% of 20+10'], want: 20 },
+  { name: 'bare percent', lines: ['15%'], want: 0.15 },
+  { name: 'percent regression', lines: ['p\\% \\operatorname{of}20\\sim9', 'p'], want: 45 },
+  { name: 'x1 is x_1', lines: ['x1=[1,2,3]', '\\operatorname{mean}(x_1)'], want: 2 },
+  { name: 'list slice', lines: ['L=[5,6,7,8]', '\\operatorname{total}(L[2...3])'], want: 13 },
+  { name: 'open list slice', lines: ['L=[5,6,7,8]', '\\operatorname{total}(L[2...])'], want: 21 },
+  { name: 'degree symbol in radian mode', lines: ['\\sin(30^{\\circ})'], want: 0.5 },
+  { name: 'degree symbol in degree mode', lines: ['\\sin(30°)'], want: 0.5, deg: true },
   // T12 angle mode
   { name: 'sin(30) radians', lines: ['\\sin(30)'], want: Math.sin(30) },
   { name: 'sin(30) degrees', lines: ['\\sin(30)'], want: 0.5, deg: true },

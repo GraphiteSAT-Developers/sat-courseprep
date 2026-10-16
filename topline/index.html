@@ -97,6 +97,8 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
 .info .stat{font-family:var(--font-data);font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums}
 .info .smath{font-size:16px;color:var(--ink)}
 .info .line{flex-basis:100%}
+.frac-toggle{font-family:var(--font-data);font-size:11.5px;padding:2px 7px;margin-left:8px;border-radius:5px;border:1px solid var(--rule);color:var(--ink);background:transparent;cursor:pointer}
+.frac-toggle[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
 .add-slider{font-family:var(--font-data);font-size:11.5px;padding:4px 8px;border-radius:5px;border:1px solid var(--accent);color:var(--accent);background:transparent}
 .slider{display:grid;grid-template-columns:28px 56px minmax(0,1fr) 56px;gap:8px;align-items:center;padding:0 4px 10px}
 .slider input:not([type=range]){width:100%;font-family:var(--font-data);font-size:12px;text-align:center;padding:4px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);color:var(--ink)}
@@ -685,6 +687,8 @@ raw('polygon', a => {
   pts = pts.filter(p => p instanceof Pt);
   return pts.length >= 2 ? new Viz('poly', { pts }) : NaN;
 });
+raw('midpoint', a => (a[0] instanceof Pt && a[1] instanceof Pt ? new Pt((a[0].x + a[1].x) / 2, (a[0].y + a[1].y) / 2) : NaN));
+raw('distance', a => (a[0] instanceof Pt && a[1] instanceof Pt ? Math.hypot(a[1].x - a[0].x, a[1].y - a[0].y) : NaN));
 rnd('random', randomFn); rnd('shuffle', shuffleFn);
 const ALIAS = { invNorm: 'invnorm', invT: 'invt', ncr: 'nCr', npr: 'nPr' };
 const BIG = { sum: 'Write sums as sum(n, 1, 10, n^2)', prod: 'Write products as prod(n, 1, 10, n)', int: 'Write integrals as int(t, 0, x, t^2)' };
@@ -695,7 +699,7 @@ const NAMES = Object.keys(BUILTIN).concat(Object.keys(ALIAS), Object.keys(BIG), 
 const TEXCMD = {
   cdot: '*', times: '*', div: '/', le: '<=', leq: '<=', ge: '>=', geq: '>=', lt: '<', gt: '>', pi: 'pi', sim: '~', left: '', right: '',
   mid: '|', vert: '|', lvert: '|', rvert: '|', lfloor: ' floor(', rfloor: ')', lceil: ' ceil(', rceil: ')', ldots: '...', cdots: '...', dots: '...',
-  '{': '{', '}': '}', '|': '|', lbrace: '{', rbrace: '}', lbrack: '[', rbrack: ']', mathrm: '', ',': ' ', ';': ' ', '!': '', ' ': ' ', ':': ' ', '.': '', quad: ' ', qquad: ' ', displaystyle: '', infty: 'INF',
+  '{': '{', '}': '}', '|': '|', lbrace: '{', rbrace: '}', lbrack: '[', rbrack: ']', mathrm: '', ',': ' ', ';': ' ', '!': '', ' ': ' ', ':': ' ', '.': '', quad: ' ', qquad: ' ', displaystyle: '', infty: 'INF', '%': '%', circ: '°', degree: '°',
 };
 function delatex(s) {
   let out = '', i = 0;
@@ -803,7 +807,8 @@ function tokenize(src) {
   if (src.includes('\\')) src = delatex(src);
   if (src.includes('{')) src = braceGroups(src);
   const s = src.replace(/[−–]/g, '-').replace(/[·×]/g, '*').replace(/÷/g, '/').replace(/≤/g, '<=').replace(/≥/g, '>=')
-    .replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/[′’]/g, "'").replace(/…/g, '...').replace(/∑/g, 'sum').replace(/∫/g, 'int');
+    .replace(/π/g, 'pi').replace(/√/g, 'sqrt').replace(/[′’]/g, "'").replace(/…/g, '...').replace(/∑/g, 'sum').replace(/∫/g, 'int')
+    .replace(/\^\s*\(\s*°\s*\)|\^\s*°/g, '°');
   const T = []; let i = 0;
   while (i < s.length) {
     const c = s[i];
@@ -833,12 +838,15 @@ function tokenize(src) {
       }
       let id = c; i++;
       if (s[i] === '_') { const m = /^_([a-zA-Z0-9]+)/.exec(s.slice(i)); if (m) { id += '_' + m[1]; i += m[0].length; } }
+      else { const m = /^[0-9]+/.exec(s.slice(i)); if (m) { id += '_' + m[0]; i += m[0].length; } } // x1 means x_1, as in Desmos
       let primes = 0; while (s[i] === "'") { primes++; i++; }
       if (id === 'e' && !primes) { T.push({ t: 'num', v: Math.E, src: 'e' }); continue; }
       T.push({ t: 'id', v: id, primes }); continue;
     }
     if (s.startsWith('<=', i) || s.startsWith('>=', i)) { T.push({ t: 'cmp', v: s.substr(i, 2) }); i += 2; continue; }
     if ('<>=~'.includes(c)) { T.push({ t: 'cmp', v: c }); i++; continue; }
+    if (c === '%') { const m = /^%\s*of(?![a-zA-Z])/.exec(s.slice(i)); T.push({ t: m ? '%of' : '%' }); i += m ? m[0].length : 1; continue; }
+    if (c === '°') { T.push({ t: 'deg' }); i++; continue; }
     if ('+-*/^()[]{},|!:'.includes(c)) { T.push({ t: c }); i++; continue; }
     throw err(`"${c}" isn't something I can read`);
   }
@@ -891,7 +899,18 @@ function parse(tokens) {
     let a = primary();
     for (;;) {
       if (is('!')) { next(); a = { k: 'fact', a }; }
-      else if (is('[')) { next(); const i = nested(() => { const e = expr(); return is('cmp') ? chainFrom(e) : e; }); expect(']'); a = { k: 'idx', a, i }; }
+      else if (is('%')) { next(); a = { k: 'b', op: '/', a, b: { k: 'n', v: 100 } }; }
+      else if (is('%of')) { next(); if (!startsPrimary() && !is('-')) throw err('% of needs a value after it, like 20% of 50'); a = { k: 'b', op: '*', a: { k: 'b', op: '/', a, b: { k: 'n', v: 100 } }, b: is('-') ? (next(), { k: 'u', a: power() }) : power() }; }
+      else if (is('deg')) { next(); a = { k: 'b', op: '*', a, b: { k: 'degu' } }; }
+      else if (is('[')) {
+        next();
+        const list = a, i = nested(() => {
+          const e = expr();
+          if (is('...')) { next(); if (is(',')) next(); return { k: 'range', a: e, b: is(']') ? { k: 'call', name: 'length', args: [list] } : expr() }; }
+          return is('cmp') ? chainFrom(e) : e;
+        });
+        expect(']'); a = { k: 'idx', a, i };
+      }
       else if (is('dot')) { const nm = next().v; let args = null; if (is('(')) { next(); args = nested(argList); } a = { k: 'dot', a, name: nm, args }; }
       else break;
     }
@@ -944,7 +963,7 @@ function parse(tokens) {
     const branches = []; let els = null;
     for (;;) {
       const e = expr();
-      if (els) throw err('The "otherwise" value has to come last');
+      if (els) throw err(branches.length ? 'The "otherwise" value has to come last' : 'Lists use square brackets, like [4, 7]. Curly braces are for conditions, like {x > 0}');
       if (is('cmp')) {
         const cond = chainFrom(e); let val = null;
         if (is(':')) { next(); val = expr(); }
@@ -1152,6 +1171,7 @@ function pwList(cs, vs, ev) {
 function compile(n, locals) {
   switch (n.k) {
     case 'n': { const v = n.v; return () => v; }
+    case 'degu': return () => Math.PI / 180 / K();
     case 'v': return varRef(n.name, locals);
     case 'u': { const a = compile(n.a, locals); return L => neg(a(L)); }
     case 'fact': { const a = compile(n.a, locals); return L => fact(a(L)); }
@@ -1567,6 +1587,20 @@ function numTex(v, digits = 6) {
   if (a >= 1e9 || a < 1e-4) { const [m, e] = v.toExponential(digits - 3).split('e'); return `${Number(m)}\\times10^{${Number(e)}}`; }
   return String(Number(v.toPrecision(digits)));
 }
+// p/q for a value that is exactly a fraction with a small denominator, else null
+function toFrac(v) {
+  if (typeof v !== 'number' || !isFinite(v) || Number.isInteger(v) || Math.abs(v) >= 1e6 || Math.abs(v) < 1e-6) return null;
+  const a0 = Math.abs(v); let x = a0, h0 = 0, h1 = 1, k0 = 1, k1 = 0;
+  for (let i = 0; i < 40; i++) {
+    const a = Math.floor(x); [h0, h1] = [h1, a * h1 + h0]; [k0, k1] = [k1, a * k1 + k0];
+    if (k1 > 10000) return null;
+    if (Math.abs(h1 / k1 - a0) <= 1e-12 * Math.max(1, a0)) return k1 > 1 ? [Math.sign(v) * h1, k1] : null;
+    if (x === a) return null;
+    x = 1 / (x - a);
+  }
+  return null;
+}
+const fracTex = ([p, q]) => `${p < 0 ? '-' : ''}\\frac{${Math.abs(p)}}{${q}}`;
 function vTex(v) {
   if (typeof v === 'number') return numTex(v);
   if (typeof v === 'boolean') return `\\text{${v}}`;
@@ -1608,6 +1642,7 @@ const bindsTex = bs => bs.map(b => `${idTex(b.name)}=${T(b.e)}`).join(',');
 function T(n) {
   switch (n.k) {
     case 'n': return n.src === 'pi' ? '\\pi ' : n.src === 'e' ? 'e' : (n.raw ?? String(n.v));
+    case 'degu': return '\\frac{\\pi}{180}';
     case 'v': return idTex(n.name);
     case 'u': return '-' + (isSum(n.a) || n.a.k === 'u' ? P(T(n.a)) : T(n.a));
     case 'fact': return atom(n.a) + '!';
@@ -1676,6 +1711,7 @@ function fnMarks(nodes) {
       while (j < nodes.length && nodes[j].t === 'c' && isLetter(nodes[j].v)) { s += nodes[j].v; j++; }
       const prev = nodes[i - 1];
       if (prev && prev.t === 'c' && prev.v === '.' && j - i > 1) { for (let q = i; q < j; q++) m[q] = 1; m[j - 1] = 2; i = j; continue; }
+      if (prev && prev.t === 'c' && prev.v === '%' && s.startsWith('of')) { m[i] = 1; m[i + 1] = 2; i += 2; continue; } // "20% of 50", as in Desmos
       let k = 0;
       while (k < s.length) {
         let name = null;
@@ -2080,6 +2116,12 @@ class MathField {
       this.insertChar(c); return;
     }
     if (this.sel && !'([{|/'.includes(c)) this.deleteSel();
+    // like Desmos, a digit typed right after a lone letter becomes a subscript (x1 -> x₁), and any other key leaves it
+    if (b.parent && b.parent.t === 'sub' && b.parent.auto && !/[0-9]/.test(c)) { this.after(b.parent); return this.typeChar(c); }
+    if (/[0-9]/.test(c) && !(b.parent && b.parent.t === 'sub')) {
+      const p = b.nodes[this.cur.i - 1], q = b.nodes[this.cur.i - 2];
+      if (p && p.t === 'c' && isLetter(p.v) && !(q && q.t === 'c' && isLetter(q.v))) { this.container('sub'); this.cur.b.parent.auto = true; this.insertChar(c); return; }
+    }
     switch (c) {
       case ' ': { const P = b.parent; if (P && (P.t === 'sup' || P.t === 'sub')) this.after(P); return; }
       case '^': return this.container('sup');
@@ -2592,7 +2634,8 @@ class MathField {
       key = 'reg:' + r.p.join(',') + r.r2 + r.rmse;
       const maths = R.params.map((p, i) => `${idTex(p)}=${numTex(r.p[i], 5)}`).concat([`R^{2}=${numTex(r.r2, 5)}`]);
       build = () => maths.map((_, i) => `<span class="mstatic smath" data-i="${i}"></span>`).join('') + `<span class="stat">RMSE ${fmtNum(r.rmse, 4)}</span><span class="stat">n = ${r.n}</span>` +
-        (r.r2 < 0 ? '<span class="line">R² is negative: this model fits worse than a flat line at the mean of the data.</span>' : '');
+        (r.r2 < 0 ? '<span class="line">R² is negative: this model fits worse than a flat line at the mean of the data.</span>' : '') +
+        (r.n < R.params.length ? `<span class="line">There are fewer data points (${r.n}) than unknowns (${R.params.length}), so this fit isn't the only one.</span>` : '');
       after = () => el.querySelectorAll('.smath').forEach(s => renderStatic(s, maths[+s.dataset.i]));
     } else if (R.kind === 'val' || (R.kind === 'vdef' && !R.isSlider)) {
       if (val instanceof Test) {
@@ -2611,8 +2654,13 @@ class MathField {
         else if (val.viz === 'hist') { key = 'hist:' + val.data.length + ':' + val.w; build = () => `<span class="stat">n = ${val.data.length}</span><span class="stat">bin width ${fmtNum(val.w, 4)}</span>`; }
         else if (val.viz === 'dot') { key = 'dot:' + val.data.length; build = () => `<span class="stat">n = ${val.data.length}</span>`; }
       } else if (!(val instanceof Pt) && !(isArr(val) && val.length && val.every(p => p instanceof Pt))) {
-        const tex = vTex(val);
-        if (tex !== null) { key = 'v:' + tex; build = () => '<span class="val mstatic"></span>'; after = () => renderStatic(el.firstChild, '=' + tex); }
+        const fr = toFrac(val), on = !!(fr && R.row && R.row.frac), tex = on ? fracTex(fr) : vTex(val);
+        if (tex !== null) {
+          key = 'v:' + tex + (fr ? ':f' : '');
+          // like Desmos, exact fractions get a toggle between the decimal and the fraction
+          build = () => '<span class="val mstatic"></span>' + (fr ? `<button type="button" class="frac-toggle" aria-pressed="${on}" aria-label="Show as a fraction" title="Show as a fraction">a/b</button>` : '');
+          after = () => renderStatic(el.firstChild, '=' + tex);
+        }
       }
     }
     if (el._k === key && el.className === cls) return;
@@ -2724,6 +2772,7 @@ class MathField {
     const opt = e.target.closest('.opt');
     if (opt) { row.style[opt.dataset.opt] = !row.style[opt.dataset.opt]; changed(); return; }
     if (e.target.closest('.addcol')) { row.table.cols.push({ name: freshColName(), cells: [] }); buildTable(li, row); changed(); li._heads[li._heads.length - 1].focus('end'); return; }
+    if (e.target.closest('.frac-toggle')) { row.frac = !row.frac; syncRows(); return; }
     const add = e.target.closest('.add-slider');
     if (add) { insertRowAfter(id, `${add.dataset.name} = 1`, { slider: { min: -10, max: 10 } }); selected = id; syncRows(); return; }
     if (!e.target.closest('input,button,.mf')) selectRow(id);
@@ -3020,47 +3069,134 @@ class MathField {
     }
     return (a + b) / 2;
   }
+  // an equality curve as G(x, y) = 0, or null for inequalities and other shapes
+  function implicitOf(c) {
+    if (c.type === 'fx' && c.op === '=') { const f = c.f; return (x, y) => { const v = f(x); return numOk(v) ? y - v : NaN; }; }
+    if (c.type === 'fy' && c.op === '=') { const f = c.f; return (x, y) => { const v = f(y); return numOk(v) ? x - v : NaN; }; }
+    if (c.type === 'imp' && c.conds.length === 1 && c.conds[0].op === '=') return c.conds[0].G;
+    return null;
+  }
+  // roots of h over the samples ts: sign changes, plus touching roots where |h| dips to zero without crossing
+  function roots1D(h, ts, add) {
+    const vs = ts.map(t => { const v = h(t); return numOk(v) ? v : NaN; });
+    let scale = 0; for (const v of vs) if (isFinite(v)) scale = Math.max(scale, Math.abs(v));
+    const tol = 1e-9 * Math.max(1, Math.min(scale, 1e4));
+    for (let i = 0; i < ts.length - 1; i++) {
+      const a = vs[i], b = vs[i + 1], z = vs[i - 1];
+      if (!isFinite(a) || !isFinite(b)) continue;
+      if (a === 0) add(ts[i]);
+      else if (a * b < 0) { const r = bisect(h, ts[i], ts[i + 1]), hr = h(r); if (numOk(hr) && Math.abs(hr) <= Math.min(Math.abs(a), Math.abs(b))) add(r); }
+      else if (isFinite(z) && z * a > 0 && a * b > 0 && Math.abs(a) <= Math.abs(z) && Math.abs(a) <= Math.abs(b)) {
+        const t = golden(u => { const v = h(u); return numOk(v) ? Math.abs(v) : Infinity; }, ts[i - 1], ts[i + 1], false), v = h(t);
+        if (numOk(v) && Math.abs(v) <= tol) add(t);
+      }
+    }
+  }
+  // Newton's method for F1 = F2 = 0 from (x, y); null if it fails or the Jacobian is degenerate
+  function newton2(F1, F2, x, y, rel) {
+    for (let k = 0; k < 80; k++) {
+      const f1 = F1(x, y), f2 = F2(x, y);
+      if (!numOk(f1) || !numOk(f2)) return null;
+      const hx = rel * Math.max(1, Math.abs(x)), hy = rel * Math.max(1, Math.abs(y));
+      const a = (F1(x + hx, y) - f1) / hx, b = (F1(x, y + hy) - f1) / hy, c = (F2(x + hx, y) - f2) / hx, d = (F2(x, y + hy) - f2) / hy;
+      const det = a * d - b * c;
+      if (!isFinite(det) || Math.abs(det) <= 1e-12 * (Math.abs(a * d) + Math.abs(b * c))) return null;
+      const dx = (d * f1 - b * f2) / det, dy = (a * f2 - c * f1) / det;
+      x -= dx; y -= dy;
+      if (!isFinite(x) || !isFinite(y)) return null;
+      if (Math.abs(dx) <= 1e-14 * Math.max(1, Math.abs(x)) && Math.abs(dy) <= 1e-14 * Math.max(1, Math.abs(y))) break;
+    }
+    return [x, y];
+  }
+  function gridTol(grid) {
+    if (grid.tol === undefined) { let s = 0; for (const v of grid.vals) if (isFinite(v)) s = Math.max(s, Math.abs(v)); grid.tol = 1e-9 * Math.max(1, Math.min(s, 1e4)); }
+    return grid.tol;
+  }
   function findPOIs(curve) {
-    const f = curve.f, out = [];
+    const out = [];
     const push = (x, y, title) => {
-      if (!numOk(x) || !numOk(y)) return;
+      if (!numOk(x) || !numOk(y) || out.length >= 120) return;
       const X = px(x), Y = py(y);
       if (!(X >= -2 && X <= W + 2 && Y >= -2 && Y <= H + 2)) return;
       if (out.some(q => Math.hypot(px(q.x) - X, py(q.y) - Y) < 3)) return;
       out.push({ x, y, title, color: curve.color });
     };
-    const N = Math.ceil(W / 2), xs = [], ys = [];
-    for (let i = 0; i <= N; i++) { const x = wx(i * 2); xs.push(x); const v = f(x); ys.push(numOk(v) ? v : NaN); }
-    for (let i = 0; i < N && out.length < 80; i++) {
-      const a = ys[i], b = ys[i + 1];
-      if (!isFinite(a) || !isFinite(b)) continue;
-      if (a === 0) push(xs[i], 0, 'x-intercept');
-      else if (a * b < 0) { const r = bisect(f, xs[i], xs[i + 1]), fr = f(r); if (numOk(fr) && Math.abs(fr) <= Math.min(Math.abs(a), Math.abs(b))) push(r, 0, 'x-intercept'); }
-      if (i > 0 && isFinite(ys[i - 1])) {
-        const d0 = ys[i] - ys[i - 1], d1 = ys[i + 1] - ys[i];
+    const N = Math.ceil(W / 2), M = Math.ceil(H / 2);
+    const xs = Array.from({ length: N + 1 }, (_, i) => wx(i * 2)), ys = Array.from({ length: M + 1 }, (_, j) => wy(j * 2));
+    const others = CURVES.filter(o => o !== curve).map(o => ({ o, G: implicitOf(o) })).filter(q => q.G);
+    if (curve.type === 'fx' || curve.type === 'fy') {
+      // explicit curve: y = f(x) along x, or x = f(y) along y
+      const alongX = curve.type === 'fx', f = curve.f, ts = alongX ? xs : ys, toP = alongX ? py : px;
+      const P = (t, v) => (alongX ? [t, v] : [v, t]);
+      roots1D(f, ts, t => push(...P(t, 0), alongX ? 'x-intercept' : 'y-intercept'));
+      const vs = ts.map(t => { const v = f(t); return numOk(v) ? v : NaN; });
+      for (let i = 1; i < ts.length - 1; i++) {
+        if (!isFinite(vs[i - 1]) || !isFinite(vs[i]) || !isFinite(vs[i + 1])) continue;
+        const d0 = vs[i] - vs[i - 1], d1 = vs[i + 1] - vs[i];
         if ((d0 > 0 && d1 < 0) || (d0 < 0 && d1 > 0)) {
-          const isMax = d0 > 0, xe = golden(f, xs[i - 1], xs[i + 1], isMax), ye = f(xe);
-          if (numOk(ye) && Math.abs(py(ye) - py(ys[i])) < 40) push(xe, ye, isMax ? 'Local maximum' : 'Local minimum');
+          const isMax = d0 > 0, te = golden(f, ts[i - 1], ts[i + 1], isMax), ve = f(te);
+          if (numOk(ve) && Math.abs(toP(ve) - toP(vs[i])) < 40) push(...P(te, ve), alongX ? (isMax ? 'Local maximum' : 'Local minimum') : (isMax ? 'Rightmost point' : 'Leftmost point'));
+        }
+      }
+      if (alongX ? !settings.logX : !settings.logY) { const v0 = f(0); if (numOk(v0)) push(...P(0, v0), alongX ? 'y-intercept' : 'x-intercept'); }
+      for (const { o, G } of others) {
+        if (o.type === curve.type) { const g = o.f; roots1D(t => { const a = f(t), b = g(t); return numOk(a) && numOk(b) ? a - b : NaN; }, ts, t => push(...P(t, f(t)), 'Intersection')); }
+        else roots1D(t => { const v = f(t); return numOk(v) ? G(...P(t, v)) : NaN; }, ts, t => push(...P(t, f(t)), 'Intersection'));
+      }
+      return out;
+    }
+    // implicit curve G(x, y) = 0
+    const G = implicitOf(curve), grid = curve._grids && curve._grids[0];
+    roots1D(x => G(x, 0), xs, x => push(x, 0, 'x-intercept'));
+    if (!settings.logX) roots1D(y => G(0, y), ys, y => push(0, y, 'y-intercept'));
+    for (const { o, G: H2 } of others) {
+      if (o.type === 'fx') { const g = o.f; roots1D(x => { const v = g(x); return numOk(v) ? G(x, v) : NaN; }, xs, x => push(x, g(x), 'Intersection')); }
+      else if (o.type === 'fy') { const g = o.f; roots1D(y => { const v = g(y); return numOk(v) ? G(v, y) : NaN; }, ys, y => push(g(y), y, 'Intersection')); }
+    }
+    if (!grid || settings.logX || settings.logY) return out;
+    const { nx, ny, vals, cell } = grid, tol = gridTol(grid);
+    const near = (p, i, j) => Math.abs(px(p[0]) - (i + 0.5) * cell) < 3 * cell && Math.abs(py(p[1]) - (j + 0.5) * cell) < 3 * cell;
+    const corners = (V, i, j) => [V[j * nx + i], V[j * nx + i + 1], V[(j + 1) * nx + i + 1], V[(j + 1) * nx + i]];
+    const crosses = q => q.every(isFinite) && !((q[0] < 0) === (q[1] < 0) && (q[1] < 0) === (q[2] < 0) && (q[2] < 0) === (q[3] < 0));
+    // highest, lowest, leftmost and rightmost points: G = 0 where the curve is horizontal or vertical
+    const e = x => 1e-5 * Math.max(1, Math.abs(x));
+    const Gx = (x, y) => (G(x + e(x), y) - G(x - e(x), y)) / (2 * e(x)), Gy = (x, y) => (G(x, y + e(y)) - G(x, y - e(y))) / (2 * e(y));
+    let seeds = 0;
+    for (let j = 0; j < ny - 1 && seeds < 600; j++) for (let i = 0; i < nx - 1 && seeds < 600; i++) {
+      const q = corners(vals, i, j); if (!crosses(q)) continue;
+      const gx = (q[1] - q[0] + q[2] - q[3]) / 2, gy = (q[3] - q[0] + q[2] - q[1]) / 2;
+      const cx = wx((i + 0.5) * cell), cy = wy((j + 0.5) * cell);
+      for (const flat of [Math.abs(gx) < 0.35 * Math.abs(gy), Math.abs(gy) < 0.35 * Math.abs(gx)]) {
+        if (!flat) continue;
+        seeds++;
+        const horiz = Math.abs(gx) < Math.abs(gy), D = horiz ? Gx : Gy;
+        const p = newton2(G, D, cx, cy, 1e-6); if (!p || !near(p, i, j)) continue;
+        const [x, y] = p, g = G(x, y), gx1 = Gx(x, y), gy1 = Gy(x, y);
+        if (!(Math.abs(g) <= tol) || !numOk(gx1) || !numOk(gy1)) continue;
+        if (horiz) {
+          if (!(Math.abs(gx1) <= 1e-6 * Math.abs(gy1))) continue;
+          const gxx = (Gx(x + e(x), y) - Gx(x - e(x), y)) / (2 * e(x)), curv = -gxx / gy1;
+          if (Math.abs(curv) > 1e-9) push(x, y, curv < 0 ? 'Local maximum' : 'Local minimum');
+        } else {
+          if (!(Math.abs(gy1) <= 1e-6 * Math.abs(gx1))) continue;
+          const gyy = (Gy(x, y + e(y)) - Gy(x, y - e(y))) / (2 * e(y)), curv = -gyy / gx1;
+          if (Math.abs(curv) > 1e-9) push(x, y, curv < 0 ? 'Rightmost point' : 'Leftmost point');
         }
       }
     }
-    if (!settings.logX) { const y0 = f(0); if (numOk(y0)) push(0, y0, 'y-intercept'); }
-    for (const o of CURVES) {
-      if (o === curve || o.type !== 'fx' || o.op !== '=') continue;
-      const g = o.f, h = x => f(x) - g(x);
-      let prev = NaN;
-      for (let i = 0; i <= N && out.length < 120; i++) {
-        const gv = g(xs[i]), hv = isFinite(ys[i]) && numOk(gv) ? ys[i] - gv : NaN;
-        if (isFinite(prev) && isFinite(hv) && prev * hv < 0) {
-          const r = bisect(h, xs[i - 1], xs[i]), hr = h(r);
-          if (numOk(hr) && Math.abs(hr) <= Math.min(Math.abs(prev), Math.abs(hv))) push(r, f(r), 'Intersection');
-        } else if (hv === 0) push(xs[i], ys[i], 'Intersection');
-        prev = hv;
+    // intersections with other implicit curves, solved from cells both curves pass through
+    for (const { o, G: H2 } of others) {
+      const g2 = o.type === 'imp' && o._grids && o._grids[0];
+      if (!g2 || g2.nx !== nx || g2.ny !== ny) continue;
+      const tol2 = gridTol(g2);
+      for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {
+        if (!crosses(corners(vals, i, j)) || !crosses(corners(g2.vals, i, j))) continue;
+        const p = newton2(G, H2, wx((i + 0.5) * cell), wy((j + 0.5) * cell), 1e-7);
+        if (p && near(p, i, j) && Math.abs(G(p[0], p[1])) <= tol && Math.abs(H2(p[0], p[1])) <= tol2) push(p[0], p[1], 'Intersection');
       }
     }
     return out;
   }
-
   function tag(X, Y, title, text) {
     ctx.font = `500 12.5px ${TH.data}`; let tw = ctx.measureText(text).width;
     if (title) { ctx.font = `11px ${TH.ui}`; tw = Math.max(tw, ctx.measureText(title).width); }
@@ -3104,7 +3240,7 @@ class MathField {
         ctx.setLineDash(dash); pathFn(c.f, c.type === 'fx' ? 'x' : 'y'); ctx.stroke(); break;
       }
       case 'imp': {
-        const grids = c.conds.map(k => gridEval(k.G));
+        const grids = c._grids = c.conds.map(k => gridEval(k.G));
         if (c.conds.every(k => k.op !== '=')) shade(grids, c.conds, rgb);
         c.conds.forEach((k, i) => {
           const others = c.conds.filter((_, j) => j !== i);
@@ -3129,7 +3265,7 @@ class MathField {
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     for (const c of CURVES) { try { drawCurve(c); } catch (e) { ctx.setLineDash([]); } }
     POIS = [];
-    const selCurve = CURVES.find(c => c.row.id === selected && c.type === 'fx' && c.op === '=');
+    const selCurve = CURVES.find(c => c.row.id === selected && implicitOf(c));
     if (selCurve) { try { POIS = findPOIs(selCurve); } catch (e) { POIS = []; } for (const p of POIS) dot(px(p.x), py(p.y), TH.c[p.color], true); }
     for (const c of CURVES) {
       if (c.type !== 'pts') continue;
@@ -3163,6 +3299,14 @@ class MathField {
       try {
         if (c.type === 'fx') { const v = c.f(wx(X)); if (numOk(v)) d = Math.abs(py(v) - Y); }
         else if (c.type === 'fy') { const v = c.f(wy(Y)); if (numOk(v)) d = Math.abs(px(v) - X); }
+        else if (c.type === 'imp') {
+          // distance to G = 0 is about |G| / |grad G| in screen pixels
+          for (const k of c.conds) {
+            if (k.op !== '=' && k.op !== '<=' && k.op !== '>=' && k.op !== '<' && k.op !== '>') continue;
+            const g = k.G(wx(X), wy(Y)), gx = (k.G(wx(X + 1), wy(Y)) - k.G(wx(X - 1), wy(Y))) / 2, gy = (k.G(wx(X), wy(Y + 1)) - k.G(wx(X), wy(Y - 1))) / 2;
+            const dk = Math.abs(g) / Math.hypot(gx, gy); if (numOk(dk)) d = Math.min(d, dk);
+          }
+        }
       } catch (e) { d = Infinity; }
       if (d < bd) { bd = d; best = { type: 'curve', c }; }
     }
@@ -3181,7 +3325,9 @@ class MathField {
     }
     if (ptrs.size > 2) return;
     const hit = hitTest(X, Y);
-    if (hit && hit.type === 'curve') {
+    if (hit && hit.type === 'curve' && hit.c.type === 'imp') {
+      selectRow(hit.c.row.id); trace = null; pinned = null; drag = { mode: 'tap' }; requestDraw();
+    } else if (hit && hit.type === 'curve') {
       selectRow(hit.c.row.id); pinned = null;
       trace = { key: hit.c.key, t: hit.c.type === 'fx' ? wx(X) : wy(Y) };
       drag = { mode: 'trace', c: hit.c }; requestDraw();

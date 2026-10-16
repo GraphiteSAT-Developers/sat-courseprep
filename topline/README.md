@@ -10,9 +10,12 @@ A browser graphing calculator with a live math editor, built as a single self-co
 - **Lists, tables and matrices.** Ranges, filters, list comprehensions with `for`, tables (type `table` into an empty line), and det, inv, transpose, rref and trace.
 - **Statistics.** Summary statistics, normal, t, binomial, Poisson and uniform distributions, t-tests, random values, histograms, dot plots and box plots.
 - **Regressions.** Fits written as `y_1 ~ m x_1 + b`, or any nonlinear model, with R² and RMSE.
-- **Other.** Complex numbers, degrees or radians, and light and dark themes. Expressions are saved in the browser's local storage.
+- **Geometry.** Points, `A.x` and `A.y`, `midpoint(A, B)` and `distance(A, B)`.
+- **Desmos-style input.** `20% of 50`, `30°`, list slices like `L[2...4]`, and `x1` turning into `x₁` as you type.
+- **Other.** Complex numbers, degrees or radians, an a/b toggle for results that are exact fractions, and light and dark themes. Expressions are saved in the browser's local storage.
 
 ## Notes
 
 - Fonts load from Google Fonts. Everything else is inline in the one file.
-- Tap a curve on the graph to trace it. Select a function's line to see its intercepts, extrema and intersections.
+- Tap a curve on the graph to trace it. Select any curve, including circles and lines like `3x + 2y = 12`, to see its intercepts, extremes, and intersections with the other curves (touching points included).
+- `node tests/engine-check.js` runs the math engine in Node on SAT-style inputs written the way Desmos stores them.
