@@ -2,11 +2,15 @@
 (function () {
   "use strict";
 
+  // Live mode: pages served by the Graphite backend (backend/) carry <meta name="graphite-mode" content="live">
+  // and talk to its API. Without it (a static preview), forms behave as a demo and nothing is sent.
+  var LIVE = !!document.querySelector('meta[name="graphite-mode"][content="live"]');
+
   var CONFIG = {
     // POST endpoint for the "Start free diagnostic" form. When null, the form validates and shows the success message without sending.
-    formEndpoint: null,
+    formEndpoint: LIVE ? "/api/leads" : null,
     // POST endpoint for sign in. When null, any well-formed email and 8+ character password signs in.
-    authEndpoint: null,
+    authEndpoint: LIVE ? "/api/auth/login" : null,
     // Where to send students after a successful sign in. Set to null to stay on the sign-in page.
     dashboardUrl: "dashboard.html",
     // Analytics loads only after the visitor accepts analytics cookies.
@@ -186,10 +190,36 @@
     f.setAttribute("data-started", String(Date.now()));
   });
 
+  // Calls the backend. Resolves with the JSON body; rejects with an Error carrying .status and the server's message.
+  function api(path, data, method) {
+    var opts = { method: method || (data ? "POST" : "GET"), headers: { "Accept": "application/json" }, credentials: "same-origin" };
+    if (data) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(data); }
+    return fetch(path, opts).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) { var err = new Error(j.error || "Request failed."); err.status = r.status; err.data = j; throw err; }
+        return j;
+      });
+    });
+  }
+  window.GraphiteAPI = { live: LIVE, call: api };
+
   function send(endpoint, data) {
-    if (!endpoint) return new Promise(function (resolve) { setTimeout(resolve, 600); });
-    return fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), credentials: "same-origin" })
-      .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r; });
+    if (!endpoint) return new Promise(function (resolve) { setTimeout(function () { resolve({}); }, 600); });
+    return api(endpoint, data);
+  }
+  function networkMessage(err) {
+    return err && err.status ? err.message : "We couldn't reach Graphite. Check your connection and try again.";
+  }
+  // Puts a server-side field error next to the matching input. fieldMap: { serverField: inputId }.
+  function showFieldError(err, fieldMap) {
+    var field = err && err.data && err.data.field;
+    var id = field && fieldMap[field];
+    var input = id && document.getElementById(id);
+    if (input) { setError(input.closest(".field"), err.message); input.focus(); }
+  }
+  function safeNext() {
+    var next = new URLSearchParams(location.search).get("next") || "";
+    return /^\/[a-z0-9-]+\.html$/i.test(next) ? next : CONFIG.dashboardUrl;
   }
 
   /* 7a. Diagnostic signup form */
@@ -236,8 +266,9 @@
           Analytics.track("diagnostic_signup", { grade: grade.value });
           signup.reset(); signup.setAttribute("data-started", String(Date.now()));
         })
-        .catch(function () {
-          showStatus(sStatus, "err", "We couldn't send your request.", "Check your connection and try again. If it keeps failing, email hello@graphiteprep.com.");
+        .catch(function (err) {
+          showFieldError(err, { name: "start-name", email: "start-email", grade: "start-grade", target: "start-target", agree: "start-agree" });
+          showStatus(sStatus, "err", "We couldn't send your request.", err && err.status ? err.message : "Check your connection and try again. If it keeps failing, email hello@graphiteprep.com.");
         })
         .then(function () { btn.disabled = false; btn.textContent = "Send my diagnostic link"; });
     });
@@ -300,11 +331,12 @@
           showStatus(aStatus, "ok", "Signed in as " + em + ".", CONFIG.dashboardUrl ? "Opening your dashboard." : "Your dashboard is ready.");
           Analytics.track("sign_in");
           try { sessionStorage.setItem("graphite_user", em); } catch (err) { /* storage blocked */ }
-          if (CONFIG.dashboardUrl) setTimeout(function () { location.href = CONFIG.dashboardUrl; }, 700);
+          if (CONFIG.dashboardUrl) setTimeout(function () { location.href = safeNext(); }, 500);
         })
-        .catch(function () {
+        .catch(function (err) {
           attempts++;
-          showStatus(aStatus, "err", "That email and password don't match.", "Check both and try again, or reset your password.");
+          if (err && err.status === 401) showStatus(aStatus, "err", err.message, "Check both and try again, or reset your password.");
+          else showStatus(aStatus, "err", "We couldn't sign you in.", networkMessage(err));
         })
         .then(function () { if (Date.now() >= lockUntil) { btn.disabled = false; btn.textContent = "Sign in"; } });
     });
@@ -325,7 +357,72 @@
       var spam = spamCheck(reset, "graphite_reset_log", 3, 15 * 60 * 1000);
       if (spam === "rate") { showStatus(rs, "err", "Reset links are limited to three per 15 minutes.", "Check your inbox and spam folder for the earlier emails."); return; }
       if (spam === "too-fast") { showStatus(rs, "err", "One moment.", "Wait a few seconds and press Send again."); return; }
-      showStatus(rs, "ok", "Check your inbox.", "If an account exists for " + em + ", a reset link is on its way. It expires in 30 minutes.");
+      var done = function () { showStatus(rs, "ok", "Check your inbox.", "If an account exists for " + em + ", a reset link is on its way. It expires in 30 minutes."); };
+      if (!LIVE) { done(); return; }
+      api("/api/auth/forgot", { email: em }).then(done, function (err) { showStatus(rs, "err", "We couldn't send a reset link.", networkMessage(err)); });
+    });
+
+    /* 7c. Create an account */
+    var create = $("#create-form"), createOpen = $("#create-open"), createPrompt = $("#create-prompt");
+    function showCreate(open) {
+      create.hidden = !open; signin.hidden = open; reset.hidden = true; createPrompt.hidden = open;
+      $("#signin-title").textContent = open ? "Create your Graphite account" : "Sign in to your dashboard";
+      if (open) $("#create-name").focus();
+    }
+    createOpen.addEventListener("click", function () { showCreate(true); });
+    $("#create-cancel").addEventListener("click", function () { showCreate(false); $("#signin-email").focus(); });
+    if (location.hash === "#create") showCreate(true);
+    create.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var cs = $("#create-status"); clearStatus(cs);
+      var name = $("#create-name"), email = $("#create-email"), pass = $("#create-password"), target = $("#create-target"), agree = $("#create-agree");
+      var em = email.value.trim(), ok = true;
+      setError(name.closest(".field"), name.value.trim() ? "" : "Enter the student's name."); if (!name.value.trim()) ok = false;
+      var emMsg = !em ? "Enter an email address." : (!EMAIL.test(em) ? "Enter an email like name@school.org." : "");
+      setError(email.closest(".field"), emMsg); if (emMsg) ok = false;
+      var pMsg = pass.value.length < 8 ? "Passwords need at least 8 characters." : "";
+      setError(pass.closest(".field"), pMsg); if (pMsg) ok = false;
+      var tv = target.value.trim(), tMsg = "";
+      if (tv && (!(Number(tv) >= 400 && Number(tv) <= 1600) || Number(tv) % 10)) tMsg = "Target scores run from 400 to 1600 in steps of 10.";
+      setError(target.closest(".field"), tMsg); if (tMsg) ok = false;
+      setError(agree.closest(".field"), agree.checked ? "" : "Check this box to continue."); if (!agree.checked) ok = false;
+      if (!ok) { showStatus(cs, "err", "Some fields need attention."); var f = create.querySelector('[aria-invalid="true"]'); if (f) f.focus(); return; }
+      if (create.querySelector(".hp input").value) return;
+      var btn = create.querySelector('button[type="submit"]');
+      btn.disabled = true; btn.textContent = "Creating…";
+      var payload = { name: name.value, email: em, password: pass.value, grade: $("#create-grade").value, test_date: $("#create-date").value, target_score: tv };
+      (LIVE ? api("/api/auth/register", payload) : send(null))
+        .then(function () {
+          showStatus(cs, "ok", "Your account is ready.", "Opening your dashboard.");
+          Analytics.track("account_created");
+          try { sessionStorage.setItem("graphite_user", em); } catch (err) { /* storage blocked */ }
+          setTimeout(function () { location.href = CONFIG.dashboardUrl; }, 500);
+        })
+        .catch(function (err) {
+          showFieldError(err, { name: "create-name", email: "create-email", password: "create-password", grade: "create-grade", test_date: "create-date", target_score: "create-target" });
+          showStatus(cs, "err", "We couldn't create your account.", networkMessage(err));
+          btn.disabled = false; btn.textContent = "Create account";
+        });
+    });
+
+    /* 7d. Choose a new password from an emailed reset link (signin.html?reset=TOKEN) */
+    var resetToken = new URLSearchParams(location.search).get("reset");
+    var newpw = $("#newpw-form");
+    if (resetToken) {
+      newpw.hidden = false; signin.hidden = true; createPrompt.hidden = true;
+      $("#signin-title").textContent = "Reset your password";
+    }
+    newpw.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var ns = $("#newpw-status"); clearStatus(ns);
+      var np = $("#newpw-password");
+      var msg = np.value.length < 8 ? "Passwords need at least 8 characters." : "";
+      setError(np.closest(".field"), msg);
+      if (msg) { np.focus(); return; }
+      if (!LIVE) { showStatus(ns, "ok", "Password saved."); return; }
+      api("/api/auth/reset", { token: resetToken, password: np.value })
+        .then(function () { showStatus(ns, "ok", "Password saved.", "Opening your dashboard."); setTimeout(function () { location.href = CONFIG.dashboardUrl; }, 500); })
+        .catch(function (err) { showStatus(ns, "err", "We couldn't save that password.", networkMessage(err)); });
     });
   }
 
@@ -406,8 +503,11 @@
   /* 9. Dashboard */
   $all("[data-sign-out]").forEach(function (b) {
     b.addEventListener("click", function () {
-      try { sessionStorage.removeItem("graphite_user"); sessionStorage.setItem("graphite_signed_out", "1"); } catch (err) { /* storage blocked */ }
-      location.href = "signin.html";
+      var go = function () {
+        try { sessionStorage.removeItem("graphite_user"); sessionStorage.setItem("graphite_signed_out", "1"); } catch (err) { /* storage blocked */ }
+        location.href = "signin.html";
+      };
+      if (LIVE) api("/api/auth/logout", {}).then(go, go); else go();
     });
   });
 
@@ -415,83 +515,30 @@
     var now = new Date();
     var hr = now.getHours();
     var part = hr < 12 ? "Good morning" : (hr < 18 ? "Good afternoon" : "Good evening");
-    $("#greeting").textContent = part + ", Maya";
     $("#today-date").textContent = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-    try { var who = sessionStorage.getItem("graphite_user"); if (who) $("#account-email").textContent = who; } catch (err) { /* storage blocked */ }
 
-    var dl = $("#days-left");
-    var test = new Date(dl.getAttribute("data-test-date") + "T08:00:00");
-    var today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    var days = Math.round((new Date(test.getFullYear(), test.getMonth(), test.getDate()) - today0) / 86400000);
-    if (isFinite(days)) dl.textContent = String(Math.max(days, 0));
+    var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+    var fmtMinutes = function (m) { var h = Math.floor(m / 60), mm = m % 60; return h ? h + " h " + mm + " m" : mm + " min"; };
+    var niceDate = function (iso, opts) { return new Date(iso + "T12:00:00").toLocaleDateString("en-US", opts || { month: "short", day: "numeric" }); };
+    var minutesThisWeek = 110, setTotal = 12;
 
-    // Today's set
-    var startBtn = $("#set-start"), runner = $("#set-runner"), prog = $("#set-progress");
-    var done = 0, answeredThis = false;
-    startBtn.addEventListener("click", function () {
-      runner.hidden = false;
-      startBtn.setAttribute("aria-expanded", "true");
-      startBtn.textContent = "Keep going";
-      var first = runner.querySelector("input"); if (first) first.focus();
-    });
-    $("#qchoices").addEventListener("change", function () {
-      if (answeredThis) return;
-      answeredThis = true; done = Math.min(done + 1, 12);
-      prog.textContent = done + " of 12 done";
-    });
-    $("#qnext").addEventListener("click", function () { answeredThis = false; });
-
-    // Review queue
-    var queue = $("#queue"), qStatus = $("#queue-status");
-    function updateCount() {
-      var n = queue.children.length;
-      $("#review-count").textContent = n === 1 ? "1 question" : n + " questions";
-      $("#queue-empty").hidden = n !== 0;
-    }
-    $all("li", queue).forEach(function (li) {
-      li.querySelector("button").addEventListener("click", function () {
-        var right = Number(li.getAttribute("data-right")) + 1;
-        if (right >= 2) {
-          li.remove();
-          showStatus(qStatus, "ok", "Cleared from your review queue.", "Right twice means it stuck.");
-          updateCount();
-          Analytics.track("review_cleared");
-          return;
-        }
-        li.setAttribute("data-right", String(right));
-        li.querySelector(".queue-score").textContent = right + " of 2";
-        var due = li.querySelector(".due"); due.textContent = "Due in 3 days"; due.classList.remove("due-now");
-        showStatus(qStatus, "ok", "Nice. One more right answer clears it.", "It comes back in 3 days.");
-      });
-    });
-
-    // Weekly goal
-    var goalForm = $("#goal-form"), gStatus = $("#goal-status"), minutesThisWeek = 110;
     function applyGoal(h) {
       $("#goal-hours").value = String(h);
       $("#goal-sub").textContent = "of your " + h + " h goal";
       $("#goal-meter").style.width = Math.min(100, Math.round(minutesThisWeek / (h * 60) * 100)) + "%";
     }
-    var savedGoal = store.get("graphite_goal");
-    if (savedGoal) applyGoal(savedGoal);
-    goalForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var h = Number($("#goal-hours").value);
-      if (!h) { showStatus(gStatus, "err", "Choose a weekly goal first."); return; }
-      store.set("graphite_goal", h); applyGoal(h);
-      showStatus(gStatus, "ok", "Weekly goal saved: " + h + " hours.");
-    });
 
-    // Score chart tooltip
-    var wrap = $(".chart-wrap"), tip = $("#chart-tip");
-    if (wrap && tip) {
+    // Score chart tooltip (sample chart from the build, or the live chart drawn below)
+    function bindChart() {
+      var wrap = $(".chart-wrap"), tip = $("#chart-tip");
+      if (!wrap || !tip) return;
       var vb = wrap.querySelector("svg").viewBox.baseVal;
       var showTip = function (el) {
         tip.innerHTML = "";
         var t = document.createElement("span"); t.textContent = el.getAttribute("data-label") + " · ";
-        var s = document.createElement("strong"); s.textContent = el.getAttribute("data-score");
+        var s2 = document.createElement("strong"); s2.textContent = el.getAttribute("data-score");
         var d = document.createElement("div"); d.textContent = el.getAttribute("data-detail");
-        tip.appendChild(t); tip.appendChild(s); tip.appendChild(d);
+        tip.appendChild(t); tip.appendChild(s2); tip.appendChild(d);
         tip.style.left = (Number(el.getAttribute("cx")) / vb.width * 100) + "%";
         tip.style.top = (Number(el.getAttribute("cy")) / vb.height * 100) + "%";
         tip.hidden = false;
@@ -502,6 +549,236 @@
         h.addEventListener("mouseleave", function () { tip.hidden = true; });
         h.addEventListener("blur", function () { tip.hidden = true; });
       });
+    }
+
+    // Percent correct on each practice test, on one 0-100% scale.
+    function drawChart(history) {
+      var W = 640, H = 250, L = 52, R = 70, T = 16, B = 34, pw = W - L - R, ph = H - T - B, n = history.length;
+      var y = function (v) { return T + ph * (100 - v) / 100; };
+      var x = function (i) { return n === 1 ? L + pw / 2 : L + pw * i / (n - 1); };
+      var out = ['<div class="chart-wrap"><svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-labelledby="chart-title chart-desc">',
+        '<title id="chart-title">Percent correct on each practice test</title>',
+        '<desc id="chart-desc">' + esc(history.map(function (h) { return h.label + ": " + h.pct + "%"; }).join(", ")) + "</desc>"];
+      [0, 25, 50, 75, 100].forEach(function (v) {
+        out.push('<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/>');
+        out.push('<text class="axis-text" x="' + (L - 10) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + "%</text>");
+      });
+      var pts = history.map(function (h, i) { return x(i).toFixed(1) + "," + y(h.pct).toFixed(1); });
+      if (n > 1) {
+        out.push('<path class="area" d="M' + x(0).toFixed(1) + "," + y(0) + " L" + pts.join(" L") + " L" + x(n - 1).toFixed(1) + "," + y(0) + ' Z"/>');
+        out.push('<polyline class="line" points="' + pts.join(" ") + '"/>');
+      }
+      var step = Math.max(1, Math.ceil(n / 6));
+      history.forEach(function (h, i) {
+        if (i % step === 0 || i === n - 1) {
+          var anchor = n === 1 ? "middle" : (i === 0 ? "start" : (i === n - 1 ? "end" : "middle"));
+          out.push('<text class="axis-text" x="' + x(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="' + anchor + '">' + esc(h.label) + "</text>");
+        }
+        out.push('<circle class="hit" cx="' + x(i).toFixed(1) + '" cy="' + y(h.pct).toFixed(1) + '" r="18" tabindex="0" data-label="' + esc(h.label) + '" data-score="' + h.correct + "/" + h.total +
+          '" data-detail="' + h.pct + '% correct" aria-label="' + esc(h.label) + ": " + h.correct + " of " + h.total + '"/>');
+        out.push('<circle class="pt" cx="' + x(i).toFixed(1) + '" cy="' + y(h.pct).toFixed(1) + '" r="' + (i === n - 1 ? 6 : 5) + '"/>');
+      });
+      var last = history[n - 1];
+      out.push('<text class="end-text" x="' + (x(n - 1) + 12).toFixed(1) + '" y="' + (y(last.pct) + 5).toFixed(1) + '">' + last.pct + "%</text>");
+      out.push('</svg><div class="chart-tip" id="chart-tip" role="status" hidden></div></div>');
+      return out.join("");
+    }
+
+    // Today's set
+    var startBtn = $("#set-start"), runner = $("#set-runner"), prog = $("#set-progress");
+    var done = 0, answeredThis = false, shownAt = Date.now();
+    startBtn.addEventListener("click", function () {
+      runner.hidden = false;
+      startBtn.setAttribute("aria-expanded", "true");
+      startBtn.textContent = "Keep going";
+      shownAt = Date.now();
+      var first = runner.querySelector("input"); if (first) first.focus();
+    });
+    $("#qchoices").addEventListener("change", function () {
+      if (answeredThis) return;
+      answeredThis = true; done = Math.min(done + 1, setTotal);
+      prog.textContent = done + " of " + setTotal + " done";
+      if (LIVE) api("/api/activity", { kind: "practice_question", seconds: Math.round((Date.now() - shownAt) / 1000) }).catch(function () { /* not critical */ });
+    });
+    $("#qnext").addEventListener("click", function () { answeredThis = false; shownAt = Date.now(); });
+
+    // Review queue
+    var queue = $("#queue"), qStatus = $("#queue-status");
+    function updateCount() {
+      var n = queue.children.length;
+      $("#review-count").textContent = n === 1 ? "1 question" : n + " questions";
+      $("#queue-empty").hidden = n !== 0;
+    }
+    function bindReview(li) {
+      var btn = li.querySelector("button");
+      btn.addEventListener("click", function () {
+        var apply = function (right, cleared) {
+          if (cleared) {
+            li.remove();
+            showStatus(qStatus, "ok", "Cleared from your review queue.", "Right twice means it stuck.");
+            updateCount(); Analytics.track("review_cleared");
+            return;
+          }
+          li.setAttribute("data-right", String(right));
+          li.querySelector(".queue-score").textContent = right + " of 2";
+          var due = li.querySelector(".due"); due.textContent = "Due in 3 days"; due.classList.remove("due-now");
+          showStatus(qStatus, "ok", "Nice. One more right answer clears it.", "It comes back in 3 days.");
+        };
+        if (!LIVE) { var r = Number(li.getAttribute("data-right")) + 1; apply(r, r >= 2); return; }
+        btn.disabled = true;
+        api("/api/review/" + li.getAttribute("data-id") + "/right", {})
+          .then(function (res) { apply(res.right_count, res.cleared); })
+          .catch(function (err) { showStatus(qStatus, "err", "We couldn't update that question.", networkMessage(err)); })
+          .then(function () { btn.disabled = false; });
+      });
+    }
+
+    // Account settings
+    var goalForm = $("#goal-form"), gStatus = $("#goal-status");
+    goalForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var h = Number($("#goal-hours").value);
+      if (!h) { showStatus(gStatus, "err", "Choose a weekly goal first."); return; }
+      if (!LIVE) { store.set("graphite_goal", h); applyGoal(h); showStatus(gStatus, "ok", "Weekly goal saved: " + h + " hours."); return; }
+      var payload = { weekly_goal_hours: h, test_date: $("#acct-test-date").value, target_score: $("#acct-target").value };
+      api("/api/me", payload, "PATCH")
+        .then(function () { showStatus(gStatus, "ok", "Settings saved."); return loadDashboard(); })
+        .catch(function (err) {
+          showFieldError(err, { test_date: "acct-test-date", target_score: "acct-target", weekly_goal_hours: "goal-hours" });
+          showStatus(gStatus, "err", "We couldn't save your settings.", networkMessage(err));
+        });
+    });
+
+    function renderDashboard(d) {
+      var s = d.summary, u = d.user;
+      // Label each attempt in the student's own time zone.
+      d.history.forEach(function (h) { if (h.submitted_at) h.label = new Date(h.submitted_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }); });
+      if (s.latest) s.latest.label = d.history[d.history.length - 1].label;
+      $("#sample-note").hidden = true;
+      $("#greeting").textContent = part + ", " + u.first_name;
+      $("#account-email").textContent = u.email;
+
+      if (s.latest) {
+        $("#kpi-latest-label").textContent = "Latest practice test";
+        $("#kpi-latest").textContent = s.latest.correct + " / " + s.latest.total;
+        $("#kpi-latest-sub").textContent = s.latest.pct + "% correct" + (s.change_pct_points != null ? ", " + (s.change_pct_points >= 0 ? "up " : "down ") + Math.abs(s.change_pct_points) + " from your first test" : " on " + s.latest.label);
+      } else {
+        $("#kpi-latest-label").textContent = "Latest practice test";
+        $("#kpi-latest").textContent = "None yet";
+        $("#kpi-latest-sub").textContent = "Take practice test 4 to start";
+      }
+      $("#kpi-target").textContent = s.target_score || "Not set";
+      $("#kpi-target-sub").textContent = s.target_score ? "Your goal score" : "Add one in Account";
+      minutesThisWeek = s.practice_minutes_week;
+      $("#kpi-week").textContent = fmtMinutes(minutesThisWeek);
+      applyGoal(s.weekly_goal_hours);
+      if (s.test_date) {
+        $("#kpi-test-label").textContent = "SAT on " + niceDate(s.test_date, { month: "short", day: "numeric", year: "numeric" });
+        $("#kpi-test-num").innerHTML = '<span id="days-left">' + s.days_to_test + "</span> " + (s.days_to_test === 1 ? "day" : "days");
+        $("#kpi-test-sub").textContent = d.plan.weeks.length + (d.plan.weeks.length === 1 ? " week" : " weeks") + " of plan left";
+      } else {
+        $("#kpi-test-label").textContent = "SAT date";
+        $("#kpi-test-num").textContent = "Not set";
+        $("#kpi-test-sub").textContent = "Add it in Account to fit your plan";
+      }
+
+      var setList = $("#set-list");
+      setTotal = d.today.questions || 12;
+      prog.textContent = Math.min(done, setTotal) + " of " + setTotal + " done";
+      if (d.today.items.length) {
+        $("#today-meta").textContent = d.today.questions + " questions · about " + d.today.minutes + " min";
+        $("#today-lede").textContent = "Built from the domains costing you the most points right now.";
+        setList.innerHTML = d.today.items.map(function (it) {
+          return "<li><span>" + esc(it.domain) + '</span><span class="mono">' + it.count + ' questions</span><span class="set-why">' + esc(it.why) + "</span></li>";
+        }).join("");
+        setList.hidden = false;
+      } else {
+        $("#today-meta").textContent = "Warm-up";
+        $("#today-lede").textContent = "Take practice test 4 first. After that, your daily sets come from the questions you miss.";
+        setList.innerHTML = ""; setList.hidden = true;
+      }
+
+      var test = d.tests[0];
+      if (test) {
+        $("#next-test-text").innerHTML = "<strong>" + esc(test.name || test.title) + ", Math module 1</strong><span>" + test.questions + " questions · " + test.minutes + " minutes · graphing calculator built in" + (test.taken ? " · retake any time" : "") + "</span>";
+      }
+      $("#scores-meta").textContent = d.history.length ? d.history.length + (d.history.length === 1 ? " test taken" : " tests taken") : "No tests yet";
+      if (d.history.length) {
+        $("#score-chart").innerHTML = drawChart(d.history);
+        $("#scores-thead").innerHTML = '<tr><th scope="col">Test</th><th scope="col">Date</th><th scope="col" class="num">Correct</th><th scope="col" class="num">Percent</th><th scope="col" class="num">Time</th></tr>';
+        $("#scores-tbody").innerHTML = d.history.map(function (h, i) {
+          return '<tr><th scope="row">Attempt ' + (i + 1) + "</th><td>" + esc(h.label) + '</td><td class="num">' + h.correct + "/" + h.total + '</td><td class="num">' + h.pct + '%</td><td class="num">' + Math.round(h.seconds_used / 60) + " min</td></tr>";
+        }).join("");
+        $("#scores-table").hidden = false;
+        bindChart();
+      } else {
+        $("#score-chart").innerHTML = '<div class="chart-empty"><p>Your scores appear here after your first practice test.</p></div>';
+        $("#scores-table").hidden = true;
+      }
+
+      var groups = { "Math": [], "Reading and Writing": [] };
+      d.domains.forEach(function (dm) { groups[dm.section].push(dm); });
+      $("#domains-meta").textContent = d.history.length ? "% correct on your latest test" : "No test yet";
+      $("#domains-lede").textContent = d.domains.some(function (x) { return x.focus; })
+        ? "The ones marked Focus have the most points left to gain. Your daily sets lean toward them."
+        : "Take a practice test to see where your points are. Reading and Writing results appear once that section's practice tests are added.";
+      $("#bar-groups").innerHTML = Object.keys(groups).map(function (name) {
+        return '<div><h3 class="bar-group-title">' + esc(name) + '</h3><ul class="bars">' + groups[name].map(function (dm) {
+          var has = dm.pct != null;
+          return '<li><span class="bar-name">' + esc(dm.name) + (dm.focus ? ' <span class="chip">Focus</span>' : "") + '</span><span class="bar-track' + (has ? "" : " is-empty") + '"><span style="width: ' + (has ? dm.pct : 0) + '%"></span></span><span class="bar-val">' + (has ? dm.pct + "%" : "–") + "</span></li>";
+        }).join("") + "</ul></div>";
+      }).join("");
+
+      queue.innerHTML = d.review.map(function (it) {
+        return '<li data-id="' + it.id + '" data-right="' + it.right_count + '"><div><span class="label">' + esc(it.section) + " · " + esc(it.domain) + "</span><p>" + esc(it.skill) +
+          '</p></div><span class="queue-meta"><span class="mono queue-score">' + it.right_count + ' of 2</span><span class="due' + (it.due_now ? " due-now" : "") + '">' + esc(it.due_label) +
+          '</span></span><button class="btn btn-quiet" type="button">I got it right</button></li>';
+      }).join("");
+      $all("li", queue).forEach(bindReview);
+      updateCount();
+
+      $("#plan-title").textContent = d.plan.fits_test_date ? "Your plan to " + niceDate(s.test_date) : "Your next " + d.plan.weeks.length + " weeks";
+      $("#plan-meta").textContent = d.plan.weeks.length + (d.plan.weeks.length === 1 ? " week" : " weeks");
+      $("#weeks").innerHTML = d.plan.weeks.map(function (w) {
+        return "<li" + (w.is_now ? ' class="is-now"' : "") + '><span class="mono">' + esc(niceDate(w.week_of)) + "</span><span>" + esc(w.focus) + (w.is_now ? ' <em class="now-tag">This week</em>' : "") + "</span></li>";
+      }).join("");
+
+      $("#account-list").innerHTML =
+        "<div><dt>Student</dt><dd>" + esc(u.name) + (u.grade ? ", " + u.grade + "th grade" : "") + "</dd></div>" +
+        "<div><dt>Email</dt><dd>" + esc(u.email) + "</dd></div>" +
+        "<div><dt>Plan</dt><dd>" + esc(u.plan.charAt(0).toUpperCase() + u.plan.slice(1)) + "</dd></div>" +
+        "<div><dt>Parent email</dt><dd>" + (u.parent_email ? esc(u.parent_email) : "Not added") + "</dd></div>";
+      $all(".live-only").forEach(function (f) { f.hidden = false; });
+      $("#acct-test-date").value = u.test_date || "";
+      $("#acct-target").value = u.target_score || "";
+      $("#goal-save").textContent = "Save settings";
+      $(".dash").classList.add("is-ready");
+    }
+
+    function loadDashboard() {
+      var t = new Date(), localDay = t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
+      return api("/api/dashboard?today=" + localDay).then(renderDashboard).catch(function (err) {
+        if (err && err.status === 401) { location.href = "/signin.html?next=/dashboard.html"; return; }
+        var note = $("#sample-note");
+        note.hidden = false; note.classList.add("is-error"); note.textContent = "We couldn't load your dashboard. Refresh the page to try again.";
+      });
+    }
+
+    if (LIVE) {
+      $("#greeting").textContent = part;
+      loadDashboard();
+    } else {
+      $("#greeting").textContent = part + ", Maya";
+      try { var who = sessionStorage.getItem("graphite_user"); if (who) $("#account-email").textContent = who; } catch (err) { /* storage blocked */ }
+      var dl = $("#days-left");
+      var test0 = new Date(dl.getAttribute("data-test-date") + "T08:00:00");
+      var today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var days = Math.round((new Date(test0.getFullYear(), test0.getMonth(), test0.getDate()) - today0) / 86400000);
+      if (isFinite(days)) dl.textContent = String(Math.max(days, 0));
+      $all("li", queue).forEach(bindReview);
+      var savedGoal = store.get("graphite_goal");
+      if (savedGoal) applyGoal(savedGoal);
+      bindChart();
     }
   }
 })();

@@ -1,0 +1,39 @@
+# Render Blueprint: in Render, choose New > Blueprint and pick this repository.
+services:
+  - type: web
+    name: graphite
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python website/build.py
+    startCommand: gunicorn --chdir backend --preload --workers 2 --bind 0.0.0.0:$PORT wsgi:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: graphite-db
+          property: connectionString
+      - key: BASE_URL
+        sync: false   # set to your site's address, e.g. https://graphite.onrender.com
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+
+databases:
+  - name: graphite-db
+    databaseName: graphite
+    # Free Render databases are deleted 30 days after creation (plus a 14-day grace period).
+    # Change this to a paid plan before real students sign up.
+    plan: free

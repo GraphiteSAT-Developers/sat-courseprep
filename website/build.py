@@ -95,6 +95,17 @@ def score_chart():
     out.append('</svg><div class="chart-tip" id="chart-tip" role="status" hidden></div></div>')
     return "\n".join(out)
 
+TESTS_DIR = ROOT.parent / "backend" / "app" / "content" / "tests"
+
+
+def script_source(name):
+    """Page scripts. questions.js is generated from the backend's test JSON, the single source of questions."""
+    if name == "questions.js":
+        test = json.loads((TESTS_DIR / "pt4-math-m1.json").read_text())
+        return "var GRAPHITE_TEST = " + json.dumps(test) + ";"
+    return (SRC / name).read_text()
+
+
 def render(meta, mode):
     is_home = meta["file"] == "index.html"
     h = "" if is_home else "./"
@@ -115,7 +126,9 @@ def render(meta, mode):
                  '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
                  '<link rel="manifest" href="/site.webmanifest">')
         styles = '<link rel="stylesheet" href="/css/site.css">'
-        script = "".join(f'<script src="/js/{n}" defer></script>' for n in meta.get("scripts", [])) + '<script src="/js/site.js" defer></script>'
+        # Served by the backend: site.js first (it sets up the API helper), and never the answer key.
+        script = '<script src="/js/site.js" defer></script>' + "".join(
+            f'<script src="/js/{n}" defer></script>' for n in meta.get("scripts", []) if n != "questions.js")
         canonical = f'<link rel="canonical" href="{url}">' if robots.startswith("index") else ""
         # Root-absolute internal links so pages work from any URL, including the 404 page
         body = re.sub(r'href="\./', 'href="/', body)
@@ -125,7 +138,7 @@ def render(meta, mode):
         fav = "data:image/svg+xml," + urllib.parse.quote(FAVICON_SVG)
         icons = f'<link rel="icon" href="{fav}" type="image/svg+xml">'
         styles = "<style>" + minify_css(css) + "</style>"
-        script = "".join("<script>" + (SRC / n).read_text() + "</script>" for n in meta.get("scripts", [])) + "<script>" + js + "</script>"
+        script = "<script>" + js + "</script>" + "".join("<script>" + script_source(n) + "</script>" for n in meta.get("scripts", []))
         if meta.get("test"):
             script = "<script>window.TOPLINE_SRC_B64 = '" + base64.b64encode(calculator_html().encode()).decode() + "';</script>" + script
         canonical = ""
@@ -159,7 +172,8 @@ def render(meta, mode):
         return head + "\n" + body + script + "\n"
     if mode == "dist":
         head = head.replace('<meta name="claude:viewport-fit-sides" content="cover">\n', "")
-    return ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+    live_meta = '<meta name="graphite-mode" content="live">\n' if mode == "dist" else ""
+    return ('<!doctype html>\n<html lang="en"' + (' class="live"' if mode == "dist" else "") + '>\n<head>\n<meta charset="utf-8">\n' + live_meta +
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
             + head + "\n" + (script if mode == "dist" else "") + "\n</head>\n<body>\n" + body
             + (script if mode == "artifact" else "") + "\n</body>\n</html>\n")
@@ -199,8 +213,7 @@ def build():
     (DIST / "css/site.css").write_text(minify_css(css))
     (DIST / "js/site.js").write_text(js)
     shutil.copy(SRC / "assets/hint-ladder.svg", DIST / "assets/hint-ladder.svg")
-    for n in ("questions.js", "practice-test.js"):
-        shutil.copy(SRC / n, DIST / "js" / n)
+    shutil.copy(SRC / "practice-test.js", DIST / "js" / "practice-test.js")
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:

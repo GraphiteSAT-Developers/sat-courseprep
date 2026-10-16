@@ -468,7 +468,9 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .account-list div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: var(--s3); padding-block: var(--s3); border-bottom: 1px solid var(--line); font-size: var(--t-sm); }
 .account-list dt { color: var(--muted); }
 .account-list dd { margin: 0; }
-.goal-form { grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--s3); }
+.goal-form { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); align-items: end; gap: var(--s3); }
+.chart-empty { display: grid; gap: var(--s3); justify-items: start; padding: var(--s5); background: var(--raised); border-radius: var(--radius); color: var(--muted); }
+.bar-track.is-empty { background: repeating-linear-gradient(90deg, var(--raised) 0 6px, transparent 6px 10px); }
 .account-actions { display: flex; gap: var(--s3); flex-wrap: wrap; }
 
 .app-footer { border-top: 1px solid var(--line); padding-block: var(--s5); font-size: var(--t-sm); color: var(--muted); }
@@ -665,3 +667,5 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
   .q-area { padding-top: var(--s5); }
   .res-body { padding-left: 0; }
 }
+/* Live dashboard: hide the built-in sample until the student's own data has loaded. */
+.live .dash:not(.is-ready) .kpis, .live .dash:not(.is-ready) .dash-grid, .live .dash:not(.is-ready) .sample-note:not(.is-error) { visibility: hidden; }

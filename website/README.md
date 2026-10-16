@@ -1,6 +1,13 @@
 # Graphite website
 
-Marketing site and dashboard sign-in for Graphite, the AI SAT tutor. Dark graphite gray with a pencil-yellow accent.
+Marketing site, sign-in, student dashboard and math practice test for Graphite, the AI SAT tutor. Dark graphite gray with a pencil-yellow accent.
+
+The pages run in two modes:
+
+- **Live**, served by the Flask server in `../backend/`. Accounts, test grading and the dashboard use real data. This is how the site runs when hosted. See `../backend/README.md`.
+- **Preview**, opened without the server (the files in `artifact/`). Forms show their messages without sending anything, the dashboard shows a sample student, and the test is graded in the browser.
+
+`build.py` writes both: `site/` for the server, `artifact/` for the preview. The practice test questions live in `../backend/app/content/tests/`.
 
 ## Folders
 
@@ -10,7 +17,6 @@ Marketing site and dashboard sign-in for Graphite, the AI SAT tutor. Dark graphi
   - `partials/`: the shared header, footer and cookie banner. The dashboard uses `app-header.html` and `app-footer.html`.
   - `site.css`: all styles. Colors, fonts and spacing are set at the top.
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
-  - `questions.js`: the 22 questions, answers and explanations for the math practice test.
   - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results.
   - `htaccess`, `netlify.toml`: server settings for HTTPS, the 404 page, compression and caching.
 - `build.py`: rebuilds `site/` from `src/`. Run `python3 build.py` after any edit. Needs Python 3 and Pillow (`pip install pillow`).
@@ -31,13 +37,10 @@ Marketing site and dashboard sign-in for Graphite, the AI SAT tutor. Dark graphi
 ## Before launch
 
 1. Replace the phone number `(954) 555-0142` (fictional), the domain `graphiteprep.com`, the prices and the company name. Search `src/` for each one.
-2. Fill in the `CONFIG` block at the top of `src/site.js`:
-   - `formEndpoint`: where the diagnostic signup form posts.
-   - `authEndpoint` and `dashboardUrl`: sign in. Signing in opens `dashboard.html`.
-   - The dashboard shows a sample student until it's connected to your account data. Its sample scores live in `build.py` (`SCORES`, `TARGET`) and `src/pages/dashboard.html`. Protect `dashboard.html` behind sign in on your server.
-   - `analytics`: Plausible or GA4. It loads only after a visitor accepts analytics cookies.
-3. Have a lawyer review the privacy policy, cookie policy and terms.
-4. Run `python3 build.py`, then upload `site/`.
+2. In the `CONFIG` block at the top of `src/site.js`, set `analytics` to Plausible or GA4. It loads only after a visitor accepts analytics cookies. The form and sign-in endpoints are already set to the backend's API in live mode.
+3. Set up the backend's environment variables, including email. See `../backend/README.md`.
+4. Have a lawyer review the privacy policy, cookie policy and terms.
+5. Run `python3 build.py` and deploy the repository with the backend.
 
 ## Practice test calculator
 
@@ -47,8 +50,6 @@ To use the real Desmos calculator instead, you need a paid Desmos API key. See `
 
 ## Hosting
 
-Links use root paths (`/signin.html`), so serve the site from the root of a domain.
+Deploy the whole repository with the backend (Render or Railway). Instructions are in `../backend/README.md`.
 
-- **Apache:** `.htaccess` forces HTTPS, serves the custom 404 and turns on compression.
-- **Netlify:** `netlify.toml` does the same.
-- **GitHub Pages:** works with a custom domain set on the repository. A project URL such as `username.github.io/sat-courseprep/` would break the root links.
+`.htaccess` and `netlify.toml` in `site/` are for hosting the pages alone without the backend. In that case the forms, sign-in, dashboard and practice test won't work, because they need the server.

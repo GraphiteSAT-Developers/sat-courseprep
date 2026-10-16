@@ -1,0 +1,112 @@
+"""Database tables, as numbered migrations.
+
+To change the database: add a new entry to the end of MIGRATIONS. Never edit
+one that has already run on a live site. Each migration runs once, in order,
+when the app starts. {pk} becomes the right auto-increment id for the database.
+"""
+from datetime import datetime, timezone
+
+from .db import connect, is_postgres
+
+MIGRATIONS = [
+    (1, "Accounts, leads, practice tests, review queue, resets, rate limits, activity", [
+        """CREATE TABLE users (
+            id {pk},
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            name TEXT NOT NULL,
+            grade INTEGER,
+            test_date TEXT,
+            target_score INTEGER,
+            plan TEXT NOT NULL DEFAULT 'free',
+            weekly_goal_hours INTEGER NOT NULL DEFAULT 3,
+            parent_email TEXT,
+            session_version INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL,
+            last_login_at TEXT
+        )""",
+        """CREATE TABLE leads (
+            id {pk},
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            grade INTEGER,
+            test_date TEXT,
+            target_score INTEGER,
+            message TEXT,
+            created_at TEXT NOT NULL
+        )""",
+        """CREATE TABLE test_attempts (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            test_id TEXT NOT NULL,
+            seconds_used INTEGER NOT NULL,
+            correct INTEGER NOT NULL,
+            total INTEGER NOT NULL,
+            answers TEXT NOT NULL,
+            results TEXT NOT NULL,
+            submitted_at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_attempts_user ON test_attempts (user_id, submitted_at)",
+        """CREATE TABLE review_items (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            test_id TEXT NOT NULL,
+            question_index INTEGER NOT NULL,
+            domain TEXT NOT NULL,
+            skill TEXT NOT NULL,
+            right_count INTEGER NOT NULL DEFAULT 0,
+            due_on TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            cleared_at TEXT,
+            UNIQUE (user_id, test_id, question_index)
+        )""",
+        """CREATE TABLE password_resets (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            token_hash TEXT NOT NULL UNIQUE,
+            expires_at TEXT NOT NULL,
+            used_at TEXT
+        )""",
+        """CREATE TABLE rate_events (
+            id {pk},
+            bucket TEXT NOT NULL,
+            at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_rate_bucket ON rate_events (bucket, at)",
+        """CREATE TABLE activity (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            kind TEXT NOT NULL,
+            seconds INTEGER NOT NULL DEFAULT 0,
+            detail TEXT,
+            at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_activity_user ON activity (user_id, at)",
+    ]),
+    # (2, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+]
+
+
+def migrate(url):
+    """Bring the database up to the latest migration. Safe to run on every start."""
+    pk = "SERIAL PRIMARY KEY" if is_postgres(url) else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    ph = "%s" if is_postgres(url) else "?"
+    conn = connect(url)
+    try:
+        conn.execute("CREATE TABLE IF NOT EXISTS schema_version (version INTEGER PRIMARY KEY, description TEXT, applied_at TEXT)")
+        conn.commit()
+        row = conn.execute("SELECT MAX(version) AS v FROM schema_version").fetchone()
+        current = (row["v"] if row and row["v"] is not None else 0)
+        applied = []
+        for version, description, statements in MIGRATIONS:
+            if version <= current:
+                continue
+            for stmt in statements:
+                conn.execute(stmt.replace("{pk}", pk))
+            stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            conn.execute(f"INSERT INTO schema_version (version, description, applied_at) VALUES ({ph}, {ph}, {ph})", (version, description, stamp))
+            conn.commit()
+            applied.append(version)
+        return applied
+    finally:
+        conn.close()

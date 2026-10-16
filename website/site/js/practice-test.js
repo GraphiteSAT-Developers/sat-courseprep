@@ -1,13 +1,36 @@
-/* Graphite practice test engine. Reads GRAPHITE_TEST from questions.js. */
+/* Graphite practice test engine.
+   Live (served by the backend): questions come from /api/tests/<id> without answers, and the server grades.
+   Static preview: questions come from GRAPHITE_TEST in questions.js and are graded in the browser. */
 (function () {
   "use strict";
-  var T = window.GRAPHITE_TEST;
   var root = document.getElementById("exam");
-  if (!T || !root) return;
-
-  var Q = T.questions, N = Q.length, LETTERS = "ABCD";
-  var KEY = "graphite_test_" + T.id;
+  if (!root) return;
   function $(id) { return document.getElementById(id); }
+  var API = window.GraphiteAPI;
+  var LIVE = !!(API && API.live);
+  var TEST_ID = root.getAttribute("data-test") || "pt4-math-m1";
+
+  if (LIVE) {
+    $("start-btn").disabled = true; $("start-btn").textContent = "Loading…";
+    Promise.all([API.call("/api/tests/" + TEST_ID), API.call("/api/me")])
+      .then(function (r) { boot(r[0].test, r[1].user); })
+      .catch(function (err) {
+        if (err && err.status === 401) { location.href = "/signin.html?next=/practice-test.html"; return; }
+        $("start-btn").textContent = "Couldn't load";
+        var p = document.querySelector("#start-overlay .dialog > p:not(.label)");
+        if (p) p.textContent = "We couldn't load this test. Check your connection and refresh the page.";
+      });
+  } else {
+    boot(window.GRAPHITE_TEST, null);
+  }
+
+  function boot(T, user) {
+  if (!T) return;
+  var Q = T.questions, N = Q.length, LETTERS = "ABCD";
+  var KEY = "graphite_test_" + T.id + (user ? "_u" + user.id : "");
+  if (user) $("exam-student").textContent = user.name;
+  $("start-btn").disabled = false; $("start-btn").textContent = "Begin module";
+  var submitting = false;
   function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked */ } }
   function fresh() {
@@ -31,11 +54,26 @@
     return Number(s);
   }
   function isAnswered(i) { var a = S.answers[i]; return a !== undefined && a !== null && a !== ""; }
-  function isCorrect(i) {
-    var q = Q[i], a = S.answers[i];
-    if (!isAnswered(i)) return false;
-    if (q.type === "mc") return a === q.answer;
-    var v = sprValue(a); return v !== null && Math.abs(v - q.answer) < 1e-9;
+  // Static preview only: grades in the browser and returns the same shape the server sends.
+  function gradeLocal(seconds) {
+    var res = { correct: 0, total: N, seconds_used: seconds, multiple_choice: { right: 0, total: 0 }, student_produced: { right: 0, total: 0 }, by_domain: [], questions: [] };
+    var dom = {};
+    Q.forEach(function (q, i) {
+      var a = S.answers[i], answered = isAnswered(i), ok = false;
+      if (answered) {
+        if (q.type === "mc") ok = a === q.answer;
+        else { var v = sprValue(a); ok = v !== null && Math.abs(v - q.answer) < 1e-9; }
+      }
+      if (ok) res.correct++;
+      var b = q.type === "mc" ? res.multiple_choice : res.student_produced; b.total++; if (ok) b.right++;
+      if (!dom[q.domain]) { dom[q.domain] = { domain: q.domain, right: 0, total: 0 }; res.by_domain.push(dom[q.domain]); }
+      dom[q.domain].total++; if (ok) dom[q.domain].right++;
+      res.questions.push({ index: i, type: q.type, domain: q.domain, stem: q.stem, correct: ok, answered: answered,
+        your_answer: answered ? (q.type === "mc" ? LETTERS[a] : a) : null,
+        answer: q.type === "mc" ? LETTERS[q.answer] : String(q.answer), answer_index: q.answer,
+        choices: q.choices, explain: q.explain, calc: q.calc });
+    });
+    return res;
   }
   function previewHTML(raw) {
     var s = String(raw || "").replace(/\s+/g, "");
@@ -193,48 +231,57 @@
 
   /* ---------- submit & results ---------- */
   function submit(auto) {
-    if (S.submitted) return;
-    S.submitted = true; clearInterval(tickTimer); save();
-    if (auto) toast("Time's up. Your module was submitted.");
-    renderResults(); showPage("results");
+    if (S.submitted || submitting) return;
+    clearInterval(tickTimer);
+    var seconds = T.minutes * 60 - S.remaining;
+    var finish = function (result) {
+      S.submitted = true; S.result = result; save();
+      if (auto) toast("Time's up. Your module was submitted.");
+      renderResults(result); showPage("results");
+    };
+    if (!LIVE) { finish(gradeLocal(seconds)); return; }
+    var answers = {};
+    Object.keys(S.answers).forEach(function (k) { if (isAnswered(Number(k))) answers[k] = S.answers[k]; });
+    submitting = true; $("submit-go").disabled = true; $("submit-go").textContent = "Submitting…";
+    API.call("/api/tests/" + T.id + "/attempts", { answers: answers, seconds_used: seconds })
+      .then(function (r) { finish(r.result); })
+      .catch(function (err) {
+        if (err && err.status === 401) { save(); location.href = "/signin.html?next=/practice-test.html"; return; }
+        showPage("review");
+        toast(err && err.status ? err.message : "We couldn't submit. Check your connection, then press Submit module again.");
+      })
+      .then(function () { submitting = false; $("submit-go").disabled = false; $("submit-go").textContent = "Yes, submit"; });
   }
-  function renderResults() {
-    var right = 0, mcR = 0, sprR = 0, mcN = 0, sprN = 0, marked = 0, dom = {};
-    Q.forEach(function (q, i) {
-      var ok = isCorrect(i);
-      if (ok) right++;
-      if (q.type === "mc") { mcN++; if (ok) mcR++; } else { sprN++; if (ok) sprR++; }
-      if (S.marked[i]) marked++;
-      dom[q.domain] = dom[q.domain] || { r: 0, n: 0 }; dom[q.domain].n++; if (ok) dom[q.domain].r++;
-    });
-    $("res-correct").textContent = String(right);
-    $("res-time").textContent = fmt(T.minutes * 60 - S.remaining);
-    $("res-mc").textContent = mcR + " of " + mcN;
-    $("res-spr").textContent = sprR + " of " + sprN;
+  function renderResults(r) {
+    var marked = 0;
+    for (var m = 0; m < N; m++) if (S.marked[m]) marked++;
+    $("results-title").textContent = "You got " + r.correct + " of " + r.total + " right";
+    $("res-time").textContent = fmt(r.seconds_used);
+    $("res-mc").textContent = r.multiple_choice.right + " of " + r.multiple_choice.total;
+    $("res-spr").textContent = r.student_produced.right + " of " + r.student_produced.total;
     $("res-marked").textContent = String(marked);
 
     var bars = $("res-domains"); bars.innerHTML = "";
-    Object.keys(dom).forEach(function (d) {
-      var pct = Math.round(dom[d].r / dom[d].n * 100);
+    r.by_domain.forEach(function (d) {
+      var pct = Math.round(d.right / d.total * 100);
       var li = document.createElement("li");
-      li.innerHTML = '<span class="bar-name"></span><span class="bar-track"><span style="width:' + pct + '%"></span></span><span class="bar-val">' + dom[d].r + "/" + dom[d].n + "</span>";
-      li.querySelector(".bar-name").textContent = d;
+      li.innerHTML = '<span class="bar-name"></span><span class="bar-track"><span style="width:' + pct + '%"></span></span><span class="bar-val">' + d.right + "/" + d.total + "</span>";
+      li.querySelector(".bar-name").textContent = d.domain;
       bars.appendChild(li);
     });
 
     var list = $("res-list"); list.innerHTML = "";
-    Q.forEach(function (q, i) {
-      var ok = isCorrect(i), a = S.answers[i];
-      var yours = !isAnswered(i) ? "No answer" : (q.type === "mc" ? LETTERS[a] : previewHTML(a));
-      var correct = q.type === "mc" ? LETTERS[q.answer] : String(q.answer).replace(/^-/, "−");
-      var d = document.createElement("details"); d.className = "res-item " + (ok ? "ok" : "no");
-      d.innerHTML = '<summary><span class="res-n">' + (i + 1) + '</span><span class="res-verdict">' + (ok ? "Correct" : (isAnswered(i) ? "Incorrect" : "Skipped")) +
+    r.questions.forEach(function (q) {
+      var yours = !q.answered ? "No answer" : (q.type === "mc" ? q.your_answer : previewHTML(q.your_answer));
+      var correct = String(q.answer).replace(/^-/, "−");
+      var d = document.createElement("details"); d.className = "res-item " + (q.correct ? "ok" : "no");
+      d.innerHTML = '<summary><span class="res-n">' + (q.index + 1) + '</span><span class="res-verdict">' + (q.correct ? "Correct" : (q.answered ? "Incorrect" : "Skipped")) +
         '</span><span class="res-dom"></span><span class="res-ans">Yours: <strong>' + yours + "</strong> · Answer: <strong>" + correct + "</strong></span></summary>" +
         '<div class="res-body"><div class="res-stem">' + q.stem + "</div>" +
-        (q.type === "mc" ? '<ol class="res-choices" type="A">' + q.choices.map(function (c, k) { return '<li class="' + (k === q.answer ? "is-key" : "") + '">' + c + "</li>"; }).join("") + "</ol>" : "") +
+        (q.type === "mc" ? '<ol class="res-choices" type="A">' + q.choices.map(function (c, k) { return '<li class="' + (k === q.answer_index ? "is-key" : "") + '">' + c + "</li>"; }).join("") + "</ol>" : "") +
         '<p class="res-explain"></p>' + (q.calc ? '<p class="res-calc"><strong>With the calculator:</strong> <span></span></p>' : "") + "</div>";
       d.querySelector(".res-dom").textContent = q.domain;
-      d.querySelector(".res-explain").textContent = q.explain;
+      d.querySelector(".res-explain").textContent = q.explain || "";
       if (q.calc) d.querySelector(".res-calc span").textContent = q.calc;
       list.appendChild(d);
     });
@@ -377,9 +424,11 @@
 
   /* ---------- boot ---------- */
   applyView(); renderTimer();
-  if (S.submitted) { renderResults(); showPage("results"); $("start-overlay").hidden = true; }
+  if (S.submitted && !S.result) { S = fresh(); save(); }
+  if (S.submitted) { renderResults(S.result); showPage("results"); $("start-overlay").hidden = true; }
   else {
     showPage(S.page === "review" ? "review" : "q"); renderNav();
     if (S.started) { $("start-overlay").hidden = true; startClock(); if (resumed) toast("Picked up where you left off. " + fmt(S.remaining) + " left."); }
+  }
   }
 })();

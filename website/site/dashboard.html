@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="live">
 <head>
 <meta charset="utf-8">
+<meta name="graphite-mode" content="live">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dashboard | Graphite SAT Tutoring</title>
 <meta name="description" content="Your Graphite dashboard: today's SAT practice set, practice test scores, skill domains, review queue and week-by-week plan.">
@@ -66,21 +67,21 @@
 
     <dl class="kpis" aria-label="Summary">
       <div>
-        <dt class="label">Latest practice score</dt>
-        <dd><span class="kpi-num">1290</span><span class="kpi-sub">+110 since your diagnostic</span></dd>
+        <dt class="label" id="kpi-latest-label">Latest practice score</dt>
+        <dd><span class="kpi-num" id="kpi-latest">1290</span><span class="kpi-sub" id="kpi-latest-sub">+110 since your diagnostic</span></dd>
       </div>
       <div>
         <dt class="label">Target</dt>
-        <dd><span class="kpi-num">1450</span><span class="kpi-sub">160 points to go</span></dd>
+        <dd><span class="kpi-num" id="kpi-target">1450</span><span class="kpi-sub" id="kpi-target-sub">160 points to go</span></dd>
       </div>
       <div>
         <dt class="label">Practice this week</dt>
-        <dd><span class="kpi-num">1 h 50 m</span><span class="kpi-sub" id="goal-sub">of your 3 h goal</span>
+        <dd><span class="kpi-num" id="kpi-week">1 h 50 m</span><span class="kpi-sub" id="goal-sub">of your 3 h goal</span>
           <span class="meter" aria-hidden="true"><span id="goal-meter" style="width: 61%"></span></span></dd>
       </div>
       <div>
-        <dt class="label">SAT on Dec 5, 2026</dt>
-        <dd><span class="kpi-num"><span id="days-left" data-test-date="2026-12-05">51</span> days</span><span class="kpi-sub">7 weeks of plan left</span></dd>
+        <dt class="label" id="kpi-test-label">SAT on Dec 5, 2026</dt>
+        <dd><span class="kpi-num" id="kpi-test-num"><span id="days-left" data-test-date="2026-12-05">51</span> days</span><span class="kpi-sub" id="kpi-test-sub">7 weeks of plan left</span></dd>
       </div>
     </dl>
 
@@ -90,10 +91,10 @@
         <section class="panel" id="today" aria-labelledby="today-title">
           <div class="panel-head">
             <h2 id="today-title">Today's set</h2>
-            <span class="label">12 questions · about 25 min</span>
+            <span class="label" id="today-meta">12 questions · about 25 min</span>
           </div>
-          <p class="panel-lede">Built from the domains costing you the most points right now.</p>
-          <ul class="set-list">
+          <p class="panel-lede" id="today-lede">Built from the domains costing you the most points right now.</p>
+          <ul class="set-list" id="set-list">
             <li><span>Problem-Solving and Data Analysis</span><span class="mono">5 questions</span><span class="set-why">Percent change. 3 misses this week</span></li>
             <li><span>Craft and Structure</span><span class="mono">4 questions</span><span class="set-why">Words in context</span></li>
             <li><span>Advanced Math</span><span class="mono">3 questions</span><span class="set-why">Quadratics in vertex form</span></li>
@@ -126,13 +127,13 @@
         <section class="panel" id="scores" aria-labelledby="scores-title">
           <div class="panel-head">
             <h2 id="scores-title">Practice test scores</h2>
-            <span class="label">Next test: Nov 1</span>
+            <span class="label" id="scores-meta">Next test: Nov 1</span>
           </div>
           <div class="next-test">
-            <p><strong>Practice test 4, Math module 1</strong><span>22 questions · 35 minutes · graphing calculator built in</span></p>
+            <p id="next-test-text"><strong>Practice test 4, Math module 1</strong><span>22 questions · 35 minutes · graphing calculator built in</span></p>
             <a class="btn btn-primary" href="/practice-test.html" data-track="dash_practice_test">Start practice test</a>
           </div>
-          <div class="chart-wrap"><svg viewBox="0 0 640 250" role="img" aria-labelledby="chart-title chart-desc">
+          <div id="score-chart"><div class="chart-wrap"><svg viewBox="0 0 640 250" role="img" aria-labelledby="chart-title chart-desc">
 <title id="chart-title">Total practice test score</title>
 <desc id="chart-desc">Total score rose from 1180 on the diagnostic to 1290 on practice test 3. Target 1450.</desc>
 <line class="grid" x1="52" x2="530" y1="216.0" y2="216.0"/>
@@ -159,11 +160,11 @@
 <circle class="hit" cx="530.0" cy="121.0" r="18" tabindex="0" data-label="Practice test 3" data-score="1290" data-detail="R&amp;W 640 · Math 650" aria-label="Practice test 3, Oct 11: 1290"/>
 <circle class="pt" cx="530.0" cy="121.0" r="6"/>
 <text class="end-text" x="542.0" y="126.0">1290</text>
-</svg><div class="chart-tip" id="chart-tip" role="status" hidden></div></div>
-          <div class="table-scroll" tabindex="0" role="region" aria-label="Practice test scores by section">
+</svg><div class="chart-tip" id="chart-tip" role="status" hidden></div></div></div>
+          <div class="table-scroll" id="scores-table" tabindex="0" role="region" aria-label="Practice test scores">
             <table class="compact">
-              <thead><tr><th scope="col">Test</th><th scope="col">Date</th><th scope="col" class="num">Reading and Writing</th><th scope="col" class="num">Math</th><th scope="col" class="num">Total</th></tr></thead>
-              <tbody>
+              <thead id="scores-thead"><tr><th scope="col">Test</th><th scope="col">Date</th><th scope="col" class="num">Reading and Writing</th><th scope="col" class="num">Math</th><th scope="col" class="num">Total</th></tr></thead>
+              <tbody id="scores-tbody">
                 <tr><th scope="row">Diagnostic</th><td>Aug 30</td><td class="num">600</td><td class="num">580</td><td class="num">1180</td></tr>
                 <tr><th scope="row">Practice test 2</th><td>Sep 20</td><td class="num">610</td><td class="num">620</td><td class="num">1230</td></tr>
                 <tr><th scope="row">Practice test 3</th><td>Oct 11</td><td class="num">640</td><td class="num">650</td><td class="num">1290</td></tr>
@@ -175,10 +176,10 @@
         <section class="panel" id="domains" aria-labelledby="domains-title">
           <div class="panel-head">
             <h2 id="domains-title">Skill domains</h2>
-            <span class="label">% correct on practice test 3</span>
+            <span class="label" id="domains-meta">% correct on practice test 3</span>
           </div>
-          <p class="panel-lede">The three marked Focus have the most points left to gain. Your daily sets lean toward them.</p>
-          <div class="bar-groups">
+          <p class="panel-lede" id="domains-lede">The three marked Focus have the most points left to gain. Your daily sets lean toward them.</p>
+          <div class="bar-groups" id="bar-groups">
             <div>
               <h3 class="bar-group-title">Reading and Writing</h3>
               <ul class="bars">
@@ -237,9 +238,9 @@
         <section class="panel" id="plan" aria-labelledby="plan-title">
           <div class="panel-head">
             <h2 id="plan-title">Your plan to Dec 5</h2>
-            <span class="label">8 weeks</span>
+            <span class="label" id="plan-meta">8 weeks</span>
           </div>
-          <ol class="weeks">
+          <ol class="weeks" id="weeks">
             <li class="is-now"><span class="mono">Oct 12</span><span>Percent change and ratios <em class="now-tag">This week</em></span></li>
             <li><span class="mono">Oct 19</span><span>Words in context</span></li>
             <li><span class="mono">Oct 26</span><span>Quadratics. Practice test 4 on Nov 1</span></li>
@@ -253,7 +254,7 @@
 
         <section class="panel" id="account" aria-labelledby="account-title">
           <div class="panel-head"><h2 id="account-title">Account</h2></div>
-          <dl class="account-list">
+          <dl class="account-list" id="account-list">
             <div><dt>Student</dt><dd>Maya R., 11th grade</dd></div>
             <div><dt>Plan</dt><dd>Daily, $24 per month. Renews Nov 3.</dd></div>
             <div><dt>Parent email</dt><dd>Weekly progress email is on</dd></div>
@@ -268,7 +269,15 @@
                 <option value="5">5 hours</option>
               </select>
             </div>
-            <button class="btn btn-secondary" type="submit">Save goal</button>
+            <div class="field live-only" hidden>
+              <label for="acct-test-date">SAT date</label>
+              <input type="date" id="acct-test-date" name="test_date">
+            </div>
+            <div class="field live-only" hidden>
+              <label for="acct-target">Target score</label>
+              <input type="number" id="acct-target" name="target_score" min="400" max="1600" step="10" inputmode="numeric">
+            </div>
+            <button class="btn btn-secondary" type="submit" id="goal-save">Save goal</button>
           </form>
           <div class="status" id="goal-status" role="status" aria-live="polite" tabindex="-1"></div>
           <div class="account-actions">

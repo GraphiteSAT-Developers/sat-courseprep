@@ -1,0 +1,2 @@
+# Hosts like Render and Railway look for this file at the top of the repo.
+-r backend/requirements.txt
