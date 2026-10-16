@@ -1,0 +1,198 @@
+<!--{"file": "dashboard.html", "path": "/dashboard.html", "title": "Dashboard | Graphite SAT Tutoring", "description": "Your Graphite dashboard: today's SAT practice set, practice test scores, skill domains, review queue and week-by-week plan.", "robots": "noindex, nofollow", "app": true}-->
+<main id="main" class="dash">
+  <div class="wrap dash-stack">
+    <p class="sample-note" id="sample-note"><span class="label">Sample student</span> You're seeing example scores and a sample plan. Your own numbers appear here once your account data is connected.</p>
+
+    <div class="dash-top">
+      <div>
+        <p class="label" id="today-date">Thursday, October 15</p>
+        <h1 id="greeting">Good evening, Maya</h1>
+      </div>
+      <a class="btn btn-primary" href="#today" data-track="dash_start_top">Start today's set</a>
+    </div>
+
+    <dl class="kpis" aria-label="Summary">
+      <div>
+        <dt class="label">Latest practice score</dt>
+        <dd><span class="kpi-num">1290</span><span class="kpi-sub">+110 since your diagnostic</span></dd>
+      </div>
+      <div>
+        <dt class="label">Target</dt>
+        <dd><span class="kpi-num">1450</span><span class="kpi-sub">160 points to go</span></dd>
+      </div>
+      <div>
+        <dt class="label">Practice this week</dt>
+        <dd><span class="kpi-num">1 h 50 m</span><span class="kpi-sub" id="goal-sub">of your 3 h goal</span>
+          <span class="meter" aria-hidden="true"><span id="goal-meter" style="width: 61%"></span></span></dd>
+      </div>
+      <div>
+        <dt class="label">SAT on Dec 5, 2026</dt>
+        <dd><span class="kpi-num"><span id="days-left" data-test-date="2026-12-05">51</span> days</span><span class="kpi-sub">7 weeks of plan left</span></dd>
+      </div>
+    </dl>
+
+    <div class="dash-grid">
+      <div class="dash-col">
+
+        <section class="panel" id="today" aria-labelledby="today-title">
+          <div class="panel-head">
+            <h2 id="today-title">Today's set</h2>
+            <span class="label">12 questions · about 25 min</span>
+          </div>
+          <p class="panel-lede">Built from the domains costing you the most points right now.</p>
+          <ul class="set-list">
+            <li><span>Problem-Solving and Data Analysis</span><span class="mono">5 questions</span><span class="set-why">Percent change. 3 misses this week</span></li>
+            <li><span>Craft and Structure</span><span class="mono">4 questions</span><span class="set-why">Words in context</span></li>
+            <li><span>Advanced Math</span><span class="mono">3 questions</span><span class="set-why">Quadratics in vertex form</span></li>
+          </ul>
+          <div class="set-actions">
+            <button class="btn btn-primary" type="button" id="set-start" aria-expanded="false" aria-controls="set-runner" data-track="dash_start_set">Start today's set</button>
+            <span class="fine" id="set-progress">0 of 12 done</span>
+          </div>
+
+          <div class="set-runner" id="set-runner" hidden>
+            <div class="qcard" id="qcard" aria-labelledby="qcard-title">
+              <div class="qcard-top">
+                <span class="label" id="qmeta">Math · Module 1</span>
+                <span class="label mono" id="qnum">Question 7 of 22</span>
+              </div>
+              <div class="qcard-body">
+                <h3 class="visually-hidden" id="qcard-title">Practice question</h3>
+                <p class="qcard-stem" id="qstem">If 3x + 7 = 25, what is the value of 6x − 4?</p>
+                <fieldset class="choices" id="qchoices"><legend class="visually-hidden">Answer choices</legend></fieldset>
+                <div class="tutor-note" id="qnote" aria-live="polite" hidden></div>
+                <div class="qcard-foot">
+                  <span class="label">The tutor explains every answer.</span>
+                  <button class="btn btn-quiet" type="button" id="qnext">Next question</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="scores" aria-labelledby="scores-title">
+          <div class="panel-head">
+            <h2 id="scores-title">Practice test scores</h2>
+            <span class="label">Next test: Nov 1</span>
+          </div>
+          {{SCORE_CHART}}
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Practice test scores by section">
+            <table class="compact">
+              <thead><tr><th scope="col">Test</th><th scope="col">Date</th><th scope="col" class="num">Reading and Writing</th><th scope="col" class="num">Math</th><th scope="col" class="num">Total</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Diagnostic</th><td>Aug 30</td><td class="num">600</td><td class="num">580</td><td class="num">1180</td></tr>
+                <tr><th scope="row">Practice test 2</th><td>Sep 20</td><td class="num">610</td><td class="num">620</td><td class="num">1230</td></tr>
+                <tr><th scope="row">Practice test 3</th><td>Oct 11</td><td class="num">640</td><td class="num">650</td><td class="num">1290</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel" id="domains" aria-labelledby="domains-title">
+          <div class="panel-head">
+            <h2 id="domains-title">Skill domains</h2>
+            <span class="label">% correct on practice test 3</span>
+          </div>
+          <p class="panel-lede">The three marked Focus have the most points left to gain. Your daily sets lean toward them.</p>
+          <div class="bar-groups">
+            <div>
+              <h3 class="bar-group-title">Reading and Writing</h3>
+              <ul class="bars">
+                <li><span class="bar-name">Information and Ideas</span><span class="bar-track"><span style="width: 78%"></span></span><span class="bar-val">78%</span></li>
+                <li><span class="bar-name">Craft and Structure <span class="chip">Focus</span></span><span class="bar-track"><span style="width: 64%"></span></span><span class="bar-val">64%</span></li>
+                <li><span class="bar-name">Expression of Ideas</span><span class="bar-track"><span style="width: 82%"></span></span><span class="bar-val">82%</span></li>
+                <li><span class="bar-name">Standard English Conventions</span><span class="bar-track"><span style="width: 71%"></span></span><span class="bar-val">71%</span></li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="bar-group-title">Math</h3>
+              <ul class="bars">
+                <li><span class="bar-name">Algebra</span><span class="bar-track"><span style="width: 88%"></span></span><span class="bar-val">88%</span></li>
+                <li><span class="bar-name">Advanced Math <span class="chip">Focus</span></span><span class="bar-track"><span style="width: 69%"></span></span><span class="bar-val">69%</span></li>
+                <li><span class="bar-name">Problem-Solving and Data Analysis <span class="chip">Focus</span></span><span class="bar-track"><span style="width: 62%"></span></span><span class="bar-val">62%</span></li>
+                <li><span class="bar-name">Geometry and Trigonometry</span><span class="bar-track"><span style="width: 75%"></span></span><span class="bar-val">75%</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="dash-col">
+        <section class="panel" id="review" aria-labelledby="review-title">
+          <div class="panel-head">
+            <h2 id="review-title">Review queue</h2>
+            <span class="label" id="review-count">4 questions</span>
+          </div>
+          <p class="panel-lede">Missed questions come back until you get each one right twice.</p>
+          <ul class="queue" id="queue">
+            <li data-right="1">
+              <div><span class="label">Math · Percent change</span><p>Sale price after a 15% discount</p></div>
+              <span class="queue-meta"><span class="mono queue-score">1 of 2</span><span class="due due-now">Due today</span></span>
+              <button class="btn btn-quiet" type="button">I got it right</button>
+            </li>
+            <li data-right="0">
+              <div><span class="label">R&amp;W · Transitions</span><p>Choosing between However and Therefore</p></div>
+              <span class="queue-meta"><span class="mono queue-score">0 of 2</span><span class="due due-now">Due today</span></span>
+              <button class="btn btn-quiet" type="button">I got it right</button>
+            </li>
+            <li data-right="1">
+              <div><span class="label">Math · Linear equations</span><p>Slope from two points</p></div>
+              <span class="queue-meta"><span class="mono queue-score">1 of 2</span><span class="due">Due tomorrow</span></span>
+              <button class="btn btn-quiet" type="button">I got it right</button>
+            </li>
+            <li data-right="0">
+              <div><span class="label">R&amp;W · Words in context</span><p>The meaning of "tempered" in a science passage</p></div>
+              <span class="queue-meta"><span class="mono queue-score">0 of 2</span><span class="due">Due Saturday</span></span>
+              <button class="btn btn-quiet" type="button">I got it right</button>
+            </li>
+          </ul>
+          <div class="status" id="queue-status" role="status" aria-live="polite" tabindex="-1"></div>
+          <p class="fine queue-empty" id="queue-empty" hidden>Your review queue is clear. New misses from today's set will show up here.</p>
+        </section>
+
+        <section class="panel" id="plan" aria-labelledby="plan-title">
+          <div class="panel-head">
+            <h2 id="plan-title">Your plan to Dec 5</h2>
+            <span class="label">8 weeks</span>
+          </div>
+          <ol class="weeks">
+            <li class="is-now"><span class="mono">Oct 12</span><span>Percent change and ratios <em class="now-tag">This week</em></span></li>
+            <li><span class="mono">Oct 19</span><span>Words in context</span></li>
+            <li><span class="mono">Oct 26</span><span>Quadratics. Practice test 4 on Nov 1</span></li>
+            <li><span class="mono">Nov 2</span><span>Data analysis and tables</span></li>
+            <li><span class="mono">Nov 9</span><span>Transitions and rhetorical synthesis</span></li>
+            <li><span class="mono">Nov 16</span><span>Mixed review. Practice test 5 on Nov 22</span></li>
+            <li><span class="mono">Nov 23</span><span>Light week for Thanksgiving</span></li>
+            <li><span class="mono">Nov 30</span><span>Test week: pacing, sleep and logistics</span></li>
+          </ol>
+        </section>
+
+        <section class="panel" id="account" aria-labelledby="account-title">
+          <div class="panel-head"><h2 id="account-title">Account</h2></div>
+          <dl class="account-list">
+            <div><dt>Student</dt><dd>Maya R., 11th grade</dd></div>
+            <div><dt>Plan</dt><dd>Daily, $24 per month. Renews Nov 3.</dd></div>
+            <div><dt>Parent email</dt><dd>Weekly progress email is on</dd></div>
+          </dl>
+          <form class="form goal-form" id="goal-form" novalidate>
+            <div class="field">
+              <label for="goal-hours">Weekly practice goal</label>
+              <select id="goal-hours" name="goal">
+                <option value="2">2 hours</option>
+                <option value="3" selected>3 hours</option>
+                <option value="4">4 hours</option>
+                <option value="5">5 hours</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" type="submit">Save goal</button>
+          </form>
+          <div class="status" id="goal-status" role="status" aria-live="polite" tabindex="-1"></div>
+          <div class="account-actions">
+            <a class="btn btn-secondary" href="./#pricing">Change plan</a>
+            <button class="btn btn-quiet" type="button" data-sign-out>Sign out</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>

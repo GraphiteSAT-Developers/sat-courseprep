@@ -7,8 +7,8 @@
     formEndpoint: null,
     // POST endpoint for sign in. When null, any well-formed email and 8+ character password signs in.
     authEndpoint: null,
-    // Where to send students after a successful sign in. When null, the page stays put.
-    dashboardUrl: null,
+    // Where to send students after a successful sign in. Set to null to stay on the sign-in page.
+    dashboardUrl: "dashboard.html",
     // Analytics loads only after the visitor accepts analytics cookies.
     // provider: "plausible" (set domain) or "ga4" (set measurementId), or null for none.
     analytics: { provider: null, domain: "", measurementId: "", endpoint: null },
@@ -247,6 +247,12 @@
   var signin = $("#signin-form");
   if (signin) {
     var aStatus = $("#signin-status");
+    try {
+      if (sessionStorage.getItem("graphite_signed_out")) {
+        sessionStorage.removeItem("graphite_signed_out");
+        aStatus.className = "status is-shown ok"; aStatus.textContent = "You've signed out. See you next session.";
+      }
+    } catch (err) { /* storage blocked */ }
     var pw = $("#signin-password");
     var pwBtn = $("#pw-toggle");
     pwBtn.addEventListener("click", function () {
@@ -293,6 +299,7 @@
         .then(function () {
           showStatus(aStatus, "ok", "Signed in as " + em + ".", CONFIG.dashboardUrl ? "Opening your dashboard." : "Your dashboard is ready.");
           Analytics.track("sign_in");
+          try { sessionStorage.setItem("graphite_user", em); } catch (err) { /* storage blocked */ }
           if (CONFIG.dashboardUrl) setTimeout(function () { location.href = CONFIG.dashboardUrl; }, 700);
         })
         .catch(function () {
@@ -395,5 +402,106 @@
     });
     nextBtn.addEventListener("click", function () { qi = (qi + 1) % QUESTIONS.length; render(); fs.querySelector("input").focus(); });
     render();
+  }
+  /* 9. Dashboard */
+  $all("[data-sign-out]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      try { sessionStorage.removeItem("graphite_user"); sessionStorage.setItem("graphite_signed_out", "1"); } catch (err) { /* storage blocked */ }
+      location.href = "signin.html";
+    });
+  });
+
+  if ($(".dash")) {
+    var now = new Date();
+    var hr = now.getHours();
+    var part = hr < 12 ? "Good morning" : (hr < 18 ? "Good afternoon" : "Good evening");
+    $("#greeting").textContent = part + ", Maya";
+    $("#today-date").textContent = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+    try { var who = sessionStorage.getItem("graphite_user"); if (who) $("#account-email").textContent = who; } catch (err) { /* storage blocked */ }
+
+    var dl = $("#days-left");
+    var test = new Date(dl.getAttribute("data-test-date") + "T08:00:00");
+    var today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var days = Math.round((new Date(test.getFullYear(), test.getMonth(), test.getDate()) - today0) / 86400000);
+    if (isFinite(days)) dl.textContent = String(Math.max(days, 0));
+
+    // Today's set
+    var startBtn = $("#set-start"), runner = $("#set-runner"), prog = $("#set-progress");
+    var done = 0, answeredThis = false;
+    startBtn.addEventListener("click", function () {
+      runner.hidden = false;
+      startBtn.setAttribute("aria-expanded", "true");
+      startBtn.textContent = "Keep going";
+      var first = runner.querySelector("input"); if (first) first.focus();
+    });
+    $("#qchoices").addEventListener("change", function () {
+      if (answeredThis) return;
+      answeredThis = true; done = Math.min(done + 1, 12);
+      prog.textContent = done + " of 12 done";
+    });
+    $("#qnext").addEventListener("click", function () { answeredThis = false; });
+
+    // Review queue
+    var queue = $("#queue"), qStatus = $("#queue-status");
+    function updateCount() {
+      var n = queue.children.length;
+      $("#review-count").textContent = n === 1 ? "1 question" : n + " questions";
+      $("#queue-empty").hidden = n !== 0;
+    }
+    $all("li", queue).forEach(function (li) {
+      li.querySelector("button").addEventListener("click", function () {
+        var right = Number(li.getAttribute("data-right")) + 1;
+        if (right >= 2) {
+          li.remove();
+          showStatus(qStatus, "ok", "Cleared from your review queue.", "Right twice means it stuck.");
+          updateCount();
+          Analytics.track("review_cleared");
+          return;
+        }
+        li.setAttribute("data-right", String(right));
+        li.querySelector(".queue-score").textContent = right + " of 2";
+        var due = li.querySelector(".due"); due.textContent = "Due in 3 days"; due.classList.remove("due-now");
+        showStatus(qStatus, "ok", "Nice. One more right answer clears it.", "It comes back in 3 days.");
+      });
+    });
+
+    // Weekly goal
+    var goalForm = $("#goal-form"), gStatus = $("#goal-status"), minutesThisWeek = 110;
+    function applyGoal(h) {
+      $("#goal-hours").value = String(h);
+      $("#goal-sub").textContent = "of your " + h + " h goal";
+      $("#goal-meter").style.width = Math.min(100, Math.round(minutesThisWeek / (h * 60) * 100)) + "%";
+    }
+    var savedGoal = store.get("graphite_goal");
+    if (savedGoal) applyGoal(savedGoal);
+    goalForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var h = Number($("#goal-hours").value);
+      if (!h) { showStatus(gStatus, "err", "Choose a weekly goal first."); return; }
+      store.set("graphite_goal", h); applyGoal(h);
+      showStatus(gStatus, "ok", "Weekly goal saved: " + h + " hours.");
+    });
+
+    // Score chart tooltip
+    var wrap = $(".chart-wrap"), tip = $("#chart-tip");
+    if (wrap && tip) {
+      var vb = wrap.querySelector("svg").viewBox.baseVal;
+      var showTip = function (el) {
+        tip.innerHTML = "";
+        var t = document.createElement("span"); t.textContent = el.getAttribute("data-label") + " · ";
+        var s = document.createElement("strong"); s.textContent = el.getAttribute("data-score");
+        var d = document.createElement("div"); d.textContent = el.getAttribute("data-detail");
+        tip.appendChild(t); tip.appendChild(s); tip.appendChild(d);
+        tip.style.left = (Number(el.getAttribute("cx")) / vb.width * 100) + "%";
+        tip.style.top = (Number(el.getAttribute("cy")) / vb.height * 100) + "%";
+        tip.hidden = false;
+      };
+      $all(".hit", wrap).forEach(function (h) {
+        h.addEventListener("mouseenter", function () { showTip(h); });
+        h.addEventListener("focus", function () { showTip(h); });
+        h.addEventListener("mouseleave", function () { tip.hidden = true; });
+        h.addEventListener("blur", function () { tip.hidden = true; });
+      });
+    }
   }
 })();

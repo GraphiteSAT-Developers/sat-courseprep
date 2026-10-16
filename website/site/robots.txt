@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /dashboard/
+Disallow: /dashboard.html
 
 Sitemap: https://www.graphiteprep.com/sitemap.xml

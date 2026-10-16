@@ -18,6 +18,9 @@ FAVICON_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rec
 
 header = (SRC / "partials/header.html").read_text()
 footer = (SRC / "partials/footer.html").read_text()
+app_header = (SRC / "partials/app-header.html").read_text()
+app_footer = (SRC / "partials/app-footer.html").read_text()
+banner = (SRC / "partials/cookie-banner.html").read_text()
 css = (SRC / "site.css").read_text()
 js = (SRC / "site.js").read_text()
 
@@ -44,12 +47,49 @@ JSONLD = {
     "description": "AI SAT tutoring for high school students.",
 }
 
+SCORES = [("Diagnostic", "Aug 30", 1180, 600, 580), ("Practice test 2", "Sep 20", 1230, 610, 620),
+          ("Practice test 3", "Oct 11", 1290, 640, 650)]
+TARGET = 1450
+
+def score_chart():
+    """Total score line on one 1100-1600 scale, target as a dashed reference line."""
+    W, H, L, R, T, B = 640, 250, 52, 110, 16, 34
+    lo, hi = 1100, 1500
+    pw, ph = W - L - R, H - T - B
+    y = lambda v: T + ph * (hi - v) / (hi - lo)
+    n = len(SCORES)
+    x = lambda i: L + pw * i / (n - 1)
+    out = [f'<div class="chart-wrap"><svg viewBox="0 0 {W} {H}" role="img" aria-labelledby="chart-title chart-desc">',
+           '<title id="chart-title">Total practice test score</title>',
+           f'<desc id="chart-desc">Total score rose from {SCORES[0][2]} on the diagnostic to {SCORES[-1][2]} on {SCORES[-1][0].lower()}. Target {TARGET}.</desc>']
+    for v in range(lo, hi + 1, 100):
+        out.append(f'<line class="grid" x1="{L}" x2="{W - R}" y1="{y(v):.1f}" y2="{y(v):.1f}"/>')
+        out.append(f'<text class="axis-text" x="{L - 10}" y="{y(v) + 4:.1f}" text-anchor="end">{v}</text>')
+    out.append(f'<line class="target" x1="{L}" x2="{W - R}" y1="{y(TARGET):.1f}" y2="{y(TARGET):.1f}"/>')
+    out.append(f'<text class="target-text" x="{W - R + 10}" y="{y(TARGET) + 4:.1f}">Target {TARGET}</text>')
+    pts = " ".join(f"{x(i):.1f},{y(s[2]):.1f}" for i, s in enumerate(SCORES))
+    area = f"M{x(0):.1f},{y(lo):.1f} L" + " L".join(f"{x(i):.1f},{y(s[2]):.1f}" for i, s in enumerate(SCORES)) + f" L{x(n - 1):.1f},{y(lo):.1f} Z"
+    out.append(f'<path class="area" d="{area}"/>')
+    out.append(f'<polyline class="line" points="{pts}"/>')
+    for i, s in enumerate(SCORES):
+        anchor = "start" if i == 0 else ("end" if i == n - 1 else "middle")
+        out.append(f'<text class="axis-text" x="{x(i):.1f}" y="{H - 8}" text-anchor="{anchor}">{s[1]}</text>')
+        out.append(f'<circle class="hit" cx="{x(i):.1f}" cy="{y(s[2]):.1f}" r="18" tabindex="0" data-label="{s[0]}" data-score="{s[2]}" data-detail="R&amp;W {s[3]} · Math {s[4]}" aria-label="{s[0]}, {s[1]}: {s[2]}"/>')
+        out.append(f'<circle class="pt" cx="{x(i):.1f}" cy="{y(s[2]):.1f}" r="{6 if i == n - 1 else 5}"/>')
+    last = SCORES[-1]
+    out.append(f'<text class="end-text" x="{x(n - 1) + 12:.1f}" y="{y(last[2]) + 5:.1f}">{last[2]}</text>')
+    out.append('</svg><div class="chart-tip" id="chart-tip" role="status" hidden></div></div>')
+    return "\n".join(out)
+
 def render(meta, mode):
     is_home = meta["file"] == "index.html"
     h = "" if is_home else "./"
-    head_nav = header.replace("{{H}}", h).replace("{{SIGNIN_CURRENT}}", ' aria-current="page"' if meta.get("signin") else "")
-    foot = footer.replace("{{H}}", h)
-    body = head_nav + meta["body"] + foot
+    if meta.get("app"):
+        head_nav, foot = app_header, app_footer
+    else:
+        head_nav = header.replace("{{H}}", h).replace("{{SIGNIN_CURRENT}}", ' aria-current="page"' if meta.get("signin") else "")
+        foot = footer.replace("{{H}}", h)
+    body = head_nav + meta["body"].replace("{{SCORE_CHART}}", score_chart()) + foot + banner
     url = SITE + meta["path"]
     robots = meta.get("robots", "index, follow")
 
@@ -152,7 +192,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard/\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

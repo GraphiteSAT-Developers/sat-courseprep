@@ -7,7 +7,7 @@ Marketing site and dashboard sign-in for Graphite, the AI SAT tutor. Dark graphi
 - `site/`: the finished site. Upload everything in this folder to the root of your web host.
 - `src/`: the files you edit.
   - `pages/`: one file per page. The comment on the first line sets that page's title and meta description.
-  - `partials/`: the header and footer shared by every page, including the cookie banner.
+  - `partials/`: the shared header, footer and cookie banner. The dashboard uses `app-header.html` and `app-footer.html`.
   - `site.css`: all styles. Colors, fonts and spacing are set at the top.
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
   - `htaccess`, `netlify.toml`: server settings for HTTPS, the 404 page, compression and caching.
@@ -19,6 +19,7 @@ Marketing site and dashboard sign-in for Graphite, the AI SAT tutor. Dark graphi
 | --- | --- |
 | Home | `index.html` |
 | Sign in | `signin.html` |
+| Dashboard (signed-in students) | `dashboard.html` |
 | Privacy policy | `privacy.html` |
 | Cookie policy | `cookies.html` |
 | Terms of service | `terms.html` |
@@ -29,7 +30,8 @@ Marketing site and dashboard sign-in for Graphite, the AI SAT tutor. Dark graphi
 1. Replace the phone number `(954) 555-0142` (fictional), the domain `graphiteprep.com`, the prices and the company name. Search `src/` for each one.
 2. Fill in the `CONFIG` block at the top of `src/site.js`:
    - `formEndpoint`: where the diagnostic signup form posts.
-   - `authEndpoint` and `dashboardUrl`: sign in.
+   - `authEndpoint` and `dashboardUrl`: sign in. Signing in opens `dashboard.html`.
+   - The dashboard shows a sample student until it's connected to your account data. Its sample scores live in `build.py` (`SCORES`, `TARGET`) and `src/pages/dashboard.html`. Protect `dashboard.html` behind sign in on your server.
    - `analytics`: Plausible or GA4. It loads only after a visitor accepts analytics cookies.
 3. Have a lawyer review the privacy policy, cookie policy and terms.
 4. Run `python3 build.py`, then upload `site/`.
