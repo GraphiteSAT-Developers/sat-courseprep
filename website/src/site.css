@@ -2070,3 +2070,31 @@ html[data-density="compact"] .lessons-page, html[data-density="compact"] .settin
   .lay-move .btn { padding: 0 var(--s2); }
 }
 .pd-row:not(:has(> :not([hidden]))) { display: none; }
+
+/* Settings > Profile: picture (photo or drawn avatar) and the avatar builder */
+.st-photo-actions { display: grid; gap: var(--s3); align-content: start; min-width: 0; }
+.st-photo-controls { display: grid; gap: var(--s2); }
+.st-av-wrap { display: grid; gap: var(--s4); padding-top: var(--s5); border-top: 1px solid var(--line); }
+.st-av-wrap .pd-row { margin-top: var(--s1); }
+#st-avatar.is-drawn { box-shadow: 0 0 0 1px var(--line); }
+.st-photo { flex-wrap: nowrap; align-items: flex-start; }
+.st-photo > .avatar { flex: none; }
+.st-photo-actions { flex: 1 1 auto; }
+#profile .st-av-wrap + .st-form { border-top: 1px solid var(--line); padding-top: var(--s5); }
+@media (max-width: 480px) { .st-photo { flex-wrap: wrap; } }
+
+/* ---------- More shop themes ---------- */
+:root[data-skin="sunrise"] { --bg: #fbf3ea; --surface: #fffaf4; --raised: #f3e3d2; --line: #e6cdb4; --control: #9a7a5c; --text: #2d2118; --muted: #6a5444; }
+:root[data-skin="sakura"] { --bg: #fbf0f3; --surface: #fffafb; --raised: #f4dfe5; --line: #e8c6d0; --control: #a07484; --text: #2b1d22; --muted: #6b4f58; }
+:root[data-skin="graph"] { --bg: #f5f8fc; --surface: #ffffff; --raised: #e8eef6; --line: #cdd8e6; --control: #73839a; --text: #17202c; --muted: #4a5668; }
+:root[data-skin="graph"] body { background-image: linear-gradient(rgba(60, 110, 180, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 110, 180, 0.07) 1px, transparent 1px); background-size: 24px 24px; }
+:root[data-skin="deepsea"] { --bg: #071a1f; --surface: #0d252c; --raised: #13323a; --line: #22474f; --control: #5f8a92; --text: #e3f1f2; --muted: #a9c4c7; }
+:root[data-skin="espresso"] { --bg: #1d1612; --surface: #261d18; --raised: #33271f; --line: #4a3a2f; --control: #8c7663; --text: #f3e9df; --muted: #cdbcac; }
+:root[data-skin="plum"] { --bg: #1c1320; --surface: #251a2b; --raised: #31233a; --line: #463453; --control: #8a7398; --text: #f1e9f5; --muted: #c9b8d3; }
+.st-art-sunrise { background: #fbf3ea; border: 1px solid #e6cdb4; } .st-art-sunrise i { background: #fffaf4; box-shadow: 0 0 0 1px #e6cdb4; } .st-art-sunrise i:first-child { background: #c0692b; width: 40%; box-shadow: none; }
+.st-art-sakura { background: #fbf0f3; border: 1px solid #e8c6d0; } .st-art-sakura i { background: #fffafb; box-shadow: 0 0 0 1px #e8c6d0; } .st-art-sakura i:first-child { background: #c25a7c; width: 40%; box-shadow: none; }
+.st-art-graph { background-color: #f5f8fc; background-image: linear-gradient(rgba(60, 110, 180, 0.18) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 110, 180, 0.18) 1px, transparent 1px); background-size: 8px 8px; border: 1px solid #cdd8e6; }
+.st-art-graph i { background: #ffffff; box-shadow: 0 0 0 1px #cdd8e6; } .st-art-graph i:first-child { background: #2a62c4; width: 40%; box-shadow: none; }
+.st-art-deepsea { background: #071a1f; } .st-art-deepsea i { background: #13323a; } .st-art-deepsea i:first-child { background: #5fd8ea; width: 40%; }
+.st-art-espresso { background: #1d1612; } .st-art-espresso i { background: #33271f; } .st-art-espresso i:first-child { background: #e0a46a; width: 40%; }
+.st-art-plum { background: #1c1320; } .st-art-plum i { background: #31233a; } .st-art-plum i:first-child { background: #d6a8ef; width: 40%; }

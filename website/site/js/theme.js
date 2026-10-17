@@ -9,8 +9,9 @@
   "use strict";
   var KEY = "graphite_appearance", PREFS_KEY = "graphite_prefs", PROFILE_KEY = "graphite_preview_profile";
   // theme -> the base it builds on. Themes other than dark, light and system are "skins" over a base.
-  var BASE = { dark: "dark", light: "light", system: "system", paper: "light", midnight: "dark", contrast: "dark", chalkboard: "dark", nightowl: "dark" };
-  var THEMES = Object.keys(BASE), SHOP_THEMES = ["chalkboard", "nightowl"];
+  var BASE = { dark: "dark", light: "light", system: "system", paper: "light", midnight: "dark", contrast: "dark", chalkboard: "dark", nightowl: "dark",
+               sunrise: "light", sakura: "light", graph: "light", deepsea: "dark", espresso: "dark", plum: "dark" };
+  var THEMES = Object.keys(BASE), SHOP_THEMES = ["chalkboard", "nightowl", "sunrise", "sakura", "graph", "deepsea", "espresso", "plum"];
   var ACCENTS = ["pencil", "sky", "mint", "coral", "lilac", "rose", "blueprint", "ember", "custom"];  // rose onward come from the shop
   var LOOK = { text: ["s", "m", "l", "xl"], font: ["default", "readable"], motion: ["system", "reduce", "full"], density: ["comfortable", "compact"] };
   var DEFAULTS = {

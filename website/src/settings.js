@@ -52,8 +52,8 @@
     var parent = u.role === "parent";
     all("[data-student-only]").forEach(function (el) { el.hidden = parent; });
     all("[data-role-home]").forEach(function (a) { a.href = parent ? "parent.html" : "dashboard.html"; a.textContent = "Back to " + (parent ? "parent dashboard" : "dashboard"); });
-    T.avatar($("st-avatar"), u);
     $("st-photo-remove").hidden = !u.avatar_url;
+    drawProfilePicture();
     $("st-name").value = u.name || "";
     $("st-current-email").textContent = u.email;
     $("st-username").value = u.email;
@@ -317,10 +317,19 @@
   var COLOR_PART = { bg: "bg", skin: "skin", hair_color: "hair_color", shirt: "shirt" };
   var av = { mode: "photo", parts: {} };
   function avLocked(part, v) { return part === "acc" && AV_SHOP[v] && !owned[AV_SHOP[v][0]]; }
+  // The big picture at the top of Profile: the drawn avatar (as you build it) or the photo or initials.
+  function drawProfilePicture() {
+    var el = $("st-avatar"); if (!el || !user) return;
+    var drawn = av.mode === "drawn" && user.role !== "parent";
+    T.avatar(el, Object.assign({}, user, { frame: null, avatar_drawn: drawn ? av.parts : null }));
+    $("st-photo-controls").hidden = drawn;
+    $("st-drawn-note").hidden = !drawn;
+    $("avatar").hidden = !drawn || user.role === "parent";
+  }
   function drawAvatarParts() {
     if (!T.drawAvatar) return;
-    $("st-av-preview").innerHTML = T.drawAvatar(av.parts, "Your avatar");
-    $("st-av-" + av.mode).checked = true;
+    var mode = $("st-av-" + av.mode); if (mode) mode.checked = true;
+    drawProfilePicture();
     $("st-av-parts").innerHTML = Object.keys(AV_OPTIONS).map(function (part) {
       return '<fieldset class="av-part"><legend>' + AV_LABELS[part] + '</legend><div class="av-opts">' + AV_OPTIONS[part].map(function (v) {
         var id = "av-" + part + "-" + v, locked = avLocked(part, v), color = COLOR_PART[part] && T.avatarParts[part] && T.avatarParts[part][v];
@@ -342,7 +351,19 @@
     var again = $(keep); if (again) again.focus();
     $("st-av-saved").textContent = "Not saved yet";
   });
-  all('input[name="av-mode"]').forEach(function (r) { r.addEventListener("change", function () { av.mode = r.value; $("st-av-saved").textContent = "Not saved yet"; }); });
+  // Switching between photo and drawn avatar saves right away; changes to the parts wait for "Save avatar".
+  all('input[name="av-mode"]').forEach(function (r) {
+    r.addEventListener("change", function () {
+      if (!r.checked) return;
+      av.mode = r.value;
+      drawAvatarParts();
+      clear($("st-av-status")); clear($("st-photo-status"));
+      $("st-av-saved").textContent = "Saving…";
+      savePrefs({ avatar: { mode: av.mode, parts: av.parts } }, null)
+        .then(function () { $("st-av-saved").textContent = "Saved"; })
+        .catch(function (err) { $("st-av-saved").textContent = ""; status($("st-photo-status"), "err", "We couldn't switch your picture.", message(err)); });
+    });
+  });
   $("st-av-random").addEventListener("click", function () {
     Object.keys(AV_OPTIONS).forEach(function (part) {
       var free = AV_OPTIONS[part].filter(function (v) { return !avLocked(part, v); });

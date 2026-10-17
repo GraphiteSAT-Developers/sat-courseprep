@@ -93,6 +93,25 @@ class PrefsTest(PracticeTest):
         self.patch("/api/me/prefs", {"avatar": {"mode": "photo"}})
         self.assertIsNone(self.client.get("/api/speed/board?scope=nation&period=today").json["rows"][0]["avatar"])
 
+    def test_every_shop_theme_is_wired_up(self):
+        from app.services import game
+        js = THEME_JS.read_text()
+        css = (THEME_JS.parent / "site.css").read_text()
+        html = (THEME_JS.parent / "pages" / "settings.html").read_text()
+        shop = [i["value"] for i in game.SHOP if i["kind"] == "theme"]
+        self.assertGreaterEqual(len(shop), 8)
+        for t in shop:
+            self.assertIn(t, prefs.THEMES)
+            self.assertEqual(prefs.SHOP_THEMES[t], f"theme:{t}")
+            self.assertRegex(js, r"\b" + t + r':\s*"(dark|light)"', f"theme.js has no base for {t}")
+            self.assertIn(f'[data-skin="{t}"]', css)
+            self.assertIn(f'.st-art-{t}', css)
+            self.assertIn(f'data-shop="theme:{t}"', html)
+        self.coins(1000)
+        self.assertEqual(self.patch("/api/me/appearance", {"theme": "plum"}).status_code, 403)
+        self.post("/api/game/buy", {"item": "theme:plum"})
+        self.assertEqual(self.patch("/api/me/appearance", {"theme": "plum"}).json["user"]["appearance"]["theme"], "plum")
+
     def test_browser_knows_every_avatar_part(self):
         js = THEME_JS.read_text()
         for part, values in prefs.AVATAR.items():

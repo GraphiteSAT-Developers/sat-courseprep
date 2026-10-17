@@ -12,8 +12,9 @@ import re
 from copy import deepcopy
 
 # ---------- look and reading ----------
-THEMES = ("dark", "light", "system", "paper", "midnight", "contrast", "chalkboard", "nightowl")
-SHOP_THEMES = {"chalkboard": "theme:chalkboard", "nightowl": "theme:nightowl"}
+SHOP_THEME_KEYS = ("chalkboard", "nightowl", "sunrise", "sakura", "graph", "deepsea", "espresso", "plum")
+THEMES = ("dark", "light", "system", "paper", "midnight", "contrast") + SHOP_THEME_KEYS
+SHOP_THEMES = {t: f"theme:{t}" for t in SHOP_THEME_KEYS}
 BASE_ACCENTS = ("pencil", "sky", "mint", "coral", "lilac")
 TEXT_SIZES = ("s", "m", "l", "xl")
 FONTS = ("default", "readable")

@@ -61,7 +61,7 @@
         var worn = kind === "accent" ? accentNow === it.value : kind === "theme" ? themeNow === it.value : it.worn, action;
         if (!it.owned) action = '<button class="btn ' + (g.coins >= it.price ? "btn-primary" : "btn-quiet") + '" type="button" data-buy="' + esc(it.key) + '"' +
           (g.coins >= it.price ? "" : ' aria-disabled="true"') + '><i class="coin" aria-hidden="true"></i>' + it.price + "</button>";
-        else if (kind === "avatar") action = '<a class="btn btn-secondary" href="settings.html#avatar">' + (worn ? "Wearing" : "Put it on") + "</a>";
+        else if (kind === "avatar") action = '<a class="btn btn-secondary" href="settings.html#profile">' + (worn ? "Wearing" : "Put it on") + "</a>";
         else if (it.value === "custom") action = '<a class="btn btn-secondary" href="settings.html#appearance">Pick a color</a>';
         else if (worn) action = kind === "accent" || kind === "theme" ? '<span class="chip">In use</span>' : '<button class="btn btn-quiet" type="button" data-off="' + kind + '">Take off</button>';
         else action = '<button class="btn btn-secondary" type="button" data-wear="' + esc(it.key) + '">' + (kind === "accent" || kind === "theme" ? "Use it" : "Wear it") + "</button>";

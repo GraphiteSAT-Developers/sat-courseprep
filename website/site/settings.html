@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="graphite-mode" content="live">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="/js/theme.js?v=c7863e5312"></script>
+<script src="/js/theme.js?v=2ea93767f5"></script>
 <title>Settings | Graphite SAT Tutoring</title>
 <meta name="description" content="Your Graphite settings: profile picture, name, theme and accent color, study goals, email, password and your data.">
 <meta name="robots" content="noindex, nofollow">
@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=ad88435362">
-<script src="/js/site.js?v=627cc519a8" defer></script><script src="/js/game-ui.js?v=b46dc13746" defer></script><script src="/js/settings.js?v=03eeeda5d3" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=a4426f6fa7">
+<script src="/js/site.js?v=627cc519a8" defer></script><script src="/js/game-ui.js?v=b46dc13746" defer></script><script src="/js/settings.js?v=3b2de20a7d" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -62,7 +62,6 @@
         <ul>
           <li><a href="#profile">Profile</a></li>
           <li><a href="#appearance">Appearance</a></li>
-          <li data-student-only><a href="#avatar">Avatar</a></li>
           <li data-student-only><a href="#study">Study</a></li>
           <li data-student-only><a href="#defaults">Practice defaults</a></li>
           <li data-student-only><a href="#layout">Dashboard layout</a></li>
@@ -73,22 +72,36 @@
       </nav>
 
       <div class="st-panels">
-        <!-- Profile -->
+        <!-- Profile: picture (photo or drawn avatar) and name -->
         <section class="panel st-panel" id="profile" aria-labelledby="st-profile-title">
-          <div class="panel-head"><h2 id="st-profile-title">Profile</h2></div>
+          <div class="panel-head"><h2 id="st-profile-title">Profile</h2><span class="label" id="st-av-saved" aria-live="polite"></span></div>
           <div class="st-photo">
             <span class="avatar avatar-lg" id="st-avatar" aria-hidden="true"></span>
             <div class="st-photo-actions">
-              <p class="st-photo-label">Profile picture</p>
-              <div class="pd-row">
-                <input class="visually-hidden" type="file" id="st-photo-input" accept="image/png,image/jpeg,image/webp,image/gif">
-                <label class="btn btn-secondary st-upload" for="st-photo-input">Upload photo</label>
-                <button class="btn btn-quiet" type="button" id="st-photo-remove" hidden>Remove photo</button>
+              <p class="st-photo-label" id="st-pic-label">Profile picture</p>
+              <div class="seg" role="radiogroup" aria-labelledby="st-pic-label" data-student-only>
+                <span><input type="radio" name="av-mode" id="st-av-photo" value="photo"><label for="st-av-photo">Photo</label></span>
+                <span><input type="radio" name="av-mode" id="st-av-drawn" value="drawn"><label for="st-av-drawn">Drawn avatar</label></span>
               </div>
-              <p class="fine">PNG, JPEG, WebP or GIF. It's cropped to a square and shown next to your email.</p>
+              <div class="st-photo-controls" id="st-photo-controls">
+                <div class="pd-row">
+                  <input class="visually-hidden" type="file" id="st-photo-input" accept="image/png,image/jpeg,image/webp,image/gif">
+                  <label class="btn btn-secondary st-upload" for="st-photo-input">Upload photo</label>
+                  <button class="btn btn-quiet" type="button" id="st-photo-remove" hidden>Remove photo</button>
+                </div>
+                <p class="fine">PNG, JPEG, WebP or GIF. It's cropped to a square and shown next to your email. No photo? Your initials show instead.</p>
+              </div>
+              <p class="fine" id="st-drawn-note" hidden>Pick each part below. Your drawn avatar shows next to your email and on leaderboards; a photo never shows on leaderboards.</p>
             </div>
           </div>
           <div class="status" id="st-photo-status" role="status" aria-live="polite" tabindex="-1"></div>
+
+          <div class="st-av-wrap" id="avatar" data-student-only hidden>
+            <div class="av-parts" id="st-av-parts"></div>
+            <div class="status" id="st-av-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-primary" type="button" id="st-av-save">Save avatar</button><button class="btn btn-quiet" type="button" id="st-av-random">Surprise me</button></div>
+          </div>
+
           <form class="form st-form" id="st-name-form" novalidate>
             <div class="field">
               <label for="st-name">Name</label>
@@ -97,22 +110,6 @@
             <div class="status" id="st-name-status" role="status" aria-live="polite" tabindex="-1"></div>
             <div class="pd-row"><button class="btn btn-primary" type="submit">Save name</button></div>
           </form>
-        </section>
-
-        <!-- Drawn avatar (students) -->
-        <section class="panel st-panel" id="avatar" aria-labelledby="st-avatar-title" data-student-only>
-          <div class="panel-head"><h2 id="st-avatar-title">Avatar</h2><span class="label" id="st-av-saved" aria-live="polite"></span></div>
-          <p class="panel-lede">Draw yourself instead of using a photo. Your drawn avatar also shows on leaderboards; a photo never does.</p>
-          <div class="seg" role="radiogroup" aria-label="Show in your profile">
-            <span><input type="radio" name="av-mode" id="st-av-photo" value="photo"><label for="st-av-photo">Photo or initials</label></span>
-            <span><input type="radio" name="av-mode" id="st-av-drawn" value="drawn"><label for="st-av-drawn">Drawn avatar</label></span>
-          </div>
-          <div class="av-builder">
-            <div class="av-preview" id="st-av-preview" aria-live="polite"></div>
-            <div class="av-parts" id="st-av-parts"></div>
-          </div>
-          <div class="status" id="st-av-status" role="status" aria-live="polite" tabindex="-1"></div>
-          <div class="pd-row"><button class="btn btn-primary" type="button" id="st-av-save">Save avatar</button><button class="btn btn-quiet" type="button" id="st-av-random">Surprise me</button></div>
         </section>
 
         <!-- Appearance -->
@@ -161,6 +158,36 @@
                 <input type="radio" name="theme" id="st-theme-nightowl" value="nightowl" disabled data-shop="theme:nightowl">
                 <span class="st-theme-art st-art-nightowl" aria-hidden="true"><i></i><i></i><i></i></span>
                 <span class="st-theme-name">Night Owl</span><small class="st-lock">250 coins</small>
+              </label>
+              <label class="st-theme is-locked" for="st-theme-sunrise" data-student-only>
+                <input type="radio" name="theme" id="st-theme-sunrise" value="sunrise" disabled data-shop="theme:sunrise">
+                <span class="st-theme-art st-art-sunrise" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Sunrise</span><small class="st-lock">200 coins</small>
+              </label>
+              <label class="st-theme is-locked" for="st-theme-sakura" data-student-only>
+                <input type="radio" name="theme" id="st-theme-sakura" value="sakura" disabled data-shop="theme:sakura">
+                <span class="st-theme-art st-art-sakura" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Sakura</span><small class="st-lock">250 coins</small>
+              </label>
+              <label class="st-theme is-locked" for="st-theme-graph" data-student-only>
+                <input type="radio" name="theme" id="st-theme-graph" value="graph" disabled data-shop="theme:graph">
+                <span class="st-theme-art st-art-graph" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Graph Paper</span><small class="st-lock">300 coins</small>
+              </label>
+              <label class="st-theme is-locked" for="st-theme-deepsea" data-student-only>
+                <input type="radio" name="theme" id="st-theme-deepsea" value="deepsea" disabled data-shop="theme:deepsea">
+                <span class="st-theme-art st-art-deepsea" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Deep Sea</span><small class="st-lock">250 coins</small>
+              </label>
+              <label class="st-theme is-locked" for="st-theme-espresso" data-student-only>
+                <input type="radio" name="theme" id="st-theme-espresso" value="espresso" disabled data-shop="theme:espresso">
+                <span class="st-theme-art st-art-espresso" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Espresso</span><small class="st-lock">250 coins</small>
+              </label>
+              <label class="st-theme is-locked" for="st-theme-plum" data-student-only>
+                <input type="radio" name="theme" id="st-theme-plum" value="plum" disabled data-shop="theme:plum">
+                <span class="st-theme-art st-art-plum" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Plum</span><small class="st-lock">300 coins</small>
               </label>
             </div>
           </fieldset>
