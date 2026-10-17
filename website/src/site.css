@@ -1368,3 +1368,7 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .pd-history .pd-empty, .pd-activity .pd-empty { display: block; }
 .pd-week { flex-wrap: wrap; }
 @media (max-width: 480px) { .pd-week { gap: 3px; } .pd-week i { width: 19px; height: 19px; font-size: 10px; } }
+
+/* Dashboard ripple background (ripple.js): a dot grid behind the page that ripples where you click. */
+.ripple-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+body:has(.ripple-bg) .dash, body:has(.ripple-bg) .app-footer { position: relative; z-index: 1; }

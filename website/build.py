@@ -280,6 +280,7 @@ def build():
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
+    shutil.copy(SRC / "ripple.js", DIST / "js" / "ripple.js")
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:
