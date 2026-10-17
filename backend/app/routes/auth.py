@@ -74,6 +74,13 @@ def login():
         record_event(ip_bucket)
         raise ApiError(401, "That email and password don't match.", code="bad_credentials")
     clear_events(email_bucket)
+    # "I'm a student" / "I'm a parent" on the sign-in page has to match the account.
+    role = data.get("role")
+    if role in ("student", "parent") and role != user["role"]:
+        if user["role"] == "parent":
+            raise ApiError(403, "That's a parent account. Choose \"I'm a parent\" above to sign in.", code="wrong_role")
+        raise ApiError(403, "That's a student account. Choose \"I'm a student\" to sign in, or create a parent account "
+                            "to follow a student's progress.", code="wrong_role")
     if email == testaccount.USERNAME and current_app.config.get("TEST_ACCOUNT"):
         testaccount.reset(user["id"])
         user = query("SELECT * FROM users WHERE id = ?", (user["id"],), one=True)

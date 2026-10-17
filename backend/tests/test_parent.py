@@ -78,10 +78,11 @@ class ParentTest(unittest.TestCase):
         self.assertEqual(self.parent.get("/api/dashboard").status_code, 403)
         self.assertEqual(self.post(self.parent, "/api/practice/sessions", {"mode": "test"}).status_code, 403)
         self.assertEqual(self.student.get("/api/parent").status_code, 403)
-        # Pages: each lands on their own dashboard.
-        self.assertTrue(self.parent.get("/dashboard.html").headers["Location"].endswith("/parent.html"))
-        self.assertTrue(self.student.get("/parent.html").headers["Location"].endswith("/dashboard.html"))
+        # Pages for the other kind of account offer to sign in as that kind, instead of bouncing back.
+        self.assertTrue(self.student.get("/parent.html").headers["Location"].endswith("/signin.html?as=parent&next=/parent.html"))
+        self.assertTrue(self.parent.get("/dashboard.html").headers["Location"].endswith("/signin.html?as=student&next=/dashboard.html"))
         self.assertTrue(self.parent.get("/signin.html").headers["Location"].endswith("/parent.html"))
+        self.assertEqual(self.student.get("/signin.html?as=parent").status_code, 200)  # signed in as a student, can still sign in as a parent
         # The student can remove the parent.
         parent_id = self.student.get("/api/family").json["parents"][0]["id"]
         self.assertEqual(self.student.delete(f"/api/family/parents/{parent_id}", json={}, headers=ORIGIN).status_code, 200)
@@ -151,6 +152,17 @@ class ParentTest(unittest.TestCase):
         self.assertEqual(mail["to"], "ana@home.org")
         self.assertIn("Maya's week", mail["subject"])
         self.assertIn("Study time", mail["text"])
+
+    def test_sign_in_switch_must_match_the_account(self):
+        c = self.app.test_client()
+        r = self.post(c, "/api/auth/login", {"email": "maya@school.org", "password": "password123", "role": "parent"})
+        self.assertEqual((r.status_code, r.json["code"]), (403, "wrong_role"))
+        self.assertIn("student account", r.json["error"])
+        self.assertEqual(c.get("/api/me").status_code, 401)  # not signed in
+        r = self.post(c, "/api/auth/login", {"email": "ana@home.org", "password": "password123", "role": "student"})
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(self.post(c, "/api/auth/login", {"email": "ana@home.org", "password": "password123", "role": "parent"}).status_code, 200)
+        self.assertEqual(self.post(c, "/api/auth/login", {"email": "maya@school.org", "password": "password123"}).status_code, 200)  # no switch: any account
 
     def test_test_parent_account_is_linked_to_beta(self):
         c = self.app.test_client()

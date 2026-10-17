@@ -371,7 +371,13 @@
       if (hp && hp.value) return;
       var btn = signin.querySelector('button[type="submit"]');
       btn.disabled = true; btn.textContent = "Signing in…";
-      send(CONFIG.authEndpoint, { email: em, password: pw.value, remember: $("#signin-remember").checked })
+      // The preview has no accounts, but its test accounts keep to the same rule as the server's.
+      var previewRole = !LIVE && (em.toLowerCase() === TEST_USERNAME ? "student" : em.toLowerCase() === TEST_PARENT ? "parent" : null);
+      var signedIn = previewRole && previewRole !== ROLE
+        ? Promise.reject({ status: 403, message: previewRole === "parent" ? "That's a parent account. Choose \"I'm a parent\" above to sign in."
+            : "That's a student account. Choose \"I'm a student\" to sign in, or create a parent account to follow a student's progress.", data: { code: "wrong_role" } })
+        : send(CONFIG.authEndpoint, { email: em, password: pw.value, remember: $("#signin-remember").checked, role: ROLE });
+      signedIn
         .then(function (res) {
           // The account decides where to go; the preview has no accounts, so it follows the switch.
           var role = res && res.user && res.user.role ? res.user.role : (LIVE ? "student" : (em.toLowerCase() === TEST_PARENT ? "parent" : ROLE));
@@ -392,6 +398,7 @@
         .catch(function (err) {
           attempts++;
           if (err && err.status === 401) showStatus(aStatus, "err", err.message, "Check both and try again, or reset your password.");
+          else if (err && err.data && err.data.code === "wrong_role") { attempts--; showStatus(aStatus, "err", "Wrong kind of account.", err.message); }
           else showStatus(aStatus, "err", "We couldn't sign you in.", networkMessage(err));
         })
         .then(function () { if (Date.now() >= lockUntil) { btn.disabled = false; btn.textContent = "Sign in"; } });
@@ -429,6 +436,14 @@
     $("#create-cancel").addEventListener("click", function () { showCreate(false); $("#signin-email").focus(); });
     if (location.hash === "#create") showCreate(true);
     setRole(ROLE);
+    // Sent here from a page for the other kind of account (for example a student opening the parent dashboard).
+    if (LIVE && /[?&]as=(parent|student)\b/.test(location.search)) {
+      api("/api/me").then(function (r) {
+        var u = r.user; if (!u || u.role === ROLE) return;
+        showStatus(aStatus, "ok", "You're signed in as " + u.name + " (" + (u.role === "parent" ? "parent" : "student") + " account).",
+          ROLE === "parent" ? "Sign in with a parent account below to open the parent dashboard." : "Sign in with a student account below to open the student dashboard.");
+      }, function () { /* not signed in: nothing to say */ });
+    }
     create.addEventListener("submit", function (e) {
       e.preventDefault();
       var cs = $("#create-status"); clearStatus(cs);

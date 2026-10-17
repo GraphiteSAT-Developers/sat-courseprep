@@ -41,12 +41,14 @@ def page(path):
     user = current_user()
     if (path in PROTECTED or path in PARENT_PAGES) and not user:
         return redirect(f"/signin.html?next=/{path}")
-    # Parents and students each land on their own pages.
+    # A page for the other kind of account: offer to sign in with that kind, instead of bouncing to your own
+    # dashboard (a student who opens the parent dashboard wants to sign in as the parent, not be sent back).
     if user and user["role"] == "parent" and path in PROTECTED:
-        return redirect("/parent.html")
+        return redirect(f"/signin.html?as=student&next=/{path}")
     if user and user["role"] != "parent" and path in PARENT_PAGES:
-        return redirect("/dashboard.html")
-    if path == "signin.html" and user and not request.args.get("reset"):
+        return redirect(f"/signin.html?as=parent&next=/{path}")
+    wants = request.args.get("as")
+    if path == "signin.html" and user and not request.args.get("reset") and wants in (None, user["role"]):
         return redirect(home_for(user))
     response = send_from_directory(site, path)
     if path.endswith(".html"):
