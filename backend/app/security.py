@@ -73,6 +73,7 @@ def public_user(user):
         "first_name": (user["name"] or "").split(" ")[0],
         "grade": user["grade"], "test_date": user["test_date"], "target_score": user["target_score"],
         "plan": user["plan"], "weekly_goal_hours": user["weekly_goal_hours"], "parent_email": user["parent_email"],
+        "role": user["role"] if "role" in user.keys() else "student",
         "created_at": user["created_at"],
     }
 

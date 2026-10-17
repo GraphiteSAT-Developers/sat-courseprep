@@ -9,6 +9,11 @@ bp = Blueprint("pages", __name__)
 
 # Pages that need a signed-in student. Visitors are sent to sign in first.
 PROTECTED = {"dashboard.html", "practice-test.html", "practice.html", "plan.html", "levels.html"}
+PARENT_PAGES = {"parent.html"}
+
+
+def home_for(user):
+    return "/parent.html" if user["role"] == "parent" else "/dashboard.html"
 
 API_VERSION = "1"
 
@@ -33,10 +38,16 @@ def page(path):
         path, target = f"{path}.html", site / f"{path}.html"  # /dashboard works as well as /dashboard.html
     if not target.is_file():
         abort(404)
-    if path in PROTECTED and not current_user():
+    user = current_user()
+    if (path in PROTECTED or path in PARENT_PAGES) and not user:
         return redirect(f"/signin.html?next=/{path}")
-    if path == "signin.html" and current_user() and not request.args.get("reset"):
+    # Parents and students each land on their own pages.
+    if user and user["role"] == "parent" and path in PROTECTED:
+        return redirect("/parent.html")
+    if user and user["role"] != "parent" and path in PARENT_PAGES:
         return redirect("/dashboard.html")
+    if path == "signin.html" and user and not request.args.get("reset"):
+        return redirect(home_for(user))
     response = send_from_directory(site, path)
     if path.endswith(".html"):
         response.headers["Cache-Control"] = "no-cache"

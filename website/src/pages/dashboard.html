@@ -213,6 +213,19 @@
             <button class="btn btn-secondary" type="submit" id="goal-save">Save goal</button>
           </form>
           <div class="status" id="goal-status" role="status" aria-live="polite" tabindex="-1"></div>
+          <div class="pa" id="parent-access">
+            <h3 class="pa-title">Parent access</h3>
+            <p class="fine">Give a parent or guardian a one-time code so they can follow along: your scores, study time and plan. They can also set your weekly goal and SAT date and manage your plan. They don't see your individual answers.</p>
+            <ul class="queue pa-list" id="pa-list" hidden></ul>
+            <div class="pa-code" id="pa-code" hidden>
+              <span class="label">Your parent code</span>
+              <strong class="pa-code-val" id="pa-code-val"></strong>
+              <span class="fine" id="pa-code-exp"></span>
+              <button class="copy-btn" type="button" id="pa-copy">Copy</button>
+            </div>
+            <div class="status" id="pa-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <button class="btn btn-secondary" type="button" id="pa-make">Get a parent code</button>
+          </div>
           <div class="account-actions">
             <a class="btn btn-secondary" href="./#pricing">Change plan</a>
             <button class="btn btn-quiet" type="button" data-sign-out>Sign out</button>

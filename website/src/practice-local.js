@@ -522,8 +522,158 @@
     return fail(404, "Not found.");
   }
 
-  function call(path, data) {
+  /* ---------- parent dashboard (same rules as services/parent.py and routes/family.py) ----------
+     The preview's student is the practice done in this browser. Linking uses the code the student made on
+     their dashboard (site.js keeps it in graphite_family); the test parent ("parent") is linked already. */
+  var PB = BANK.parent, FKEY = "graphite_family";
+  function fam() { try { return JSON.parse(localStorage.getItem(FKEY)) || { parents: [] }; } catch (e) { return { parents: [] }; } }
+  function saveFam(f) { try { localStorage.setItem(FKEY, JSON.stringify(f)); } catch (e) { /* storage blocked */ } }
+  function who() { var e = ""; try { e = sessionStorage.getItem("graphite_user") || ""; } catch (x) { /* storage blocked */ } return e; }
+  function parentName() {
+    var e = who(); if (e === "parent") return "Pat Tester";
+    var n = (e.split("@")[0] || "Parent").replace(/[._-]+/g, " ");
+    return n.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  function linked(f) { return f.parents.length > 0 || who() === "parent"; }
+  function money(c) { return "$" + (c / 100).toLocaleString("en-US", { maximumFractionDigits: 2 }); }
+  function iso10(d) { return isoDate(d); }
+  function addMonths(d, n) { var x = new Date(d.getFullYear(), d.getMonth() + n, 1), last = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate(); x.setDate(Math.min(d.getDate(), last)); return x; }
+  function niceDay(s) { var d = parseDate(s); return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
+  function planInfo(key) { return PB.plans.filter(function (p) { return p.key === key; })[0]; }
+  function subOut(f, today) {
+    var sub = f.sub || { plan: "free", interval: null, status: "active", renews_on: null, paused_until: null };
+    var t = iso10(today);
+    if (sub.status === "canceled" && sub.renews_on && sub.renews_on < t) sub = { plan: "free", interval: null, status: "active", renews_on: null, paused_until: null };
+    if (sub.status === "paused" && sub.paused_until && sub.paused_until < t) { sub.status = "active"; sub.paused_until = null; }
+    f.sub = sub;
+    var p = planInfo(sub.plan), price = sub.interval ? (sub.interval === "year" ? p.year_cents : p.month_cents) : 0;
+    return { plan: sub.plan, plan_name: p.name, interval: sub.interval, status: sub.status, renews_on: sub.renews_on, paused_until: sub.paused_until,
+      price_cents: price, price_label: price ? money(price) + (sub.interval === "month" ? "/month" : "/year") : "Free" };
+  }
+  function billEvent(f, kind, detail, amount) {
+    if (amount) detail += " No card was charged: payments aren't connected yet.";
+    f.billing = [{ at: now(), kind: kind, detail: detail, amount_cents: amount || 0 }].concat(f.billing || []).slice(0, 20);
+  }
+  function parentSummary(st, f, today) {
+    var all = Object.keys(st.sessions).map(function (k) { return st.sessions[k]; });
+    var monday = new Date(today); monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    var since = iso10(monday), dates = {};
+    all.forEach(function (x) { dates[x.created_at.slice(0, 10)] = 1; if (x.submitted_at) dates[x.submitted_at.slice(0, 10)] = 1; });
+    Object.keys(st.diagnostics || {}).forEach(function (k) { var d = st.diagnostics[k]; if (d.submitted_at) dates[d.submitted_at.slice(0, 10)] = 1; });
+    var streak = 0, day = new Date(today); if (!dates[iso10(day)]) day.setDate(day.getDate() - 1);
+    while (dates[iso10(day)]) { streak++; day.setDate(day.getDate() - 1); }
+    var times = Object.keys(dates).sort(), last = times.length ? times[times.length - 1] + "T12:00:00Z" : null;
+    var week = all.filter(function (x) { return x.submitted_at && x.submitted_at.slice(0, 10) >= since; });
+    var asked = 0, right = 0, secs = 0, answered = 0;
+    week.forEach(function (x) { asked += x.item_ids.length; right += x.result.correct; secs += x.result.seconds_used || 0; });
+    all.forEach(function (x) { if (x.created_at.slice(0, 10) >= since) answered += x.submitted_at ? x.result.questions.filter(function (q) { return q.answered; }).length : Object.keys(x.checked).length; });
+    var days = [0, 1, 2, 3, 4, 5, 6].map(function (i) { var d = new Date(monday); d.setDate(monday.getDate() + i); return !!dates[iso10(d)]; });
+    var prof = st.profile || {}, goal = (prof.weekly_goal_hours || 3) * 60;
+    var o = { last_active: last, streak_days: streak, minutes_week: Math.floor(secs / 60), goal_minutes: goal, study_days_week: days,
+      days_to_test: prof.test_date ? Math.max(0, daysBetween(today, parseDate(prof.test_date))) : null,
+      questions_week: answered, accuracy_week: asked ? Math.round(right / asked * 100) : null };
+    var tests = all.filter(function (x) { return x.mode === "test" && x.submitted_at; }).sort(function (a, b) { return a.submitted_at < b.submitted_at ? -1 : 1; });
+    var scores = tests.map(function (x) { var d = parseDate(x.submitted_at.slice(0, 10)); return { label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), date: x.submitted_at.slice(0, 10), pct: Math.round(x.result.correct / x.result.total * 100), correct: x.result.correct, total: x.result.total }; });
+    var latest = tests.length ? tests[tests.length - 1].result : null, byDom = {};
+    if (latest) latest.by_domain.forEach(function (d) { byDom[d.domain] = Math.round(d.right / d.total * 100); });
+    var measured = BANK.topics.map(function (t) { return t.name; }).filter(function (n) { return byDom[n] != null && byDom[n] < 100; }).sort(function (a, b) { return byDom[a] - byDom[b]; }).slice(0, 3);
+    var domains = BANK.topics.map(function (t) { return { name: t.name, pct: byDom[t.name] == null ? null : byDom[t.name], focus: measured.indexOf(t.name) >= 0 }; });
+    var dsub = Object.keys(st.diagnostics || {}).map(function (k) { return st.diagnostics[k]; }).filter(function (d) { return d.submitted_at; }).sort(function (a, b) { return a.id - b.id; }).pop();
+    var diagnostic = dsub ? { at: dsub.submitted_at, correct: dsub.results.correct, total: dsub.results.total, strengths: dsub.results.strengths || [], focus: dsub.results.focus || [] } : null;
+    var plan = null, prow = st.plans && st.plans.length ? st.plans[st.plans.length - 1] : null;
+    if (prow) {
+      var po = planOut(st, prow, today), w = po.weeks[po.current_week], states = po.tasks;
+      plan = { week: w.n, weeks: po.weeks.length, phase: w.phase_label, difficulty: w.difficulty_label, focus: (w.focus || []).map(function (x) { return x.name; }),
+        done: w.tasks.filter(function (t) { return states[t.key] && states[t.key].done; }).length, tasks: w.tasks.length };
+    }
+    var ladder = LV.tracks.map(function (t) { var p = lvProgress(st, t.key); return { name: t.name, unlocked: p.unlocked, passed: Object.keys(p.levels).filter(function (n) { return p.levels[n].passed; }).length, levels: LV.count }; });
+    var activity = all.filter(function (x) { return x.submitted_at; }).map(function (x) {
+      var task = x.plan_task || "";
+      var kind = x.mode === "test" ? "Practice test" : task.indexOf("ladder:") === 0 ? "Level up" : x.mode === "quiz" ? "Study plan" : x.mode === "review" ? "Review" : "Topic practice";
+      return { title: x.title, kind: kind, at: x.submitted_at, correct: x.result.correct, total: x.item_ids.length, minutes: Math.round((x.result.seconds_used || 0) / 60) };
+    });
+    if (dsub) activity.push({ title: "10-question diagnostic", kind: "Diagnostic", at: dsub.submitted_at, correct: dsub.results.correct, total: dsub.results.total, minutes: null });
+    activity.sort(function (a, b) { return a.at < b.at ? 1 : -1; });
+    var settings = f.settings || { weekly_report: true, alert_days: 3 }, first = "Maya", alerts = [];
+    if (settings.alert_days) {
+      if (!last) alerts.push({ level: "warn", text: first + " hasn't started practicing yet." });
+      else { var idle = daysBetween(parseDate(last.slice(0, 10)), today); if (idle >= settings.alert_days) alerts.push({ level: "warn", text: first + " hasn't practiced in " + idle + " days." }); }
+    }
+    if (o.days_to_test != null && o.days_to_test <= 21 && !diagnostic) alerts.push({ level: "warn", text: "The SAT is " + o.days_to_test + " days away and the diagnostic isn't done yet." });
+    if (scores.length >= 2) {
+      var ch = scores[scores.length - 1].pct - scores[scores.length - 2].pct;
+      if (ch <= -10) alerts.push({ level: "warn", text: "The latest practice test was " + Math.abs(ch) + " points lower than the one before." });
+      else if (ch >= 10) alerts.push({ level: "good", text: "Up " + ch + " points on the latest practice test." });
+    }
+    if ((today.getDay() + 6) % 7 >= 3 && goal && o.minutes_week < goal / 2) alerts.push({ level: "info", text: o.minutes_week + " of " + goal + " minutes studied this week so far." });
+    if (streak >= 5) alerts.push({ level: "good", text: first + " has practiced " + streak + " days in a row." });
+    return { student: { id: 1, name: "Maya Rivera", first_name: first, email: "student (preview)", grade: 11, test_date: prof.test_date || null,
+        target_score: prof.target_score || null, weekly_goal_hours: prof.weekly_goal_hours || 3 },
+      settings: settings, overview: o, alerts: alerts, scores: scores, domains: domains, diagnostic: diagnostic, plan: plan, levels: ladder,
+      review: { total: 0, due: 0 }, activity: activity.slice(0, 15), subscription: subOut(f, today), billing: f.billing || [] };
+  }
+  function parentCall(path, data, method) {
+    var st = load(), f = fam(), today = new Date(); today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    st.diagnostics = st.diagnostics || {}; st.plans = st.plans || []; st.profile = st.profile || { test_date: null, weekly_goal_hours: 3 };
+    var students = linked(f) ? [{ id: 1, name: "Maya Rivera" }] : [];
+    if (path === "/api/parent") return Promise.resolve({ parent: { name: parentName(), email: who() || "parent (preview)" }, students: students,
+      plans: PB.plans, payments_live: false, alert_days: PB.alert_days });
+    if (path === "/api/parent/link") {
+      var code = String((data && data.code) || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      var mine = f.code && f.code.code.replace("-", "");
+      if (!mine || code !== mine || new Date(f.code.expires_at) < new Date()) return fail(400, "That code didn't work. In this preview, make a code on the student dashboard's Account panel in this browser.");
+      f.parents = [{ id: 1, name: parentName(), email: who() || "parent (preview)", since: now() }]; delete f.code; saveFam(f);
+      return Promise.resolve({ student: { id: 1, name: "Maya Rivera" } });
+    }
+    var m = /^\/api\/parent\/students\/1(\/(settings|plan|report)(\/(pause|resume|cancel))?)?$/.exec(path);
+    if (!m || !students.length) return fail(404, "That student isn't connected to your account.");
+    var part = m[2], act = m[4];
+    if (!part && method === "DELETE") { f.parents = []; saveFam(f); return Promise.resolve({ ok: true }); }
+    if (!part) { var out = parentSummary(st, f, today); saveFam(f); return Promise.resolve(out); }
+    if (part === "settings") {
+      var d = data || {};
+      if ("weekly_goal_hours" in d) { if (!(d.weekly_goal_hours >= 1 && d.weekly_goal_hours <= 20)) return fail(400, "Weekly goals run from 1 to 20 hours."); st.profile.weekly_goal_hours = d.weekly_goal_hours; }
+      if ("test_date" in d) st.profile.test_date = d.test_date || null;
+      if ("target_score" in d) st.profile.target_score = d.target_score || null;
+      f.settings = { weekly_report: "weekly_report" in d ? !!d.weekly_report : (f.settings || {}).weekly_report !== false,
+        alert_days: "alert_days" in d ? d.alert_days : ((f.settings || {}).alert_days == null ? 3 : f.settings.alert_days) };
+      save(st); var s2 = parentSummary(st, f, today); saveFam(f); return Promise.resolve(s2);
+    }
+    if (part === "report") return Promise.resolve({ ok: true, to: (who() || "you") + " (in this preview, nothing is actually emailed)" });
+    var sub = subOut(f, today);
+    if (!act) {
+      var plan = data && data.plan, iv = data && data.interval;
+      if (!planInfo(plan)) return fail(400, "Pick a plan.");
+      if (plan !== "free" && iv !== "month" && iv !== "year") return fail(400, "Pick monthly or yearly billing.");
+      if (plan === "free") { if (sub.plan !== "free") billEvent(f, "change", "Switched from " + sub.plan_name + " to the free Diagnostic plan."); f.sub = null; }
+      else {
+        var renews = iso10(addMonths(today, iv === "month" ? 1 : 12)), price = iv === "year" ? planInfo(plan).year_cents : planInfo(plan).month_cents;
+        f.sub = { plan: plan, interval: iv, status: "active", renews_on: renews, paused_until: null };
+        billEvent(f, "change", planInfo(plan).name + ", billed " + (iv === "month" ? "monthly" : "yearly") + " at " + money(price) + ". Renews " + niceDay(renews) + ".", price);
+      }
+    } else {
+      var ok = { pause: sub.plan !== "free" && sub.status === "active", cancel: sub.plan !== "free" && sub.status !== "canceled", resume: sub.status !== "active" }[act];
+      if (!ok) return fail(409, "That change doesn't apply to the current plan.");
+      if (act === "pause") {
+        var until = new Date(today); until.setDate(until.getDate() + PB.pause_days);
+        var nr = parseDate(f.sub.renews_on); nr.setDate(nr.getDate() + PB.pause_days);
+        f.sub.status = "paused"; f.sub.paused_until = iso10(until); f.sub.renews_on = iso10(nr);
+        billEvent(f, "pause", "Paused until " + niceDay(f.sub.paused_until) + ". The next bill moves to " + niceDay(f.sub.renews_on) + ".");
+      } else if (act === "cancel") {
+        f.sub.status = "canceled"; f.sub.paused_until = null;
+        billEvent(f, "cancel", "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free Diagnostic plan.");
+      } else {
+        var was = f.sub.status; f.sub.status = "active"; f.sub.paused_until = null;
+        billEvent(f, "resume", was === "paused" ? "Resumed." : "Cancellation undone. Renews " + niceDay(f.sub.renews_on) + ".");
+      }
+    }
+    var fresh = subOut(f, today); saveFam(f);
+    return Promise.resolve({ subscription: fresh, billing: f.billing || [] });
+  }
+
+  function call(path, data, method) {
     path = path.split("?")[0];
+    if (path.indexOf("/api/parent") === 0) return parentCall(path, data, method);
     if (path.indexOf("/api/levels") === 0) return levelsCall(path, data);
     if (path.indexOf("/api/plan") === 0) return planCall(path, data);
     if (path === "/api/practice") return Promise.resolve(overview());

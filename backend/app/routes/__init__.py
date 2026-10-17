@@ -2,7 +2,7 @@
 
 The pages blueprint stays last: it catches every path that isn't an API route.
 """
-from . import account, auth, dashboard, leads, pages, plan, practice, tests
+from . import account, auth, dashboard, family, leads, pages, plan, practice, tests
 
 BLUEPRINTS = [
     auth.bp,        # /api/auth/...  create account, sign in and out, password reset
@@ -14,6 +14,8 @@ BLUEPRINTS = [
     practice.sample_bp,  # /api/sample  the home page's sample question
     practice.levels_bp,  # /api/levels  Level up: sets that get harder level by level
     dashboard.bp,   # /api/dashboard, /api/review, /api/activity
+    family.student_bp,  # /api/family  a student's Parent access: link codes and connected parents
+    family.bp,      # /api/parent  the parent dashboard
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health
 ]

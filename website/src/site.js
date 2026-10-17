@@ -159,7 +159,7 @@
 
   /* 7. Form helpers: validation, spam protection, status messages */
   var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  var TEST_USERNAME = "beta";
+  var TEST_USERNAME = "beta", TEST_PARENT = "parent";  // local test accounts (backend/app/testaccount.py)
 
   function setError(field, msg) {
     var input = field.querySelector("input, select, textarea");
@@ -290,6 +290,42 @@
         aStatus.className = "status is-shown ok"; aStatus.textContent = "You've signed out. See you next session.";
       }
     } catch (err) { /* storage blocked */ }
+    // Student or parent: changes the headings, the create-account form and where sign-in lands.
+    var ROLE = "student";
+    try { ROLE = localStorage.getItem("graphite_role_pick") === "parent" ? "parent" : "student"; } catch (err) { /* storage blocked */ }
+    if (/[?&]as=parent\b/.test(location.search) || location.hash === "#parent") ROLE = "parent";
+    if (/[?&]as=student\b/.test(location.search)) ROLE = "student";
+    var roleBtns = $all(".role-pick [data-role]");
+    function setRole(r, focus) {
+      ROLE = r;
+      try { localStorage.setItem("graphite_role_pick", r); } catch (err) { /* storage blocked */ }
+      roleBtns.forEach(function (b) {
+        var on = b.getAttribute("data-role") === r;
+        b.setAttribute("aria-checked", String(on)); b.tabIndex = on ? 0 : -1;
+        if (on && focus) b.focus();
+      });
+      var parent = r === "parent", creating = !$("#create-form").hidden;
+      $all(".student-only").forEach(function (el) { el.hidden = parent; });
+      $all(".parent-only").forEach(function (el) { el.hidden = !parent; });
+      $("#signin-title").textContent = creating ? (parent ? "Create a parent account" : "Create your Graphite account")
+        : (parent ? "Sign in to your parent dashboard" : "Sign in to your dashboard");
+      $("#create-name-label").textContent = parent ? "Your name" : "Student's name";
+      $("#create-lede").textContent = parent ? "Follow your student's progress, study time and plan. You'll connect to your student with a code from their dashboard."
+        : "Free to start. Your practice test results and study plan save here.";
+    }
+    roleBtns.forEach(function (b, i) {
+      b.addEventListener("click", function () { setRole(b.getAttribute("data-role")); });
+      b.addEventListener("keydown", function (e) {
+        var d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+        if (!d) return; e.preventDefault();
+        setRole(roleBtns[(i + d + roleBtns.length) % roleBtns.length].getAttribute("data-role"), true);
+      });
+    });
+    function landing(role) {
+      var next = safeNext();
+      if (role === "parent") return /parent\.html$/.test(next) ? next : "parent.html";
+      return /parent\.html$/.test(next) ? CONFIG.dashboardUrl : next;
+    }
     var pw = $("#signin-password");
     var pwBtn = $("#pw-toggle");
     pwBtn.addEventListener("click", function () {
@@ -315,7 +351,7 @@
       var email = $("#signin-email"), em = email.value.trim();
       // The test account (beta / beta) has no email and a short password. The server only accepts it when
       // it runs locally, never on the hosted site (backend/app/testaccount.py).
-      var testAccount = em.toLowerCase() === TEST_USERNAME;
+      var testAccount = em.toLowerCase() === TEST_USERNAME || em.toLowerCase() === TEST_PARENT;
       var emMsg = !em ? "Enter your email address." : (!testAccount && !EMAIL.test(em) ? "Enter an email like name@school.org." : "");
       setError(email.parentNode, emMsg);
       var pMsg = !pw.value ? "Enter your password." : (!testAccount && pw.value.length < 8 ? "Passwords are at least 8 characters." : "");
@@ -336,18 +372,22 @@
       var btn = signin.querySelector('button[type="submit"]');
       btn.disabled = true; btn.textContent = "Signing in…";
       send(CONFIG.authEndpoint, { email: em, password: pw.value, remember: $("#signin-remember").checked })
-        .then(function () {
+        .then(function (res) {
+          // The account decides where to go; the preview has no accounts, so it follows the switch.
+          var role = res && res.user && res.user.role ? res.user.role : (LIVE ? "student" : (em.toLowerCase() === TEST_PARENT ? "parent" : ROLE));
           // Preview: the test account starts fresh on every sign-in, as it does on the server.
-          if (testAccount && !LIVE) {
+          if (em.toLowerCase() === TEST_USERNAME && !LIVE) {
             try {
               Object.keys(localStorage).filter(function (k) { return k.indexOf("graphite_") === 0 && k !== CONFIG.consentKey; })
                 .forEach(function (k) { localStorage.removeItem(k); });
             } catch (err) { /* storage blocked */ }
           }
-          showStatus(aStatus, "ok", "Signed in as " + em + ".", CONFIG.dashboardUrl ? "Opening your dashboard." : "Your dashboard is ready.");
+          var note = role !== ROLE ? (role === "parent" ? "This is a parent account, so we're opening the parent dashboard." : "This is a student account, so we're opening the student dashboard.")
+            : (role === "parent" ? "Opening your parent dashboard." : "Opening your dashboard.");
+          showStatus(aStatus, "ok", "Signed in as " + em + ".", note);
           Analytics.track("sign_in");
-          try { sessionStorage.setItem("graphite_user", em); } catch (err) { /* storage blocked */ }
-          if (CONFIG.dashboardUrl) setTimeout(function () { location.href = safeNext(); }, 500);
+          try { sessionStorage.setItem("graphite_user", em); sessionStorage.setItem("graphite_role", role); } catch (err) { /* storage blocked */ }
+          if (CONFIG.dashboardUrl) setTimeout(function () { location.href = landing(role); }, role !== ROLE ? 1400 : 500);
         })
         .catch(function (err) {
           attempts++;
@@ -382,23 +422,24 @@
     var create = $("#create-form"), createOpen = $("#create-open"), createPrompt = $("#create-prompt");
     function showCreate(open) {
       create.hidden = !open; signin.hidden = open; reset.hidden = true; createPrompt.hidden = open;
-      $("#signin-title").textContent = open ? "Create your Graphite account" : "Sign in to your dashboard";
+      setRole(ROLE);
       if (open) $("#create-name").focus();
     }
     createOpen.addEventListener("click", function () { showCreate(true); });
     $("#create-cancel").addEventListener("click", function () { showCreate(false); $("#signin-email").focus(); });
     if (location.hash === "#create") showCreate(true);
+    setRole(ROLE);
     create.addEventListener("submit", function (e) {
       e.preventDefault();
       var cs = $("#create-status"); clearStatus(cs);
       var name = $("#create-name"), email = $("#create-email"), pass = $("#create-password"), target = $("#create-target"), agree = $("#create-agree");
       var em = email.value.trim(), ok = true;
-      setError(name.closest(".field"), name.value.trim() ? "" : "Enter the student's name."); if (!name.value.trim()) ok = false;
+      setError(name.closest(".field"), name.value.trim() ? "" : (ROLE === "parent" ? "Enter your name." : "Enter the student's name.")); if (!name.value.trim()) ok = false;
       var emMsg = !em ? "Enter an email address." : (!EMAIL.test(em) ? "Enter an email like name@school.org." : "");
       setError(email.closest(".field"), emMsg); if (emMsg) ok = false;
       var pMsg = pass.value.length < 8 ? "Passwords need at least 8 characters." : "";
       setError(pass.closest(".field"), pMsg); if (pMsg) ok = false;
-      var tv = target.value.trim(), tMsg = "";
+      var tv = ROLE === "parent" ? "" : target.value.trim(), tMsg = "";
       if (tv && (!(Number(tv) >= 400 && Number(tv) <= 1600) || Number(tv) % 10)) tMsg = "Target scores run from 400 to 1600 in steps of 10.";
       setError(target.closest(".field"), tMsg); if (tMsg) ok = false;
       setError(agree.closest(".field"), agree.checked ? "" : "Check this box to continue."); if (!agree.checked) ok = false;
@@ -406,14 +447,16 @@
       if (create.querySelector(".hp input").value) return;
       var btn = create.querySelector('button[type="submit"]');
       btn.disabled = true; btn.textContent = "Creating…";
-      var payload = { name: name.value, email: em, password: pass.value, grade: $("#create-grade").value, test_date: $("#create-date").value, target_score: tv };
+      var payload = ROLE === "parent" ? { name: name.value, email: em, password: pass.value, role: "parent" }
+        : { name: name.value, email: em, password: pass.value, grade: $("#create-grade").value, test_date: $("#create-date").value, target_score: tv, role: "student" };
       (LIVE ? api("/api/auth/register", payload) : send(null))
         .then(function () {
           var hasNext = !!new URLSearchParams(location.search).get("next");
-          showStatus(cs, "ok", "Your account is ready.", hasNext ? "Taking you back." : "Opening your 10-question diagnostic.");
-          Analytics.track("account_created");
-          try { sessionStorage.setItem("graphite_user", em); } catch (err) { /* storage blocked */ }
-          setTimeout(function () { location.href = hasNext ? safeNext() : "plan.html"; }, 500);
+          var parent = ROLE === "parent";
+          showStatus(cs, "ok", "Your account is ready.", parent ? "Opening your parent dashboard." : hasNext ? "Taking you back." : "Opening your 10-question diagnostic.");
+          Analytics.track(parent ? "parent_account_created" : "account_created");
+          try { sessionStorage.setItem("graphite_user", em); sessionStorage.setItem("graphite_role", ROLE); } catch (err) { /* storage blocked */ }
+          setTimeout(function () { location.href = parent ? "parent.html" : hasNext ? safeNext() : "plan.html"; }, 500);
         })
         .catch(function (err) {
           showFieldError(err, { name: "create-name", email: "create-email", password: "create-password", grade: "create-grade", test_date: "create-date", target_score: "create-target" });
@@ -617,10 +660,63 @@
     if (!(LIVE && !onDash)) render();
   }
   /* 9. Dashboard */
+  /* Parent access (dashboard Account panel): a one-time code for a parent, and the parents already connected.
+     Preview: kept in this browser (graphite_family), where the parent dashboard preview reads it too. */
+  var pa = $("#parent-access");
+  if (pa) {
+    var FKEY = "graphite_family";
+    var famLocal = function (path, data, method) {
+      var f = store.get(FKEY) || { parents: [] };
+      if (path === "/api/family/code") {
+        var A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", c = "";
+        for (var i = 0; i < 8; i++) c += A.charAt(Math.floor(Math.random() * A.length));
+        f.code = { code: c.slice(0, 4) + "-" + c.slice(4), expires_at: new Date(Date.now() + 7 * 86400000).toISOString() };
+        store.set(FKEY, f);
+        return Promise.resolve(f.code);
+      }
+      if (method === "DELETE") { f.parents = []; store.set(FKEY, f); return Promise.resolve({ ok: true }); }
+      return Promise.resolve({ parents: f.parents, code_expires_at: f.code ? f.code.expires_at : null });
+    };
+    var fam = function (path, data, method) { return LIVE ? api(path, data, method) : famLocal(path, data, method); };
+    var paStatus = $("#pa-status");
+    var paEsc = function (t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+    var drawParents = function (list) {
+      var ul = $("#pa-list");
+      ul.hidden = !list.length;
+      ul.innerHTML = list.map(function (p) {
+        return '<li><div><strong>' + paEsc(p.name) + '</strong><p class="fine">' + paEsc(p.email) + "</p></div>" +
+          '<button class="btn btn-quiet" type="button" data-remove-parent="' + p.id + '">Remove</button></li>';
+      }).join("");
+    };
+    var expiry = function (iso) { var d = new Date(iso); return "Works once, until " + d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + "."; };
+    fam("/api/family").then(function (r) { drawParents(r.parents); }).catch(function () { /* the card still offers a code */ });
+    $("#pa-make").addEventListener("click", function () {
+      var b = this; b.disabled = true; clearStatus(paStatus);
+      fam("/api/family/code", {}).then(function (r) {
+        b.disabled = false; b.textContent = "Get a new code";
+        $("#pa-code").hidden = false; $("#pa-code-val").textContent = r.code; $("#pa-code-exp").textContent = expiry(r.expires_at);
+        showStatus(paStatus, "ok", "Send this code to your parent.", "They enter it on their parent dashboard. Making a new code cancels this one.");
+      }).catch(function (err) { b.disabled = false; showStatus(paStatus, "err", "We couldn't make a code.", networkMessage(err)); });
+    });
+    $("#pa-copy").addEventListener("click", function () {
+      var v = $("#pa-code-val").textContent, b = this;
+      var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(v).then(done, function () { /* select it instead */ }); else done();
+    });
+    $("#pa-list").addEventListener("click", function (e) {
+      var b = e.target.closest("[data-remove-parent]"); if (!b) return;
+      if (b.textContent !== "Press again to remove") { b.textContent = "Press again to remove"; return; }
+      fam("/api/family/parents/" + b.getAttribute("data-remove-parent"), {}, "DELETE").then(function () {
+        return fam("/api/family");
+      }).then(function (r) { drawParents(r.parents); showStatus(paStatus, "ok", "Removed. They can't see your progress anymore."); })
+        .catch(function (err) { showStatus(paStatus, "err", "We couldn't remove that parent.", networkMessage(err)); });
+    });
+  }
+
   $all("[data-sign-out]").forEach(function (b) {
     b.addEventListener("click", function () {
       var go = function () {
-        try { sessionStorage.removeItem("graphite_user"); sessionStorage.setItem("graphite_signed_out", "1"); } catch (err) { /* storage blocked */ }
+        try { sessionStorage.removeItem("graphite_user"); sessionStorage.removeItem("graphite_role"); sessionStorage.setItem("graphite_signed_out", "1"); } catch (err) { /* storage blocked */ }
         location.href = "signin.html";
       };
       if (LIVE) api("/api/auth/logout", {}).then(go, go); else go();
@@ -639,7 +735,14 @@
     var minutesThisWeek = 110, setTotal = 12;
 
     function applyGoal(h) {
-      $("#goal-hours").value = String(h);
+      // A parent can set any goal from 1 to 20 hours; make sure the menu has it.
+      var gsel = $("#goal-hours");
+      if (!gsel.querySelector('option[value="' + h + '"]')) {
+        var o = document.createElement("option"); o.value = String(h); o.textContent = h + (h === 1 ? " hour" : " hours");
+        var after = Array.prototype.filter.call(gsel.options, function (x) { return Number(x.value) > h; })[0];
+        gsel.insertBefore(o, after || null);
+      }
+      gsel.value = String(h);
       $("#goal-sub").textContent = "of your " + h + " h goal";
       $("#goal-meter").style.width = Math.min(100, Math.round(minutesThisWeek / (h * 60) * 100)) + "%";
     }

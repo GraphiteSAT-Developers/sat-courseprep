@@ -2,6 +2,14 @@
 <main id="main" class="auth">
   <div class="wrap auth-grid">
     <div class="auth-panel">
+      <div class="role-pick" role="radiogroup" aria-label="Who's signing in?">
+        <button type="button" role="radio" aria-checked="true" data-role="student">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2 9l10 5 10-5-10-5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          <span>I'm a student</span></button>
+        <button type="button" role="radio" aria-checked="false" data-role="parent" tabindex="-1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="10" r="2.3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M14.5 20c.3-2.6 1.6-4.3 3.5-4.3 1.8 0 3 1.7 3 4.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span>I'm a parent</span></button>
+      </div>
       <div>
         <h1 id="signin-title">Sign in to your dashboard</h1>
       </div>
@@ -41,15 +49,15 @@
       <form class="form" id="create-form" data-guard novalidate hidden>
         <div>
           <h2 id="create-title">Create your account</h2>
-          <p class="lede">Free to start. Your practice test results and study plan save here.</p>
+          <p class="lede" id="create-lede">Free to start. Your practice test results and study plan save here.</p>
         </div>
-        <div class="field"><label for="create-name">Student's name</label><input type="text" id="create-name" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="create-name" id="create-name-label">Student's name</label><input type="text" id="create-name" name="name" autocomplete="name" required></div>
         <div class="field"><label for="create-email">Email</label><input type="email" id="create-email" name="email" autocomplete="email" inputmode="email" required></div>
         <div class="field">
           <label for="create-password">Password <span class="hint">(at least 8 characters)</span></label>
           <input type="password" id="create-password" name="password" autocomplete="new-password" required minlength="8">
         </div>
-        <div class="form-row">
+        <div class="form-row student-only">
           <div class="field">
             <label for="create-grade">Grade</label>
             <select id="create-grade" name="grade">
@@ -62,7 +70,7 @@
           </div>
           <div class="field"><label for="create-date">SAT date <span class="hint">(optional)</span></label><input type="date" id="create-date" name="test_date"></div>
         </div>
-        <div class="field"><label for="create-target">Target score <span class="hint">(optional, 400 to 1600)</span></label><input type="number" id="create-target" name="target_score" min="400" max="1600" step="10" inputmode="numeric"></div>
+        <div class="field student-only"><label for="create-target">Target score <span class="hint">(optional, 400 to 1600)</span></label><input type="number" id="create-target" name="target_score" min="400" max="1600" step="10" inputmode="numeric"></div>
         <div class="field">
           <label class="check" for="create-agree"><input type="checkbox" id="create-agree" name="agree" required><span>I'm 13 or older, or I'm a parent or guardian creating this account for a student. I agree to the <a href="terms.html">terms</a> and <a href="privacy.html">privacy policy</a>.</span></label>
         </div>
@@ -90,7 +98,7 @@
       <p class="fine" id="create-prompt">New to Graphite? <button class="linkish" type="button" id="create-open">Create an account</button> or <a href="./#start">get the free diagnostic link</a>.</p>
     </div>
 
-    <aside class="auth-aside" aria-labelledby="aside-title">
+    <aside class="auth-aside student-only" aria-labelledby="aside-title">
       <h2 id="aside-title">What's on your dashboard</h2>
       <ul>
         <li><strong>Today's set</strong><span>Questions picked from the domains costing you the most points, sized to the time you have.</span></li>
@@ -98,7 +106,17 @@
         <li><strong>Review queue</strong><span>Questions you missed, scheduled to come back until you get them right twice.</span></li>
         <li><strong>Test countdown</strong><span>Days until your SAT and what each remaining week is for.</span></li>
       </ul>
-      <p class="fine">Parents: the weekly progress email links to a read-only view.</p>
+      <p class="fine">Parents: choose "I'm a parent" above to follow your student's progress.</p>
+    </aside>
+    <aside class="auth-aside parent-only" aria-labelledby="aside-parent-title" hidden>
+      <h2 id="aside-parent-title">What's on the parent dashboard</h2>
+      <ul>
+        <li><strong>Progress</strong><span>Practice test scores, the skills getting stronger, and where the easiest points are.</span></li>
+        <li><strong>Study time</strong><span>Minutes this week against the goal, days practiced, and a streak.</span></li>
+        <li><strong>Alerts</strong><span>A heads-up when practice stops for a few days or a score drops.</span></li>
+        <li><strong>Plan and billing</strong><span>Change, pause or cancel the plan, and see every change in one place.</span></li>
+      </ul>
+      <p class="fine">To connect, your student opens Account, then Parent access, on their dashboard and gives you a code. Parents see progress and study time, not individual answers.</p>
     </aside>
   </div>
 </main>

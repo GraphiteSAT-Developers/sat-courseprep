@@ -143,7 +143,47 @@ MIGRATIONS = [
     (5, "When a student was first sent to the diagnostic", [
         "ALTER TABLE users ADD COLUMN diagnostic_prompted_at TEXT",
     ]),
-    # (6, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (6, "Parent accounts: roles, parent-student links, link codes, subscriptions and billing history", [
+        "ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'student'",
+        """CREATE TABLE family_links (
+            id {pk},
+            parent_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            weekly_report INTEGER NOT NULL DEFAULT 1,
+            alert_days INTEGER NOT NULL DEFAULT 3,
+            created_at TEXT NOT NULL,
+            UNIQUE (parent_id, student_id)
+        )""",
+        "CREATE INDEX idx_family_student ON family_links (student_id)",
+        """CREATE TABLE link_codes (
+            id {pk},
+            student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            code_hash TEXT NOT NULL UNIQUE,
+            expires_at TEXT NOT NULL,
+            used_at TEXT
+        )""",
+        """CREATE TABLE subscriptions (
+            student_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            plan TEXT NOT NULL DEFAULT 'free',
+            billing_interval TEXT,
+            status TEXT NOT NULL DEFAULT 'active',
+            renews_on TEXT,
+            paused_until TEXT,
+            updated_by INTEGER,
+            updated_at TEXT NOT NULL
+        )""",
+        """CREATE TABLE billing_events (
+            id {pk},
+            student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            parent_id INTEGER,
+            kind TEXT NOT NULL,
+            detail TEXT NOT NULL,
+            amount_cents INTEGER NOT NULL DEFAULT 0,
+            at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_billing_student ON billing_events (student_id, at)",
+    ]),
+    # (7, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

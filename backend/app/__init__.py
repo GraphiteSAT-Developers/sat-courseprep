@@ -12,7 +12,7 @@ from .db import close_db
 from .routes import BLUEPRINTS
 from . import testaccount
 from .schema import migrate
-from .security import ApiError, check_same_origin, error_response, prune_events
+from .security import ApiError, check_same_origin, current_user, error_response, prune_events
 
 CSP = ("default-src 'self'; script-src 'self' https://plausible.io https://www.googletagmanager.com; "
        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; "
@@ -20,6 +20,7 @@ CSP = ("default-src 'self'; script-src 'self' https://plausible.io https://www.g
        "frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'")
 # The calculator is one self-contained file with inline scripts.
 CSP_CALCULATOR = CSP.replace("script-src 'self'", "script-src 'self' 'unsafe-inline'")
+PARENT_APIS = ("/api/parent", "/api/auth", "/api/me", "/api/health")
 
 
 def create_app(overrides=None):
@@ -39,7 +40,7 @@ def create_app(overrides=None):
     migrate(app.config["DATABASE_URL"])
     if app.config["TEST_ACCOUNT"]:
         testaccount.ensure(app.config["DATABASE_URL"])
-        app.logger.info('Test account ready: sign in with username "beta" and password "beta".')
+        app.logger.info('Test accounts ready: student "beta" / "beta", and parent "parent" / "parent".')
     for bp in BLUEPRINTS:
         app.register_blueprint(bp)
     app.teardown_appcontext(close_db)
@@ -52,6 +53,18 @@ def create_app(overrides=None):
             check_same_origin()
             if random.random() < 0.01:
                 prune_events()
+            # Parents see a student only through the parent dashboard; students can't use it.
+            user = current_user()
+            if user and user["role"] == "parent" and not request.path.startswith(PARENT_APIS):
+                raise ApiError(403, "Parent accounts see their student's progress on the parent dashboard.", code="parent_account")
+            if user and user["role"] != "parent" and request.path.startswith("/api/parent"):
+                raise ApiError(403, "The parent dashboard is for parent accounts.", code="student_account")
+
+    @app.cli.command("send-weekly-reports")
+    def weekly_reports():
+        """Email each parent their student's week. Schedule it weekly (for example Sunday evening)."""
+        from .routes.family import send_weekly_reports
+        print(f"Sent {send_weekly_reports()} reports")
 
     @app.after_request
     def headers(resp):

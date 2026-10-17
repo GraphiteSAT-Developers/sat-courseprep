@@ -25,21 +25,31 @@ def register():
     ip_bucket = "register-ip:" + client_ip()
     if rate_limited(ip_bucket, 10, 60):
         raise ApiError(429, "Too many new accounts from this network. Try again in an hour.")
+    role = data.get("role") or "student"
+    if role not in ("student", "parent"):
+        raise ApiError(400, "Choose a student or parent account.", "role")
     name = clean_name(data.get("name"))
     email = clean_email(data.get("email"))
     password = clean_password(data.get("password"))
-    grade = clean_grade(data.get("grade"))
-    test_date = clean_date(data.get("test_date"))
-    target = clean_target(data.get("target_score"))
+    student = role == "student"  # parent accounts don't have a grade, test date or target
+    grade = clean_grade(data.get("grade")) if student else None
+    test_date = clean_date(data.get("test_date")) if student else None
+    target = clean_target(data.get("target_score")) if student else None
     if query("SELECT id FROM users WHERE email = ?", (email,), one=True):
         raise ApiError(409, "An account with this email already exists. Sign in instead.", "email", "email_taken")
     record_event(ip_bucket)
     row = execute(
-        "INSERT INTO users (email, password_hash, name, grade, test_date, target_score, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id",
-        (email, generate_password_hash(password), name, grade, test_date, target, now_iso()))
+        "INSERT INTO users (email, password_hash, name, grade, test_date, target_score, role, created_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
+        (email, generate_password_hash(password), name, grade, test_date, target, role, now_iso()))
     user = query("SELECT * FROM users WHERE id = ?", (row["id"],), one=True)
     login_user(user, remember=True)
+    if not student:
+        mailer.send(email, "Welcome to Graphite",
+                    f"Hi {user['name'].split(' ')[0]},\n\nYour parent account is ready. To see your student's progress, "
+                    f"ask them to open Account, then Parent access, on their Graphite dashboard and send you the code. "
+                    f"Enter it here:\n{current_app.config['BASE_URL']}/parent.html\n\nGraphite")
+        return jsonify({"user": public_user(user)}), 201
     mailer.send(email, "Welcome to Graphite",
                 f"Hi {user['name'].split(' ')[0]},\n\nYour Graphite account is ready. Start with the 10-question diagnostic "
                 f"to build your study plan:\n{current_app.config['BASE_URL']}/plan.html\n\nGraphite")
@@ -50,7 +60,7 @@ def register():
 def login():
     data = body()
     if testaccount.is_test_login(current_app, data.get("email")):
-        email = testaccount.USERNAME
+        email = str(data.get("email")).strip().lower()
     else:
         email = clean_email(data.get("email"))
     password = data.get("password") or ""

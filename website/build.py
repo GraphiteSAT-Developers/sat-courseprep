@@ -21,6 +21,7 @@ FAVICON_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rec
 header = (SRC / "partials/header.html").read_text()
 footer = (SRC / "partials/footer.html").read_text()
 app_header = (SRC / "partials/app-header.html").read_text()
+parent_header = (SRC / "partials/parent-header.html").read_text()
 app_footer = (SRC / "partials/app-footer.html").read_text()
 banner = (SRC / "partials/cookie-banner.html").read_text()
 TOPLINE = ROOT.parent / "topline" / "index.html"
@@ -114,6 +115,7 @@ def bank_js():
     diagnostic = importlib.import_module("graphite_services.diagnostic")
     studyplan = importlib.import_module("graphite_services.studyplan")
     levels = importlib.import_module("graphite_services.levels")
+    plans = importlib.import_module("graphite_services.plans")
     keep = ("id", "domain_key", "domain", "skill", "skill_key", "difficulty", "type", "stem", "choices",
             "answer", "keys", "answer_text", "explain_html")
     data = {
@@ -131,6 +133,9 @@ def bank_js():
                    "tracks": [{"key": t["key"], "name": t["name"], "skills": t["skills"]} for t in levels.tracks()],
                    "rungs": [{"n": n, "tier": levels.tier(n), "mix": levels.mix(n), "mix_label": studyplan.mix_label(levels.mix(n))}
                              for n in range(1, levels.LEVELS + 1)]},
+        "parent": {"plans": [{"key": k, "name": p["name"], "blurb": p["blurb"], "month_cents": p["month"], "year_cents": p["year"]}
+                             for k, p in plans.PLANS.items()],
+                   "alert_days": list(plans.ALERT_DAYS), "pause_days": plans.PAUSE_DAYS},
     }
     return "window.GRAPHITE_BANK = " + json.dumps(data, separators=(",", ":")).replace("</", "<\\/") + ";"
 
@@ -150,6 +155,8 @@ def render(meta, mode):
     h = "" if is_home else "./"
     if meta.get("test"):
         head_nav, foot = "", ""
+    elif meta.get("parent"):
+        head_nav, foot = parent_header, app_footer
     elif meta.get("app"):
         head_nav, foot = app_header, app_footer
     else:
@@ -258,6 +265,7 @@ def build():
     shutil.copy(SRC / "practice.js", DIST / "js" / "practice.js")
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
+    shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:
@@ -270,7 +278,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",
