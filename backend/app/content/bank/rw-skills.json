@@ -1,0 +1,174 @@
+{
+  "source": "College Board, Assessment Framework for the Digital SAT Suite, Reading and Writing section (content domains, skill/knowledge testing points, and question distribution). Testing points are written from the framework's skill descriptions; check the wording against the PDF before quoting it.",
+  "format": {
+    "modules": 2,
+    "questionsPerModule": 27,
+    "operationalPerModule": 25,
+    "pretestPerModule": 2,
+    "minutesPerModule": 32,
+    "choices": 4,
+    "passageWords": [25, 150],
+    "questionsPerPassage": 1,
+    "subjectAreas": ["Literature", "History/social studies", "Humanities", "Science"],
+    "domainOrder": ["craft-structure", "information-ideas", "conventions", "expression-ideas"],
+    "notes": [
+      "Every question is four-option multiple choice with one best answer; there are no typed answers in Reading and Writing.",
+      "Each question has its own short passage (or a pair of passages for Cross-text connections). Literature passages can be prose, poetry or drama, including texts written before 1900.",
+      "Within each module, questions are grouped by domain and, within a skill, ordered from easier to harder.",
+      "Some Information and Ideas questions pair the passage with a table or graph (Command of evidence: quantitative)."
+    ]
+  },
+  "domains": {
+    "craft-structure": "Craft and Structure",
+    "information-ideas": "Information and Ideas",
+    "conventions": "Standard English Conventions",
+    "expression-ideas": "Expression of Ideas"
+  },
+  "questionDistribution": {
+    "craft-structure": {
+      "share": 0.28,
+      "min": 13,
+      "max": 15
+    },
+    "information-ideas": {
+      "share": 0.26,
+      "min": 12,
+      "max": 14
+    },
+    "conventions": {
+      "share": 0.26,
+      "min": 11,
+      "max": 15
+    },
+    "expression-ideas": {
+      "share": 0.20,
+      "min": 8,
+      "max": 12
+    }
+  },
+  "skills": [
+    {
+      "domain": "craft-structure",
+      "name": "Words in context",
+      "summary": "Students determine the meaning of a high-utility academic word or phrase in context, or choose the most logical and precise word or phrase for a context.",
+      "testingPoints": [
+        "Determine the meaning of a high-utility academic word or phrase as it is used in a text.",
+        "Determine which word or phrase most logically and precisely completes a text, given its context.",
+        "Use the surrounding sentences, not the word's most common meaning, to decide what the word must mean here.",
+        "Distinguish a word's precise meaning in context from near-synonyms that don't fit the text's tone, logic or level of certainty."
+      ]
+    },
+    {
+      "domain": "craft-structure",
+      "name": "Text structure and purpose",
+      "summary": "Students analyze the structure of a text or determine its main rhetorical purpose, or the function of a part of the text.",
+      "testingPoints": [
+        "Determine the main purpose of a text.",
+        "Describe the overall structure of a text (for example, a claim followed by a counterexample, or a problem followed by a proposed solution).",
+        "Determine the function of a sentence or portion of a text in relation to the text as a whole.",
+        "Describe the purpose or structure of a literary text, including poetry and drama."
+      ]
+    },
+    {
+      "domain": "craft-structure",
+      "name": "Cross-text connections",
+      "summary": "Students draw reasonable connections between two topically related texts, such as how the author of one text would respond to the other.",
+      "testingPoints": [
+        "Identify how the author of one text would most likely respond to a claim, finding or method described in the other text.",
+        "Determine how two texts relate: whether they agree, disagree, or one qualifies, extends or offers a different explanation for the other.",
+        "Identify the specific point on which two texts differ or agree.",
+        "Keep each author's view separate from views the author only reports."
+      ]
+    },
+    {
+      "domain": "information-ideas",
+      "name": "Central ideas and details",
+      "summary": "Students determine the central idea of a text and/or interpret its key details.",
+      "testingPoints": [
+        "Determine the central idea or main point of a text.",
+        "Identify a key detail that the text states directly.",
+        "Interpret how a detail supports or develops the central idea.",
+        "Determine the central idea of a literary text, including what a character or speaker thinks, feels or wants."
+      ]
+    },
+    {
+      "domain": "information-ideas",
+      "name": "Command of evidence: textual",
+      "summary": "Students determine which textual evidence best supports, illustrates or challenges a specified claim or point.",
+      "testingPoints": [
+        "Identify the finding or statement that would most directly support a claim or hypothesis made in the text.",
+        "Identify the finding or statement that would most directly weaken or challenge a claim or hypothesis.",
+        "Identify the quotation from a literary work (often a poem) that best illustrates a claim about it.",
+        "Distinguish evidence that addresses the exact claim from evidence that is only on the same topic."
+      ]
+    },
+    {
+      "domain": "information-ideas",
+      "name": "Command of evidence: quantitative",
+      "summary": "Students use data from an informational graphic (a table, bar graph or line graph) to support, illustrate or challenge a claim, or to complete an example.",
+      "testingPoints": [
+        "Use data from a table or graph to complete a statement so that it accurately illustrates a claim in the text.",
+        "Identify which data from a table or graph best support or weaken a claim.",
+        "Read the graphic's labels, units and categories precisely, and use only the data the claim is about.",
+        "Reject choices that are accurate readings of the graphic but don't address the claim."
+      ]
+    },
+    {
+      "domain": "information-ideas",
+      "name": "Inferences",
+      "summary": "Students draw reasonable inferences based on explicit and implicit information and ideas in a text, typically by choosing the choice that most logically completes the text.",
+      "testingPoints": [
+        "Determine the conclusion that most logically follows from the information in a text.",
+        "Combine two or more pieces of information in a text to reach a conclusion it doesn't state outright.",
+        "Recognize what a finding does and doesn't allow a researcher to conclude.",
+        "Reject conclusions that go beyond what the text supports, even when they sound plausible."
+      ]
+    },
+    {
+      "domain": "conventions",
+      "name": "Boundaries",
+      "summary": "Students edit text to conform to the conventions of Standard English sentence structure and punctuation.",
+      "testingPoints": [
+        "Punctuate the boundary between two independent clauses (period, semicolon, colon, or comma with a coordinating conjunction); avoid comma splices, run-ons and fragments.",
+        "Punctuate supplementary elements within a sentence (nonessential clauses, appositives, parenthetical phrases) with matching commas, dashes or parentheses.",
+        "Use colons and dashes to introduce explanations, lists and elaborations.",
+        "Punctuate items in a series, including series that need semicolons.",
+        "Avoid unnecessary punctuation, such as a comma between a subject and its verb or between a verb and its object.",
+        "Punctuate a sentence that ends with a question or contains a quotation."
+      ]
+    },
+    {
+      "domain": "conventions",
+      "name": "Form, structure, and sense",
+      "summary": "Students edit text to conform to the conventions of Standard English usage.",
+      "testingPoints": [
+        "Make a verb agree with its subject, including when other words come between them or the subject follows the verb.",
+        "Make a pronoun agree with its antecedent in number, and choose the correct pronoun case.",
+        "Use the verb tense, aspect and mood that fit the sentence and the surrounding text.",
+        "Use the correct form of plural and possessive nouns and determiners (for example, its/it's, their/they're).",
+        "Place a modifier so that it clearly modifies the right word (avoid dangling and misplaced modifiers).",
+        "Use finite and nonfinite verb forms (infinitives, participles, gerunds) correctly within a sentence."
+      ]
+    },
+    {
+      "domain": "expression-ideas",
+      "name": "Rhetorical synthesis",
+      "summary": "Students strategically integrate information and ideas on a topic, given as bulleted notes, to accomplish a specified rhetorical goal.",
+      "testingPoints": [
+        "Choose the sentence that uses the relevant notes to accomplish a stated goal (for example, emphasize a difference, introduce a study to an unfamiliar audience, or present a finding).",
+        "Match the goal precisely: a choice must do what the question asks, not just restate accurate notes.",
+        "Use only information that appears in the notes."
+      ]
+    },
+    {
+      "domain": "expression-ideas",
+      "name": "Transitions",
+      "summary": "Students determine the most effective transition word or phrase to logically connect information and ideas in a text.",
+      "testingPoints": [
+        "Determine the logical relationship between two sentences or ideas: addition, contrast, cause and effect, example, sequence, concession or emphasis.",
+        "Choose the transition word or phrase that signals that relationship.",
+        "Read the sentence before and the sentence after the blank, not just the sentence with the blank."
+      ]
+    }
+  ]
+}
