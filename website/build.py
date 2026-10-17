@@ -2,7 +2,7 @@
 site/      deployable site (linked CSS/JS, root-absolute links, server files)
 artifact/  self-contained pages for the hosted preview (inlined CSS/JS/images)
 """
-import base64, importlib, json, re, shutil, sys, types, urllib.parse
+import base64, hashlib, importlib, json, re, shutil, sys, types, urllib.parse
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -251,6 +251,20 @@ def make_images(out):
     d.text((80, 470), "Graphite  ·  AI SAT tutoring for high school students", font=ImageFont.truetype(reg, 30), fill="#b1b6bd")
     og.quantize(colors=32, method=Image.FASTOCTREE).save(out / "og-image.png", optimize=True)
 
+ASSET_LINK = re.compile(r'((?:src|href)="/)((?:js|css)/[\w.-]+\.(?:js|css))"')
+
+
+def versioned(html):
+    """Tags each script and stylesheet link with a hash of the file (/js/site.js?v=1a2b3c4d5e).
+    When a file changes, its link changes, so browsers fetch the new version instead of a saved old one."""
+    def tag(m):
+        f = DIST / m.group(2)
+        if not f.is_file():
+            return m.group(0)
+        return f'{m.group(1)}{m.group(2)}?v={hashlib.sha256(f.read_bytes()).hexdigest()[:10]}"'
+    return ASSET_LINK.sub(tag, html)
+
+
 def build():
     pages = load_pages()
     for d in (DIST, ART):
@@ -269,7 +283,7 @@ def build():
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:
-        (DIST / p["file"]).write_text(render(p, "dist"))
+        (DIST / p["file"]).write_text(versioned(render(p, "dist")))
 
     urls = [p for p in pages if not p.get("robots", "").startswith("noindex")]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
