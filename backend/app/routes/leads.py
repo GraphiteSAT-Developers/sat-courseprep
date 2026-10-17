@@ -1,6 +1,7 @@
 """The home page's "Get your free diagnostic link" form."""
 from flask import Blueprint, current_app, jsonify
 
+from .. import botcheck, crypto
 from ..db import execute, now_iso
 from ..security import (ApiError, body, clean_date, clean_email, clean_grade, clean_name, clean_target, clean_text,
                         client_ip, rate_limited, record_event)
@@ -14,6 +15,7 @@ def create_lead():
     data = body()
     if data.get("company"):  # hidden honeypot field: people never fill it, bots do
         return jsonify({"ok": True})
+    botcheck.check(data)
     bucket = "lead-ip:" + client_ip()
     if rate_limited(bucket, 5, 10):
         raise ApiError(429, "You've sent this form several times in ten minutes. Wait a bit, or email us directly.")
@@ -29,7 +31,7 @@ def create_lead():
     message = clean_text(data.get("message"))
     record_event(bucket)
     execute("INSERT INTO leads (name, email, grade, test_date, target_score, message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (name, email, grade, test_date, target, message, now_iso()))
+            (name, email, grade, test_date, target, crypto.seal(message), now_iso()))
     base = current_app.config["BASE_URL"]
     mailer.send(email, "Your free Graphite diagnostic",
                 f"Hi {name.split(' ')[0]},\n\nCreate your free account here, then take the 10-question diagnostic. "

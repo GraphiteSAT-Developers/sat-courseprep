@@ -225,30 +225,59 @@ class PlayTest(PracticeTest):
             self.assertEqual(query("SELECT COUNT(*) AS n FROM activity WHERE kind = 'focus'", one=True)["n"], before)
 
     # ---------- lessons ----------
+    @staticmethod
+    def answers(steps, n_right):
+        """The first n_right steps answered right, the rest wrong."""
+        def ans(step, ok):
+            t = step["type"]
+            if t == "recall":
+                return ok
+            if t == "predict":
+                return step["answer"] if ok else (step["answer"] + 1) % len(step["choices"])
+            if t == "spot":
+                return step["wrong"] if ok else (step["wrong"] + 1) % len(step["lines"])
+            if t == "order":
+                n = list(range(len(step["items"])))
+                return n if ok else list(reversed(n))
+            return step["accept"][0] if ok else "nope"
+        return [ans(s, i < n_right) for i, s in enumerate(steps)]
+
+    def test_lessons_grade_every_step_type(self):
+        for l in lessons.all_lessons():
+            for steps in (l["steps"], l["recall"]):
+                self.assertEqual(lessons.grade(steps, self.answers(steps, len(steps))), len(steps), l["id"])
+                self.assertEqual(lessons.grade(steps, self.answers(steps, 0)), 0, l["id"])
+        fill = {"type": "fill", "accept": ["-5"]}
+        self.assertTrue(lessons.right(fill, " −5 "))
+        self.assertTrue(lessons.right({"type": "fill", "accept": ["0.275", "11/40"]}, "55/200"))
+        self.assertFalse(lessons.right({"type": "predict", "answer": 1}, True))  # True isn't 1 here
     def test_lessons_and_spaced_recall(self):
         ov = self.client.get("/api/lessons").json
         self.assertEqual(len(ov["lessons"]), len(lessons.all_lessons()))
         first = ov["lessons"][0]
         l = self.client.get(f"/api/lessons/{first['id']}").json["lesson"]
         self.assertTrue(all(s["type"] in lessons.STEP_TYPES for s in l["steps"]))
-        self.assertEqual(self.post(f"/api/lessons/{first['id']}/complete", {"kind": "recall", "score": 3}).status_code, 400)
+        L = lessons.lesson(first["id"])
+        self.assertEqual(self.post(f"/api/lessons/{first['id']}/complete", {"kind": "recall", "answers": self.answers(L["recall"], 3)}).status_code, 400)
+        # The server grades the answers; a made-up score is ignored.
+        self.assertEqual(self.post(f"/api/lessons/{first['id']}/complete", {"kind": "lesson", "score": 7}).status_code, 400)
 
-        r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "lesson", "score": 5}).json
+        r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "lesson", "answers": self.answers(L["steps"], 5)}).json
         self.assertEqual((r["xp"], r["coins"]), (game.XP_LESSON_FIRST, game.COINS_LESSON_FIRST))
         self.assertEqual(r["progress"]["due_on"], (date.today() + timedelta(days=1)).isoformat())
         self.assertIn("recall_rookie", [b["key"] for b in r["badges"]])
-        r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "lesson", "score": 7}).json
+        r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "lesson", "answers": self.answers(L["steps"], 7)}).json
         self.assertEqual(r["xp"], 0)  # a replay the same day
         self.assertEqual(r["progress"]["best"], 7)
 
-        r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "recall", "score": 3}).json
+        r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "recall", "answers": self.answers(L["recall"], 3)}).json
         self.assertEqual((r["xp"], r["progress"]["stage"]), (0, 0))  # not due yet: practice only
         uid = self.uid()
         for stage in range(len(lessons.RECALL_DAYS)):
             with self.app.app_context():
                 execute("UPDATE lesson_progress SET due_on = ? WHERE user_id = ?", (date.today().isoformat(), uid))
             self.assertIn(first["id"], self.client.get("/api/lessons").json["due"])
-            r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "recall", "score": 2}).json
+            r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "recall", "answers": self.answers(L["recall"], 2)}).json
             self.assertTrue(r["passed"])
             self.assertEqual((r["xp"], r["progress"]["stage"]), (game.XP_RECALL_PASS, stage + 1))
         self.assertTrue(r["progress"]["mastered"])

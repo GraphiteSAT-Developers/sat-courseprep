@@ -4,3 +4,14 @@ backend/instance/
 backend/.env
 .env
 exports/
+
+# Secrets and local data: never commit these
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.db
+*.sqlite
+*.sqlite3
+secrets/

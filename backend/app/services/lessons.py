@@ -14,7 +14,9 @@ Passing all three marks the lesson mastered. A missed check comes back the next 
 """
 import json
 import math
+import re
 from datetime import date, timedelta
+from fractions import Fraction
 from functools import lru_cache
 from pathlib import Path
 
@@ -87,13 +89,60 @@ def public(l, row=None, today=None):
                 progress=status(row, today or date.today()), recall_days=list(RECALL_DAYS))
 
 
-def complete(user_id, lesson_id, kind, score, today=None):
-    """A finished lesson or recall check. score is how many steps were right the first time.
+def _norm(v):
+    return re.sub(r"[\s,]", "", str(v or "")).replace("\u2212", "-").replace("\u2013", "-").rstrip("%").lower()
+
+
+def _number(v):
+    v = _norm(v)
+    m = re.match(r"^(-?\d+)/(\d+)$", v)
+    if m and int(m.group(2)):
+        return Fraction(int(m.group(1)), int(m.group(2)))
+    try:
+        return Fraction(v) if re.match(r"^-?(\d+\.?\d*|\.\d+)$", v) else None
+    except (ValueError, ZeroDivisionError):
+        return None
+
+
+def right(step, answer):
+    """Grades one first-try answer on the server, so a score can't be made up in the browser.
+    Recall steps are rated by the student (True for "Got it")."""
+    t = step["type"]
+    if t == "recall":
+        return answer is True
+    if t == "predict":
+        return isinstance(answer, int) and not isinstance(answer, bool) and answer == step["answer"]
+    if t == "spot":
+        return isinstance(answer, int) and not isinstance(answer, bool) and answer == step["wrong"]
+    if t == "order":
+        return isinstance(answer, list) and answer == list(range(len(step["items"])))
+    if t == "fill":
+        if not isinstance(answer, str) or len(answer) > 40:
+            return False
+        n = _number(answer)
+        for a in step["accept"]:
+            x = _number(a)
+            if (n is not None and x is not None and n == x) or _norm(a) == _norm(answer):
+                return True
+        return False
+    return False
+
+
+def grade(steps, answers):
+    """How many steps were right the first time, from the student's answers (one per step)."""
+    if not isinstance(answers, list) or len(answers) != len(steps):
+        raise ValueError("Send one answer for each step.")
+    return sum(1 for step, a in zip(steps, answers) if right(step, a))
+
+
+def complete(user_id, lesson_id, kind, answers, today=None):
+    """A finished lesson or recall check, graded here from the answers.
     Returns the rewards report plus the lesson's new progress."""
     today = today or date.today()
     l = lesson(lesson_id)
-    total = len(l["steps"] if kind == "lesson" else l["recall"])
-    score = max(0, min(total, score))
+    steps = l["steps"] if kind == "lesson" else l["recall"]
+    total = len(steps)
+    score = grade(steps, answers)
     row = _rows(user_id).get(lesson_id)
     xp_before, _ = game.totals(user_id)
     badges = []

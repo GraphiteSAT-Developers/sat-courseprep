@@ -41,6 +41,15 @@ if importlib.util.find_spec("flask") is None:
     except subprocess.CalledProcessError:
         stop(f"Couldn't install Flask. Try running this yourself: {sys.executable} -m pip install flask")
 
+# Encryption for photos and messages (cryptography) and photo resizing (Pillow).
+for module, package in (("cryptography", "cryptography"), ("PIL", "pillow")):
+    if importlib.util.find_spec(module) is None:
+        say(f"Installing {package}...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        except subprocess.CalledProcessError:
+            stop(f"Couldn't install {package}. Try running this yourself: {sys.executable} -m pip install -r requirements.txt")
+
 if not SITE.joinpath("index.html").exists():
     say("Building the website pages...")
     if importlib.util.find_spec("PIL") is None:

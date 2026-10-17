@@ -288,8 +288,40 @@
     f.setAttribute("data-started", String(Date.now()));
   });
 
+  /* Bot protection for sign-up, password resets and the home page form (backend: app/botcheck.py).
+     A short-lived token from the server goes with each one, and the server refuses forms sent back faster than a
+     person could fill them in. When the site has Cloudflare Turnstile keys, its check is added to those forms too. */
+  var BOT = { token: null, site: null, widgets: {} };
+  var BOT_FORMS = { "/api/auth/register": "#create-form", "/api/leads": "#start-form", "/api/auth/forgot": "#reset-form" };
+  function loadBotCheck() {
+    if (!LIVE || !Object.keys(BOT_FORMS).some(function (k) { return document.querySelector(BOT_FORMS[k]); })) return;
+    fetch("/api/auth/form-token", { credentials: "same-origin", headers: { Accept: "application/json" } }).then(function (r) { return r.json(); }).then(function (j) {
+      BOT.token = j.token; BOT.site = j.turnstile_site_key;
+      if (!BOT.site) return;
+      window.graphiteTurnstile = function () {
+        Object.keys(BOT_FORMS).forEach(function (path) {
+          var form = document.querySelector(BOT_FORMS[path]); if (!form || !window.turnstile) return;
+          var box = document.createElement("div"); box.className = "turnstile-box";
+          var btn = form.querySelector('button[type="submit"]'); (btn ? btn.parentNode : form).insertBefore(box, btn || null);
+          BOT.widgets[path] = window.turnstile.render(box, { sitekey: BOT.site, theme: "dark", appearance: "interaction-only" });
+        });
+      };
+      var sc = document.createElement("script");
+      sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=graphiteTurnstile"; sc.async = true;
+      document.head.appendChild(sc);
+    }).catch(function () { /* the server says what's missing if a form is sent without it */ });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", loadBotCheck); else loadBotCheck();
+
   // Calls the backend. Resolves with the JSON body; rejects with an Error carrying .status and the server's message.
   function api(path, data, method) {
+    if (data && BOT_FORMS[path]) {
+      data = Object.assign({}, data, { form_token: BOT.token });
+      if (BOT.widgets[path] !== undefined && window.turnstile) {
+        data.turnstile = window.turnstile.getResponse(BOT.widgets[path]) || "";
+        try { window.turnstile.reset(BOT.widgets[path]); } catch (e) { /* widget gone */ }
+      }
+    }
     var opts = { method: method || (data ? "POST" : "GET"), headers: { "Accept": "application/json" }, credentials: "same-origin" };
     if (data) { opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(data); }
     return fetch(path, opts).then(function (r) {

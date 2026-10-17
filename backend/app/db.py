@@ -3,6 +3,7 @@
 Write SQL with ? placeholders. On Postgres they are converted to %s.
 Use query() to read rows as dicts, and execute() to write (it commits).
 """
+import re
 import sqlite3
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -18,7 +19,10 @@ def connect(url):
     if is_postgres(url):
         import psycopg  # installed from requirements.txt on the host
         from psycopg.rows import dict_row
-        return psycopg.connect(url, row_factory=dict_row)
+        # Encrypt the connection to the database unless it's on this machine or the URL says otherwise.
+        local = any(h in url for h in ("@localhost", "@127.0.0.1", "@[::1]"))
+        extra = {} if local or "sslmode=" in url else {"sslmode": "require"}
+        return psycopg.connect(url, row_factory=dict_row, **extra)
     path = url.replace("sqlite:///", "", 1)
     if path != ":memory:":
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -26,6 +30,18 @@ def connect(url):
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
+
+
+IDENT = re.compile(r"^[a-z_][a-z0-9_]*$")
+
+
+def set_clause(fields):
+    """'a = ?, b = ?' for an UPDATE. Column names come from code, never from a request, and this refuses
+    anything that isn't a plain identifier, so a mistake can't turn into SQL injection. Values stay ? parameters."""
+    for k in fields:
+        if not IDENT.match(k):
+            raise ValueError(f"Not a column name: {k!r}")
+    return ", ".join(f"{k} = ?" for k in fields)
 
 
 def get_db():

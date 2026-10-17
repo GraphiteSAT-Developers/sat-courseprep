@@ -28,7 +28,7 @@ That means no server is running at that address.
 
 ### Test account
 
-When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and every sign-in wipes its practice history, so it always starts fresh with the diagnostic. It also starts with 500 coins (and no XP, badges or items) so you can try the shop. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
+When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and every sign-in wipes its practice history, so it always starts fresh with the diagnostic. It also starts with 100,000 coins (and no XP, badges or items) so you can try everything in the shop. To give coins to a real account, run `python give_coins.py EMAIL AMOUNT` in the backend folder on the server. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
 
 There's also a test **parent** account: username **beta2**, password **beta2**, already connected to the beta student as its parent. Choose "I'm a parent" on the sign-in page first, then sign in; it opens the parent dashboard. (Before October 2026 this account was called "parent"; it's renamed to beta2 the next time the site starts, keeping its link.) It follows the same rules: local only, never on the hosted site.
 
@@ -64,11 +64,9 @@ Run it from the main `sat-courseprep` folder. It saves `users.csv`, `leads.csv`,
 
 ## Security built in
 
-- Same-site check on every API write (blocks cross-site request forgery), and writes must be JSON.
-- Rate limits on sign-in (5 wrong passwords per email per 15 minutes), account creation, password resets and the home page form.
-- Honeypot fields on forms to catch bots.
-- Sign-in required for `dashboard.html` and `practice-test.html`; visitors are sent to sign in and back.
-- HTTPS redirect, HSTS, a Content Security Policy and other security headers in production.
+See `../SECURITY.md` for every item (auth on every route, record ownership, encryption, bot protection, rate
+limits, headers, HTTPS, dependency and secret scanning) and what to set when you deploy. `tests/test_security.py`
+checks them.
 
 ## API
 

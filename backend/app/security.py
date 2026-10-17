@@ -66,6 +66,11 @@ def login_required(view):
     return wrapper
 
 
+def _unseal(value):
+    from .crypto import unseal
+    return unseal(value)
+
+
 def _prefs(user):
     from .services import prefs
     return prefs.load(user)
@@ -82,7 +87,7 @@ def public_user(user):
         "id": user["id"], "email": user["email"], "name": user["name"],
         "first_name": (user["name"] or "").split(" ")[0],
         "grade": user["grade"], "test_date": user["test_date"], "target_score": user["target_score"],
-        "plan": user["plan"], "weekly_goal_hours": user["weekly_goal_hours"], "parent_email": user["parent_email"],
+        "plan": user["plan"], "weekly_goal_hours": user["weekly_goal_hours"], "parent_email": _unseal(user["parent_email"]),
         "role": user["role"] if "role" in user.keys() else "student",
         "created_at": user["created_at"],
         "appearance": dict({
@@ -120,6 +125,33 @@ def client_ip():
 
 def hash_text(text):
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+# A burst limit on every write to the API, per signed-in account (or per address when signed out), kept in this
+# server process's memory. The database-backed limits below cover sign-in, sign-up, resets and forms.
+WRITES_PER_MINUTE = 120
+_writes = {}
+
+
+def write_flood():
+    import time
+    from flask import current_app
+    if current_app.config.get("TESTING") and not current_app.config.get("TEST_WRITE_LIMIT"):
+        return False
+    uid = session.get("uid")
+    key = f"u{uid}" if uid else f"ip{client_ip()}"
+    limit = current_app.config.get("TEST_WRITE_LIMIT") or WRITES_PER_MINUTE
+    now_s = time.monotonic()
+    hits = [t for t in _writes.get(key, []) if now_s - t < 60]
+    if len(hits) >= limit:
+        _writes[key] = hits
+        return True
+    hits.append(now_s)
+    _writes[key] = hits
+    if len(_writes) > 20000:  # forget idle visitors now and then
+        for k in [k for k, v in _writes.items() if not v or now_s - v[-1] > 60]:
+            _writes.pop(k, None)
+    return False
 
 
 def rate_limited(bucket, limit, window_minutes):

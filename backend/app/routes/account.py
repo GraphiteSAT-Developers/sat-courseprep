@@ -1,7 +1,8 @@
 """The signed-in student's own account."""
 from flask import Blueprint, jsonify
 
-from ..db import execute, query
+from .. import crypto
+from ..db import execute, query, set_clause
 from ..security import (ApiError, body, clean_date, clean_email, clean_grade, clean_name, clean_target,
                         current_user, login_required, public_user)
 
@@ -29,7 +30,7 @@ def update_me():
     if "target_score" in data:
         fields["target_score"] = clean_target(data["target_score"])
     if "parent_email" in data:
-        fields["parent_email"] = clean_email(data["parent_email"], "parent_email", required=False)
+        fields["parent_email"] = crypto.seal(clean_email(data["parent_email"], "parent_email", required=False))
     if "weekly_goal_hours" in data:
         try:
             hours = int(data["weekly_goal_hours"])
@@ -40,7 +41,7 @@ def update_me():
         fields["weekly_goal_hours"] = hours
     if not fields:
         raise ApiError(400, "Nothing to update.")
-    sets = ", ".join(f"{k} = ?" for k in fields)  # keys come from the fixed list above, never from the request
+    sets = set_clause(fields)  # keys come from the fixed list above, never from the request
     execute(f"UPDATE users SET {sets} WHERE id = ?", (*fields.values(), user["id"]))
     fresh = query("SELECT * FROM users WHERE id = ?", (user["id"],), one=True)
     return jsonify({"user": public_user(fresh)})

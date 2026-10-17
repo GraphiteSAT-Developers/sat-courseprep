@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "backend"))
 
 from app import create_app  # noqa: E402
+from app.crypto import unseal  # noqa: E402
 from app.db import query  # noqa: E402
 
 USER_COLUMNS = ["id", "name", "email", "grade", "test_date", "target_score", "plan", "weekly_goal_hours",
@@ -50,8 +51,11 @@ def main():
             u["last_test_at"] = s.get("last_test_at", "")
             u["open_review_questions"] = open_reviews.get(u["id"], 0)
             u["practice_minutes_total"] = round((practice.get(u["id"]) or 0) / 60)
+            u["parent_email"] = unseal(u["parent_email"])  # stored encrypted (app/crypto.py)
 
         leads = query("SELECT id, name, email, grade, test_date, target_score, message, created_at FROM leads ORDER BY id")
+        for lead in leads:
+            lead["message"] = unseal(lead["message"])
         attempts = query(
             "SELECT a.id, a.user_id, u.name, u.email, a.test_id, a.correct, a.total, a.seconds_used, a.submitted_at, a.results "
             "FROM test_attempts a JOIN users u ON u.id = a.user_id ORDER BY a.submitted_at")

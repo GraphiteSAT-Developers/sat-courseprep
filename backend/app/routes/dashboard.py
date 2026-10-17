@@ -4,12 +4,13 @@ from datetime import date, datetime, timezone
 from flask import Blueprint, jsonify, request
 
 from ..db import execute, now_iso, query
-from ..security import ApiError, body, current_user, login_required
+from ..security import ApiError, body, current_user, login_required, rate_limited, record_event
 from ..services import bank, practice, review, today as today_service
 from ..services import dashboard as dashboard_service
 
 bp = Blueprint("dashboard", __name__, url_prefix="/api")
 ACTIVITY_KINDS = {"practice_question": 300}  # kind: most seconds one entry can log
+ACTIVITY_PER_HOUR = 30
 
 
 @bp.get("/dashboard")
@@ -87,6 +88,10 @@ def log_activity():
     except (TypeError, ValueError):
         seconds = 0
     seconds = max(0, min(seconds, ACTIVITY_KINDS[kind]))
+    bucket = f"activity:{current_user()['id']}"
+    if rate_limited(bucket, ACTIVITY_PER_HOUR, 60):  # so practice time can't be padded by sending this over and over
+        raise ApiError(429, "That's more practice time than an hour holds. It wasn't logged.")
+    record_event(bucket)
     execute("INSERT INTO activity (user_id, kind, seconds, detail, at) VALUES (?, ?, ?, ?, ?)",
             (current_user()["id"], kind, seconds, str(data.get("detail") or "")[:100], now_iso()))
     return jsonify({"ok": True}), 201

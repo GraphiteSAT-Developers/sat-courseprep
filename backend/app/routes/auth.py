@@ -5,7 +5,7 @@ from datetime import timedelta
 from flask import Blueprint, current_app, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .. import testaccount
+from .. import botcheck, testaccount
 from ..db import execute, iso, now, now_iso, parse_iso, query
 from ..security import (ApiError, body, clean_date, clean_email, clean_grade, clean_name, clean_password,
                         clean_target, clear_events, client_ip, hash_text, login_user, logout_user, public_user,
@@ -19,9 +19,16 @@ _DUMMY_HASH = generate_password_hash("not-a-real-password")
 RESET_MINUTES = 30
 
 
+@bp.get("/form-token")
+def form_token():
+    """A signed, timestamped token for the sign-up, reset and home page forms (bot protection, app/botcheck.py)."""
+    return jsonify({"token": botcheck.new_token(), "turnstile_site_key": current_app.config.get("TURNSTILE_SITE_KEY") or None})
+
+
 @bp.post("/register")
 def register():
     data = body()
+    botcheck.check(data)
     ip_bucket = "register-ip:" + client_ip()
     if rate_limited(ip_bucket, 10, 60):
         raise ApiError(429, "Too many new accounts from this network. Try again in an hour.")
@@ -97,6 +104,7 @@ def logout():
 @bp.post("/forgot")
 def forgot():
     data = body()
+    botcheck.check(data)
     email = clean_email(data.get("email"), new=False)
     bucket = "reset:" + email
     if rate_limited(bucket, 3, 15):

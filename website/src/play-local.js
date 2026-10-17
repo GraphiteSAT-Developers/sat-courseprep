@@ -7,17 +7,24 @@
   "use strict";
   var BANK = window.GRAPHITE_BANK;
   if (!BANK || !BANK.play) return;
-  var P = BANK.play, R = P.rules, KEY = "graphite_play_v1", PREVIEW_COINS = 500;
+  var P = BANK.play, R = P.rules, KEY = "graphite_play_v1", PREVIEW_COINS = 100000;
   var byId = {};
   BANK.items.forEach(function (q) { byId[q.id] = q; });
 
   function load() {
     var s = null;
     try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) { /* storage blocked */ }
-    if (s && s.events) return s;
+    if (s && s.events) {
+      if (!s.coins100k) {  // previews started before the 100,000-coin start get topped up once
+        var gift = 0; s.events.forEach(function (e) { if (e.kind === "gift") gift += e.coins; });
+        if (gift < PREVIEW_COINS) s.events.push({ kind: "gift", xp: 0, coins: PREVIEW_COINS - gift, detail: "Preview coins", day: today(), at: now() });
+        s.coins100k = true;
+      }
+      return s;
+    }
     return { events: [{ kind: "gift", xp: 0, coins: PREVIEW_COINS, detail: "Preview coins", day: today(), at: now() }],
              badges: {}, inventory: {}, frame: null, title: null, state: null, opt_in: false, nickname: null,
-             runs: {}, focus: {}, lessons: {}, nextId: 1 };
+             runs: {}, focus: {}, lessons: {}, nextId: 1, coins100k: true };
   }
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage blocked */ } }
   function fail(status, message, field) { var e = new Error(message); e.status = status; e.field = field; e.data = { error: message, field: field }; return Promise.reject(e); }
@@ -353,6 +360,16 @@
 
   /* ---------- lessons (services/lessons.py) ---------- */
   var LESSONS = P.lessons, DAYS = P.recall_days;
+  function nrm(v) { return String(v == null ? "" : v).replace(/[\s,]/g, "").replace(/[\u2212\u2013]/g, "-").replace(/%$/, "").toLowerCase(); }
+  function num(v) { v = nrm(v); var m = /^(-?\d+)\/(\d+)$/.exec(v); if (m && +m[2]) return +m[1] / +m[2]; return /^-?(\d+\.?\d*|\.\d+)$/.test(v) ? Number(v) : null; }
+  function stepRight(st, a) {
+    if (st.type === "recall") return a === true;
+    if (st.type === "predict") return a === st.answer;
+    if (st.type === "spot") return a === st.wrong;
+    if (st.type === "order") return Array.isArray(a) && a.length === st.items.length && a.every(function (v, i) { return v === i; });
+    if (st.type === "fill") return typeof a === "string" && st.accept.some(function (x) { var n = num(a), y = num(x); return n !== null && y !== null ? Math.abs(n - y) < 1e-9 : nrm(x) === nrm(a); });
+    return false;
+  }
   function lessonById(id) { return LESSONS.filter(function (l) { return l.id === id; })[0]; }
   function lstatus(row) {
     if (!row) return { done: false, stage: 0, mastered: false, due: false, due_on: null, best: null, total: null };
@@ -375,7 +392,10 @@
       if (!m[2]) return ok({ lesson: Object.assign({}, l, names(l), { progress: lstatus(s.lessons[l.id]), recall_days: DAYS }) });
       data = data || {};
       var kind = data.kind || "lesson", total = (kind === "lesson" ? l.steps : l.recall).length;
-      var score = Math.max(0, Math.min(total, Number(data.score) || 0)), row = s.lessons[l.id], xpBefore = totals(s).xp, badges = [], passed = null, xp, coins;
+      var steps = kind === "lesson" ? l.steps : l.recall, given = Array.isArray(data.answers) ? data.answers : [];
+      if (given.length !== steps.length) return fail(400, "Send one answer for each step.");
+      var score = steps.filter(function (st, i) { return stepRight(st, given[i]); }).length;  // same grading as lessons.right
+      var row = s.lessons[l.id], xpBefore = totals(s).xp, badges = [], passed = null, xp, coins;
       if (kind === "lesson") {
         if (row) {
           var replayed = (row.last_recall_at || row.completed_at).slice(0, 10) === today();

@@ -1,10 +1,12 @@
-/* Dashboard background: a faint grid of dots. Clicking or tapping anywhere sends a ripple out
+/* Page background: a faint grid of dots, on every main page (the pages that load this script: home, dashboard,
+   practice, plan, Level up, lessons, speed round, focus, rewards and the parent dashboard; not Settings, sign-in,
+   checkout, tests or the legal pages). Clicking or tapping anywhere sends a ripple out
    through the dots from that point: they light up pencil-yellow, swell and push outward, then settle.
    It sits behind the panels, never blocks clicks, only animates while a ripple is moving, and stays
    still for people who've asked their device to reduce motion. */
 (function () {
   "use strict";
-  var host = document.querySelector(".dash");
+  var host = document.querySelector("main");
   if (!host || !window.requestAnimationFrame) return;
 
   var SPACING = 26;        // px between dots

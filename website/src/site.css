@@ -1399,7 +1399,7 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 
 /* Dashboard ripple background (ripple.js): a dot grid behind the page that ripples where you click. */
 .ripple-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-body:has(.ripple-bg) .dash, body:has(.ripple-bg) .app-footer { position: relative; z-index: 1; }
+body:has(.ripple-bg) main, body:has(.ripple-bg) .app-footer, body:has(.ripple-bg) .site-footer { position: relative; z-index: 1; }
 
 /* Header account chip (theme.js): profile picture + email, links to Settings. */
 .account-chip { display: inline-flex; align-items: center; gap: var(--s2); color: var(--muted); text-decoration: none; border-radius: 999px; padding: 2px var(--s3) 2px 2px; min-width: 0; }
@@ -2051,3 +2051,22 @@ html[data-density="compact"] .lessons-page, html[data-density="compact"] .settin
 }
 .rw-theme-art { width: 56px; height: 40px; padding: 5px; gap: 3px; grid-template-rows: 6px 1fr; }
 .rw-item .av-mini { width: 48px; height: 48px; }
+
+/* ---------- Settings: box fixes ---------- */
+.st-panel .seg { justify-self: start; width: max-content; max-width: 100%; }
+.st-fieldset { align-content: start; }
+.st-look-grid { align-items: start; }
+.st-panel > .panel-head + .st-form, .st-panel > .panel-head + .panel-lede + .st-form { border-top: 0; padding-top: 0; }
+#st-test-note { display: block; margin: 0; }
+#st-test-note .label { display: block; margin-bottom: var(--s1); }
+.st-accents-shop .st-accent { padding-right: var(--s3); }
+.st-theme-name { line-height: 1.25; }
+@media (max-width: 560px) {
+  .st-theme { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .st-theme-art { height: 48px; }
+  .st-panel .seg { width: 100%; }
+  .st-panel .seg span { display: block; flex: 1 1 auto; }
+  .st-panel .seg label { width: 100%; padding: 0 var(--s2); }
+  .lay-move .btn { padding: 0 var(--s2); }
+}
+.pd-row:not(:has(> :not([hidden]))) { display: none; }

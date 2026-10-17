@@ -7,7 +7,7 @@
   var R = window.GraphiteRewards, call = R && R.call(), esc = R.esc;
   var API = window.GraphiteAPI, LIVE = !!(API && API.live);
   var params = new URLSearchParams(location.search);
-  var lesson = null, steps = [], kind = "lesson", at = 0, score = 0, answered = false;
+  var lesson = null, steps = [], kind = "lesson", at = 0, score = 0, answered = false, answers = [], pending = null;
   function $(id) { return document.getElementById(id); }
   function signIn() { location.href = "/signin.html?next=" + encodeURIComponent("/lessons.html" + location.search); }
   function showError(m) { $("ls-error").textContent = m || ""; $("ls-error").hidden = !m; }
@@ -61,7 +61,7 @@
       lesson = r.lesson;
       kind = mode === "recall" && lesson.progress.done ? "recall" : "lesson";
       steps = kind === "recall" ? lesson.recall : lesson.steps;
-      at = 0; score = 0;
+      at = 0; score = 0; answers = [];
       $("ls-kicker").textContent = (kind === "recall" ? "Recall check · " : "Lesson · ") + lesson.skill_name;
       $("ls-title").textContent = lesson.title;
       document.title = lesson.title + " | Graphite SAT Tutoring";
@@ -94,6 +94,7 @@
     f.innerHTML = "<strong>" + (right ? ["Right.", "Yes.", "Exactly.", "Got it."][at % 4] : "Not quite.") + "</strong> " + (extra || "") + (why ? "<span>" + esc(why) + "</span>" : "");
     $("ls-step").appendChild(f);
     if (right) score++;
+    answers[at] = pending;  // the first try, sent to the server, which does the grading
     answered = true;
     $("ls-next").hidden = false;
     $("ls-next").textContent = at + 1 < steps.length ? "Next" : "Finish";
@@ -123,7 +124,8 @@
       rev.querySelector(".ls-rate").addEventListener("click", function (e) {
         var b = e.target.closest("button"); if (!b || answered) return;
         Array.prototype.forEach.call(this.querySelectorAll("button"), function (x) { x.disabled = true; x.classList.toggle("is-picked", x === b); });
-        feedback(b.getAttribute("data-r") === "1", b.getAttribute("data-r") === "1" ? "" : "That's what the rest of this lesson is for.");
+        pending = b.getAttribute("data-r") === "1";
+        feedback(pending, pending ? "" : "That's what the rest of this lesson is for.");
       });
       rev.querySelector(".ls-rate button").focus();
     });
@@ -137,6 +139,7 @@
         if (answered) return;
         Array.prototype.forEach.call(list.children, function (x, i) { x.disabled = true; if (i === s.answer) x.classList.add("is-key"); });
         if (k !== s.answer) b.classList.add("is-wrong");
+        pending = k;
         feedback(k === s.answer, s.why);
       });
       list.appendChild(b);
@@ -166,6 +169,7 @@
       e.preventDefault();
       if (answered || !input.value.trim()) { input.focus(); return; }
       var right = matches(input.value, s.accept);
+      pending = input.value.trim();
       input.readOnly = true; input.classList.add(right ? "is-right" : "is-wrong");
       work.querySelector("button").remove();
       feedback(right, s.why, right ? "" : "It's <strong>" + esc(s.accept[0]) + "</strong>. ");
@@ -193,6 +197,7 @@
     $("ls-order-check").addEventListener("click", function () {
       if (answered) return;
       var right = placed.every(function (v, n) { return v === n; });
+      pending = placed.slice();
       this.remove();
       Array.prototype.forEach.call($("ls-placed").querySelectorAll(".ls-tile"), function (b, n) { b.disabled = true; b.classList.add(placed[n] === n ? "is-right" : "is-wrong"); });
       var correct = right ? "" : "<ol class=\"ls-correct\">" + s.items.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ol>";
@@ -209,6 +214,7 @@
         if (answered) return;
         Array.prototype.forEach.call(list.querySelectorAll("button"), function (x, i) { x.disabled = true; if (i === s.wrong) x.classList.add("is-key-wrong"); });
         if (k !== s.wrong) b.classList.add("is-picked");
+        pending = k;
         feedback(k === s.wrong, s.why, k === s.wrong ? "" : "The mistake is in line " + (s.wrong + 1) + ". ");
       });
       li.appendChild(b); list.appendChild(li);
@@ -224,12 +230,12 @@
   });
   function finishLesson() {
     var b = $("ls-next"); b.disabled = true; b.textContent = "Saving…";
-    call("/api/lessons/" + encodeURIComponent(lesson.id) + "/complete", { kind: kind, score: score }).then(function (r) {
+    call("/api/lessons/" + encodeURIComponent(lesson.id) + "/complete", { kind: kind, answers: answers }).then(function (r) {
       b.disabled = false;
       $("ls-player").hidden = true; $("ls-end").hidden = false;
       $("ls-end-kicker").textContent = kind === "recall" ? "Recall check finished" : "Lesson finished";
-      $("ls-end-title").textContent = kind === "recall" ? (r.passed ? "It stuck." : "Almost there.") : score === steps.length ? "Every step right the first time." : "Lesson done.";
-      $("ls-end-score").textContent = score + " of " + steps.length + " right the first time." +
+      $("ls-end-title").textContent = kind === "recall" ? (r.passed ? "It stuck." : "Almost there.") : r.score === steps.length ? "Every step right the first time." : "Lesson done.";
+      $("ls-end-score").textContent = r.score + " of " + steps.length + " right the first time." +
         (kind === "recall" && !r.passed ? " This one comes back tomorrow for another try." : "");
       $("ls-keys").innerHTML = lesson.keys.map(function (k) { return "<li>" + esc(k) + "</li>"; }).join("");
       var p = r.progress;

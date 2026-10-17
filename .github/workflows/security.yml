@@ -1,0 +1,46 @@
+# Runs on every push and pull request, and every Monday:
+#   tests     the backend's automated tests (including tests/test_security.py)
+#   audit     pip-audit: fails if a dependency has a known vulnerability
+#   secrets   gitleaks: fails if a key, password or token is committed, in any commit
+name: Security
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 13 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python website/build.py
+      - run: cd backend && python -m unittest discover tests
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit
+      - run: pip-audit -r backend/requirements.txt --strict
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -12,12 +12,13 @@ from .db import close_db
 from .routes import BLUEPRINTS
 from . import testaccount
 from .schema import migrate
-from .security import ApiError, check_same_origin, current_user, error_response, prune_events
+from .security import ApiError, check_same_origin, current_user, error_response, prune_events, write_flood
 
-CSP = ("default-src 'self'; script-src 'self' https://plausible.io https://www.googletagmanager.com; "
+CSP = ("default-src 'self'; script-src 'self' https://plausible.io https://www.googletagmanager.com https://challenges.cloudflare.com; "
        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; "
-       "img-src 'self' data:; connect-src 'self' https://plausible.io https://www.google-analytics.com; "
-       "frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'")
+       "img-src 'self' data:; connect-src 'self' https://plausible.io https://www.google-analytics.com https://challenges.cloudflare.com; "
+       "frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; "
+       "object-src 'none'")
 # The calculator is one self-contained file with inline scripts.
 CSP_CALCULATOR = CSP.replace("script-src 'self'", "script-src 'self' 'unsafe-inline'")
 PARENT_APIS = ("/api/parent", "/api/auth", "/api/me", "/api/health", "/api/checkout")
@@ -55,6 +56,8 @@ def create_app(overrides=None):
             return None
         if request.path.startswith("/api/"):
             check_same_origin()
+            if request.method not in ("GET", "HEAD", "OPTIONS") and write_flood():
+                raise ApiError(429, "That's a lot of requests at once. Wait a minute and try again.", code="rate_limited")
             if random.random() < 0.01:
                 prune_events()
             # Parents see a student only through the parent dashboard; students can't use it.
@@ -75,9 +78,14 @@ def create_app(overrides=None):
         resp.headers.setdefault("X-Content-Type-Options", "nosniff")
         resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
-        resp.headers.setdefault("Content-Security-Policy", CSP_CALCULATOR if request.path == "/calculator.html" else CSP)
+        resp.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()")
+        resp.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+        resp.headers.setdefault("Cross-Origin-Resource-Policy", "same-origin")
+        resp.headers.setdefault("X-Permitted-Cross-Domain-Policies", "none")
+        csp = CSP_CALCULATOR if request.path == "/calculator.html" else CSP
+        resp.headers.setdefault("Content-Security-Policy", csp + ("; upgrade-insecure-requests" if app.config["FORCE_HTTPS"] else ""))
         if app.config["FORCE_HTTPS"]:
-            resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+            resp.headers.setdefault("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
         if request.path.startswith("/api/"):
             resp.headers["Cache-Control"] = "no-store"
         return resp

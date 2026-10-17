@@ -31,6 +31,8 @@ class Config:
     IS_PRODUCTION = ENV == "production"
 
     SECRET_KEY = os.environ.get("SECRET_KEY") or ("dev-only-change-me" if not IS_PRODUCTION else None)
+    # Encrypts profile photos, parent emails and home page messages (app/crypto.py). Set it in production.
+    DATA_KEY = os.environ.get("DATA_KEY", "")
     DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{BACKEND_DIR / 'instance' / 'graphite.db'}")
     SITE_DIR = Path(os.environ.get("SITE_DIR", REPO_DIR / "website" / "site"))
     CONTENT_DIR = Path(__file__).resolve().parent / "content"
@@ -51,8 +53,20 @@ class Config:
     STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
     STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
-    # Sessions
-    SESSION_COOKIE_NAME = "graphite_session"
+    # Requests bigger than this are refused before they're read (profile photos are the largest thing sent).
+    MAX_CONTENT_LENGTH = 9 * 1024 * 1024
+
+    # Bot protection on sign-up, the home page form and password resets. Every form needs a short-lived token
+    # from /api/form-token and can't be sent back faster than a person could fill it in. Cloudflare Turnstile
+    # adds a check on top when both keys are set (free at dash.cloudflare.com > Turnstile).
+    TURNSTILE_SITE_KEY = os.environ.get("TURNSTILE_SITE_KEY", "")
+    TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY", "")
+    FORM_MIN_SECONDS = 3
+
+    # Sessions. On HTTPS the cookie gets the __Host- prefix: browsers then only accept it from this exact
+    # site over HTTPS, never set by a subdomain or over plain HTTP.
+    SESSION_COOKIE_NAME = "__Host-graphite_session" if FORCE_HTTPS else "graphite_session"
+    SESSION_COOKIE_PATH = "/"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = FORCE_HTTPS

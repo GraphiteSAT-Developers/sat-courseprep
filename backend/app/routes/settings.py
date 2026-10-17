@@ -13,8 +13,8 @@ from datetime import datetime, timezone
 from flask import Blueprint, Response, current_app, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .. import testaccount
-from ..db import execute, now_iso, query
+from .. import crypto, testaccount
+from ..db import execute, now_iso, query, set_clause
 from ..security import (ApiError, body, clean_email, clean_password, clear_events, current_user, login_required,
                         login_user, logout_user, public_user, rate_limited, record_event)
 from ..services import game, mailer, prefs
@@ -89,7 +89,7 @@ def appearance():
             raise ApiError(400 if "shop" not in str(err) else 403, str(err), err.field)
         prefs.save(user["id"], current)
     if fields:
-        sets = ", ".join(f"{k} = ?" for k in fields)  # keys come from the fixed list above
+        sets = set_clause(fields)  # keys come from the fixed list above
         execute(f"UPDATE users SET {sets} WHERE id = ?", (*fields.values(), user["id"]))
     return jsonify({"user": public_user(_fresh(user["id"]))})
 
@@ -172,9 +172,9 @@ def upload_avatar():
     mime, data = _process_avatar(body().get("image"))
     record_event(bucket)
     if query("SELECT 1 FROM avatars WHERE user_id = ?", (user["id"],), one=True):
-        execute("UPDATE avatars SET mime = ?, data = ?, updated_at = ? WHERE user_id = ?", (mime, data, now_iso(), user["id"]))
+        execute("UPDATE avatars SET mime = ?, data = ?, updated_at = ? WHERE user_id = ?", (mime, crypto.seal(data), now_iso(), user["id"]))
     else:
-        execute("INSERT INTO avatars (user_id, mime, data, updated_at) VALUES (?, ?, ?, ?)", (user["id"], mime, data, now_iso()))
+        execute("INSERT INTO avatars (user_id, mime, data, updated_at) VALUES (?, ?, ?, ?)", (user["id"], mime, crypto.seal(data), now_iso()))
     execute("UPDATE users SET avatar_version = avatar_version + 1 WHERE id = ?", (user["id"],))
     return jsonify({"user": public_user(_fresh(user["id"]))}), 201
 
@@ -194,7 +194,7 @@ def get_avatar():
     row = query("SELECT mime, data FROM avatars WHERE user_id = ?", (current_user()["id"],), one=True)
     if not row:
         raise ApiError(404, "No profile picture.")
-    return Response(base64.b64decode(row["data"]), mimetype=row["mime"],
+    return Response(base64.b64decode(crypto.unseal(row["data"])), mimetype=row["mime"],
                     headers={"Cache-Control": "private, max-age=86400"})
 
 
@@ -258,6 +258,7 @@ def _rows(table, column, user_id):
         for k, v in r.items():
             if k in NEVER_EXPORTED:
                 continue
+            v = crypto.unseal(v)
             if isinstance(v, str) and v[:1] in "[{":
                 try:
                     v = json.loads(v)

@@ -1,0 +1,8 @@
+# gitleaks settings: the default rules, minus the placeholders in docs and the fake keys in tests.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented placeholders and test-only values"
+regexes = ['''sk_test_\.\.\.''', '''whsec_\.\.\.''', '''sk_test_fake''', '''whsec_fake''', '''postgresql://user:password@host''', '''dev-only-change-me''']
+paths = ['''backend/tests/''']

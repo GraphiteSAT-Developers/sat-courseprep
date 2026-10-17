@@ -56,7 +56,7 @@ def ensure(url):
 STUDENT_TABLES = ["practice_sessions", "practice_seen", "practice_completions", "study_plans", "diagnostics",
                   "review_items", "test_attempts", "activity", "xp_events", "badges", "inventory", "speed_runs",
                   "focus_sessions", "lesson_progress"]
-TEST_COINS = 500  # so the shop can be tried right away
+TEST_COINS = 100_000  # so everything in the shop can be tried right away
 STUDENT_ID_TABLES = ["subscriptions", "billing_events"]  # keyed by student_id
 
 

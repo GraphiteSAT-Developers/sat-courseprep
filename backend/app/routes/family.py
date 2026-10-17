@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from flask import Blueprint, current_app, jsonify
 
-from ..db import execute, query
+from ..db import execute, query, set_clause
 from ..security import (ApiError, body, clean_date, clean_target, current_user, login_required, rate_limited,
                         record_event)
 from ..services import billing, family, mailer, parent as service, stripe_api
@@ -125,9 +125,9 @@ def update_settings(student_id):
     if not fields and not link_fields:
         raise ApiError(400, "Nothing to update.")
     if fields:  # keys come from the fixed lists above, never from the request
-        execute(f"UPDATE users SET {', '.join(k + ' = ?' for k in fields)} WHERE id = ?", (*fields.values(), student_id))
+        execute(f"UPDATE users SET {set_clause(fields)} WHERE id = ?", (*fields.values(), student_id))
     if link_fields:
-        execute(f"UPDATE family_links SET {', '.join(k + ' = ?' for k in link_fields)} WHERE id = ?", (*link_fields.values(), link["id"]))
+        execute(f"UPDATE family_links SET {set_clause(link_fields)} WHERE id = ?", (*link_fields.values(), link["id"]))
     student, link = _student_or_404(student_id)
     return jsonify(service.summary(student, link))
 

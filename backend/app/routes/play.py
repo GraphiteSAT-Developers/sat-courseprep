@@ -147,7 +147,7 @@ def speed_nicknames():
 @login_required
 def speed_profile():
     """Leaderboard settings: on or off, the nickname (from the word lists) and the state."""
-    from ..db import execute, query
+    from ..db import execute, query, set_clause
     user = _student()
     data = body()
     fields = {}
@@ -167,7 +167,7 @@ def speed_profile():
     nickname = fields.get("nickname", user["nickname"])
     if fields.get("board_opt_in") and not nickname:
         raise ApiError(400, "Pick a nickname to show on the leaderboard.", "nickname")
-    sets = ", ".join(f"{k} = ?" for k in fields)  # keys come from the fixed names above
+    sets = set_clause(fields)  # keys come from the fixed names above
     execute(f"UPDATE users SET {sets} WHERE id = ?", (*fields.values(), user["id"]))
     fresh = query("SELECT * FROM users WHERE id = ?", (user["id"],), one=True)
     return jsonify({"board_profile": speed.overview(fresh)["board_profile"]})
@@ -245,9 +245,8 @@ def lessons_complete(lesson_id):
     kind = data.get("kind", "lesson")
     if kind not in ("lesson", "recall"):
         raise ApiError(400, "Finish a lesson or a recall check.", "kind")
-    score = _int(data.get("score"), "score", "Send how many you got right.")
     try:
-        out = lessons.complete(user["id"], lesson_id, kind, score)
+        out = lessons.complete(user["id"], lesson_id, kind, data.get("answers"))
     except ValueError as err:
         raise ApiError(400, str(err))
     return jsonify(out)

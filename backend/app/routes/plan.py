@@ -5,7 +5,7 @@ from datetime import date, datetime, timezone
 
 from flask import Blueprint, jsonify, request
 
-from ..db import execute, now_iso, query
+from ..db import execute, now_iso, query, set_clause
 from ..security import ApiError, body, clean_date, current_user, login_required, public_user
 from ..services import diagnostic, practice, studyplan
 
@@ -39,7 +39,7 @@ def _update_profile(user, data):
             raise ApiError(400, "Weekly study time runs from 1 to 20 hours.", "weekly_goal_hours")
         fields["weekly_goal_hours"] = hours
     if fields:
-        sets = ", ".join(f"{k} = ?" for k in fields)  # keys from the fixed list above
+        sets = set_clause(fields)  # keys from the fixed list above
         execute(f"UPDATE users SET {sets} WHERE id = ?", (*fields.values(), user["id"]))
     return query("SELECT * FROM users WHERE id = ?", (user["id"],), one=True)
 
