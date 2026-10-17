@@ -56,6 +56,10 @@ h3 { font-size: var(--t-lg); font-weight: 600; letter-spacing: 0; }
 p { margin: 0; }
 a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
 a:hover { color: var(--accent-hover); text-decoration-thickness: 2px; }
+/* No blinking typing bar in regular text, even with the browser's caret browsing (F7) on.
+   Text can still be highlighted and copied; typing boxes keep their blinking bar. */
+html { caret-color: transparent; }
+input, textarea, select, [contenteditable]:not([contenteditable="false"]) { caret-color: auto; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
 ::selection { background: var(--accent); color: var(--accent-ink); }
 
