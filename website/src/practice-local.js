@@ -539,16 +539,26 @@
   function iso10(d) { return isoDate(d); }
   function addMonths(d, n) { var x = new Date(d.getFullYear(), d.getMonth() + n, 1), last = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate(); x.setDate(Math.min(d.getDate(), last)); return x; }
   function niceDay(s) { var d = parseDate(s); return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
-  function planInfo(key) { return PB.plans.filter(function (p) { return p.key === key; })[0]; }
+  var OLD_PLANS = { daily: "sharpened", coached: "masterstroke" };
+  function planInfo(key) { key = OLD_PLANS[key] || key; return PB.plans.filter(function (p) { return p.key === key; })[0]; }
+  var WORDS = { week: "weekly", month: "monthly", year: "yearly" };
+  // Same wording as plans.price_label: always per month, plus what's billed.
+  function priceLabel(p, iv) {
+    if (!iv || !p.cents[iv]) return "Free";
+    var each = money(p.per_month_cents[iv]) + "/month";
+    return iv === "month" ? each : each + ", billed " + money(p.cents[iv]) + " " + WORDS[iv];
+  }
   function subOut(f, today) {
     var sub = f.sub || { plan: "free", interval: null, status: "active", renews_on: null, paused_until: null };
     var t = iso10(today);
     if (sub.status === "canceled" && sub.renews_on && sub.renews_on < t) sub = { plan: "free", interval: null, status: "active", renews_on: null, paused_until: null };
     if (sub.status === "paused" && sub.paused_until && sub.paused_until < t) { sub.status = "active"; sub.paused_until = null; }
     f.sub = sub;
-    var p = planInfo(sub.plan), price = sub.interval ? (sub.interval === "year" ? p.year_cents : p.month_cents) : 0;
-    return { plan: sub.plan, plan_name: p.name, interval: sub.interval, status: sub.status, renews_on: sub.renews_on, paused_until: sub.paused_until,
-      price_cents: price, price_label: price ? money(price) + (sub.interval === "month" ? "/month" : "/year") : "Free" };
+    var p = planInfo(sub.plan) || planInfo("free");
+    sub.plan = p.key;
+    var iv = WORDS[sub.interval] ? sub.interval : null, price = iv ? p.cents[iv] : 0;
+    return { plan: p.key, plan_name: p.name, interval: iv, status: sub.status, renews_on: sub.renews_on, paused_until: sub.paused_until,
+      price_cents: price, price_label: priceLabel(p, iv) };
   }
   function billEvent(f, kind, detail, amount) {
     if (amount) detail += " No card was charged: payments aren't connected yet.";
@@ -644,12 +654,13 @@
     if (!act) {
       var plan = data && data.plan, iv = data && data.interval;
       if (!planInfo(plan)) return fail(400, "Pick a plan.");
-      if (plan !== "free" && iv !== "month" && iv !== "year") return fail(400, "Pick monthly or yearly billing.");
-      if (plan === "free") { if (sub.plan !== "free") billEvent(f, "change", "Switched from " + sub.plan_name + " to the free Diagnostic plan."); f.sub = null; }
+      if (plan !== "free" && !WORDS[iv]) return fail(400, "Pick weekly, monthly or yearly billing.");
+      if (plan === "free") { if (sub.plan !== "free") billEvent(f, "change", "Switched from " + sub.plan_name + " to the free " + planInfo("free").name + " plan."); f.sub = null; }
       else {
-        var renews = iso10(addMonths(today, iv === "month" ? 1 : 12)), price = iv === "year" ? planInfo(plan).year_cents : planInfo(plan).month_cents;
+        var next = iv === "week" ? new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7) : addMonths(today, iv === "month" ? 1 : 12);
+        var renews = iso10(next), price = planInfo(plan).cents[iv];
         f.sub = { plan: plan, interval: iv, status: "active", renews_on: renews, paused_until: null };
-        billEvent(f, "change", planInfo(plan).name + ", billed " + (iv === "month" ? "monthly" : "yearly") + " at " + money(price) + ". Renews " + niceDay(renews) + ".", price);
+        billEvent(f, "change", planInfo(plan).name + ", billed " + WORDS[iv] + " at " + money(price) + ". Renews " + niceDay(renews) + ".", price);
       }
     } else {
       var ok = { pause: sub.plan !== "free" && sub.status === "active", cancel: sub.plan !== "free" && sub.status !== "canceled", resume: sub.status !== "active" }[act];
@@ -661,7 +672,7 @@
         billEvent(f, "pause", "Paused until " + niceDay(f.sub.paused_until) + ". The next bill moves to " + niceDay(f.sub.renews_on) + ".");
       } else if (act === "cancel") {
         f.sub.status = "canceled"; f.sub.paused_until = null;
-        billEvent(f, "cancel", "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free Diagnostic plan.");
+        billEvent(f, "cancel", "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free " + planInfo("free").name + " plan.");
       } else {
         var was = f.sub.status; f.sub.status = "active"; f.sub.paused_until = null;
         billEvent(f, "resume", was === "paused" ? "Resumed." : "Cancellation undone. Renews " + niceDay(f.sub.renews_on) + ".");

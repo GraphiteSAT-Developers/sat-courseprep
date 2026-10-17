@@ -157,10 +157,24 @@ Don't run production on SQLite there: the server's disk is wiped on every restar
 2. Add a Postgres database to the project, then set the web service's `DATABASE_URL` variable to reference it.
 3. Set `APP_ENV=production`, a long random `SECRET_KEY`, `BASE_URL`, and the `SMTP_*` settings.
 
+## Plans and prices
+
+Every plan, price and feature list lives in `app/services/plans.py`. The home page pricing section, the parent dashboard and the preview all read from it, so a change there shows up everywhere after `python website/build.py` and a restart.
+
+| Plan | Weekly | Monthly | Yearly |
+| --- | --- | --- | --- |
+| Scratch Paper (free) | $0 | $0 | $0 |
+| No. 2 | $4.99 ($21.62/month) | $19 | $180 ($15/month, 21% off) |
+| Sharpened | $9.99 ($43.29/month) | $39 | $348 ($29/month, 26% off) |
+| Masterstroke | $34.99 ($151.62/month) | $129 | $1,188 ($99/month, 23% off) |
+
+Prices are always shown per month. `LIMITS` in the same file says what each plan allows, but limits aren't enforced yet: every account can use everything until payments are connected. Masterstroke promises a weekly coach check-in, a monthly parent call and priority help, which someone has to deliver in person.
+
 ## Not built yet
 
-- Payments (Stripe Checkout and webhooks would go in a new `billing` feature)
+- Payments (Stripe Checkout and webhooks would go in a new `billing` feature). Plan changes on the parent dashboard work but charge nothing.
+- Plan limits (see `LIMITS` in `app/services/plans.py`)
 - Email verification for new accounts
-- Parent accounts and the weekly progress email
+- Sending the weekly progress email to parents
 - An admin page to see leads and students (for now, query the `leads` and `users` tables)
 - Reading and Writing practice tests, and the tutor's AI explanations

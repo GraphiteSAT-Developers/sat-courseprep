@@ -157,7 +157,7 @@
   }
 
   /* ---------- plan and billing ---------- */
-  function interval() { return $("pd-int-year").checked ? "year" : "month"; }
+  function interval() { return $("pd-int-week").checked ? "week" : $("pd-int-month").checked ? "month" : "year"; }
   function renderBilling() {
     var sub = S.subscription;
     var state = sub.status === "paused" ? "Paused until " + day(sub.paused_until) + ". Next bill " + day(sub.renews_on) + "."
@@ -165,7 +165,7 @@
       : sub.plan === "free" ? "The free plan. Upgrade any time." : "Renews " + day(sub.renews_on) + ".";
     $("pd-current").innerHTML = '<div><p class="label">Current plan</p><p class="pd-plan-name">' + esc(sub.plan_name) + ' <span class="pd-price">' + esc(sub.price_label) + "</span></p>" +
       '<p class="fine">' + esc(state) + "</p></div>" + '<span class="chip pd-status-' + sub.status + '">' + (sub.status === "active" ? "Active" : sub.status === "paused" ? "Paused" : "Canceled") + "</span>";
-    if (sub.interval) { $("pd-int-year").checked = sub.interval === "year"; $("pd-int-month").checked = sub.interval !== "year"; }
+    if (sub.interval && $("pd-int-" + sub.interval)) $("pd-int-" + sub.interval).checked = true;
     drawPlans();
     var acts = [];
     if (sub.status === "active" && sub.plan !== "free") acts.push(["pause", "btn-secondary", "Pause for 30 days"], ["cancel", "btn-quiet", "Cancel plan"]);
@@ -179,10 +179,14 @@
   function drawPlans() {
     var sub = S.subscription, iv = interval();
     $("pd-plans").innerHTML = home.plans.map(function (p) {
-      var cents = iv === "year" ? p.year_cents : p.month_cents;
+      // Always shown per month; the line under it says what's actually billed.
+      var cents = p.cents ? p.cents[iv] : (iv === "year" ? p.year_cents : p.month_cents);
+      var each = p.per_month_cents ? p.per_month_cents[iv] : (iv === "year" ? Math.round(cents / 12) : cents);
       var here = p.key === sub.plan && (p.key === "free" || sub.interval === iv);
-      var price = p.key === "free" ? "Free" : money(cents) + (iv === "year" ? "/year" : "/month");
-      var sub2 = p.key !== "free" && iv === "year" ? '<span class="fine">' + money(Math.round(cents / 12)) + " a month, billed yearly</span>" : "";
+      var price = p.key === "free" ? "Free" : money(each) + "/month";
+      var save = p.savings && p.savings[iv] && iv === "year" && p.savings[iv].percent > 0 ? " Saves " + money(p.savings[iv].per_year_cents) + " a year." : "";
+      var billedLine = p.key === "free" ? "" : iv === "month" ? "Billed monthly." : "Billed " + money(cents) + (iv === "week" ? " weekly." : " yearly.") + save;
+      var sub2 = billedLine ? '<span class="fine">' + esc(billedLine) + "</span>" : "";
       return '<article class="pd-plan' + (here ? " is-current" : "") + '"><h3>' + esc(p.name) + '</h3><p class="pd-plan-price">' + price + "</p>" + sub2 +
         '<p class="fine">' + esc(p.blurb) + "</p>" + (here ? '<span class="chip">Current plan</span>'
         : '<button class="btn ' + (p.key === "free" ? "btn-quiet" : "btn-secondary") + '" type="button" data-plan="' + p.key + '">' + (p.key === "free" ? "Switch to free" : "Choose " + esc(p.name)) + "</button>") + "</article>";

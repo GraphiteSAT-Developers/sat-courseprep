@@ -105,6 +105,61 @@ SERVICES = ROOT.parent / "backend" / "app" / "services"
 PREVIEW_ONLY = {"questions.js", "bank.js", "practice-local.js"}
 
 
+def service(name):
+    """One of the backend's services, loaded without the Flask app around it."""
+    if "graphite_services" not in sys.modules:
+        pkg = types.ModuleType("graphite_services")
+        pkg.__path__ = [str(SERVICES)]
+        sys.modules["graphite_services"] = pkg
+    return importlib.import_module("graphite_services." + name)
+
+
+def pricing_html():
+    """The home page's plans, from backend/app/services/plans.py so prices match billing everywhere.
+    Every price is shown per month; the Weekly / Monthly / Yearly switch (site.js) changes what's billed."""
+    P = service("plans")
+    esc = lambda t: str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    best = max(P.savings(k, "year")["percent"] for k in P.ORDER if k != "free")
+    def billed(key, iv):
+        cents = P.PLANS[key]["prices"][iv]
+        if not cents:
+            return "Free forever. No card needed."
+        return {"week": f"Billed {P.money(cents)} weekly. Stop anytime.", "month": "Billed monthly. Cancel anytime.",
+                "year": f"Billed {P.money(cents)} yearly."}[iv]
+    def saving(key, iv):
+        sv = P.savings(key, iv)
+        if key == "free":
+            return ""
+        if iv == "year":
+            return f"Save {P.money(sv['per_year_cents'])} a year ({sv['percent']}% off)"
+        return "No commitment" if iv == "week" else ""
+    cards = []
+    for i, key in enumerate(P.ORDER):
+        p = P.PLANS[key]
+        attrs = " ".join(f'data-{iv}-amount="{esc(P.money(P.per_month(key, iv)))}" data-{iv}-billed="{esc(billed(key, iv))}" '
+                         f'data-{iv}-save="{esc(saving(key, iv))}"' for iv in P.INTERVALS)
+        badge = f'<span class="tier-badge">{esc(p["badge"])}</span>' if p["badge"] else ""
+        intro = f'<p class="tier-intro">{esc(p["intro"])}</p>' if p["intro"] else ""
+        feats = "".join(f"<li>{esc(f)}</li>" for f in p["features"])
+        cta = ('<a class="btn btn-secondary btn-block" href="#start" data-track="plan_free">Start free</a>' if key == "free" else
+               f'<a class="btn {"btn-primary" if p["badge"] == "Most popular" else "btn-secondary"} btn-block" href="signin.html#create" '
+               f'data-track="plan_{key}">Choose {esc(p["name"])}</a>')
+        save = saving(key, "year")
+        cards.append(f"""<article class="tier tier-{key}{' tier-featured' if p['badge'] == 'Most popular' else ''}" aria-labelledby="tier-{key}" {attrs}>
+            <div class="tier-head"><div class="tier-name"><h3 id="tier-{key}">{esc(p["name"])}</h3>{badge}</div><p class="tier-tagline">{esc(p["tagline"])}</p></div>
+            <div class="tier-price"><p class="price"><span class="amount" data-amount>{esc(P.money(P.per_month(key, "year")))}</span><span class="per">/month</span></p>
+              <p class="tier-billed" data-billed>{esc(billed(key, "year"))}</p><p class="tier-save" data-save{'' if save else ' hidden'}>{esc(save)}</p></div>
+            {cta}
+            {intro}<ul class="tier-features">{feats}</ul>
+          </article>""")
+    toggle = f"""<div class="billing-switch" role="radiogroup" aria-label="How you pay">
+            <span><input type="radio" name="billing" id="bill-week" value="week"><label for="bill-week">Weekly</label></span>
+            <span><input type="radio" name="billing" id="bill-month" value="month"><label for="bill-month">Monthly</label></span>
+            <span><input type="radio" name="billing" id="bill-year" value="year" checked><label for="bill-year">Yearly <em>Save up to {best}%</em></label></span>
+          </div>"""
+    return toggle + '\n          <div class="tiers">' + "\n          ".join(cards) + "</div>"
+
+
 def bank_js():
     """The question bank for the offline preview, built by the backend's own bank module (same HTML, same keys)."""
     # Load the backend's services as a package of their own, without the Flask app around them.
@@ -134,8 +189,7 @@ def bank_js():
                    "tracks": [{"key": t["key"], "name": t["name"], "skills": t["skills"]} for t in levels.tracks()],
                    "rungs": [{"n": n, "tier": levels.tier(n), "mix": levels.mix(n), "mix_label": studyplan.mix_label(levels.mix(n))}
                              for n in range(1, levels.LEVELS + 1)]},
-        "parent": {"plans": [{"key": k, "name": p["name"], "blurb": p["blurb"], "month_cents": p["month"], "year_cents": p["year"]}
-                             for k, p in plans.PLANS.items()],
+        "parent": {"plans": plans.public_plans(),
                    "alert_days": list(plans.ALERT_DAYS), "pause_days": plans.PAUSE_DAYS},
     }
     return "window.GRAPHITE_BANK = " + json.dumps(data, separators=(",", ":")).replace("</", "<\\/") + ";"
@@ -165,7 +219,10 @@ def render(meta, mode):
     else:
         head_nav = header.replace("{{H}}", h).replace("{{SIGNIN_CURRENT}}", ' aria-current="page"' if meta.get("signin") else "")
         foot = footer.replace("{{H}}", h)
-    body = head_nav + meta["body"].replace("{{SCORE_CHART}}", score_chart()) + foot + ("" if meta.get("test") else banner)
+    page_body = meta["body"].replace("{{SCORE_CHART}}", score_chart())
+    if "{{PRICING}}" in page_body:
+        page_body = page_body.replace("{{PRICING}}", pricing_html())
+    body = head_nav + page_body + foot + ("" if meta.get("test") else banner)
     url = SITE + meta["path"]
     robots = meta.get("robots", "index, follow")
 

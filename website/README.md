@@ -43,7 +43,7 @@ The pages run in two modes:
 
 ## Before launch
 
-1. Replace the phone number `(954) 555-0142` (fictional), the domain `graphiteprep.com`, the prices and the company name. Search `src/` for each one.
+1. Replace the phone number `(954) 555-0142` (fictional), the domain `graphiteprep.com` and the company name. Search `src/` for each one. Plans and prices are set in `../backend/app/services/plans.py`; the home page's `{{PRICING}}` block is built from it.
 2. In the `CONFIG` block at the top of `src/site.js`, set `analytics` to Plausible or GA4. It loads only after a visitor accepts analytics cookies. The form and sign-in endpoints are already set to the backend's API in live mode.
 3. Set up the backend's environment variables, including email. See `../backend/README.md`.
 4. Have a lawyer review the privacy policy, cookie policy and terms.

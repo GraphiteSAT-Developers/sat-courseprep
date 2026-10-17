@@ -674,6 +674,21 @@
     nextBtn.addEventListener("click", function () { qi = (qi + 1) % QUESTIONS.length; render(); fs.querySelector("input").focus(); });
     if (!(LIVE && !onDash)) render();
   }
+  /* 8b. Pricing: the Weekly / Monthly / Yearly switch. Prices stay per month; what's billed changes. */
+  $all('.billing-switch input[name="billing"]').forEach(function (r) {
+    r.addEventListener("change", function () {
+      if (!r.checked) return;
+      var iv = r.value;
+      $all(".tier").forEach(function (card) {
+        card.querySelector("[data-amount]").textContent = card.getAttribute("data-" + iv + "-amount");
+        card.querySelector("[data-billed]").textContent = card.getAttribute("data-" + iv + "-billed");
+        var save = card.querySelector("[data-save]"), text = card.getAttribute("data-" + iv + "-save");
+        save.textContent = text; save.hidden = !text;
+      });
+      Analytics.track("pricing_interval", { interval: iv });
+    });
+  });
+
   /* 9. Dashboard */
   /* Parent access (dashboard Account panel): a one-time code for a parent, and the parents already connected.
      Preview: kept in this browser (graphite_family), where the parent dashboard preview reads it too. */

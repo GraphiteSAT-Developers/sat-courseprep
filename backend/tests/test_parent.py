@@ -125,13 +125,18 @@ class ParentTest(unittest.TestCase):
     def test_plans_and_billing(self):
         url = self.link()
         self.assertEqual(self.parent.get(url).json["subscription"]["plan"], "free")
-        self.assertEqual(self.post(self.parent, url + "/plan", {"plan": "daily"}).status_code, 400)  # needs monthly or yearly
-        r = self.post(self.parent, url + "/plan", {"plan": "daily", "interval": "month"}).json
-        self.assertEqual((r["subscription"]["plan"], r["subscription"]["price_label"]), ("daily", "$24/month"))
+        self.assertEqual(self.post(self.parent, url + "/plan", {"plan": "sharpened"}).status_code, 400)  # needs a billing option
+        self.assertEqual(self.post(self.parent, url + "/plan", {"plan": "daily", "interval": "month"}).status_code, 400)  # old name
+        r = self.post(self.parent, url + "/plan", {"plan": "sharpened", "interval": "month"}).json
+        self.assertEqual((r["subscription"]["plan"], r["subscription"]["price_label"]), ("sharpened", "$39/month"))
         self.assertIn("No card was charged", r["billing"][0]["detail"])
-        self.assertEqual(self.student.get("/api/me").json["user"]["plan"], "daily")
-        r = self.post(self.parent, url + "/plan", {"plan": "coached", "interval": "year"}).json
-        self.assertEqual(r["subscription"]["price_label"], "$1,190/year")
+        self.assertEqual(self.student.get("/api/me").json["user"]["plan"], "sharpened")
+        r = self.post(self.parent, url + "/plan", {"plan": "no2", "interval": "week"}).json
+        self.assertEqual(r["subscription"]["price_label"], "$21.62/month, billed $4.99 weekly")
+        self.assertEqual(date.fromisoformat(r["subscription"]["renews_on"]) - date.today(), timedelta(days=7))
+        self.assertIn("billed weekly at $4.99", r["billing"][0]["detail"])
+        r = self.post(self.parent, url + "/plan", {"plan": "masterstroke", "interval": "year"}).json
+        self.assertEqual(r["subscription"]["price_label"], "$99/month, billed $1,188 yearly")
         renews = r["subscription"]["renews_on"]
         r = self.post(self.parent, url + "/plan/pause").json
         self.assertEqual(r["subscription"]["status"], "paused")
@@ -139,10 +144,35 @@ class ParentTest(unittest.TestCase):
         self.assertEqual(self.post(self.parent, url + "/plan/pause").status_code, 409)
         self.post(self.parent, url + "/plan/resume")
         r = self.post(self.parent, url + "/plan/cancel").json
-        self.assertEqual((r["subscription"]["status"], r["subscription"]["plan"]), ("canceled", "coached"))  # runs to the end of the period
+        self.assertEqual((r["subscription"]["status"], r["subscription"]["plan"]), ("canceled", "masterstroke"))  # runs to the end of the period
         with self.app.app_context():
             self.assertEqual(parent_svc.subscription(self.student_id, date.fromisoformat(r["subscription"]["renews_on"]) + timedelta(days=1))["plan"], "free")
         self.assertEqual(self.post(self.parent, url + "/plan/explode").status_code, 404)
+
+    def test_parent_sees_every_plan_with_monthly_prices(self):
+        plans = self.parent.get("/api/parent").json["plans"]
+        self.assertEqual([p["key"] for p in plans], ["free", "no2", "sharpened", "masterstroke"])
+        self.assertEqual([p["name"] for p in plans], ["Scratch Paper", "No. 2", "Sharpened", "Masterstroke"])
+        sharp = plans[2]
+        self.assertEqual(sharp["per_month_cents"], {"week": 4329, "month": 3900, "year": 2900})
+        self.assertEqual(sharp["savings"]["year"], {"percent": 26, "per_year_cents": 12000})
+        prices = [p["per_month_cents"]["month"] for p in plans]
+        self.assertEqual(prices, sorted(prices), "plans go from free to the top plan")
+
+    def test_old_plan_names_carry_over(self):
+        import sqlite3
+        from app.schema import migrate
+        db = self.app.config["DATABASE_URL"].replace("sqlite:///", "")
+        con = sqlite3.connect(db)
+        con.execute("UPDATE users SET plan = 'coached' WHERE id = ?", (self.student_id,))
+        con.execute("INSERT INTO subscriptions (student_id, plan, billing_interval, status, updated_at) VALUES (?, 'daily', 'month', 'active', 'x')", (self.student_id,))
+        con.execute("DELETE FROM schema_version WHERE version = 8")
+        con.commit(); con.close()
+        migrate(self.app.config["DATABASE_URL"])
+        con = sqlite3.connect(db)
+        self.assertEqual(con.execute("SELECT plan FROM users WHERE id = ?", (self.student_id,)).fetchone()[0], "masterstroke")
+        self.assertEqual(con.execute("SELECT plan FROM subscriptions WHERE student_id = ?", (self.student_id,)).fetchone()[0], "sharpened")
+        con.close()
 
     def test_report_email(self):
         url = self.link()

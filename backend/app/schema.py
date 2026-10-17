@@ -195,7 +195,13 @@ MIGRATIONS = [
             updated_at TEXT NOT NULL
         )""",
     ]),
-    # (8, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (8, "New plans: Daily becomes Sharpened and Coached becomes Masterstroke", [
+        "UPDATE subscriptions SET plan = 'sharpened' WHERE plan = 'daily'",
+        "UPDATE subscriptions SET plan = 'masterstroke' WHERE plan = 'coached'",
+        "UPDATE users SET plan = 'sharpened' WHERE plan = 'daily'",
+        "UPDATE users SET plan = 'masterstroke' WHERE plan = 'coached'",
+    ]),
+    # (9, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

@@ -24,9 +24,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=b6085e9bcc">
+<link rel="stylesheet" href="/css/site.css?v=023405e9dd">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "EducationalOrganization", "name": "Graphite", "url": "https://www.graphiteprep.com/", "logo": "https://www.graphiteprep.com/apple-touch-icon.png", "email": "hello@graphiteprep.com", "telephone": "+1-954-555-0142", "description": "AI SAT tutoring for high school students."}</script>
-<script src="/js/site.js?v=2b7c9e5831" defer></script>
+<script src="/js/site.js?v=0d5e93a5b5" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -255,44 +255,45 @@
       <div class="section-rail"><p class="label">Pricing</p></div>
       <div>
         <div class="section-head">
-          <h2 id="pricing-title">Start free. Pay monthly if it's working.</h2>
-          <p class="lede">Every plan starts with the same full diagnostic. No contract, and you can cancel from your dashboard.</p>
+          <h2 id="pricing-title">Start free. Get more at every step up.</h2>
+          <p class="lede">Every plan starts with the free diagnostic. Each plan adds more ways to raise your score, and you can switch or cancel anytime.</p>
         </div>
-        <div class="plans">
-          <article class="plan" aria-labelledby="plan-diag">
-            <div><h3 id="plan-diag">Diagnostic</h3><p>See where your points are.</p></div>
-            <p class="price"><span class="amount">$0</span><span class="per">one time</span></p>
-            <ul>
-              <li>One full-length adaptive practice test</li>
-              <li>Score report across all 8 skill domains</li>
-              <li>Tutor explanations for every question you missed</li>
-            </ul>
-            <a class="btn btn-secondary btn-block" href="#start" data-track="plan_diagnostic">Take the diagnostic</a>
+      </div>
+      <div class="pricing">
+          <div class="billing-switch" role="radiogroup" aria-label="How you pay">
+            <span><input type="radio" name="billing" id="bill-week" value="week"><label for="bill-week">Weekly</label></span>
+            <span><input type="radio" name="billing" id="bill-month" value="month"><label for="bill-month">Monthly</label></span>
+            <span><input type="radio" name="billing" id="bill-year" value="year" checked><label for="bill-year">Yearly <em>Save up to 26%</em></label></span>
+          </div>
+          <div class="tiers"><article class="tier tier-free" aria-labelledby="tier-free" data-week-amount="$0" data-week-billed="Free forever. No card needed." data-week-save="" data-month-amount="$0" data-month-billed="Free forever. No card needed." data-month-save="" data-year-amount="$0" data-year-billed="Free forever. No card needed." data-year-save="">
+            <div class="tier-head"><div class="tier-name"><h3 id="tier-free">Scratch Paper</h3></div><p class="tier-tagline">Try Graphite before you commit.</p></div>
+            <div class="tier-price"><p class="price"><span class="amount" data-amount>$0</span><span class="per">/month</span></p>
+              <p class="tier-billed" data-billed>Free forever. No card needed.</p><p class="tier-save" data-save hidden></p></div>
+            <a class="btn btn-secondary btn-block" href="#start" data-track="plan_free">Start free</a>
+            <ul class="tier-features"><li>The 10-question diagnostic</li><li>Your strongest and weakest skill areas</li><li>1 practice set a week</li><li>Built-in graphing calculator</li></ul>
           </article>
-          <article class="plan" aria-labelledby="plan-daily">
-            <div><h3 id="plan-daily">Daily</h3><p>For students studying on their own.</p></div>
-            <p class="price"><span class="amount">$24</span><span class="per">per month</span></p>
-            <ul>
-              <li>Unlimited tutor sessions and hints</li>
-              <li>A daily set built from your misses</li>
-              <li>A new practice test every 3 weeks</li>
-              <li>Weekly progress email for a parent</li>
-            </ul>
-            <a class="btn btn-secondary btn-block" href="#start" data-track="plan_daily">Start with the diagnostic</a>
+          <article class="tier tier-no2" aria-labelledby="tier-no2" data-week-amount="$21.62" data-week-billed="Billed $4.99 weekly. Stop anytime." data-week-save="No commitment" data-month-amount="$19" data-month-billed="Billed monthly. Cancel anytime." data-month-save="" data-year-amount="$15" data-year-billed="Billed $180 yearly." data-year-save="Save $48 a year (21% off)">
+            <div class="tier-head"><div class="tier-name"><h3 id="tier-no2">No. 2</h3></div><p class="tier-tagline">The pencil every SAT needs. Steady practice, every week.</p></div>
+            <div class="tier-price"><p class="price"><span class="amount" data-amount>$15</span><span class="per">/month</span></p>
+              <p class="tier-billed" data-billed>Billed $180 yearly.</p><p class="tier-save" data-save>Save $48 a year (21% off)</p></div>
+            <a class="btn btn-secondary btn-block" href="/signin.html#create" data-track="plan_no2">Choose No. 2</a>
+            <p class="tier-intro">Everything in Scratch Paper, plus:</p><ul class="tier-features"><li>Unlimited practice in all 8 skill areas</li><li>Daily sets picked from your weakest skills</li><li>A study plan built around your test date</li><li>Step-by-step explanations for every answer</li><li>A review queue that brings back every miss</li></ul>
           </article>
-          <article class="plan plan-featured" aria-labelledby="plan-coached">
-            <div><h3 id="plan-coached">Coached</h3><p>Everything in Daily, plus a person checking in.</p></div>
-            <p class="price"><span class="amount">$119</span><span class="per">per month</span></p>
-            <ul>
-              <li>A 30-minute video check-in each week with a human coach</li>
-              <li>Plan reviews after every practice test</li>
-              <li>A test-week plan for timing and pacing</li>
-              <li>Parent call once a month</li>
-            </ul>
-            <a class="btn btn-primary btn-block" href="#start" data-track="plan_coached">Start with the diagnostic</a>
+          <article class="tier tier-sharpened tier-featured" aria-labelledby="tier-sharpened" data-week-amount="$43.29" data-week-billed="Billed $9.99 weekly. Stop anytime." data-week-save="No commitment" data-month-amount="$39" data-month-billed="Billed monthly. Cancel anytime." data-month-save="" data-year-amount="$29" data-year-billed="Billed $348 yearly." data-year-save="Save $120 a year (26% off)">
+            <div class="tier-head"><div class="tier-name"><h3 id="tier-sharpened">Sharpened</h3><span class="tier-badge">Most popular</span></div><p class="tier-tagline">Everything you need to raise your score.</p></div>
+            <div class="tier-price"><p class="price"><span class="amount" data-amount>$29</span><span class="per">/month</span></p>
+              <p class="tier-billed" data-billed>Billed $348 yearly.</p><p class="tier-save" data-save>Save $120 a year (26% off)</p></div>
+            <a class="btn btn-primary btn-block" href="/signin.html#create" data-track="plan_sharpened">Choose Sharpened</a>
+            <p class="tier-intro">Everything in No. 2, plus:</p><ul class="tier-features"><li>Unlimited timed practice tests in the real test layout</li><li>Level up: sets that get harder level by level</li><li>Score history and a skill breakdown after every test</li><li>Calculator shortcuts on every question where a graph is faster</li><li>Parent dashboard with weekly progress emails</li><li>Alerts when practice stops</li></ul>
           </article>
-        </div>
-        <p class="plan-fine">Prices in US dollars. Family discounts and need-based pricing are available. <a href="#contact">Ask us</a>.</p>
+          <article class="tier tier-masterstroke" aria-labelledby="tier-masterstroke" data-week-amount="$151.62" data-week-billed="Billed $34.99 weekly. Stop anytime." data-week-save="No commitment" data-month-amount="$129" data-month-billed="Billed monthly. Cancel anytime." data-month-save="" data-year-amount="$99" data-year-billed="Billed $1,188 yearly." data-year-save="Save $360 a year (23% off)">
+            <div class="tier-head"><div class="tier-name"><h3 id="tier-masterstroke">Masterstroke</h3><span class="tier-badge">Best results</span></div><p class="tier-tagline">Our most hands-on plan, with a coach in your corner.</p></div>
+            <div class="tier-price"><p class="price"><span class="amount" data-amount>$99</span><span class="per">/month</span></p>
+              <p class="tier-billed" data-billed>Billed $1,188 yearly.</p><p class="tier-save" data-save>Save $360 a year (23% off)</p></div>
+            <a class="btn btn-secondary btn-block" href="/signin.html#create" data-track="plan_masterstroke">Choose Masterstroke</a>
+            <p class="tier-intro">Everything in Sharpened, plus:</p><ul class="tier-features"><li>A weekly 30-minute 1-on-1 video check-in with a coach</li><li>Your study plan reviewed after every practice test</li><li>A test-week plan for pacing, sleep and logistics</li><li>A monthly call with your parent</li><li>Priority help, answered within one school day</li></ul>
+          </article></div>
+        <p class="plan-fine">Prices in US dollars, shown per month. Yearly saves the most; weekly is there for a final push before test day. Family discounts and need-based pricing are available. <a href="#contact">Ask us</a>.</p>
       </div>
     </div>
   </section>
@@ -317,7 +318,7 @@
           </details>
           <details>
             <summary>Can parents see progress?</summary>
-            <div class="answer"><p>Yes. On Daily and Coached plans, a parent gets a weekly email with practice time, practice test scores, and the skills being worked on. Students can see exactly what parents see.</p></div>
+            <div class="answer"><p>Yes. On Sharpened and Masterstroke, a parent gets a weekly email with practice time, practice test scores, and the skills being worked on. Students can see exactly what parents see.</p></div>
           </details>
           <details>
             <summary>What device do I need?</summary>

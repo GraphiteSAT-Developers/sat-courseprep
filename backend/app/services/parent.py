@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from ..db import execute, now_iso, query
 from . import dashboard, levels, today as today_svc
-from .plans import ALERT_DAYS, INTERVALS, PAUSE_DAYS, PLANS  # noqa: F401  (routes use them from here)
+from .plans import ALERT_DAYS, INTERVALS, PAUSE_DAYS, PLANS, interval_words, key_for, next_renewal, price_label  # noqa: F401
 
 PAYMENTS_LIVE = False  # True once a payment processor (for example Stripe) charges for plan changes
 
@@ -44,12 +44,13 @@ def subscription(student_id, today=None):
     elif sub["status"] == "paused" and sub["paused_until"] and sub["paused_until"] < today.isoformat():
         sub.update(status="active", paused_until=None)
         _save(student_id, sub, None)
-    plan = PLANS[sub["plan"]]
-    interval = sub["billing_interval"]
-    price = plan[interval] if interval else 0
-    return {"plan": sub["plan"], "plan_name": plan["name"], "interval": interval, "status": sub["status"],
+    key = key_for(sub["plan"])
+    plan = PLANS[key]
+    interval = sub["billing_interval"] if sub["billing_interval"] in INTERVALS else None
+    price = plan["prices"][interval] if interval else 0
+    return {"plan": key, "plan_name": plan["name"], "interval": interval, "status": sub["status"],
             "renews_on": sub["renews_on"], "paused_until": sub["paused_until"], "price_cents": price,
-            "price_label": (money(price) + ("/month" if interval == "month" else "/year")) if price else "Free"}
+            "price_label": price_label(key, interval)}
 
 
 def _save(student_id, sub, parent_id):
@@ -75,13 +76,13 @@ def change_plan(parent_id, student_id, plan, interval, today=None):
         cur = subscription(student_id, today)
         _save(student_id, {"plan": "free", "billing_interval": None, "status": "active", "renews_on": None, "paused_until": None}, parent_id)
         if cur["plan"] != "free":
-            _event(student_id, parent_id, "change", f"Switched from {cur['plan_name']} to the free Diagnostic plan.")
+            _event(student_id, parent_id, "change", f"Switched from {cur['plan_name']} to the free {PLANS['free']['name']} plan.")
         return subscription(student_id, today)
-    renews = add_months(today, 1 if interval == "month" else 12).isoformat()
+    renews = next_renewal(today, interval, add_months).isoformat()
     _save(student_id, {"plan": plan, "billing_interval": interval, "status": "active", "renews_on": renews, "paused_until": None}, parent_id)
-    price = PLANS[plan][interval]
+    price = PLANS[plan]["prices"][interval]
     _event(student_id, parent_id, "change",
-           f"{PLANS[plan]['name']}, billed {'monthly' if interval == 'month' else 'yearly'} at {money(price)}. Renews {nice_date(renews)}.", price)
+           f"{PLANS[plan]['name']}, billed {interval_words(interval)} at {money(price)}. Renews {nice_date(renews)}.", price)
     return subscription(student_id, today)
 
 
@@ -112,7 +113,7 @@ def cancel(parent_id, student_id, today=None):
     row.update(status="canceled", paused_until=None)
     _save(student_id, row, parent_id)
     _event(student_id, parent_id, "cancel",
-           f"Canceled. {PLANS[row['plan']]['name']} stays on until {nice_date(row['renews_on'])}, then the plan returns to the free Diagnostic plan.")
+           f"Canceled. {PLANS[key_for(row['plan'])]['name']} stays on until {nice_date(row['renews_on'])}, then the plan returns to the free {PLANS['free']['name']} plan.")
     return subscription(student_id, today)
 
 

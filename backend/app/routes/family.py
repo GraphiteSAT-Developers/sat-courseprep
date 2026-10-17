@@ -53,8 +53,8 @@ def _student_or_404(student_id):
 
 
 def _plans():
-    return [{"key": k, "name": p["name"], "blurb": p["blurb"], "month_cents": p["month"], "year_cents": p["year"]}
-            for k, p in service.PLANS.items()]
+    from ..services.plans import public_plans
+    return public_plans()
 
 
 @bp.get("")
@@ -141,7 +141,7 @@ def change_plan(student_id):
     if plan not in service.PLANS:
         raise ApiError(400, "Pick a plan.", "plan")
     if plan != "free" and interval not in service.INTERVALS:
-        raise ApiError(400, "Pick monthly or yearly billing.", "interval")
+        raise ApiError(400, "Pick weekly, monthly or yearly billing.", "interval")
     return jsonify({"subscription": service.change_plan(current_user()["id"], student_id, plan, interval),
                     "billing": service.billing_history(student_id)})
 
