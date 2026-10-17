@@ -166,10 +166,27 @@ class ParentTest(unittest.TestCase):
 
     def test_test_parent_account_is_linked_to_beta(self):
         c = self.app.test_client()
-        r = self.post(c, "/api/auth/login", {"email": "parent", "password": "parent"})
+        r = self.post(c, "/api/auth/login", {"email": "beta2", "password": "beta2"})
         self.assertEqual(r.status_code, 200, r.json)
         self.assertEqual(r.json["user"]["role"], "parent")
         self.assertEqual([s["name"] for s in c.get("/api/parent").json["students"]], ["Beta Tester"])
+
+    def test_old_test_parent_is_renamed_to_beta2(self):
+        import sqlite3
+        from app import testaccount
+        db = self.app.config["DATABASE_URL"].replace("sqlite:///", "")
+        con = sqlite3.connect(db)
+        con.execute("UPDATE users SET email = 'parent', name = 'Pat Tester' WHERE email = 'beta2'")
+        con.commit(); con.close()
+        testaccount.ensure(self.app.config["DATABASE_URL"])
+        con = sqlite3.connect(db)
+        rows = con.execute("SELECT email, name FROM users WHERE role = 'parent' AND email IN ('parent', 'beta2')").fetchall()
+        links = con.execute("SELECT COUNT(*) FROM family_links f JOIN users p ON p.id = f.parent_id WHERE p.email = 'beta2'").fetchone()[0]
+        con.close()
+        self.assertEqual(rows, [("beta2", "Beta2 Parent")])
+        self.assertEqual(links, 1)
+        c = self.app.test_client()
+        self.assertEqual(self.post(c, "/api/auth/login", {"email": "parent", "password": "parent"}).status_code, 400)
 
 
 if __name__ == "__main__":

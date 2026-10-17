@@ -159,7 +159,7 @@
 
   /* 7. Form helpers: validation, spam protection, status messages */
   var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  var TEST_USERNAME = "beta", TEST_PARENT = "parent";  // local test accounts (backend/app/testaccount.py)
+  var TEST_USERNAME = "beta", TEST_PARENT = "beta2";  // local test accounts (backend/app/testaccount.py)
 
   function setError(field, msg) {
     var input = field.querySelector("input, select, textarea");

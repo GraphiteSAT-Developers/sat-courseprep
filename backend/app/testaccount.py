@@ -1,4 +1,4 @@
-"""The local test account: username "beta", password "beta".
+"""The local test accounts: student "beta" / "beta", and its parent "beta2" / "beta2".
 
 It exists only when the app isn't running in production (Config.TEST_ACCOUNT). On every start
 its password is set back to "beta", so it always works. Every sign-in wipes its practice
@@ -13,10 +13,11 @@ from .db import connect, is_postgres
 USERNAME = "beta"
 PASSWORD = "beta"
 NAME = "Beta Tester"
-# A parent account linked to the test student, to try the parent dashboard: "parent" / "parent".
-PARENT_USERNAME = "parent"
-PARENT_PASSWORD = "parent"
-PARENT_NAME = "Pat Tester"
+# A parent account linked to the test student, to try the parent dashboard: "beta2" / "beta2".
+PARENT_USERNAME = "beta2"
+PARENT_PASSWORD = "beta2"
+PARENT_NAME = "Beta2 Parent"
+OLD_PARENT_USERNAMES = ("parent",)  # earlier name for the test parent; renamed to beta2 on start, keeping its link
 
 
 def ensure(url):
@@ -30,11 +31,18 @@ def ensure(url):
             conn.execute(f"INSERT INTO users (email, password_hash, name, role, created_at) VALUES ({ph}, {ph}, {ph}, {ph}, {ph})",
                          (email, generate_password_hash(password), name, role, stamp))
             row = conn.execute(f"SELECT id, password_hash FROM users WHERE email = {ph}", (email,)).fetchone()
-        elif not check_password_hash(row["password_hash"], password):
+        else:
+            conn.execute(f"UPDATE users SET name = {ph}, role = {ph} WHERE id = {ph}", (name, role, row["id"]))
+        if not check_password_hash(row["password_hash"], password):
             conn.execute(f"UPDATE users SET password_hash = {ph} WHERE id = {ph}", (generate_password_hash(password), row["id"]))
         return row["id"]
 
     try:
+        # Rename the old test parent instead of making a second one, so its link to beta carries over.
+        if not conn.execute(f"SELECT 1 FROM users WHERE email = {ph}", (PARENT_USERNAME,)).fetchone():
+            for old in OLD_PARENT_USERNAMES:
+                conn.execute(f"UPDATE users SET email = {ph}, name = {ph} WHERE email = {ph} AND role = 'parent'",
+                             (PARENT_USERNAME, PARENT_NAME, old))
         student = account(USERNAME, PASSWORD, NAME, "student")
         parent = account(PARENT_USERNAME, PARENT_PASSWORD, PARENT_NAME, "parent")
         if not conn.execute(f"SELECT 1 FROM family_links WHERE parent_id = {ph} AND student_id = {ph}", (parent, student)).fetchone():

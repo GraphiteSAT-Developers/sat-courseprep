@@ -524,17 +524,17 @@
 
   /* ---------- parent dashboard (same rules as services/parent.py and routes/family.py) ----------
      The preview's student is the practice done in this browser. Linking uses the code the student made on
-     their dashboard (site.js keeps it in graphite_family); the test parent ("parent") is linked already. */
+     their dashboard (site.js keeps it in graphite_family); the test parent ("beta2") is linked already. */
   var PB = BANK.parent, FKEY = "graphite_family";
   function fam() { try { return JSON.parse(localStorage.getItem(FKEY)) || { parents: [] }; } catch (e) { return { parents: [] }; } }
   function saveFam(f) { try { localStorage.setItem(FKEY, JSON.stringify(f)); } catch (e) { /* storage blocked */ } }
   function who() { var e = ""; try { e = sessionStorage.getItem("graphite_user") || ""; } catch (x) { /* storage blocked */ } return e; }
   function parentName() {
-    var e = who(); if (e === "parent") return "Pat Tester";
+    var e = who(); if (e === "beta2") return "Beta2 Parent";
     var n = (e.split("@")[0] || "Parent").replace(/[._-]+/g, " ");
     return n.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
   }
-  function linked(f) { return f.parents.length > 0 || who() === "parent"; }
+  function linked(f) { return f.parents.length > 0 || who() === "beta2"; }
   function money(c) { return "$" + (c / 100).toLocaleString("en-US", { maximumFractionDigits: 2 }); }
   function iso10(d) { return isoDate(d); }
   function addMonths(d, n) { var x = new Date(d.getFullYear(), d.getMonth() + n, 1), last = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate(); x.setDate(Math.min(d.getDate(), last)); return x; }

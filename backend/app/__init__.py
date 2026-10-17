@@ -40,7 +40,7 @@ def create_app(overrides=None):
     migrate(app.config["DATABASE_URL"])
     if app.config["TEST_ACCOUNT"]:
         testaccount.ensure(app.config["DATABASE_URL"])
-        app.logger.info('Test accounts ready: student "beta" / "beta", and parent "parent" / "parent".')
+        app.logger.info('Test accounts ready: student "beta" / "beta", and parent "beta2" / "beta2".')
     for bp in BLUEPRINTS:
         app.register_blueprint(bp)
     app.teardown_appcontext(close_db)
