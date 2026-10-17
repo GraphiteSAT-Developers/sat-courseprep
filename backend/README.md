@@ -30,6 +30,8 @@ That means no server is running at that address.
 
 When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and every sign-in wipes its practice history, so it always starts fresh with the diagnostic. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
 
+There's also a test **parent** account: username **parent**, password **parent**, already connected to the beta student. Choose "I'm a parent" on the sign-in page (or just sign in; it opens the parent dashboard either way). It follows the same rules: local only, never on the hosted site.
+
 Run the tests:
 
 ```bash
