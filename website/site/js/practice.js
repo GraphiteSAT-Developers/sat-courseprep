@@ -10,7 +10,8 @@
   var call = LIVE ? API.call : (window.GraphitePracticeLocal && window.GraphitePracticeLocal.call);
   var COUNT_KEY = "graphite_practice_count";
   var count = 10;
-  try { count = Number(localStorage.getItem(COUNT_KEY)) || 10; } catch (e) { /* storage blocked */ }
+  try { count = Number(localStorage.getItem(COUNT_KEY)) || 0; } catch (e) { /* storage blocked */ }
+  if (!count) count = (window.GraphiteTheme && GraphiteTheme.prefs().study.set_size) || 10;  // Settings > Practice defaults
   var busy = false;
 
   // A small picture for each Math domain, so the topic list is easy to scan.

@@ -163,7 +163,13 @@ class PlayTest(PracticeTest):
         self.assertEqual((board["you"]["rank"], board["you"]["visible"]), (1, False))
 
         self.assertEqual(self.patch("/api/speed/profile", {"opt_in": True}).status_code, 400)  # needs a nickname
-        self.assertEqual(self.patch("/api/speed/profile", {"nickname": "Sam Lee"}).status_code, 400)
+        self.assertEqual(self.patch("/api/speed/profile", {"nickname": "Sam Lee"}).status_code, 400)  # their real name
+        self.assertEqual(self.patch("/api/speed/profile", {"nickname": "xX Lee Xx"}).status_code, 400)  # their last name
+        self.assertEqual(self.patch("/api/speed/profile", {"nickname": "Sh1t Lord"}).status_code, 400)
+        self.assertEqual(self.patch("/api/speed/profile", {"nickname": "ab"}).status_code, 400)
+        self.assertEqual(self.patch("/api/speed/profile", {"nickname": "<script>"}).status_code, 400)
+        r = self.patch("/api/speed/profile", {"nickname": "  Quadratic   Queen 7 "})
+        self.assertEqual((r.status_code, r.json["board_profile"]["nickname"]), (200, "Quadratic Queen 7"))
         self.assertEqual(self.patch("/api/speed/profile", {"state": "ZZ"}).status_code, 400)
         nick = self.client.get("/api/speed/nicknames").json["nicknames"][0]
         self.assertTrue(speed.valid_nickname(nick))
@@ -178,6 +184,7 @@ class PlayTest(PracticeTest):
         # Someone in another state isn't on Florida's board, but is on the national one.
         self.post("/api/auth/logout")
         self.post("/api/auth/register", {"name": "Ana Cruz", "email": "ana@school.org", "password": "password123", "grade": 11})
+        self.assertEqual(self.patch("/api/speed/profile", {"nickname": nick.lower()}).status_code, 400)  # Sam has it
         self.patch("/api/speed/profile", {"nickname": "Calm Vertex 42", "opt_in": True, "state": "TX"})
         self.run_round(10)
         uid = self.uid("ana@school.org")

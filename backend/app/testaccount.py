@@ -68,7 +68,8 @@ def reset(user_id):
     for table in STUDENT_ID_TABLES:
         execute(f"DELETE FROM {table} WHERE student_id = ?", (user_id,))
     execute("UPDATE users SET plan = 'free' WHERE id = ?", (user_id,))
-    execute("UPDATE users SET frame = NULL, title = NULL, board_opt_in = 0, nickname = NULL, state = NULL, accent = 'pencil' "
+    execute("UPDATE users SET frame = NULL, title = NULL, board_opt_in = 0, nickname = NULL, state = NULL, accent = 'pencil', "
+            "theme = 'dark', prefs = '{}', reminder_sent_on = NULL "
             "WHERE id = ?", (user_id,))
     from .db import now_iso
     from datetime import date

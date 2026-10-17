@@ -12,7 +12,10 @@
         <ul>
           <li><a href="#profile">Profile</a></li>
           <li><a href="#appearance">Appearance</a></li>
+          <li data-student-only><a href="#avatar">Avatar</a></li>
           <li data-student-only><a href="#study">Study</a></li>
+          <li data-student-only><a href="#defaults">Practice defaults</a></li>
+          <li data-student-only><a href="#layout">Dashboard layout</a></li>
           <li data-student-only><a href="#leaderboard">Leaderboard</a></li>
           <li><a href="#security">Sign-in and security</a></li>
           <li><a href="#data">Your data</a></li>
@@ -46,6 +49,22 @@
           </form>
         </section>
 
+        <!-- Drawn avatar (students) -->
+        <section class="panel st-panel" id="avatar" aria-labelledby="st-avatar-title" data-student-only>
+          <div class="panel-head"><h2 id="st-avatar-title">Avatar</h2><span class="label" id="st-av-saved" aria-live="polite"></span></div>
+          <p class="panel-lede">Draw yourself instead of using a photo. Your drawn avatar also shows on leaderboards; a photo never does.</p>
+          <div class="seg" role="radiogroup" aria-label="Show in your profile">
+            <span><input type="radio" name="av-mode" id="st-av-photo" value="photo"><label for="st-av-photo">Photo or initials</label></span>
+            <span><input type="radio" name="av-mode" id="st-av-drawn" value="drawn"><label for="st-av-drawn">Drawn avatar</label></span>
+          </div>
+          <div class="av-builder">
+            <div class="av-preview" id="st-av-preview" aria-live="polite"></div>
+            <div class="av-parts" id="st-av-parts"></div>
+          </div>
+          <div class="status" id="st-av-status" role="status" aria-live="polite" tabindex="-1"></div>
+          <div class="pd-row"><button class="btn btn-primary" type="button" id="st-av-save">Save avatar</button><button class="btn btn-quiet" type="button" id="st-av-random">Surprise me</button></div>
+        </section>
+
         <!-- Appearance -->
         <section class="panel st-panel" id="appearance" aria-labelledby="st-look-title">
           <div class="panel-head"><h2 id="st-look-title">Appearance</h2><span class="label" id="st-look-saved" aria-live="polite"></span></div>
@@ -68,6 +87,31 @@
                 <span class="st-theme-art st-art-system" aria-hidden="true"><i></i><i></i><i></i></span>
                 <span class="st-theme-name">Match my device</span>
               </label>
+              <label class="st-theme" for="st-theme-paper">
+                <input type="radio" name="theme" id="st-theme-paper" value="paper">
+                <span class="st-theme-art st-art-paper" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Paper</span>
+              </label>
+              <label class="st-theme" for="st-theme-midnight">
+                <input type="radio" name="theme" id="st-theme-midnight" value="midnight">
+                <span class="st-theme-art st-art-midnight" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Midnight</span>
+              </label>
+              <label class="st-theme" for="st-theme-contrast">
+                <input type="radio" name="theme" id="st-theme-contrast" value="contrast">
+                <span class="st-theme-art st-art-contrast" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">High contrast</span>
+              </label>
+              <label class="st-theme is-locked" for="st-theme-chalkboard" data-student-only>
+                <input type="radio" name="theme" id="st-theme-chalkboard" value="chalkboard" disabled data-shop="theme:chalkboard">
+                <span class="st-theme-art st-art-chalkboard" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Chalkboard</span><small class="st-lock">250 coins</small>
+              </label>
+              <label class="st-theme is-locked" for="st-theme-nightowl" data-student-only>
+                <input type="radio" name="theme" id="st-theme-nightowl" value="nightowl" disabled data-shop="theme:nightowl">
+                <span class="st-theme-art st-art-nightowl" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Night Owl</span><small class="st-lock">250 coins</small>
+              </label>
             </div>
           </fieldset>
           <fieldset class="st-fieldset">
@@ -83,10 +127,53 @@
             <div class="st-accents st-accents-shop" id="st-shop-accents" data-student-only>
               <label class="st-accent is-locked" for="st-accent-rose"><input type="radio" name="accent" id="st-accent-rose" value="rose" disabled data-shop="accent:rose"><span class="st-dot" data-swatch="rose" aria-hidden="true"></span><span>Rose Quartz</span><small class="st-lock">150 coins</small></label>
               <label class="st-accent is-locked" for="st-accent-blueprint"><input type="radio" name="accent" id="st-accent-blueprint" value="blueprint" disabled data-shop="accent:blueprint"><span class="st-dot" data-swatch="blueprint" aria-hidden="true"></span><span>Blueprint</span><small class="st-lock">150 coins</small></label>
+              <label class="st-accent is-locked" for="st-accent-custom"><input type="radio" name="accent" id="st-accent-custom" value="custom" disabled data-shop="accent:custom"><span class="st-dot st-dot-custom" id="st-custom-dot" aria-hidden="true"></span><span>Any color</span><small class="st-lock">300 coins</small></label>
               <label class="st-accent is-locked" for="st-accent-ember"><input type="radio" name="accent" id="st-accent-ember" value="ember" disabled data-shop="accent:ember"><span class="st-dot" data-swatch="ember" aria-hidden="true"></span><span>Ember</span><small class="st-lock">200 coins</small></label>
+            </div>
+            <div class="st-custom" id="st-custom" hidden>
+              <label for="st-custom-color">Your color</label>
+              <input type="color" id="st-custom-color" value="#f2c14e">
+              <span class="fine" id="st-custom-note" aria-live="polite"></span>
             </div>
             <p class="fine" data-student-only id="st-shop-note">Earn coins in Level up, speed rounds, focus sessions and lessons, then unlock these in the <a href="rewards.html#shop">shop</a>.</p>
           </fieldset>
+          <fieldset class="st-fieldset">
+            <legend>Text size</legend>
+            <div class="seg" role="radiogroup" aria-label="Text size">
+              <span><input type="radio" name="look-text" id="st-text-s" value="s"><label for="st-text-s" class="st-text-s">A</label></span>
+              <span><input type="radio" name="look-text" id="st-text-m" value="m"><label for="st-text-m" class="st-text-m">A</label></span>
+              <span><input type="radio" name="look-text" id="st-text-l" value="l"><label for="st-text-l" class="st-text-l">A</label></span>
+              <span><input type="radio" name="look-text" id="st-text-xl" value="xl"><label for="st-text-xl" class="st-text-xl">A</label></span>
+            </div>
+            <p class="fine">Small, normal, large and extra large. Everything scales, including practice tests.</p>
+          </fieldset>
+          <div class="st-look-grid">
+            <fieldset class="st-fieldset">
+              <legend>Font</legend>
+              <div class="seg" role="radiogroup" aria-label="Font">
+                <span><input type="radio" name="look-font" id="st-font-default" value="default"><label for="st-font-default">Standard</label></span>
+                <span><input type="radio" name="look-font" id="st-font-readable" value="readable"><label for="st-font-readable" class="st-font-readable">Easy-read</label></span>
+              </div>
+              <p class="fine">Easy-read uses Atkinson Hyperlegible, made so letters like I, l and 1 never look alike.</p>
+            </fieldset>
+            <fieldset class="st-fieldset">
+              <legend>Motion</legend>
+              <div class="seg" role="radiogroup" aria-label="Motion">
+                <span><input type="radio" name="look-motion" id="st-motion-system" value="system"><label for="st-motion-system">Match device</label></span>
+                <span><input type="radio" name="look-motion" id="st-motion-reduce" value="reduce"><label for="st-motion-reduce">Less</label></span>
+                <span><input type="radio" name="look-motion" id="st-motion-full" value="full"><label for="st-motion-full">Full</label></span>
+              </div>
+              <p class="fine">Less turns off animations, sliding pop-ups and the ripple.</p>
+            </fieldset>
+            <fieldset class="st-fieldset">
+              <legend>Spacing</legend>
+              <div class="seg" role="radiogroup" aria-label="Spacing">
+                <span><input type="radio" name="look-density" id="st-density-comfortable" value="comfortable"><label for="st-density-comfortable">Roomy</label></span>
+                <span><input type="radio" name="look-density" id="st-density-compact" value="compact"><label for="st-density-compact">Compact</label></span>
+              </div>
+              <p class="fine">Compact fits more on the screen.</p>
+            </fieldset>
+          </div>
           <label class="st-switch" for="st-ripple">
             <input type="checkbox" id="st-ripple" role="switch">
             <span class="st-switch-track" aria-hidden="true"></span>
@@ -138,6 +225,77 @@
           </form>
         </section>
 
+        <!-- Practice defaults (students) -->
+        <section class="panel st-panel" id="defaults" aria-labelledby="st-defaults-title" data-student-only>
+          <div class="panel-head"><h2 id="st-defaults-title">Practice defaults</h2></div>
+          <p class="panel-lede">How practice sets and tests start. You can still change any of it while you practice.</p>
+          <form class="form st-form" id="st-defaults-form" novalidate>
+            <div class="st-look-grid">
+              <fieldset class="st-fieldset">
+                <legend>Topic practice size</legend>
+                <div class="seg" role="radiogroup" aria-label="Questions per topic set" id="st-set-size"></div>
+              </fieldset>
+              <fieldset class="st-fieldset">
+                <legend>Timer on tests</legend>
+                <div class="seg" role="radiogroup" aria-label="Timer on tests">
+                  <span><input type="radio" name="df-timer" id="st-timer-show" value="show"><label for="st-timer-show">Shown</label></span>
+                  <span><input type="radio" name="df-timer" id="st-timer-hide" value="hide"><label for="st-timer-hide">Hidden</label></span>
+                </div>
+                <p class="fine">Hidden still shows the last 5 minutes, like the real test.</p>
+              </fieldset>
+              <fieldset class="st-fieldset">
+                <legend>Calculator</legend>
+                <div class="seg" role="radiogroup" aria-label="Calculator when a set starts">
+                  <span><input type="radio" name="df-calc" id="st-calc-closed" value="closed"><label for="st-calc-closed">Closed</label></span>
+                  <span><input type="radio" name="df-calc" id="st-calc-open" value="open"><label for="st-calc-open">Open at start</label></span>
+                </div>
+              </fieldset>
+              <fieldset class="st-fieldset">
+                <legend>Test colors</legend>
+                <div class="seg" role="radiogroup" aria-label="Test colors">
+                  <span><input type="radio" name="df-colors" id="st-colors-graphite" value="graphite"><label for="st-colors-graphite">My theme</label></span>
+                  <span><input type="radio" name="df-colors" id="st-colors-testday" value="testday"><label for="st-colors-testday">Test-day colors</label></span>
+                </div>
+                <p class="fine">Test-day colors look like the real Bluebook app.</p>
+              </fieldset>
+            </div>
+            <label class="st-switch" for="st-sounds">
+              <input type="checkbox" id="st-sounds" role="switch">
+              <span class="st-switch-track" aria-hidden="true"></span>
+              <span><strong>Sounds</strong><span class="fine">The focus timer's chime and a soft tone when you earn a badge or rank.</span></span>
+            </label>
+            <label class="st-switch" for="st-reminder">
+              <input type="checkbox" id="st-reminder" role="switch">
+              <span class="st-switch-track" aria-hidden="true"></span>
+              <span><strong>Daily reminder email</strong><span class="fine">One email a day at your time, and only on days you haven't practiced yet.</span></span>
+            </label>
+            <div class="field st-reminder-time" id="st-reminder-time">
+              <label for="st-reminder-hour">Reminder time</label>
+              <select id="st-reminder-hour"></select>
+              <p class="fine" id="st-tz-note"></p>
+            </div>
+            <div class="status" id="st-defaults-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-primary" type="submit">Save practice defaults</button></div>
+          </form>
+        </section>
+
+        <!-- Dashboard layout (students) -->
+        <section class="panel st-panel" id="layout" aria-labelledby="st-layout-title" data-student-only>
+          <div class="panel-head"><h2 id="st-layout-title">Dashboard layout</h2></div>
+          <p class="panel-lede">Choose what your dashboard shows and in what order, and pin up to 4 shortcuts to the top.</p>
+          <fieldset class="st-fieldset">
+            <legend>Sections</legend>
+            <ol class="lay-list" id="st-lay-list"></ol>
+          </fieldset>
+          <fieldset class="st-fieldset">
+            <legend>Pinned shortcuts</legend>
+            <div class="lay-pins" id="st-lay-pins"></div>
+            <p class="fine" id="st-lay-pin-note"></p>
+          </fieldset>
+          <div class="status" id="st-lay-status" role="status" aria-live="polite" tabindex="-1"></div>
+          <div class="pd-row"><button class="btn btn-primary" type="button" id="st-lay-save">Save layout</button><button class="btn btn-quiet" type="button" id="st-lay-reset">Back to the original layout</button></div>
+        </section>
+
         <!-- Leaderboard (students) -->
         <section class="panel st-panel" id="leaderboard" aria-labelledby="st-board-title" data-student-only>
           <div class="panel-head"><h2 id="st-board-title">Leaderboard</h2></div>
@@ -157,9 +315,15 @@
             </div>
             <fieldset class="st-fieldset">
               <legend>Nickname</legend>
-              <p class="fine" id="st-nick-now">Pick a nickname. They're made from math words, so nobody can be named something mean.</p>
+              <p class="fine" id="st-nick-now">Type your own or pick a suggestion.</p>
+              <div class="field">
+                <label for="st-nick-own">Your nickname</label>
+                <input type="text" id="st-nick-own" maxlength="20" autocomplete="off" spellcheck="false" aria-describedby="st-nick-rules">
+                <p class="fine" id="st-nick-rules">3 to 20 letters, numbers and spaces. Leaderboards are public, so don't use your real name.</p>
+              </div>
+              <p class="st-shop-head">Need an idea?</p>
               <div class="st-nicks" id="st-nicks" role="radiogroup" aria-label="Suggested nicknames"></div>
-              <button class="btn btn-quiet" type="button" id="st-nick-roll">Show other names</button>
+              <button class="btn btn-quiet" type="button" id="st-nick-roll">Show other ideas</button>
             </fieldset>
             <div class="status" id="st-board-status" role="status" aria-live="polite" tabindex="-1"></div>
             <div class="pd-row"><button class="btn btn-primary" type="submit">Save leaderboard settings</button></div>

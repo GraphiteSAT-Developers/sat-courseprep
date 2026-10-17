@@ -17,7 +17,7 @@
     deep_focus: "25", in_the_zone: "10×", recall_rookie: "R", memory_palace: "3R", total_recall: "8/8", fresh_look: "¢" };
   var KIND = { level_q: "Level up answer", boss: "Boss question", level_done: "Level finished", speed: "Speed round",
     focus: "Focus session", lesson: "Lesson", recall: "Recall check", streak: "Streak reward", shop: "Shop", gift: "Starting coins" };
-  var KIND_NAMES = { accent: "Accent colors", frame: "Profile frames", title: "Titles" };
+  var KIND_NAMES = { accent: "Accent colors", frame: "Profile frames", title: "Titles", theme: "Themes", avatar: "Avatar items" };
 
   function day(iso) { if (!iso) return ""; var d = new Date(iso.length === 10 ? iso + "T12:00:00" : iso); return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); }
   function showError(m) { $("rw-error").textContent = m; $("rw-error").hidden = !m; }
@@ -50,16 +50,21 @@
     g.shop.forEach(function (it) { (groups[it.kind] = groups[it.kind] || []).push(it); });
     var me = (T && T.me && T.me()) || {};
     var accentNow = (T && T.get().accent) || "pencil";
-    $("rw-shop").innerHTML = ["frame", "title", "accent"].map(function (kind) {
+    var themeNow = (T && T.get().theme) || "dark", parts = (T && T.prefs().avatar.parts) || {};
+    $("rw-shop").innerHTML = ["avatar", "frame", "theme", "accent", "title"].filter(function (k) { return groups[k]; }).map(function (kind) {
       return '<div class="rw-shop-group"><h3>' + KIND_NAMES[kind] + '</h3><ul class="rw-items">' + groups[kind].map(function (it) {
         var preview = kind === "frame" ? '<span class="avatar avatar-md" data-frame="' + esc(it.value) + '">' + esc(T ? T.initials(me.name || "You") : "Y") + "</span>"
-          : kind === "accent" ? '<span class="st-dot rw-swatch" data-swatch="' + esc(it.value) + '"></span>'
+          : kind === "accent" ? '<span class="st-dot rw-swatch' + (it.value === "custom" ? " st-dot-custom" : "") + '" data-swatch="' + esc(it.value) + '"></span>'
+          : kind === "theme" ? '<span class="st-theme-art rw-theme-art st-art-' + esc(it.value) + '" aria-hidden="true"><i></i><i></i><i></i></span>'
+          : kind === "avatar" ? '<span class="av-mini" aria-hidden="true">' + (T && T.drawAvatar ? T.drawAvatar(Object.assign({}, parts, { acc: it.value }), "") : "") + "</span>"
           : '<span class="rw-tag" aria-hidden="true">Title</span>';
-        var worn = kind === "accent" ? accentNow === it.value : it.worn, action;
+        var worn = kind === "accent" ? accentNow === it.value : kind === "theme" ? themeNow === it.value : it.worn, action;
         if (!it.owned) action = '<button class="btn ' + (g.coins >= it.price ? "btn-primary" : "btn-quiet") + '" type="button" data-buy="' + esc(it.key) + '"' +
           (g.coins >= it.price ? "" : ' aria-disabled="true"') + '><i class="coin" aria-hidden="true"></i>' + it.price + "</button>";
-        else if (worn) action = kind === "accent" ? '<span class="chip">In use</span>' : '<button class="btn btn-quiet" type="button" data-off="' + kind + '">Take off</button>';
-        else action = '<button class="btn btn-secondary" type="button" data-wear="' + esc(it.key) + '">' + (kind === "accent" ? "Use it" : "Wear it") + "</button>";
+        else if (kind === "avatar") action = '<a class="btn btn-secondary" href="settings.html#avatar">' + (worn ? "Wearing" : "Put it on") + "</a>";
+        else if (it.value === "custom") action = '<a class="btn btn-secondary" href="settings.html#appearance">Pick a color</a>';
+        else if (worn) action = kind === "accent" || kind === "theme" ? '<span class="chip">In use</span>' : '<button class="btn btn-quiet" type="button" data-off="' + kind + '">Take off</button>';
+        else action = '<button class="btn btn-secondary" type="button" data-wear="' + esc(it.key) + '">' + (kind === "accent" || kind === "theme" ? "Use it" : "Wear it") + "</button>";
         return '<li class="rw-item' + (it.owned ? " is-owned" : "") + '">' + preview + '<span class="rw-item-copy"><strong>' + esc(it.name) + '</strong><span class="fine">' + esc(it.about) + "</span></span>" + action + "</li>";
       }).join("") + "</ul></div>";
     }).join("");
@@ -76,6 +81,11 @@
 
   function status(kind, title) {
     var el = $("rw-shop-status"); el.className = "status is-shown " + kind; el.textContent = title;
+  }
+  function wearTheme(value) {
+    if (T) T.set({ theme: value });
+    if (LIVE) return API.call("/api/me/appearance", { theme: value }, "PATCH");
+    return Promise.resolve();
   }
   function wearAccent(value) {
     if (T) T.set({ accent: value });
@@ -95,6 +105,7 @@
     var req;
     if (buy) req = call("/api/game/buy", { item: buy }).then(function (r) { R.show(r.reward); data = Object.assign(data, r.profile); status("ok", "You bought " + item.name + "."); });
     else if (wear && item.kind === "accent") req = wearAccent(item.value).then(function () { status("ok", item.name + " is your accent color now."); });
+    else if (wear && item.kind === "theme") req = wearTheme(item.value).then(function () { status("ok", item.name + " is your theme now."); });
     else req = call("/api/game/equip", { kind: wear ? item.kind : off, value: wear ? item.value : null }).then(function (r) {
       data = Object.assign(data, r.profile);
       if (T && T.me && T.setMe) { var me = Object.assign({}, T.me(), { frame: data.frame, game_title: data.title }); T.setMe(me); }

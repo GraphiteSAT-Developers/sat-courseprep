@@ -17,11 +17,10 @@ from .. import testaccount
 from ..db import execute, now_iso, query
 from ..security import (ApiError, body, clean_email, clean_password, clear_events, current_user, login_required,
                         login_user, logout_user, public_user, rate_limited, record_event)
-from ..services import game, mailer
+from ..services import game, mailer, prefs
 
 bp = Blueprint("settings", __name__, url_prefix="/api/me")
 
-THEMES = ("dark", "light", "system")
 ACCENTS = ("pencil", "sky", "mint", "coral", "lilac")
 AVATAR_SIZE = 256              # px, square
 AVATAR_MAX_UPLOAD = 6_000_000  # bytes after decoding
@@ -63,24 +62,64 @@ def _check_password(user, password, field="password"):
 def appearance():
     data = body()
     fields = {}
+    user = current_user()
+    owned = game.owned(user["id"])
     if "theme" in data:
-        if data["theme"] not in THEMES:
-            raise ApiError(400, "Choose dark, light or match my device.", "theme")
+        if data["theme"] not in prefs.THEMES:
+            raise ApiError(400, "Choose one of the themes.", "theme")
+        if data["theme"] in prefs.SHOP_THEMES and prefs.SHOP_THEMES[data["theme"]] not in owned:
+            raise ApiError(403, "Buy that theme in the shop first.", "theme")
         fields["theme"] = data["theme"]
     if "accent" in data:
-        if data["accent"] not in ACCENTS and data["accent"] not in game.SHOP_ACCENTS:
+        if data["accent"] not in ACCENTS and data["accent"] not in game.SHOP_ACCENTS and data["accent"] != "custom":
             raise ApiError(400, "Choose one of the accent colors.", "accent")
-        if not game.accent_allowed(current_user()["id"], data["accent"]):
+        if not game.accent_allowed(user["id"], data["accent"]) or (data["accent"] == "custom" and "accent:custom" not in owned):
             raise ApiError(403, "Buy that color in the shop first.", "accent")
         fields["accent"] = data["accent"]
     if "ripple" in data:
         fields["ripple"] = 1 if data["ripple"] else 0
-    if not fields:
+    look = {k: data[k] for k in ("text", "font", "motion", "density", "custom_accent") if k in data}
+    if not fields and not look:
         raise ApiError(400, "Nothing to update.")
-    user = current_user()
-    sets = ", ".join(f"{k} = ?" for k in fields)  # keys come from the fixed list above
-    execute(f"UPDATE users SET {sets} WHERE id = ?", (*fields.values(), user["id"]))
+    if look:
+        current = prefs.load(user)
+        try:
+            current["look"] = prefs.clean("look", look, current, owned)
+        except prefs.PrefsError as err:
+            raise ApiError(400 if "shop" not in str(err) else 403, str(err), err.field)
+        prefs.save(user["id"], current)
+    if fields:
+        sets = ", ".join(f"{k} = ?" for k in fields)  # keys come from the fixed list above
+        execute(f"UPDATE users SET {sets} WHERE id = ?", (*fields.values(), user["id"]))
     return jsonify({"user": public_user(_fresh(user["id"]))})
+
+
+# ---------- dashboard layout, study defaults, drawn avatar ----------
+@bp.get("/prefs")
+@login_required
+def get_prefs():
+    user = current_user()
+    return jsonify({"prefs": prefs.load(user), "options": prefs.options(), "owned": sorted(game.owned(user["id"]))})
+
+
+@bp.patch("/prefs")
+@login_required
+def patch_prefs():
+    """Change one or more sections: {"dashboard": {...}, "study": {...}, "avatar": {...}}. Look settings go to /appearance."""
+    user = current_user()
+    data = body()
+    sections = [k for k in ("dashboard", "study", "avatar") if k in data]
+    if not sections:
+        raise ApiError(400, "Nothing to update.")
+    current = prefs.load(user)
+    owned = game.owned(user["id"])
+    for k in sections:
+        try:
+            current[k] = prefs.clean(k, data[k], current, owned)
+        except prefs.PrefsError as err:
+            raise ApiError(403 if "shop" in str(err) else 400, str(err), err.field)
+    prefs.save(user["id"], current)
+    return jsonify({"prefs": current, "user": public_user(_fresh(user["id"]))})
 
 
 # ---------- profile picture ----------

@@ -413,7 +413,7 @@ def build():
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
     for n in ("ripple.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
-              "lessons.js", "dash-play.js"):
+              "lessons.js", "dash-play.js", "dash-layout.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)

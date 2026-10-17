@@ -66,6 +66,16 @@ def login_required(view):
     return wrapper
 
 
+def _prefs(user):
+    from .services import prefs
+    return prefs.load(user)
+
+
+def _drawn(user):
+    from .services import prefs
+    return prefs.drawn_avatar(user)
+
+
 def public_user(user):
     """The account fields that are safe to send to the browser."""
     return {
@@ -75,11 +85,13 @@ def public_user(user):
         "plan": user["plan"], "weekly_goal_hours": user["weekly_goal_hours"], "parent_email": user["parent_email"],
         "role": user["role"] if "role" in user.keys() else "student",
         "created_at": user["created_at"],
-        "appearance": {
+        "appearance": dict({
             "theme": user["theme"] if "theme" in user.keys() else "dark",
             "accent": user["accent"] if "accent" in user.keys() else "pencil",
             "ripple": bool(user["ripple"]) if "ripple" in user.keys() else True,
-        },
+        }, **_prefs(user)["look"]),
+        "prefs": {k: v for k, v in _prefs(user).items() if k != "look"},
+        "avatar_drawn": _drawn(user),
         "frame": user["frame"] if "frame" in user.keys() else None,
         "game_title": user["title"] if "title" in user.keys() else None,
         "avatar_url": (f"/api/me/avatar?v={user['avatar_version']}"

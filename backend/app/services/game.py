@@ -84,11 +84,19 @@ SHOP = [
     {"key": "title:triangle", "kind": "title", "value": "Triangle Tactician", "name": "Triangle Tactician", "price": 120, "about": "A title for your leaderboard name."},
     {"key": "title:boss", "kind": "title", "value": "Boss Breaker", "name": "Boss Breaker", "price": 200, "about": "A title for your leaderboard name."},
     {"key": "title:legend", "kind": "title", "value": "Unhurried Legend", "name": "Unhurried Legend", "price": 400, "about": "A title for your leaderboard name."},
+    {"key": "accent:custom", "kind": "accent", "value": "custom", "name": "Any color", "price": 300, "about": "Pick any accent color you like in Settings."},
+    {"key": "theme:chalkboard", "kind": "theme", "value": "chalkboard", "name": "Chalkboard", "price": 250, "about": "A deep green board with chalk-white text."},
+    {"key": "theme:nightowl", "kind": "theme", "value": "nightowl", "name": "Night Owl", "price": 250, "about": "A calm navy theme for late study."},
+    {"key": "avatar:pencil", "kind": "avatar", "value": "pencil", "name": "Pencil behind the ear", "price": 60, "about": "For your drawn avatar."},
+    {"key": "avatar:sunglasses", "kind": "avatar", "value": "sunglasses", "name": "Sunglasses", "price": 80, "about": "For your drawn avatar."},
+    {"key": "avatar:headphones", "kind": "avatar", "value": "headphones", "name": "Headphones", "price": 100, "about": "For your drawn avatar."},
+    {"key": "avatar:gradcap", "kind": "avatar", "value": "gradcap", "name": "Graduation cap", "price": 150, "about": "For your drawn avatar."},
+    {"key": "avatar:crown", "kind": "avatar", "value": "crown", "name": "Crown", "price": 250, "about": "For your drawn avatar."},
 ]
 SHOP_BY_KEY = {s["key"]: s for s in SHOP}
 FRAMES = {s["value"] for s in SHOP if s["kind"] == "frame"}
 TITLES = {s["value"] for s in SHOP if s["kind"] == "title"}
-SHOP_ACCENTS = {s["value"]: s["key"] for s in SHOP if s["kind"] == "accent"}
+SHOP_ACCENTS = {s["value"]: s["key"] for s in SHOP if s["kind"] == "accent" and s["value"] != "custom"}
 
 
 def today():
@@ -292,8 +300,11 @@ def profile(user):
     earned = {r["badge"]: r["earned_at"] for r in query("SELECT badge, earned_at FROM badges WHERE user_id = ?", (uid,))}
     mine = owned(uid)
     keys = user.keys()
+    from . import prefs as prefs_svc
+    p = prefs_svc.load(user)
     worn = {"frame": user["frame"] if "frame" in keys else None, "title": user["title"] if "title" in keys else None,
-            "accent": user["accent"] if "accent" in keys else None}
+            "accent": user["accent"] if "accent" in keys else None, "theme": user["theme"] if "theme" in keys else None,
+            "avatar": p["avatar"]["parts"]["acc"] if p["avatar"]["mode"] == "drawn" else None}
     out["badges"] = [dict(b, earned_at=earned.get(b["key"])) for b in BADGES]
     out["shop"] = [dict(s, owned=s["key"] in mine, worn=worn.get(s["kind"]) == s["value"]) for s in SHOP]
     out["frame"], out["title"] = worn["frame"], worn["title"]

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="graphite-mode" content="live">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="/js/theme.js?v=0fe76fe031"></script>
+<script src="/js/theme.js?v=c7863e5312"></script>
 <title>Dashboard | Graphite SAT Tutoring</title>
 <meta name="description" content="Your Graphite dashboard: today's SAT practice set, practice test scores, skill domains, review queue and week-by-week plan.">
 <meta name="robots" content="noindex, nofollow">
@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=1997bd8fe2">
-<script src="/js/site.js?v=be19034f34" defer></script><script src="/js/ripple.js?v=ccf95f2224" defer></script><script src="/js/game-ui.js?v=20a742bd6f" defer></script><script src="/js/dash-play.js?v=b26d5c427a" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=8b99ffc0da">
+<script src="/js/site.js?v=be19034f34" defer></script><script src="/js/ripple.js?v=4a005b4818" defer></script><script src="/js/game-ui.js?v=b46dc13746" defer></script><script src="/js/dash-play.js?v=b26d5c427a" defer></script><script src="/js/dash-layout.js?v=374e6a259c" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -80,7 +80,7 @@
       </div>
     </section>
 
-    <dl class="kpis" aria-label="Summary">
+    <dl class="kpis" aria-label="Summary" data-dash="kpis">
       <div>
         <dt class="label" id="kpi-latest-label">Latest practice score</dt>
         <dd><span class="kpi-num" id="kpi-latest">1290</span><span class="kpi-sub" id="kpi-latest-sub">+110 since your diagnostic</span></dd>
@@ -100,7 +100,7 @@
       </div>
     </dl>
 
-    <section class="panel dash-play" id="dash-play" aria-labelledby="dash-play-title" hidden>
+    <section class="panel dash-play" id="dash-play" data-dash="play" aria-labelledby="dash-play-title" hidden>
       <div class="panel-head"><h2 id="dash-play-title">Play and earn</h2><a href="/rewards.html">Rewards and shop</a></div>
       <div class="dash-play-rank" id="dash-play-rank"></div>
       <ul class="dash-play-list" id="dash-play-list"></ul>
@@ -109,7 +109,7 @@
     <div class="dash-grid">
       <div class="dash-col">
 
-        <section class="panel" id="today" aria-labelledby="today-title">
+        <section class="panel" id="today" data-dash="today" aria-labelledby="today-title">
           <div class="panel-head">
             <h2 id="today-title">Today's set</h2>
             <span class="label" id="today-meta">12 questions · about 25 min</span>
@@ -145,7 +145,7 @@
           </div>
         </section>
 
-        <section class="panel" id="scores" aria-labelledby="scores-title">
+        <section class="panel" id="scores" data-dash="scores" aria-labelledby="scores-title">
           <div class="panel-head">
             <h2 id="scores-title">Practice test scores</h2>
             <span class="label" id="scores-meta">Next test: Nov 1</span>
@@ -194,7 +194,7 @@
           </div>
         </section>
 
-        <section class="panel" id="domains" aria-labelledby="domains-title">
+        <section class="panel" id="domains" data-dash="domains" aria-labelledby="domains-title">
           <div class="panel-head">
             <h2 id="domains-title">Skill domains</h2>
             <span class="label" id="domains-meta">% correct on practice test 3</span>
@@ -224,7 +224,7 @@
       </div>
 
       <div class="dash-col">
-        <section class="panel" id="review" aria-labelledby="review-title">
+        <section class="panel" id="review" data-dash="review" aria-labelledby="review-title">
           <div class="panel-head">
             <h2 id="review-title">Review queue</h2>
             <span class="label" id="review-count">4 questions</span>
@@ -256,7 +256,7 @@
           <p class="fine queue-empty" id="queue-empty" hidden>Your review queue is clear. New misses from today's set will show up here.</p>
         </section>
 
-        <section class="panel" id="plan" aria-labelledby="plan-title">
+        <section class="panel" id="plan" data-dash="plan" aria-labelledby="plan-title">
           <div class="panel-head">
             <h2 id="plan-title">Your plan to Dec 5</h2>
             <span class="label" id="plan-meta">8 weeks</span>
@@ -274,7 +274,7 @@
           <a class="btn btn-secondary" href="/plan.html" id="plan-link" data-track="dash_study_plan">Take the diagnostic for a personal plan</a>
         </section>
 
-        <section class="panel" id="account" aria-labelledby="account-title">
+        <section class="panel" id="account" data-dash="account" aria-labelledby="account-title">
           <div class="panel-head"><h2 id="account-title">Account</h2></div>
           <dl class="account-list" id="account-list">
             <div><dt>Student</dt><dd>Maya R., 11th grade</dd></div>

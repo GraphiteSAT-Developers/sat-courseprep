@@ -20,7 +20,7 @@
              runs: {}, focus: {}, lessons: {}, nextId: 1 };
   }
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage blocked */ } }
-  function fail(status, message, field) { var e = new Error(message); e.status = status; e.field = field; return Promise.reject(e); }
+  function fail(status, message, field) { var e = new Error(message); e.status = status; e.field = field; e.data = { error: message, field: field }; return Promise.reject(e); }
   function ok(x) { return Promise.resolve(x); }
   function now() { return new Date().toISOString().replace(/\.\d+Z$/, "Z"); }
   function iso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
@@ -69,7 +69,8 @@
   function summary(s) { var t = totals(s); return { xp: t.xp, coins: t.coins, rank: rankFor(t.xp), streak: streak(s) }; }
   function accent() { try { return (JSON.parse(localStorage.getItem("graphite_appearance")) || {}).accent || "pencil"; } catch (e) { return "pencil"; } }
   function profile(s) {
-    var out = summary(s), worn = { frame: s.frame, title: s.title, accent: accent() };
+    var T = window.GraphiteTheme, av = T && T.prefs().avatar;
+    var out = summary(s), worn = { frame: s.frame, title: s.title, accent: accent(), theme: T ? T.get().theme : null, avatar: av && av.mode === "drawn" ? av.parts.acc : null };
     out.badges = R.badges.map(function (b) { return Object.assign({}, b, { earned_at: s.badges[b.key] || null }); });
     out.shop = R.shop.map(function (i) { return Object.assign({}, i, { owned: !!s.inventory[i.key], worn: worn[i.kind] === i.value }); });
     out.frame = s.frame; out.title = s.title;
@@ -191,10 +192,17 @@
       var correct = 7 + Math.floor(rnd() * 4), raw = 70000 + Math.floor(rnd() * 170000);
       out.push({ sample: true, nickname: SP.adjectives[Math.floor(rnd() * SP.adjectives.length)] + " " + SP.nouns[Math.floor(rnd() * SP.nouns.length)] + " " + (10 + Math.floor(rnd() * 90)),
         state: states[i], correct: correct, total: SP.size, raw_ms: raw, score_ms: raw + SP.penalty_ms * (SP.size - correct),
-        title: rnd() < 0.35 ? titles[Math.floor(rnd() * titles.length)].value : null, frame: rnd() < 0.4 ? frames[Math.floor(rnd() * frames.length)].value : null });
+        title: rnd() < 0.35 ? titles[Math.floor(rnd() * titles.length)].value : null, frame: rnd() < 0.4 ? frames[Math.floor(rnd() * frames.length)].value : null,
+        avatar: rnd() < 0.6 ? sampleAvatar(rnd) : null });
     }
     return out;
   }
+  var AV = { bg: ["sky", "mint", "sun", "rose", "lilac", "slate", "peach", "teal"], skin: ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"],
+    hair: ["none", "short", "curly", "long", "bun", "buzz", "waves", "ponytail"], hair_color: ["black", "brown", "auburn", "blonde", "gray", "blue", "pink", "green"],
+    eyes: ["dots", "happy", "wide", "sleepy"], mouth: ["smile", "grin", "flat", "open"], acc: ["none", "none", "glasses", "beanie", "headphones", "crown"],
+    shirt: ["pencil", "sky", "mint", "coral", "lilac", "slate", "white", "black"] };
+  function sampleAvatar(rnd) { var o = {}; Object.keys(AV).forEach(function (k) { o[k] = AV[k][Math.floor(rnd() * AV[k].length)]; }); return o; }
+  function myAvatar() { var T = window.GraphiteTheme, a = T && T.prefs().avatar; return a && a.mode === "drawn" ? a.parts : null; }
   function weekStart(day) { var p = day.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return iso(d); }
   function board(s, scope, period) {
     var day = today(), since = period === "today" ? day : weekStart(day);
@@ -203,7 +211,7 @@
       .sort(function (a, b) { return a.score_ms - b.score_ms; })[0];
     var people = samplePlayers(day, period).filter(function (p) { return scope === "nation" || p.state === s.state; });
     var visible = !!(s.opt_in && s.nickname);
-    if (mine && visible) people.push({ you: true, nickname: s.nickname, state: s.state, title: s.title, frame: s.frame, correct: mine.correct, total: mine.total, raw_ms: mine.finished_ms - mine.started_ms, score_ms: mine.score_ms });
+    if (mine && visible) people.push({ you: true, nickname: s.nickname, state: s.state, title: s.title, frame: s.frame, avatar: myAvatar(), correct: mine.correct, total: mine.total, raw_ms: mine.finished_ms - mine.started_ms, score_ms: mine.score_ms });
     people.sort(function (a, b) { return a.score_ms - b.score_ms; });
     var rows = people.slice(0, 25).map(function (p, i) { return Object.assign({ rank: i + 1, day: day }, p); });
     var you = null;
@@ -267,9 +275,12 @@
     if (path === "/api/speed/profile") {
       data = data || {};
       if ("state" in data) { if (data.state !== null && !SP.states.some(function (x) { return x.code === data.state; })) return fail(400, "Pick your state.", "state"); }
-      if ("nickname" in data) {
-        var parts = String(data.nickname || "").split(" ");
-        if (!(parts.length === 3 && SP.adjectives.indexOf(parts[0]) > -1 && SP.nouns.indexOf(parts[1]) > -1 && /^\d{2}$/.test(parts[2]))) return fail(400, "Pick one of the suggested nicknames.", "nickname");
+      if ("nickname" in data) {  // same rules as speed.clean_nickname (the preview has no other students, so none are taken)
+        var nk = String(data.nickname || "").trim().replace(/\s+/g, " ");
+        if (nk.length < 3 || nk.length > 20) return fail(400, "Nicknames are 3 to 20 characters.", "nickname");
+        if (!/^[A-Za-z0-9][A-Za-z0-9 ._'-]*$/.test(nk)) return fail(400, "Use letters, numbers, spaces and . _ ' - only.", "nickname");
+        if (window.GraphiteWords && !window.GraphiteWords.isClean(nk)) return fail(400, window.GraphiteWords.message, "nickname");
+        data.nickname = nk;
       }
       var nick = "nickname" in data ? data.nickname : s.nickname;
       if (data.opt_in && !nick) return fail(400, "Pick a nickname to show on the leaderboard.", "nickname");

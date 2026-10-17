@@ -81,7 +81,8 @@
   }
 
   document.addEventListener("pointerdown", function (e) {
-    if (reduce.matches || document.hidden || !enabled()) return;
+    var less = window.GraphiteTheme && GraphiteTheme.reduceMotion ? GraphiteTheme.reduceMotion() : reduce.matches;  // Settings > Motion
+    if (less || document.hidden || !enabled()) return;
     ripples.push({ x: e.clientX, y: e.clientY, t: performance.now() });
     if (ripples.length > MAX_RIPPLES) ripples.shift();
     if (!frame) frame = requestAnimationFrame(draw);

@@ -35,6 +35,39 @@ services:
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
 
+  # Daily study reminders (Settings > Study > Daily reminder). Runs once an hour and emails students whose
+  # reminder time it is. Render bills cron jobs by the minute they run; delete this service to skip reminders.
+  - type: cron
+    name: graphite-reminders
+    runtime: python
+    schedule: "0 * * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: cd backend && python remind.py
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SECRET_KEY
+        fromService:
+          type: web
+          name: graphite
+          envVarKey: SECRET_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: graphite-db
+          property: connectionString
+      - key: BASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+
 databases:
   - name: graphite-db
     databaseName: graphite

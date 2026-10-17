@@ -156,9 +156,10 @@ def speed_profile():
             raise ApiError(400, "Pick your state.", "state")
         fields["state"] = data["state"]
     if "nickname" in data:
-        if not speed.valid_nickname(data["nickname"]):
-            raise ApiError(400, "Pick one of the suggested nicknames.", "nickname")
-        fields["nickname"] = data["nickname"]
+        try:
+            fields["nickname"] = speed.clean_nickname(data["nickname"], user)
+        except ValueError as err:
+            raise ApiError(400, str(err), "nickname")
     if "opt_in" in data:
         fields["board_opt_in"] = 1 if data["opt_in"] else 0
     if not fields:

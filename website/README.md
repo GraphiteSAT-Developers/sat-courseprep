@@ -24,6 +24,8 @@ The pages run in two modes:
   - `checkout.js`: the checkout page.
   - `game-ui.js`: the rank/XP/streak/coins strip and the reward pop-ups, shared by the pages below.
   - `rewards.js`, `speed.js`, `focus.js`, `lessons.js`, `dash-play.js`: the Rewards, Speed round, Focus and Lessons pages, and the dashboard's "Play and earn" panel.
+  - `dash-layout.js`: the dashboard's layout and pinned shortcuts from Settings.
+  - `theme.js` also keeps the student's other preferences (`GraphiteTheme.prefs()`) and draws the drawn avatar (`GraphiteTheme.drawAvatar(parts)`).
   - `wordfilter.js`: the curse-word check on every text box. `build.py` fills in the list from the backend and puts it at the start of `site.js`.
   - `play-local.js`: preview only. Runs rewards, speed rounds, focus and lessons in the browser when there's no server, with sample players on the leaderboards.
   - `ripple.js`: the dashboard's ripple background.
@@ -40,7 +42,7 @@ The pages run in two modes:
 | Dashboard (signed-in students) | `dashboard.html` |
 | Practice: random practice test or one topic | `practice.html` |
 | Math practice test with graphing calculator | `practice-test.html` |
-| Settings: profile picture, name, theme and accent color, study goals, email, password, data download, delete account | `settings.html` |
+| Settings: profile picture or drawn avatar, name, themes, colors, text size and font, study goals, practice defaults, dashboard layout, leaderboard, email, password, data | `settings.html` |
 | Checkout: pick a plan and how to pay, then pay on Stripe | `checkout.html` |
 | Lessons: active recall lessons and recall checks | `lessons.html` |
 | Speed round and leaderboards | `speed.html` |

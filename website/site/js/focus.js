@@ -13,7 +13,8 @@
   function showError(m) { $("fo-error").textContent = m || ""; $("fo-error").hidden = !m; }
   if (!LIVE) $("fo-preview-note").hidden = false;
   if (!call) { $("fo-loading").textContent = "The focus timer isn't available in this preview."; return; }
-  try { $("fo-sound").checked = localStorage.getItem(SKEY) !== "off"; } catch (e) { /* storage blocked */ }
+  var soundPref = window.GraphiteTheme ? GraphiteTheme.prefs().study.sounds : true;  // Settings > Practice defaults
+  try { var saved = localStorage.getItem(SKEY); $("fo-sound").checked = saved ? saved !== "off" : soundPref; } catch (e) { $("fo-sound").checked = soundPref; }
   $("fo-sound").addEventListener("change", function () { try { localStorage.setItem(SKEY, this.checked ? "on" : "off"); } catch (e) { /* storage blocked */ } });
 
   function mmss(s) { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }

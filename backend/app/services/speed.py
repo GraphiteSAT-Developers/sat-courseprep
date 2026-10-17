@@ -11,11 +11,12 @@ word lists below (no free text, so there's nothing to moderate). Everyone can st
 import hashlib
 import json
 import random
+import re
 import time
 from datetime import date, timedelta
 
 from ..db import execute, now_iso, query
-from . import bank, game
+from . import bank, game, prefs
 
 SIZE = 10
 PENALTY_MS = 15_000         # each miss or skipped question
@@ -49,10 +50,39 @@ def roll_nicknames(n=3, rng=random):
     return [f"{rng.choice(ADJECTIVES)} {rng.choice(NOUNS)} {rng.randint(10, 99)}" for _ in range(n)]
 
 
+NICK_MIN, NICK_MAX = 3, 20
+NICK_CHARS = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ._'-]*$")
+
+
 def valid_nickname(name):
+    """A suggested nickname from the word lists (always allowed)."""
     parts = (name or "").split(" ")
     return (len(parts) == 3 and parts[0] in ADJECTIVES and parts[1] in NOUNS
             and parts[2].isdigit() and 10 <= int(parts[2]) <= 99)
+
+
+def clean_nickname(name, user):
+    """A nickname the student typed: 3 to 20 letters, numbers, spaces and . _ ' -, no curse words, not their
+    real name or email, and not already taken. Returns it tidied up, or raises ValueError with the reason."""
+    from . import wordfilter
+    nick = " ".join(str(name or "").split())
+    if not NICK_MIN <= len(nick) <= NICK_MAX:
+        raise ValueError(f"Nicknames are {NICK_MIN} to {NICK_MAX} characters.")
+    if not NICK_CHARS.match(nick):
+        raise ValueError("Use letters, numbers, spaces and . _ ' - only.")
+    if not wordfilter.is_clean(nick):
+        raise ValueError(wordfilter.MESSAGE)
+    squash = lambda t: re.sub(r"[^a-z0-9]", "", t.lower())
+    real = squash(user["name"] or "")
+    local = squash((user["email"] or "").split("@")[0])
+    last = squash((user["name"] or "").split(" ")[-1]) if " " in (user["name"] or "").strip() else ""
+    n = squash(nick)
+    if (real and n == real) or (len(local) >= 4 and local in n) or (len(last) >= 3 and last in n):
+        raise ValueError("Leaderboards are public, so pick a nickname that isn't your real name or email.")
+    taken = query("SELECT 1 FROM users WHERE LOWER(nickname) = ? AND id != ?", (nick.lower(), user["id"]), one=True)
+    if taken:
+        raise ValueError("Someone already has that nickname. Try adding a number.")
+    return nick
 
 
 # ---------- the day's questions ----------
@@ -188,7 +218,7 @@ def board(viewer, scope="state", period="today", today=None):
     users = {}
     if best_by_user:
         marks = ",".join("?" for _ in best_by_user)
-        for u in query(f"SELECT id, nickname, board_opt_in, title, frame, state FROM users WHERE id IN ({marks})",
+        for u in query(f"SELECT id, nickname, board_opt_in, title, frame, state, prefs FROM users WHERE id IN ({marks})",
                        tuple(best_by_user)):
             users[u["id"]] = u
     shown = sorted((uid for uid, u in users.items() if u["board_opt_in"] and u["nickname"]),
@@ -198,7 +228,7 @@ def board(viewer, scope="state", period="today", today=None):
     for i, uid in enumerate(shown[:BOARD_SIZE]):
         u = users[uid]
         rows.append(dict(detail[uid], rank=i + 1, nickname=u["nickname"], title=u["title"], frame=u["frame"],
-                         state=u["state"], you=uid == viewer["id"]))
+                         state=u["state"], you=uid == viewer["id"], avatar=prefs.drawn_avatar(u)))
     you = None
     mine = best_by_user.get(viewer["id"])
     if mine is not None:

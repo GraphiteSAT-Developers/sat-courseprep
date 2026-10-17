@@ -5,7 +5,23 @@
   "use strict";
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function num(n) { return Number(n || 0).toLocaleString("en-US"); }
-  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var T = window.GraphiteTheme;
+  var reduce = T && T.reduceMotion ? T.reduceMotion() : (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // A soft two-note tone for badges and rank-ups, when Settings > Practice defaults > Sounds is on.
+  function tone() {
+    if (!T || !T.prefs().study.sounds) return;
+    try {
+      var A = window.AudioContext || window.webkitAudioContext, ctx = new A();
+      [[784, 0], [1047, 0.12]].forEach(function (n) {
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.frequency.value = n[0]; o.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.0001, ctx.currentTime + n[1]);
+        g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + n[1] + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + n[1] + 0.35);
+        o.start(ctx.currentTime + n[1]); o.stop(ctx.currentTime + n[1] + 0.4);
+      });
+    } catch (e) { /* no audio */ }
+  }
 
   /* ---------- the strip ---------- */
   function hud(el, s) {
@@ -60,6 +76,7 @@
     (rw.badges || []).forEach(function (b) {
       pop('<span class="rp-kicker">Badge earned</span><strong>' + esc(b.name) + "</strong><span>" + esc(b.how) + "</span>", "badge", 5200);
     });
+    if ((rw.badges && rw.badges.length) || rw.rank_up) tone();
     if (rw.rank_up && rw.rank) pop('<span class="rp-kicker">New rank</span><strong>' + esc(rw.rank.name) + "</strong><span>Rank " + rw.rank.n + " of " + rw.rank.of + "</span>", "rank", 5600);
   }
 

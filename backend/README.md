@@ -112,9 +112,10 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `GET /api/speed`, `POST /api/speed/start` | Today's round and your results; start (or resume) a round | Yes |
 | `POST /api/speed/runs/<id>/answer`, `.../finish` | Answer one question `{"index", "answer"}`; end the round | Yes |
 | `GET /api/speed/board?scope=state\|nation&period=today\|week` | A leaderboard, plus where you'd place | Yes |
-| `GET /api/speed/nicknames`, `PATCH /api/speed/profile` | Suggested nicknames; leaderboard on or off, nickname, state | Yes |
+| `GET /api/speed/nicknames`, `PATCH /api/speed/profile` | Suggested nicknames; leaderboard on or off, nickname (typed or suggested), state | Yes |
 | `GET /api/focus`, `POST /api/focus/start`, `POST /api/focus/<id>/finish` | Focus timer | Yes |
 | `GET /api/lessons`, `GET /api/lessons/<id>`, `POST /api/lessons/<id>/complete` | Lessons and recall checks | Yes |
+| `GET /api/me/prefs`, `PATCH /api/me/prefs` | Dashboard layout, practice defaults and drawn avatar: `{"dashboard": {...}, "study": {...}, "avatar": {...}}`. Look settings go through `PATCH /api/me/appearance` | Yes |
 | `GET /api/health` | Health check for the host | No |
 
 ## Folder layout
@@ -190,13 +191,30 @@ Prices are always shown per month. The feature lists and the "Compare every feat
 | Rewards | `app/services/game.py` | XP, 9 ranks, coins, a daily streak (any day with XP), 18 badges and a shop (profile frames, leaderboard titles, 3 extra accent colors). Every reward is a row in `xp_events`, so totals are sums. |
 | Level up game layer | `game.level_check`, `game.level_finish` | Each checked answer earns XP; right answers in a row build a combo; the last question of every level is the hardest one (the boss) and pays bonus XP and coins. Finishing, passing, a first clear and a perfect set pay out at the end. |
 | Speed round | `app/services/speed.py` | The same 10 quick questions for everyone each day, timed by the server. Each miss adds 15 seconds. The first round of the day is ranked; later ones are practice. Leaderboards for the student's state and nationwide, today and this week. |
-| Leaderboard privacy | `speed.py`, Settings > Leaderboard | Off until the student turns it on. Students appear only by a nickname built from math word lists (no free text), their state and their time. Never a name, email, school or photo. |
+| Leaderboard privacy | `speed.py`, Settings > Leaderboard | Off until the student turns it on. Students appear only by a nickname (their own, checked for curse words, their real name and duplicates, or a suggested one), their state and their time. Never a name, email, school or photo. |
 | Focus timer | `app/services/focus.py` | 15, 25 or 50-minute sessions with a break after. The server keeps the clock and credits only real time. Focus time counts toward the weekly goal, except sessions labeled practice or review, whose time already counts from the sets. |
 | Lessons | `app/services/lessons.py`, `app/content/lessons/` | 8 active recall lessons. Every step asks first: answer from memory, predict, fill in a step, put steps in order, or find the mistake. Recall checks come back after 1, 3 and 7 days; passing all three masters the lesson. |
 
 To change a number (XP, prices, ranks, badges), edit `game.py` and rebuild the site (`python website/build.py`) so the preview matches. To add a lesson, add a JSON file to `app/content/lessons/` shaped like the others; the tests check its answers line up.
 
 Lesson scores are sent by the browser (the answers ship with the lesson), so a determined student could fake a lesson score. That only affects their own XP, and XP for repeating a lesson is limited to once a day.
+
+## Customization
+
+Students set these in Settings. They're saved to the account (`users.prefs`, checked by `app/services/prefs.py`) and apply on every device.
+
+| Area | Options | Cost |
+| --- | --- | --- |
+| Look and reading | Themes: dark, light, match my device, paper, midnight, high contrast. Text size (4 steps), an easy-read font (Atkinson Hyperlegible), less or full motion, roomy or compact spacing | Free |
+| Shop looks | Chalkboard and Night Owl themes, "Any color" accent picker, 3 extra accent colors, profile frames | Coins |
+| Dashboard layout | Show or hide each section, reorder them, pin up to 4 shortcuts to the top | Free |
+| Practice defaults | Topic set size, timer shown or hidden, calculator open at start, test-day colors, sounds, daily reminder email | Free |
+| Drawn avatar | Background, skin, hair, hair color, eyes, mouth, extras and shirt. Shown instead of a photo, and on leaderboards (photos never are) | Free, with 5 extras for coins |
+| Leaderboard nickname | Any nickname 3 to 20 characters, or a suggested one. It can't be the student's real name, last name or email, can't contain a curse word, and can't already be taken | Free |
+
+### Daily reminder emails
+
+`backend/remind.py` emails students who turned the reminder on, at the hour they picked in their own time zone, once a day, and only if they haven't practiced yet that day. Run it once an hour: `render.yaml` includes it as a Render cron job (`graphite-reminders`, billed by the minute it runs); on Railway, add a cron schedule `0 * * * *` running `cd backend && python remind.py`. Emails need the `SMTP_*` settings.
 
 ## Curse-word filter
 

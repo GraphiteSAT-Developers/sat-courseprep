@@ -283,7 +283,11 @@ MIGRATIONS = [
             UNIQUE (user_id, lesson_id)
         )""",
     ]),
-    # (11, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (11, "Customization: saved preferences (look, dashboard layout, study defaults, drawn avatar) and reminders", [
+        "ALTER TABLE users ADD COLUMN prefs TEXT NOT NULL DEFAULT '{}'",
+        "ALTER TABLE users ADD COLUMN reminder_sent_on TEXT",
+    ]),
+    # (12, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

@@ -61,7 +61,10 @@
   function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage blocked */ } }
   function fresh() {
-    return { started: false, submitted: false, cur: 0, remaining: T.minutes * 60, elapsed: 0, answers: {}, crossed: {}, marked: {}, view: "graphite", timerHidden: false, page: "q" };
+    // Settings > Practice defaults: test colors and whether the timer starts hidden.
+    var d = window.GraphiteTheme ? GraphiteTheme.prefs().study : { colors: "graphite", timer: "show" };
+    return { started: false, submitted: false, cur: 0, remaining: T.minutes * 60, elapsed: 0, answers: {}, crossed: {}, marked: {},
+             view: d.colors === "testday" ? "light" : "graphite", timerHidden: d.timer === "hide", page: "q" };
   }
   var S = load() || fresh();
   if (T.session) {
@@ -572,6 +575,7 @@
     S.started = true; save();
     $("start-overlay").hidden = true; startClock(); renderTimer();
     $("q-area").focus({ preventScroll: true });
+    if (window.GraphiteTheme && GraphiteTheme.prefs().study.calculator === "open") setCalc(true);  // Settings > Practice defaults
   });
   $("timer-toggle").addEventListener("click", function () { S.timerHidden = !S.timerHidden; save(); renderTimer(); });
   $("calc-toggle").addEventListener("click", toggleCalc);

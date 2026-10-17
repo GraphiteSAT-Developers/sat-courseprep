@@ -164,7 +164,8 @@
     $("sp-board-note").textContent = (b.period === "today" ? "Today's" : "This week's") + " fastest in " + where + ". Time includes " + Math.round((info ? info.penalty_ms : 15000) / 1000) + " seconds for each miss. Each student's best ranked round counts.";
     $("sp-board").innerHTML = b.rows.length ? b.rows.map(function (r) {
       return '<tr class="' + (r.you ? "is-you" : "") + '"><td class="sp-rank">' + r.rank + "</td>" +
-        '<td><span class="sp-player"><span class="avatar avatar-xs"' + (r.frame ? ' data-frame="' + esc(r.frame) + '"' : "") + ' aria-hidden="true">' + esc(r.nickname.charAt(0)) + "</span><span><strong>" + esc(r.nickname) + (r.you ? " (you)" : "") + "</strong>" +
+        '<td><span class="sp-player"><span class="avatar avatar-xs' + (r.avatar ? " is-drawn" : "") + '"' + (r.frame ? ' data-frame="' + esc(r.frame) + '"' : "") + ' aria-hidden="true">' +
+        (r.avatar && window.GraphiteTheme ? GraphiteTheme.drawAvatar(r.avatar, "") : esc(r.nickname.charAt(0))) + "</span><span><strong>" + esc(r.nickname) + (r.you ? " (you)" : "") + "</strong>" +
         (r.title ? '<em>' + esc(r.title) + "</em>" : "") + "</span></span></td>" +
         '<td class="sp-col-state">' + esc(r.state || "") + "</td><td>" + r.correct + "/" + r.total + '</td><td class="sp-time">' + clock(r.score_ms) + "</td></tr>";
     }).join("") : '<tr><td colspan="5" class="pd-empty">No ranked rounds ' + (b.period === "today" ? "today" : "this week") + " yet. Be the first.</td></tr>";
