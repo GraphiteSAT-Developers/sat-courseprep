@@ -1,0 +1,352 @@
+{
+ "id": "conditional-probability",
+ "order": 6,
+ "domain": "psda",
+ "skill": "probability-and-conditional-probability",
+ "title": "\"Given\" changes the denominator",
+ "minutes": 6,
+ "hook": "Read two-way tables the way the SAT expects, one word at a time.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "In a probability question, what does the word \"given\" change?",
+   "answer": "It shrinks the group you divide by to just the people who meet that condition."
+  },
+  {
+   "type": "predict",
+   "table": {
+    "caption": "200 students were asked if they play a school sport.",
+    "head": [
+     "",
+     "Plays a sport",
+     "No sport",
+     "Total"
+    ],
+    "rows": [
+     [
+      "Grade 11",
+      "45",
+      "55",
+      "100"
+     ],
+     [
+      "Grade 12",
+      "35",
+      "65",
+      "100"
+     ],
+     [
+      "Total",
+      "80",
+      "120",
+      "200"
+     ]
+    ]
+   },
+   "prompt": "One student is picked at random. What is the probability they play a sport?",
+   "choices": [
+    "45/200",
+    "80/200",
+    "45/80",
+    "35/100"
+   ],
+   "answer": 1,
+   "why": "80 of all 200 students play a sport."
+  },
+  {
+   "type": "predict",
+   "table": {
+    "caption": "200 students were asked if they play a school sport.",
+    "head": [
+     "",
+     "Plays a sport",
+     "No sport",
+     "Total"
+    ],
+    "rows": [
+     [
+      "Grade 11",
+      "45",
+      "55",
+      "100"
+     ],
+     [
+      "Grade 12",
+      "35",
+      "65",
+      "100"
+     ],
+     [
+      "Total",
+      "80",
+      "120",
+      "200"
+     ]
+    ]
+   },
+   "prompt": "What is the probability a student plays a sport, given they're in grade 12?",
+   "choices": [
+    "35/200",
+    "35/80",
+    "35/100",
+    "65/100"
+   ],
+   "answer": 2,
+   "why": "\"Given grade 12\" means only the 100 twelfth graders count. 35 of them play."
+  },
+  {
+   "type": "predict",
+   "table": {
+    "caption": "200 students were asked if they play a school sport.",
+    "head": [
+     "",
+     "Plays a sport",
+     "No sport",
+     "Total"
+    ],
+    "rows": [
+     [
+      "Grade 11",
+      "45",
+      "55",
+      "100"
+     ],
+     [
+      "Grade 12",
+      "35",
+      "65",
+      "100"
+     ],
+     [
+      "Total",
+      "80",
+      "120",
+      "200"
+     ]
+    ]
+   },
+   "prompt": "What is the probability a student is in grade 12, given they play a sport?",
+   "choices": [
+    "35/80",
+    "35/100",
+    "80/200",
+    "35/200"
+   ],
+   "answer": 0,
+   "why": "Now the group is the 80 sport players, and 35 of them are in grade 12. Flipping the condition changes the denominator."
+  },
+  {
+   "type": "fill",
+   "table": {
+    "caption": "200 students were asked if they play a school sport.",
+    "head": [
+     "",
+     "Plays a sport",
+     "No sport",
+     "Total"
+    ],
+    "rows": [
+     [
+      "Grade 11",
+      "45",
+      "55",
+      "100"
+     ],
+     [
+      "Grade 12",
+      "35",
+      "65",
+      "100"
+     ],
+     [
+      "Total",
+      "80",
+      "120",
+      "200"
+     ]
+    ]
+   },
+   "prompt": "What is the probability a student is in grade 11 and plays no sport?",
+   "lines": [
+    "Grade 11 and no sport: 55 students",
+    "55 ÷ 200 = ___"
+   ],
+   "accept": [
+    "0.275",
+    "11/40",
+    "55/200"
+   ],
+   "why": "\"And\" with no \"given\" divides by everyone: 55/200 = 0.275."
+  },
+  {
+   "type": "spot",
+   "table": {
+    "caption": "200 students were asked if they play a school sport.",
+    "head": [
+     "",
+     "Plays a sport",
+     "No sport",
+     "Total"
+    ],
+    "rows": [
+     [
+      "Grade 11",
+      "45",
+      "55",
+      "100"
+     ],
+     [
+      "Grade 12",
+      "35",
+      "65",
+      "100"
+     ],
+     [
+      "Total",
+      "80",
+      "120",
+      "200"
+     ]
+    ]
+   },
+   "prompt": "Finding the probability of no sport, given grade 11. Tap the line with the mistake.",
+   "lines": [
+    "The condition is grade 11",
+    "Grade 11 has 100 students",
+    "55 of them play no sport",
+    "Probability = 55 ÷ 120"
+   ],
+   "wrong": 3,
+   "why": "Divide by the 100 grade 11 students, not the 120 who play no sport: 55/100."
+  }
+ ],
+ "keys": [
+  "\"Given\" tells you which row or column to divide by.",
+  "P(A given B) and P(B given A) usually have different denominators.",
+  "\"And\" without \"given\" divides by the grand total."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "table": {
+    "caption": "200 students were asked if they play a school sport.",
+    "head": [
+     "",
+     "Plays a sport",
+     "No sport",
+     "Total"
+    ],
+    "rows": [
+     [
+      "Grade 11",
+      "45",
+      "55",
+      "100"
+     ],
+     [
+      "Grade 12",
+      "35",
+      "65",
+      "100"
+     ],
+     [
+      "Total",
+      "80",
+      "120",
+      "200"
+     ]
+    ]
+   },
+   "prompt": "Probability of no sport, given grade 12?",
+   "choices": [
+    "65/200",
+    "65/120",
+    "65/100",
+    "35/100"
+   ],
+   "answer": 2,
+   "why": "Divide by the 100 twelfth graders."
+  },
+  {
+   "type": "predict",
+   "table": {
+    "caption": "200 students were asked if they play a school sport.",
+    "head": [
+     "",
+     "Plays a sport",
+     "No sport",
+     "Total"
+    ],
+    "rows": [
+     [
+      "Grade 11",
+      "45",
+      "55",
+      "100"
+     ],
+     [
+      "Grade 12",
+      "35",
+      "65",
+      "100"
+     ],
+     [
+      "Total",
+      "80",
+      "120",
+      "200"
+     ]
+    ]
+   },
+   "prompt": "Probability of grade 11, given no sport?",
+   "choices": [
+    "55/120",
+    "55/100",
+    "55/200",
+    "45/80"
+   ],
+   "answer": 0,
+   "why": "Divide by the 120 who play no sport."
+  },
+  {
+   "type": "fill",
+   "table": {
+    "caption": "200 students were asked if they play a school sport.",
+    "head": [
+     "",
+     "Plays a sport",
+     "No sport",
+     "Total"
+    ],
+    "rows": [
+     [
+      "Grade 11",
+      "45",
+      "55",
+      "100"
+     ],
+     [
+      "Grade 12",
+      "35",
+      "65",
+      "100"
+     ],
+     [
+      "Total",
+      "80",
+      "120",
+      "200"
+     ]
+    ]
+   },
+   "prompt": "Probability of plays a sport and grade 11:",
+   "lines": [
+    "45 ÷ ___"
+   ],
+   "accept": [
+    "200"
+   ],
+   "why": "\"And\" divides by everyone."
+  }
+ ]
+}

@@ -1,0 +1,115 @@
+{
+ "id": "circle-equations",
+ "order": 8,
+ "domain": "geometry-trig",
+ "skill": "circles",
+ "title": "Circle equations and completing the square",
+ "minutes": 7,
+ "hook": "Turn a messy circle equation into its center and radius.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "What is the equation of a circle with center (h, k) and radius r?",
+   "answer": "(x − h)² + (y − k)² = r²"
+  },
+  {
+   "type": "predict",
+   "prompt": "(x − 2)² + (y + 5)² = 49. What are the center and radius?",
+   "choices": [
+    "(2, −5), radius 7",
+    "(−2, 5), radius 7",
+    "(2, −5), radius 49",
+    "(2, 5), radius 7"
+   ],
+   "answer": 0,
+   "why": "Signs flip: y + 5 means k = −5. The right side is r², so r = √49 = 7."
+  },
+  {
+   "type": "fill",
+   "prompt": "Complete the square: x² + 6x = (x + 3)² − ___",
+   "lines": [
+    "(x + 3)² = x² + 6x + 9",
+    "so x² + 6x = (x + 3)² − ___"
+   ],
+   "accept": [
+    "9"
+   ],
+   "why": "Half of 6 is 3, and 3² = 9. Take it back off to keep both sides equal."
+  },
+  {
+   "type": "order",
+   "prompt": "Put the steps in order to find the radius of x² + y² − 4x + 10y = 7.",
+   "items": [
+    "Group: (x² − 4x) + (y² + 10y) = 7",
+    "Complete both squares: add 4 and 25 to both sides",
+    "Rewrite: (x − 2)² + (y + 5)² = 36",
+    "Radius = √36 = 6"
+   ],
+   "why": "Half of −4 is −2 (square: 4), half of 10 is 5 (square: 25). 7 + 4 + 25 = 36."
+  },
+  {
+   "type": "spot",
+   "prompt": "Finding the center of x² + y² + 8x − 2y = 8. Tap the line with the mistake.",
+   "lines": [
+    "(x² + 8x + 16) + (y² − 2y + 1) = 8 + 16 + 1",
+    "(x + 4)² + (y − 1)² = 25",
+    "Center (4, −1), radius 5"
+   ],
+   "wrong": 2,
+   "why": "x + 4 means h = −4 and y − 1 means k = 1. The center is (−4, 1)."
+  },
+  {
+   "type": "predict",
+   "prompt": "Is the point (5, 4) inside, on, or outside the circle (x − 1)² + (y − 1)² = 25?",
+   "choices": [
+    "Inside",
+    "On the circle",
+    "Outside"
+   ],
+   "answer": 1,
+   "why": "(5 − 1)² + (4 − 1)² = 16 + 9 = 25, exactly r², so it's on the circle."
+  }
+ ],
+ "keys": [
+  "(x − h)² + (y − k)² = r² has center (h, k) and radius r. Signs flip, and the right side is r squared.",
+  "To find the center from x² + y² + Dx + Ey = F, complete the square: add (D/2)² and (E/2)² to both sides.",
+  "Plug a point in: less than r² is inside, equal is on, more is outside."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "Radius of x² + (y − 3)² = 16?",
+   "choices": [
+    "16",
+    "4",
+    "3",
+    "8"
+   ],
+   "answer": 1,
+   "why": "√16 = 4."
+  },
+  {
+   "type": "predict",
+   "prompt": "Center of (x + 1)² + (y − 6)² = 9?",
+   "choices": [
+    "(1, −6)",
+    "(−1, 6)",
+    "(−1, −6)",
+    "(1, 6)"
+   ],
+   "answer": 1,
+   "why": "Signs flip."
+  },
+  {
+   "type": "fill",
+   "prompt": "Complete the square:",
+   "lines": [
+    "x² − 10x = (x − 5)² − ___"
+   ],
+   "accept": [
+    "25"
+   ],
+   "why": "(−5)² = 25."
+  }
+ ]
+}

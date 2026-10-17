@@ -80,6 +80,8 @@ def public_user(user):
             "accent": user["accent"] if "accent" in user.keys() else "pencil",
             "ripple": bool(user["ripple"]) if "ripple" in user.keys() else True,
         },
+        "frame": user["frame"] if "frame" in user.keys() else None,
+        "game_title": user["title"] if "title" in user.keys() else None,
         "avatar_url": (f"/api/me/avatar?v={user['avatar_version']}"
                        if "avatar_version" in user.keys() and user["avatar_version"] else None),
     }
@@ -136,7 +138,8 @@ def body():
     return data
 
 
-def clean_email(value, field="email", required=True):
+def clean_email(value, field="email", required=True, new=True):
+    """new=False for sign-in and password resets: an address that already exists is never refused."""
     value = (value or "").strip().lower()
     if not value:
         if required:
@@ -144,6 +147,8 @@ def clean_email(value, field="email", required=True):
         return None
     if len(value) > 254 or not EMAIL_RE.match(value):
         raise ApiError(400, "Enter an email like name@school.org.", field)
+    if new:
+        check_clean(value.split("@")[0], field)
     return value
 
 
@@ -153,6 +158,7 @@ def clean_name(value, field="name"):
         raise ApiError(400, "Enter a name.", field)
     if len(value) > 80:
         raise ApiError(400, "Names can be up to 80 characters.", field)
+    check_clean(value, field)
     return value
 
 
@@ -203,6 +209,14 @@ def clean_date(value, field="test_date"):
     return value
 
 
-def clean_text(value, limit=2000):
-    value = (value or "").strip()
-    return value[:limit] or None
+def clean_text(value, limit=2000, field="message"):
+    value = (value or "").strip()[:limit]
+    check_clean(value, field)
+    return value or None
+
+
+def check_clean(value, field):
+    """Every free-text field goes through this: no curse words (services/wordfilter.py)."""
+    from .services import wordfilter
+    if value and not wordfilter.is_clean(value):
+        raise ApiError(400, wordfilter.MESSAGE, field, "blocked_word")

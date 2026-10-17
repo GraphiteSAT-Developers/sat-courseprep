@@ -248,7 +248,8 @@ def public(session):
         from . import levels
         tag = levels.parse_tag(session["plan_task"])
         if tag:
-            out["level"] = {"track": tag[0], "n": tag[1], "tier": levels.tier(tag[1]), "pass": levels.PASS, "top": levels.LEVELS}
+            out["level"] = {"track": tag[0], "n": tag[1], "tier": levels.tier(tag[1]), "pass": levels.PASS, "top": levels.LEVELS,
+                            "boss": len(ids) - 1}
     return out
 
 
@@ -272,6 +273,10 @@ def check(user_id, session, index, answer):
                 add_to_review(user_id, [graded])
         else:
             add_to_review(user_id, [graded])
+        if task.startswith("ladder:"):
+            from . import game  # rewards for Level up: XP, combos and the boss question
+            right = {int(k): bank.graded_question(items[ids[int(k)]], int(k), v)["correct"] for k, v in checked.items()}
+            graded["game"] = game.level_check(user_id, session, index, graded["correct"], right, len(ids))
         return graded, finished
     return bank.graded_question(items[ids[index]], index, checked[key]), []
 
@@ -308,8 +313,14 @@ def submit(user_id, session, answers, seconds):
         result["attempt_id"] = row["id"]
     if task.startswith("ladder:"):
         from . import levels  # levels builds on this module
-        if levels.parse_tag(task):
+        tag = levels.parse_tag(task)
+        if tag:
+            from . import game
+            before, _ = levels.progress(user_id, tag[0])
             result["level"] = levels.result(user_id, session, result["correct"])
+            lv = result["level"]
+            result["game"] = game.level_finish(user_id, session, tag[1], result["correct"], result["total"], lv["passed"],
+                                               not before.get(tag[1], {}).get("passed"), lv["top"])
     result["submitted_at"] = stamp
     execute("UPDATE practice_sessions SET submitted_at = ?, seconds_used = ?, correct = ?, results = ? WHERE id = ?",
             (stamp, seconds, result["correct"], json.dumps(result), session["id"]))

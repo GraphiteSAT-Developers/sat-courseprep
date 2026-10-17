@@ -1,0 +1,128 @@
+{
+ "id": "soh-cah-toa",
+ "order": 7,
+ "domain": "geometry-trig",
+ "skill": "right-triangles-and-trigonometry",
+ "title": "SOH CAH TOA and the 90° swap",
+ "minutes": 6,
+ "hook": "Pick the right ratio every time, and spot the sine–cosine shortcut.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "What do SOH, CAH and TOA stand for?",
+   "answer": "Sine = opposite ÷ hypotenuse, cosine = adjacent ÷ hypotenuse, tangent = opposite ÷ adjacent."
+  },
+  {
+   "type": "predict",
+   "prompt": "Right triangle ABC has its right angle at C. AC = 8, BC = 6 and AB = 10. What is sin A?",
+   "choices": [
+    "6/8",
+    "8/10",
+    "6/10",
+    "10/6"
+   ],
+   "answer": 2,
+   "why": "The side opposite angle A is BC = 6, and the hypotenuse is AB = 10."
+  },
+  {
+   "type": "predict",
+   "prompt": "Same triangle: what is cos B?",
+   "choices": [
+    "6/10",
+    "8/10",
+    "6/8",
+    "8/6"
+   ],
+   "answer": 0,
+   "why": "The side next to angle B (not the hypotenuse) is BC = 6. Notice cos B = sin A."
+  },
+  {
+   "type": "predict",
+   "prompt": "In a right triangle, sin x° = 0.6. What is cos(90 − x)°?",
+   "choices": [
+    "0.4",
+    "0.6",
+    "0.8",
+    "1.6"
+   ],
+   "answer": 1,
+   "why": "The two small angles add to 90°, and the sine of one is the cosine of the other."
+  },
+  {
+   "type": "fill",
+   "prompt": "tan A = 3/4, and the side next to angle A is 12. How long is the side opposite A?",
+   "lines": [
+    "tan A = opposite ÷ adjacent",
+    "3/4 = opposite ÷ 12",
+    "opposite = ___"
+   ],
+   "accept": [
+    "9"
+   ],
+   "why": "12 × 3/4 = 9."
+  },
+  {
+   "type": "spot",
+   "prompt": "A 13-foot ladder reaches 12 feet up a wall. How far is its foot from the wall? Tap the line with the mistake.",
+   "lines": [
+    "The ladder is the hypotenuse: 13",
+    "a² + 12² = 13²",
+    "a² = 169 + 144",
+    "a = √313"
+   ],
+   "wrong": 2,
+   "why": "Subtract: a² = 169 − 144 = 25, so a = 5 feet."
+  },
+  {
+   "type": "order",
+   "prompt": "Put the steps in order to find the hypotenuse when the legs are 9 and 12.",
+   "items": [
+    "Square the legs: 81 and 144",
+    "Add them: 225",
+    "Take the square root: 15"
+   ],
+   "why": "a² + b² = c², then the square root."
+  }
+ ],
+ "keys": [
+  "sin = opposite/hypotenuse, cos = adjacent/hypotenuse, tan = opposite/adjacent, all measured from the angle you're using.",
+  "In a right triangle, sin x° = cos(90 − x)°.",
+  "a² + b² = c², where c is the hypotenuse."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "Tangent equals",
+   "choices": [
+    "opposite ÷ hypotenuse",
+    "adjacent ÷ hypotenuse",
+    "opposite ÷ adjacent"
+   ],
+   "answer": 2,
+   "why": "TOA."
+  },
+  {
+   "type": "predict",
+   "prompt": "cos 30° equals",
+   "choices": [
+    "sin 30°",
+    "sin 60°",
+    "tan 60°",
+    "cos 60°"
+   ],
+   "answer": 1,
+   "why": "30 + 60 = 90."
+  },
+  {
+   "type": "fill",
+   "prompt": "Legs 6 and 8. Hypotenuse:",
+   "lines": [
+    "√(36 + 64) = ___"
+   ],
+   "accept": [
+    "10"
+   ],
+   "why": "√100 = 10."
+  }
+ ]
+}

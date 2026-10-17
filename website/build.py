@@ -40,7 +40,16 @@ def calculator_html():
         t = t.replace(old, new)
     return t
 css = (SRC / "site.css").read_text()
-js = (SRC / "site.js").read_text()
+BLOCKED_WORDS = Path(__file__).resolve().parent.parent / "backend" / "app" / "content" / "blocked_words.txt"
+
+
+def wordfilter_js():
+    """The curse-word filter for every page, with the backend's list (still ROT13) filled in."""
+    words = [l.strip() for l in BLOCKED_WORDS.read_text().splitlines() if l.strip() and not l.startswith("#")]
+    return (SRC / "wordfilter.js").read_text().replace('"__BLOCKED_WORDS__"', json.dumps(words))
+
+
+js = wordfilter_js() + "\n" + (SRC / "site.js").read_text()
 
 def minify_css(s):
     s = re.sub(r"/\*.*?\*/", "", s, flags=re.S)
@@ -102,16 +111,22 @@ def score_chart():
 TESTS_DIR = ROOT.parent / "backend" / "app" / "content" / "tests"
 SERVICES = ROOT.parent / "backend" / "app" / "services"
 # Preview-only scripts. They carry answer keys, so the live site never serves them: there the backend grades.
-PREVIEW_ONLY = {"questions.js", "bank.js", "practice-local.js"}
+PREVIEW_ONLY = {"questions.js", "bank.js", "practice-local.js", "play-local.js"}
 
 
 def service(name):
-    """One of the backend's services, loaded without the Flask app around it."""
-    if "graphite_services" not in sys.modules:
-        pkg = types.ModuleType("graphite_services")
-        pkg.__path__ = [str(SERVICES)]
-        sys.modules["graphite_services"] = pkg
-    return importlib.import_module("graphite_services." + name)
+    """One of the backend's services, loaded without the Flask app around it. Their database helpers
+    (app/db.py) are stand-ins here: the build only reads constants and content, it never touches a database."""
+    if "graphite_app.services" not in sys.modules:
+        app_pkg = types.ModuleType("graphite_app")
+        app_pkg.__path__ = []
+        db = types.ModuleType("graphite_app.db")
+        for fn in ("execute", "query", "now_iso", "days_from_today", "today", "connect", "is_postgres", "now", "iso"):
+            setattr(db, fn, lambda *a, **k: None)
+        svc = types.ModuleType("graphite_app.services")
+        svc.__path__ = [str(SERVICES)]
+        sys.modules.update({"graphite_app": app_pkg, "graphite_app.db": db, "graphite_app.services": svc})
+    return importlib.import_module("graphite_app.services." + name)
 
 
 def pricing_html():
@@ -205,16 +220,8 @@ def plans_json():
 
 def bank_js():
     """The question bank for the offline preview, built by the backend's own bank module (same HTML, same keys)."""
-    # Load the backend's services as a package of their own, without the Flask app around them.
-    if "graphite_services" not in sys.modules:
-        pkg = types.ModuleType("graphite_services")
-        pkg.__path__ = [str(SERVICES)]
-        sys.modules["graphite_services"] = pkg
-    bank = importlib.import_module("graphite_services.bank")
-    diagnostic = importlib.import_module("graphite_services.diagnostic")
-    studyplan = importlib.import_module("graphite_services.studyplan")
-    levels = importlib.import_module("graphite_services.levels")
-    plans = importlib.import_module("graphite_services.plans")
+    bank, diagnostic, studyplan, levels, plans = (service(n) for n in ("bank", "diagnostic", "studyplan", "levels", "plans"))
+    game, speed, focus, lessons = (service(n) for n in ("game", "speed", "focus", "lessons"))
     keep = ("id", "domain_key", "domain", "skill", "skill_key", "difficulty", "type", "stem", "choices",
             "answer", "keys", "answer_text", "explain_html")
     data = {
@@ -234,6 +241,18 @@ def bank_js():
                              for n in range(1, levels.LEVELS + 1)]},
         "parent": {"plans": plans.public_plans(),
                    "alert_days": list(plans.ALERT_DAYS), "pause_days": plans.PAUSE_DAYS},
+        # Rewards, speed rounds, focus and lessons: the same numbers and content as the server (play-local.js).
+        "play": {"rules": game.rules(), "lessons": lessons.all_lessons(), "recall_days": list(lessons.RECALL_DAYS),
+                 "recall_pass": lessons.RECALL_PASS,
+                 "topic_names": {**{d["key"]: d["name"] for d in bank.topics()},
+                                 **{f"{d['key']}/{s['key']}": s["name"] for d in bank.topics() for s in d["skills"]}},
+                 "speed": {"size": speed.SIZE, "penalty_ms": speed.PENALTY_MS, "max_ms": speed.MAX_MS,
+                           "lightning_ms": speed.LIGHTNING_MS, "states": [{"code": c, "name": n} for c, n in speed.STATES],
+                           "adjectives": speed.ADJECTIVES, "nouns": speed.NOUNS, "domains": sorted(speed.DOMAINS)},
+                 "focus": {"lengths": [{"minutes": m, "break": focus.BREAKS[m]} for m in focus.LENGTHS],
+                           "labels": [{"key": k, "name": v} for k, v in focus.LABELS.items()],
+                           "counted_elsewhere": sorted(focus.COUNTED_ELSEWHERE), "finish_share": focus.FINISH_SHARE,
+                           "min_credit": focus.MIN_CREDIT}},
     }
     return "window.GRAPHITE_BANK = " + json.dumps(data, separators=(",", ":")).replace("</", "<\\/") + ";"
 
@@ -393,7 +412,8 @@ def build():
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
-    for n in ("ripple.js", "theme.js", "settings.js", "checkout.js"):
+    for n in ("ripple.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
+              "lessons.js", "dash-play.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
@@ -407,7 +427,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

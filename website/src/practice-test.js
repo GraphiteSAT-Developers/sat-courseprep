@@ -160,6 +160,7 @@
   function renderQuestion() {
     var i = S.cur, q = Q[i];
     $("q-num").textContent = String(i + 1);
+    renderGameTag(i);
     $("mark-btn").setAttribute("aria-pressed", String(!!S.marked[i]));
     $("mark-btn").classList.toggle("on", !!S.marked[i]);
     $("elim-toggle").hidden = q.type !== "mc";
@@ -210,7 +211,7 @@
     } else {
       var wrap = document.createElement("div"); wrap.className = "spr";
       var lab = document.createElement("label"); lab.setAttribute("for", "spr-input"); lab.className = "visually-hidden"; lab.textContent = "Your answer to question " + (i + 1);
-      var inp = document.createElement("input"); inp.type = "text"; inp.id = "spr-input"; inp.autocomplete = "off"; inp.inputMode = "text"; inp.spellcheck = false;
+      var inp = document.createElement("input"); inp.type = "text"; inp.id = "spr-input"; inp.setAttribute("data-no-filter", ""); inp.autocomplete = "off"; inp.inputMode = "text"; inp.spellcheck = false;
       inp.maxLength = 6; inp.value = S.answers[i] || ""; inp.readOnly = locked;
       var prev = document.createElement("p"); prev.className = "spr-preview"; prev.setAttribute("aria-live", "polite");
       var err = document.createElement("p"); err.className = "field-error"; err.id = "spr-error"; err.hidden = true;
@@ -253,6 +254,29 @@
       (g.correct ? "" : ' <span>The answer is <strong>' + (g.type === "mc" ? g.answer : previewHTML(g.answer.split(" or ")[0])) + "</strong>. Here's how to get there.</span>") + "</p>" +
       '<div class="fb-explain"></div></div>';
     area.querySelector(".fb-explain").innerHTML = g.explain_html || "";
+    if (g.game) {
+      var line = document.createElement("p"); line.className = "fb-reward";
+      line.textContent = "+" + g.game.xp + " XP" + (g.game.combo > 1 ? " · combo ×" + g.game.combo : "") +
+        (g.game.coins ? " · +" + g.game.coins + (g.game.coins === 1 ? " coin" : " coins") : "") + (g.game.boss && g.correct ? " · boss beaten" : "");
+      area.querySelector(".fb-verdict").insertAdjacentElement("afterend", line);
+    }
+  }
+  // Level up: the boss question and the current combo, next to the question number.
+  function comboAt(i) { var n = 0; while (i >= 0 && checked[i] && checked[i].correct) { n++; i--; } return n; }
+  function renderGameTag(i) {
+    var tag = $("q-game");
+    if (!LEVEL) { if (tag) tag.hidden = true; return; }
+    if (!tag) {
+      tag = document.createElement("span"); tag.id = "q-game"; tag.className = "q-game";
+      $("q-num").insertAdjacentElement("afterend", tag);
+    }
+    var boss = i === (LEVEL.boss != null ? LEVEL.boss : N - 1);
+    var last = -1; for (var k = 0; k < N; k++) if (checked[k]) last = k;
+    var combo = last >= 0 ? comboAt(last) : 0;
+    tag.className = "q-game" + (boss ? " is-boss" : "");
+    tag.innerHTML = (boss ? "<strong>Boss question</strong><span>Hardest of the level · bonus XP and coins</span>" : "") +
+      (combo > 1 && !boss ? "<span>Combo ×" + combo + "</span>" : "");
+    tag.hidden = !boss && combo < 2;
   }
   var PRAISE = ["Nice work!", "You got it!", "Correct!", "Nailed it.", "That's right!", "Spot on."];
   function checkAnswer() {
@@ -270,6 +294,7 @@
         var rv = r.question.review;
         if (rv) toast(rv.cleared ? "Cleared from your review queue. Right twice means it stuck." : "Nice. One more right answer clears it. It comes back in 3 days.");
         celebrate(r.finished);
+        if (r.question.game && window.GraphiteRewards) GraphiteRewards.show(r.question.game, { quick: true });
       })
       .catch(function (err) {
         checking = false; renderCheck();
@@ -336,6 +361,7 @@
       renderResults(result); showPage("results");
       closePopup();
       celebrate(result.finished);
+      if (result.game && window.GraphiteRewards) GraphiteRewards.show(result.game);
     };
     if (!LIVE && !T.session) { finish(gradeLocal(seconds)); return; }
     var answers = {};
@@ -365,7 +391,7 @@
     openDialog("done-dialog");
   }
   // Level up: did this set pass, and what's next.
-  function renderLevel(lv) {
+  function renderLevel(lv, gm) {
     var box = $("res-level");
     box.hidden = !lv;
     if (!lv) return;
@@ -377,6 +403,13 @@
     box.innerHTML = "<strong></strong><span></span>";
     box.querySelector("strong").textContent = head;
     box.querySelector("span").textContent = sub;
+    if (gm && window.GraphiteRewards) {
+      var rw = document.createElement("div"); rw.className = "res-reward";
+      rw.innerHTML = '<p class="res-reward-total"><strong>+' + GraphiteRewards.num(gm.set_xp) + " XP</strong>" +
+        (gm.set_coins ? ' <span><i class="coin" aria-hidden="true"></i>+' + gm.set_coins + (gm.set_coins === 1 ? " coin" : " coins") + "</span>" : "") +
+        ' <a href="rewards.html">Rank: ' + GraphiteRewards.esc(gm.rank.name) + "</a></p>" + GraphiteRewards.lines(gm.lines);
+      box.appendChild(rw);
+    }
     var b = $("retake");
     b.hidden = false;
     b.setAttribute("data-level", String(lv.passed && lv.next ? lv.next : lv.level));
@@ -395,7 +428,7 @@
     $("res-finished").hidden = !fin.length;
     if (fin.length) $("res-finished").innerHTML = "<strong>Congratulations! You have finished " + (fin.length > 1 || fin[0].kind === "domain" ? "a whole domain" : "this topic") + "!</strong> <span></span>";
     if (fin.length) $("res-finished").querySelector("span").textContent = finishedText(fin);
-    renderLevel(r.level);
+    renderLevel(r.level, r.game);
     for (var m = 0; m < N; m++) if (S.marked[m]) marked++;
     var pct = r.total ? r.correct / r.total : 0;
     var cheer = pct >= 0.9 ? "Outstanding!" : pct >= 0.7 ? "Solid work!" : pct >= 0.5 ? "Good effort." : "Every miss shows you what to practice.";

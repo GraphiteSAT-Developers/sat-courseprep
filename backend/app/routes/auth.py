@@ -62,7 +62,7 @@ def login():
     if testaccount.is_test_login(current_app, data.get("email")):
         email = str(data.get("email")).strip().lower()
     else:
-        email = clean_email(data.get("email"))
+        email = clean_email(data.get("email"), new=False)
     password = data.get("password") or ""
     email_bucket, ip_bucket = "login:" + email, "login-ip:" + client_ip()
     if rate_limited(email_bucket, 5, 15) or rate_limited(ip_bucket, 30, 15):
@@ -97,7 +97,7 @@ def logout():
 @bp.post("/forgot")
 def forgot():
     data = body()
-    email = clean_email(data.get("email"))
+    email = clean_email(data.get("email"), new=False)
     bucket = "reset:" + email
     if rate_limited(bucket, 3, 15):
         raise ApiError(429, "Reset links are limited to three every 15 minutes. Check your inbox and spam folder.")

@@ -1,0 +1,71 @@
+<!--{"file": "focus.html", "path": "/focus.html", "title": "Focus Timer | Graphite SAT Tutoring", "description": "Study in focused blocks with breaks in between. Focus time counts toward your weekly study goal and your streak.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "focus.js"]}-->
+<main id="main" class="practice focus-page">
+  <div class="wrap dash-stack">
+    <p class="sample-note" id="fo-preview-note" hidden><span class="label">Preview</span> Sessions are saved in this browser only. On the live site they count toward your weekly goal on every device.</p>
+
+    <div class="dash-top">
+      <div>
+        <p class="label">Focus</p>
+        <h1>Study in focused blocks</h1>
+      </div>
+    </div>
+    <p class="lede pr-lede">Pick a length, put your phone face down, and work until the timer ends. Then take the short break. Finished sessions earn XP and count toward your weekly goal.</p>
+
+    <p class="field-error pr-error" id="fo-error" role="alert" hidden></p>
+    <p class="fine" id="fo-loading">Loading…</p>
+
+    <section class="fo-week" id="fo-week" aria-label="This week" hidden>
+      <div class="fo-goal">
+        <div class="hud-xp-top"><strong id="fo-goal-text">0 of 3 hours this week</strong><span id="fo-goal-left"></span></div>
+        <div class="hud-bar" role="progressbar" aria-label="Weekly study goal" aria-valuemin="0" aria-valuemax="100" id="fo-goal-bar"><span></span></div>
+      </div>
+      <div class="hud-stat"><strong id="fo-today">0</strong><span>focus minutes today</span></div>
+      <div class="hud-stat"><strong id="fo-done">0</strong><span>sessions finished</span></div>
+      <div class="hud-stat"><strong id="fo-streak">0</strong><span>day streak</span></div>
+    </section>
+
+    <!-- Choose -->
+    <section class="panel fo-setup" id="fo-setup" aria-labelledby="fo-setup-title" hidden>
+      <h2 id="fo-setup-title">New session</h2>
+      <fieldset class="st-fieldset">
+        <legend>How long</legend>
+        <div class="fo-lengths" id="fo-lengths"></div>
+      </fieldset>
+      <fieldset class="st-fieldset">
+        <legend>What you're working on</legend>
+        <div class="fo-labels" id="fo-labels"></div>
+        <p class="fine" id="fo-label-note"></p>
+      </fieldset>
+      <label class="st-switch" for="fo-sound">
+        <input type="checkbox" id="fo-sound" role="switch" checked>
+        <span class="st-switch-track" aria-hidden="true"></span>
+        <span><strong>Chime when time's up</strong></span>
+      </label>
+      <div class="pd-row"><button class="btn btn-primary" type="button" id="fo-start">Start focusing</button></div>
+    </section>
+
+    <!-- Running -->
+    <section class="panel fo-run" id="fo-run" aria-labelledby="fo-run-label" hidden>
+      <div class="fo-ring" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><circle class="fo-ring-bg" cx="60" cy="60" r="52"/><circle class="fo-ring-fg" id="fo-ring" cx="60" cy="60" r="52" pathLength="1000"/></svg>
+        <span class="fo-time" id="fo-time">25:00</span>
+      </div>
+      <div class="fo-run-copy">
+        <p class="label" id="fo-run-kind">Focusing</p>
+        <h2 id="fo-run-label">Practice sets</h2>
+        <p class="fine" id="fo-run-note">The timer keeps going if you switch tabs or close this page. Come back anytime.</p>
+        <p class="visually-hidden" id="fo-time-sr" aria-live="polite"></p>
+        <div class="pd-row">
+          <button class="btn btn-secondary" type="button" id="fo-pause">Pause</button>
+          <button class="btn btn-quiet" type="button" id="fo-end">End early</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="fo-hist-title" id="fo-hist" hidden>
+      <div class="panel-head"><h2 id="fo-hist-title">This week</h2></div>
+      <ol class="fo-days" id="fo-days"></ol>
+      <ul class="rw-recent" id="fo-recent"></ul>
+    </section>
+  </div>
+</main>

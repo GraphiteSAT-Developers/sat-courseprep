@@ -54,7 +54,9 @@ def ensure(url):
 
 # Everything a student's practice leaves behind. study_plans goes before diagnostics, which it points to.
 STUDENT_TABLES = ["practice_sessions", "practice_seen", "practice_completions", "study_plans", "diagnostics",
-                  "review_items", "test_attempts", "activity"]
+                  "review_items", "test_attempts", "activity", "xp_events", "badges", "inventory", "speed_runs",
+                  "focus_sessions", "lesson_progress"]
+TEST_COINS = 500  # so the shop can be tried right away
 STUDENT_ID_TABLES = ["subscriptions", "billing_events"]  # keyed by student_id
 
 
@@ -66,6 +68,12 @@ def reset(user_id):
     for table in STUDENT_ID_TABLES:
         execute(f"DELETE FROM {table} WHERE student_id = ?", (user_id,))
     execute("UPDATE users SET plan = 'free' WHERE id = ?", (user_id,))
+    execute("UPDATE users SET frame = NULL, title = NULL, board_opt_in = 0, nickname = NULL, state = NULL, accent = 'pencil' "
+            "WHERE id = ?", (user_id,))
+    from .db import now_iso
+    from datetime import date
+    execute("INSERT INTO xp_events (user_id, kind, xp, coins, detail, day, at) VALUES (?, 'gift', 0, ?, ?, ?, ?)",
+            (user_id, TEST_COINS, "Test account coins", date.today().isoformat(), now_iso()))
     execute("UPDATE users SET diagnostic_prompted_at = NULL, test_date = NULL, target_score = NULL, "
             "weekly_goal_hours = 3 WHERE id = ?", (user_id,))
 

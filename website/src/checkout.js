@@ -105,7 +105,7 @@
       $("co-copy").addEventListener("click", copyLink);
     } else if (!a.students.length) {
       el.innerHTML = "<p>Connect your student first. They open <strong>Account</strong>, then <strong>Parent access</strong>, on their dashboard and give you a code.</p>" +
-        '<div class="field co-link"><label for="co-code">Student\'s code</label><div class="co-link-row"><input id="co-code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" aria-describedby="co-code-hint">' +
+        '<div class="field co-link"><label for="co-code">Student\'s code</label><div class="co-link-row"><input id="co-code" data-no-filter autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" aria-describedby="co-code-hint">' +
         '<button class="btn btn-secondary" type="button" id="co-link">Connect</button></div><p class="hint" id="co-code-hint">8 letters and numbers, like K7QM-4ZTR.</p><p class="field-error" id="co-code-error" hidden></p></div>';
       $("co-link").addEventListener("click", link);
       $("co-code").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); link(); } });

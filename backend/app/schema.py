@@ -210,7 +210,80 @@ MIGRATIONS = [
             received_at TEXT NOT NULL
         )""",
     ]),
-    # (10, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (10, "Rewards (XP, coins, badges, items), speed rounds and leaderboards, focus sessions, lessons", [
+        """CREATE TABLE xp_events (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            kind TEXT NOT NULL,
+            xp INTEGER NOT NULL DEFAULT 0,
+            coins INTEGER NOT NULL DEFAULT 0,
+            detail TEXT,
+            day TEXT NOT NULL,
+            at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_xp_user ON xp_events (user_id, day)",
+        """CREATE TABLE badges (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            badge TEXT NOT NULL,
+            earned_at TEXT NOT NULL,
+            UNIQUE (user_id, badge)
+        )""",
+        """CREATE TABLE inventory (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            item TEXT NOT NULL,
+            bought_at TEXT NOT NULL,
+            UNIQUE (user_id, item)
+        )""",
+        "ALTER TABLE users ADD COLUMN frame TEXT",
+        "ALTER TABLE users ADD COLUMN title TEXT",
+        "ALTER TABLE users ADD COLUMN state TEXT",
+        "ALTER TABLE users ADD COLUMN board_opt_in INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN nickname TEXT",
+        """CREATE TABLE speed_runs (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            day TEXT NOT NULL,
+            item_ids TEXT NOT NULL,
+            answers TEXT NOT NULL DEFAULT '{}',
+            started_ms BIGINT NOT NULL,
+            finished_ms BIGINT,
+            correct INTEGER,
+            total INTEGER NOT NULL,
+            score_ms BIGINT,
+            ranked INTEGER NOT NULL DEFAULT 0,
+            state TEXT,
+            created_at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_speed_board ON speed_runs (day, ranked, score_ms)",
+        "CREATE INDEX idx_speed_user ON speed_runs (user_id, day)",
+        """CREATE TABLE focus_sessions (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            minutes INTEGER NOT NULL,
+            label TEXT NOT NULL,
+            started_ms BIGINT NOT NULL,
+            finished_at TEXT,
+            seconds INTEGER,
+            completed INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_focus_user ON focus_sessions (user_id, created_at)",
+        """CREATE TABLE lesson_progress (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            lesson_id TEXT NOT NULL,
+            completed_at TEXT NOT NULL,
+            best INTEGER NOT NULL DEFAULT 0,
+            total INTEGER NOT NULL DEFAULT 0,
+            stage INTEGER NOT NULL DEFAULT 0,
+            due_on TEXT,
+            last_recall_at TEXT,
+            UNIQUE (user_id, lesson_id)
+        )""",
+    ]),
+    # (11, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

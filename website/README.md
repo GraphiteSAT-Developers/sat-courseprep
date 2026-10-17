@@ -22,6 +22,10 @@ The pages run in two modes:
   - `theme.js`: signed-in pages only. Applies the theme and accent color before the page draws, and adds the profile picture to the header.
   - `settings.js`: the Settings page.
   - `checkout.js`: the checkout page.
+  - `game-ui.js`: the rank/XP/streak/coins strip and the reward pop-ups, shared by the pages below.
+  - `rewards.js`, `speed.js`, `focus.js`, `lessons.js`, `dash-play.js`: the Rewards, Speed round, Focus and Lessons pages, and the dashboard's "Play and earn" panel.
+  - `wordfilter.js`: the curse-word check on every text box. `build.py` fills in the list from the backend and puts it at the start of `site.js`.
+  - `play-local.js`: preview only. Runs rewards, speed rounds, focus and lessons in the browser when there's no server, with sample players on the leaderboards.
   - `ripple.js`: the dashboard's ripple background.
   - `practice-local.js`: preview only. Runs the practice requests in the browser when there's no server.
   - `htaccess`, `netlify.toml`: server settings for HTTPS, the 404 page, compression and caching.
@@ -38,6 +42,10 @@ The pages run in two modes:
 | Math practice test with graphing calculator | `practice-test.html` |
 | Settings: profile picture, name, theme and accent color, study goals, email, password, data download, delete account | `settings.html` |
 | Checkout: pick a plan and how to pay, then pay on Stripe | `checkout.html` |
+| Lessons: active recall lessons and recall checks | `lessons.html` |
+| Speed round and leaderboards | `speed.html` |
+| Focus timer | `focus.html` |
+| Rewards: rank, badges and the shop | `rewards.html` |
 | Privacy policy | `privacy.html` |
 | Cookie policy | `cookies.html` |
 | Terms of service | `terms.html` |

@@ -17,7 +17,7 @@ from .. import testaccount
 from ..db import execute, now_iso, query
 from ..security import (ApiError, body, clean_email, clean_password, clear_events, current_user, login_required,
                         login_user, logout_user, public_user, rate_limited, record_event)
-from ..services import mailer
+from ..services import game, mailer
 
 bp = Blueprint("settings", __name__, url_prefix="/api/me")
 
@@ -32,7 +32,8 @@ DATA_URL = re.compile(r"^data:image/(png|jpeg|jpg|webp|gif);base64,([A-Za-z0-9+/
 EXPORT_TABLES = [("test_attempts", "user_id"), ("review_items", "user_id"), ("activity", "user_id"),
                  ("practice_sessions", "user_id"), ("practice_seen", "user_id"), ("practice_completions", "user_id"),
                  ("diagnostics", "user_id"), ("study_plans", "user_id"), ("subscriptions", "student_id"),
-                 ("billing_events", "student_id")]
+                 ("billing_events", "student_id"), ("xp_events", "user_id"), ("badges", "user_id"), ("inventory", "user_id"),
+                 ("speed_runs", "user_id"), ("focus_sessions", "user_id"), ("lesson_progress", "user_id")]
 NEVER_EXPORTED = {"password_hash", "session_version", "token_hash", "code_hash"}
 
 
@@ -67,8 +68,10 @@ def appearance():
             raise ApiError(400, "Choose dark, light or match my device.", "theme")
         fields["theme"] = data["theme"]
     if "accent" in data:
-        if data["accent"] not in ACCENTS:
+        if data["accent"] not in ACCENTS and data["accent"] not in game.SHOP_ACCENTS:
             raise ApiError(400, "Choose one of the accent colors.", "accent")
+        if not game.accent_allowed(current_user()["id"], data["accent"]):
+            raise ApiError(403, "Buy that color in the shop first.", "accent")
         fields["accent"] = data["accent"]
     if "ripple" in data:
         fields["ripple"] = 1 if data["ripple"] else 0

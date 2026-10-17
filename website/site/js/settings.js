@@ -198,6 +198,68 @@
       .then(function () { busy(btn, false); });
   });
 
+  /* ---------- shop colors and the leaderboard (students) ---------- */
+  var R = window.GraphiteRewards, playCall = R && R.call();
+  var nick = { now: null, picked: null, options: [] };
+  function loadPlay() {
+    if (!playCall || (user && user.role === "parent")) return;
+    playCall("/api/game").then(function (g) {
+      g.shop.forEach(function (it) {
+        if (it.kind !== "accent") return;
+        var input = $("st-accent-" + it.value); if (!input) return;
+        input.disabled = !it.owned;
+        input.closest(".st-accent").classList.toggle("is-locked", !it.owned);
+        var lock = input.closest(".st-accent").querySelector(".st-lock"); if (lock) lock.hidden = it.owned;
+      });
+      $("st-shop-note").textContent = "";
+      $("st-shop-note").innerHTML = "You have " + R.num(g.coins) + ' coins. Unlock colors, frames and titles in the <a href="rewards.html#shop">shop</a>.';
+    }).catch(function () { /* the rest of Settings still works */ });
+    playCall("/api/speed/states").then(function (r) {
+      var sel = $("st-state");
+      r.states.forEach(function (st) { var o = document.createElement("option"); o.value = st.code; o.textContent = st.name; sel.appendChild(o); });
+      return playCall("/api/speed");
+    }).then(function (o) {
+      var b = o.board_profile;
+      $("st-board-on").checked = b.opt_in;
+      $("st-state").value = b.state || "";
+      nick.now = b.nickname; nick.picked = b.nickname;
+      rollNames();
+    }).catch(function () { /* leaderboard settings unavailable */ });
+  }
+  function drawNames() {
+    var box = $("st-nicks"); box.innerHTML = "";
+    var list = (nick.now && nick.options.indexOf(nick.now) < 0 ? [nick.now] : []).concat(nick.options);
+    list.forEach(function (n, i) {
+      var id = "st-nick-" + i, lab = document.createElement("label");
+      lab.className = "st-nick"; lab.setAttribute("for", id);
+      lab.innerHTML = '<input type="radio" name="nickname" id="' + id + '"><span></span>';
+      lab.querySelector("input").value = n; lab.querySelector("input").checked = n === nick.picked;
+      lab.querySelector("span").textContent = n + (n === nick.now ? " (yours now)" : "");
+      lab.querySelector("input").addEventListener("change", function () { nick.picked = n; });
+      box.appendChild(lab);
+    });
+    $("st-nick-now").textContent = nick.now ? "You're " + nick.now + ". Keep it or pick a new one." : "Pick a nickname. They're made from math words, so nobody can be named something mean.";
+  }
+  function rollNames() {
+    playCall("/api/speed/nicknames").then(function (r) { nick.options = r.nicknames; drawNames(); });
+  }
+  $("st-nick-roll").addEventListener("click", rollNames);
+  $("st-board-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var st = $("st-board-status"), btn = this.querySelector("button[type=submit]");
+    clear(st);
+    var data = { opt_in: $("st-board-on").checked, state: $("st-state").value || null };
+    if (nick.picked) data.nickname = nick.picked;
+    if (data.opt_in && !nick.picked) { status(st, "err", "Pick a nickname first.", "It's what other students see instead of your name."); return; }
+    busy(btn, true, "Saving…");
+    playCall("/api/speed/profile", data, "PATCH").then(function (r) {
+      var b = r.board_profile; nick.now = b.nickname; drawNames();
+      status(st, "ok", "Leaderboard settings saved.", b.opt_in ? "You show up as " + b.nickname + (b.state_name ? " on the " + b.state_name + " and national boards." : " on the national board. Add your state to join a state board.")
+        : "You're hidden. You'll still see where you'd place.");
+    }).catch(function (err) { status(st, "err", "We couldn't save that.", message(err)); })
+      .then(function () { busy(btn, false); });
+  });
+
   /* ---------- email ---------- */
   $("st-email-form").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -282,12 +344,13 @@
 
   /* ---------- start ---------- */
   if (LIVE) {
-    API.call("/api/me").then(function (r) { render(r.user); }, function (err) {
+    API.call("/api/me").then(function (r) { render(r.user); loadPlay(); }, function (err) {
       if (err && err.status === 401) location.href = "/signin.html?next=/settings.html";
     });
   } else {
     $("st-preview-note").hidden = false;
     $("st-export").hidden = true; $("st-export-note").hidden = false;
     render(T.me());
+    loadPlay();
   }
 })();

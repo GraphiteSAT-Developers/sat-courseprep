@@ -1,4 +1,4 @@
-<!--{"file": "dashboard.html", "path": "/dashboard.html", "title": "Dashboard | Graphite SAT Tutoring", "description": "Your Graphite dashboard: today's SAT practice set, practice test scores, skill domains, review queue and week-by-week plan.", "robots": "noindex, nofollow", "app": true, "scripts": ["ripple.js"]}-->
+<!--{"file": "dashboard.html", "path": "/dashboard.html", "title": "Dashboard | Graphite SAT Tutoring", "description": "Your Graphite dashboard: today's SAT practice set, practice test scores, skill domains, review queue and week-by-week plan.", "robots": "noindex, nofollow", "app": true, "scripts": ["ripple.js", "bank.js", "practice-local.js", "play-local.js", "game-ui.js", "dash-play.js"]}-->
 <main id="main" class="dash">
   <div class="wrap dash-stack">
     <p class="sample-note" id="sample-note"><span class="label">Sample student</span> You're seeing example scores and a sample plan. Your own numbers appear here once your account data is connected.</p>
@@ -43,6 +43,12 @@
         <dd><span class="kpi-num" id="kpi-test-num"><span id="days-left" data-test-date="2026-12-05">51</span> days</span><span class="kpi-sub" id="kpi-test-sub">7 weeks of plan left</span></dd>
       </div>
     </dl>
+
+    <section class="panel dash-play" id="dash-play" aria-labelledby="dash-play-title" hidden>
+      <div class="panel-head"><h2 id="dash-play-title">Play and earn</h2><a href="rewards.html">Rewards and shop</a></div>
+      <div class="dash-play-rank" id="dash-play-rank"></div>
+      <ul class="dash-play-list" id="dash-play-list"></ul>
+    </section>
 
     <div class="dash-grid">
       <div class="dash-col">

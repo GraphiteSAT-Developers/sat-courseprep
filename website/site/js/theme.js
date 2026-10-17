@@ -6,7 +6,7 @@
 (function () {
   "use strict";
   var KEY = "graphite_appearance", PROFILE_KEY = "graphite_preview_profile";
-  var THEMES = ["dark", "light", "system"], ACCENTS = ["pencil", "sky", "mint", "coral", "lilac"];
+  var THEMES = ["dark", "light", "system"], ACCENTS = ["pencil", "sky", "mint", "coral", "lilac", "rose", "blueprint", "ember"];  // the last three are bought in the shop
   var root = document.documentElement;
   var state = { theme: "dark", accent: "pencil", ripple: true };
   var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
@@ -47,6 +47,7 @@
   function avatar(el, user) {
     if (!el) return;
     el.textContent = "";
+    if (user && user.frame) el.setAttribute("data-frame", user.frame); else el.removeAttribute("data-frame");  // a frame from the shop
     var src = user && user.avatar_url;
     if (src) {
       var img = document.createElement("img");
@@ -65,7 +66,9 @@
     var role = "student";
     try { role = sessionStorage.getItem("graphite_role") || (who === "beta2" ? "parent" : "student"); } catch (e) { /* storage blocked */ }
     var fallback = who === "beta2" ? "Beta2 Parent" : who === "beta" || !who ? "Beta Tester" : who.split("@")[0];
+    var play = {}; try { play = JSON.parse(localStorage.getItem("graphite_play_v1") || "{}") || {}; } catch (e) { /* storage blocked */ }
     return { name: p.name || fallback, email: p.email || who || "beta", avatar_url: p.avatar || null, role: role,
+             frame: play.frame || null, game_title: play.title || null,
              appearance: get(), preview: true };
   }
 
@@ -80,13 +83,13 @@
     av.className = "avatar avatar-sm"; av.id = "header-avatar"; av.setAttribute("aria-hidden", "true");
     email.parentNode.insertBefore(a, email);
     a.appendChild(av); a.appendChild(email);
-    if (me) avatar(av, me);
+    if (me) { avatar(av, me); if (me.email) email.textContent = me.email; }
   }
   function setMe(user) {
     me = user;
     if (user && user.appearance) set(user.appearance);
     avatar(document.getElementById("header-avatar"), user);
-    if (user && user.email) { var e = document.getElementById("account-email"); if (e && !e.textContent) e.textContent = user.email; }
+    if (user && user.email) { var e = document.getElementById("account-email"); if (e) e.textContent = user.email; }
     try { document.dispatchEvent(new CustomEvent("graphite:me", { detail: user })); } catch (e) { /* old browser */ }
   }
 

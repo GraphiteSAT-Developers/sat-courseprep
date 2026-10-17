@@ -8,6 +8,10 @@ Disallow: /levels.html
 Disallow: /parent.html
 Disallow: /settings.html
 Disallow: /checkout.html
+Disallow: /speed.html
+Disallow: /focus.html
+Disallow: /lessons.html
+Disallow: /rewards.html
 Disallow: /calculator.html
 
 Sitemap: https://www.graphiteprep.com/sitemap.xml

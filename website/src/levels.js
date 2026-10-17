@@ -109,6 +109,9 @@
     $("lv-all").hidden = false;
   }
 
+  if (window.GraphiteRewards && GraphiteRewards.call()) {
+    GraphiteRewards.call()("/api/game/summary").then(function (g) { GraphiteRewards.hud($("lv-hud"), g); }).catch(function () { /* levels work without it */ });
+  }
   call("/api/levels").then(function (d) {
     data = d;
     $("lv-pass").textContent = String(d.pass); $("lv-size").textContent = String(d.size);

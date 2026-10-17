@@ -28,7 +28,7 @@ That means no server is running at that address.
 
 ### Test account
 
-When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and every sign-in wipes its practice history, so it always starts fresh with the diagnostic. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
+When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and every sign-in wipes its practice history, so it always starts fresh with the diagnostic. It also starts with 500 coins (and no XP, badges or items) so you can try the shop. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
 
 There's also a test **parent** account: username **beta2**, password **beta2**, already connected to the beta student as its parent. Choose "I'm a parent" on the sign-in page first, then sign in; it opens the parent dashboard. (Before October 2026 this account was called "parent"; it's renamed to beta2 the next time the site starts, keeping its link.) It follows the same rules: local only, never on the hosted site.
 
@@ -107,6 +107,14 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `GET /api/checkout/session/<id>` | After paying on Stripe: confirm the payment and start the plan | Parent |
 | `POST /api/parent/billing-portal` | Stripe's page for the parent's card and receipts | Parent |
 | `POST /api/stripe/webhook` | Stripe's payment updates (checked with the webhook signature) | Stripe |
+| `GET /api/game`, `GET /api/game/summary` | Rewards page data, or just rank, XP, coins and streak | Yes |
+| `POST /api/game/buy`, `POST /api/game/equip` | Buy a shop item `{"item"}`; wear or take off a frame or title `{"kind", "value"}` | Yes |
+| `GET /api/speed`, `POST /api/speed/start` | Today's round and your results; start (or resume) a round | Yes |
+| `POST /api/speed/runs/<id>/answer`, `.../finish` | Answer one question `{"index", "answer"}`; end the round | Yes |
+| `GET /api/speed/board?scope=state\|nation&period=today\|week` | A leaderboard, plus where you'd place | Yes |
+| `GET /api/speed/nicknames`, `PATCH /api/speed/profile` | Suggested nicknames; leaderboard on or off, nickname, state | Yes |
+| `GET /api/focus`, `POST /api/focus/start`, `POST /api/focus/<id>/finish` | Focus timer | Yes |
+| `GET /api/lessons`, `GET /api/lessons/<id>`, `POST /api/lessons/<id>/complete` | Lessons and recall checks | Yes |
 | `GET /api/health` | Health check for the host | No |
 
 ## Folder layout
@@ -174,6 +182,27 @@ Every plan, price and feature list lives in `app/services/plans.py`. The home pa
 | Masterstroke | $34.99 ($151.62/month) | $129 | $1,188 ($99/month, 23% off) |
 
 Prices are always shown per month. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, but limits aren't enforced yet: every account can use everything. Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
+
+## Rewards, speed rounds, focus and lessons
+
+| Feature | Where the rules live | What it does |
+| --- | --- | --- |
+| Rewards | `app/services/game.py` | XP, 9 ranks, coins, a daily streak (any day with XP), 18 badges and a shop (profile frames, leaderboard titles, 3 extra accent colors). Every reward is a row in `xp_events`, so totals are sums. |
+| Level up game layer | `game.level_check`, `game.level_finish` | Each checked answer earns XP; right answers in a row build a combo; the last question of every level is the hardest one (the boss) and pays bonus XP and coins. Finishing, passing, a first clear and a perfect set pay out at the end. |
+| Speed round | `app/services/speed.py` | The same 10 quick questions for everyone each day, timed by the server. Each miss adds 15 seconds. The first round of the day is ranked; later ones are practice. Leaderboards for the student's state and nationwide, today and this week. |
+| Leaderboard privacy | `speed.py`, Settings > Leaderboard | Off until the student turns it on. Students appear only by a nickname built from math word lists (no free text), their state and their time. Never a name, email, school or photo. |
+| Focus timer | `app/services/focus.py` | 15, 25 or 50-minute sessions with a break after. The server keeps the clock and credits only real time. Focus time counts toward the weekly goal, except sessions labeled practice or review, whose time already counts from the sets. |
+| Lessons | `app/services/lessons.py`, `app/content/lessons/` | 8 active recall lessons. Every step asks first: answer from memory, predict, fill in a step, put steps in order, or find the mistake. Recall checks come back after 1, 3 and 7 days; passing all three masters the lesson. |
+
+To change a number (XP, prices, ranks, badges), edit `game.py` and rebuild the site (`python website/build.py`) so the preview matches. To add a lesson, add a JSON file to `app/content/lessons/` shaped like the others; the tests check its answers line up.
+
+Lesson scores are sent by the browser (the answers ship with the lesson), so a determined student could fake a lesson score. That only affects their own XP, and XP for repeating a lesson is limited to once a day.
+
+## Curse-word filter
+
+Every free-text box goes through `app/services/wordfilter.py`: names, emails (the part before the @), the home page form's message and anything added later with `clean_name` or `clean_text`. It catches look-alikes (sh1t, $hit, f*ck), stretched letters (fuuuck) and spaced letters (f u c k), but matches whole words, so innocent words like class, Dickens, Scunthorpe and Matsushita are fine. The browser runs the same check (`website/src/wordfilter.js`) to show the message as students type; the server's check is the one that counts. Signing in never runs it, so no existing account can be locked out.
+
+The list is `app/content/blocked_words.txt`, stored in ROT13 so the file isn't a wall of curse words (the file explains how to read and edit it). Rebuild the site after editing it.
 
 ## Checkout and Stripe
 

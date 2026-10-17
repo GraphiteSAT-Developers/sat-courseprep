@@ -1,0 +1,93 @@
+<!--{"file": "speed.html", "path": "/speed.html", "title": "Speed Round | Graphite SAT Tutoring", "description": "Ten quick SAT Math questions, the same for everyone each day. Finish fast with few misses to climb your state's leaderboard.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "speed.js"]}-->
+<main id="main" class="practice speed-page">
+  <div class="wrap dash-stack">
+    <p class="sample-note" id="sp-preview-note" hidden><span class="label">Preview</span> Your rounds are saved in this browser only, and the leaderboards show sample players. On the live site you race real students.</p>
+
+    <div class="dash-top">
+      <div>
+        <p class="label">Speed round</p>
+        <h1>Ten questions. How fast can you go?</h1>
+      </div>
+    </div>
+
+    <p class="field-error pr-error" id="sp-error" role="alert" hidden></p>
+    <p class="fine" id="sp-loading">Loading today's round…</p>
+
+    <!-- Before a round -->
+    <section class="panel sp-intro" id="sp-intro" aria-labelledby="sp-intro-title" hidden>
+      <div class="sp-intro-copy">
+        <p class="label" id="sp-day"></p>
+        <h2 id="sp-intro-title">Today's round</h2>
+        <ul class="sp-rules">
+          <li><strong id="sp-size">10</strong> quick multiple-choice Math questions, the same for every student today.</li>
+          <li>The clock starts when the first question appears and stops at your last answer.</li>
+          <li>Each miss adds <strong id="sp-penalty">15</strong> seconds, so accuracy beats rushing.</li>
+          <li>Your first round of the day goes on the leaderboard. Rounds after that are practice.</li>
+        </ul>
+      </div>
+      <div class="sp-intro-side">
+        <dl class="sp-stats">
+          <div><dt>Today's ranked round</dt><dd id="sp-today">Not played yet</dd></div>
+          <div><dt>Your best ever</dt><dd id="sp-best">–</dd></div>
+        </dl>
+        <button class="btn btn-primary sp-go" type="button" id="sp-start">Start today's round</button>
+        <p class="fine" id="sp-visibility"></p>
+      </div>
+    </section>
+
+    <!-- During a round -->
+    <section class="panel sp-play" id="sp-play" aria-label="Speed round" hidden>
+      <div class="sp-bar">
+        <span class="sp-count" id="sp-count">Question 1 of 10</span>
+        <span class="sp-dots" id="sp-dots" aria-hidden="true"></span>
+        <span class="sp-clock" id="sp-clock" role="timer" aria-live="off">0:00.0</span>
+      </div>
+      <div class="sp-q" id="sp-q" aria-live="polite">
+        <div class="q-stem sp-stem" id="sp-stem"></div>
+        <div class="sp-choices" id="sp-choices"></div>
+      </div>
+      <p class="fine sp-keys">Tip: press 1–4 or A–D to answer.</p>
+    </section>
+
+    <!-- After a round -->
+    <section class="panel sp-done" id="sp-done" aria-labelledby="sp-done-title" tabindex="-1" hidden>
+      <p class="label" id="sp-done-kind">Ranked round</p>
+      <h2 id="sp-done-title">0:00.0</h2>
+      <dl class="sp-stats sp-stats-row">
+        <div><dt>Right</dt><dd id="sp-done-right">0 of 10</dd></div>
+        <div><dt>Clock</dt><dd id="sp-done-raw">0:00.0</dd></div>
+        <div><dt>Miss penalty</dt><dd id="sp-done-pen">+0:00</dd></div>
+        <div><dt>Place</dt><dd id="sp-done-place">–</dd></div>
+      </dl>
+      <div class="pd-row">
+        <a class="btn btn-primary" href="#sp-board-panel">See the leaderboards</a>
+        <button class="btn btn-secondary" type="button" id="sp-again">Play again for practice</button>
+      </div>
+    </section>
+
+    <section class="panel" id="sp-board-panel" aria-labelledby="sp-board-title" hidden>
+      <div class="panel-head">
+        <h2 id="sp-board-title">Leaderboard</h2>
+        <span class="label" id="sp-board-sample" hidden>Sample players</span>
+      </div>
+      <div class="sp-board-tabs">
+        <div class="seg" role="radiogroup" aria-label="Where">
+          <span><input type="radio" name="sp-scope" id="sp-scope-state" value="state" checked><label for="sp-scope-state" id="sp-scope-state-label">My state</label></span>
+          <span><input type="radio" name="sp-scope" id="sp-scope-nation" value="nation"><label for="sp-scope-nation">Nationwide</label></span>
+        </div>
+        <div class="seg" role="radiogroup" aria-label="When">
+          <span><input type="radio" name="sp-period" id="sp-period-today" value="today" checked><label for="sp-period-today">Today</label></span>
+          <span><input type="radio" name="sp-period" id="sp-period-week" value="week"><label for="sp-period-week">This week</label></span>
+        </div>
+      </div>
+      <p class="fine" id="sp-board-note"></p>
+      <div class="sp-table-wrap">
+        <table class="sp-table">
+          <thead><tr><th scope="col">#</th><th scope="col">Player</th><th scope="col" class="sp-col-state">State</th><th scope="col">Right</th><th scope="col">Time</th></tr></thead>
+          <tbody id="sp-board"></tbody>
+        </table>
+      </div>
+      <p class="sp-you" id="sp-you" hidden></p>
+    </section>
+  </div>
+</main>

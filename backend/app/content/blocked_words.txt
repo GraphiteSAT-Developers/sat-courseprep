@@ -1,0 +1,60 @@
+# Words the site won't accept in any text box (names, emails, messages).
+# Stored in ROT13 so the file isn't a wall of curse words. Decode with: python3 -c "import codecs,sys; print(codecs.decode(sys.stdin.read(), 'rot13'))" < blocked_words.txt
+# One word per line, with how it matches:
+#   *word   anywhere inside a word (only for words no innocent word contains)
+#   ~word   at the start or end of a word (catches bullshit and shithead, but not Matsushita)
+#   word    the whole word, plus endings like -s, -ed, -ing, -er, -y
+# Edit the list, then rebuild the site (python website/build.py) so the browser check matches the server.
+*shpx
+*zbgures
+*avttre
+*avttn
+*snttbg
+*pbpxfhpx
+*qvyqb
+*wvmm
+~fuvg
+~ovgpu
+~onfgneq
+~nffubyr
+~nffung
+~qvpxurnq
+~wnpxnff
+~qhzonff
+~juber
+~fyhg
+~ergneq
+~cbea
+~qbhpur
+~tbqqnza
+~gjng
+~phag
+~obyybpx
+~fxnax
+nff
+nefr
+qvpx
+pbpx
+cvff
+cevpx
+qnza
+gvgf
+gvggl
+obbof
+snt
+xlf
+fcvp
+puvax
+xvxr
+jrgonpx
+genaal
+jnax
+chffl
+gubg
+cravf
+intvan
+frk
+frkl
+ahqr
+ahqrf
+penc

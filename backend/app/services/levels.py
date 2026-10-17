@@ -101,6 +101,18 @@ def overview(user_id):
     return {"tracks": out, "size": SIZE, "pass": PASS, "levels": LEVELS}
 
 
+HARDNESS = {"easy": 0, "medium": 1, "hard": 2}
+
+
+def boss_last(ids):
+    """Moves the hardest question to the end: it's the level's boss question, worth bonus XP and coins."""
+    if not ids:
+        return ids
+    items = bank.all_items()
+    boss = max(range(len(ids)), key=lambda i: (HARDNESS.get(items[ids[i]]["difficulty"], 0), i))
+    return ids[:boss] + ids[boss + 1:] + [ids[boss]]
+
+
 def start(user_id, track_key, level, rng=random):
     """The set for one level: the unfinished one if there is one, else a new one. None if the level is locked."""
     from . import practice
@@ -111,7 +123,7 @@ def start(user_id, track_key, level, rng=random):
     open_id = prog.get(level, {}).get("open_id")
     if open_id:
         return practice.get(user_id, open_id)
-    ids = practice.draw_mix(user_id, t["skills"], mix(level), rng)
+    ids = boss_last(practice.draw_mix(user_id, t["skills"], mix(level), rng))
     title = f"{t['name']} · Level {level}"
     domain = None if track_key == ALL else track_key
     return practice.save_session(user_id, "quiz", title, ids, 0, domain=domain, plan_task=tag(track_key, level))

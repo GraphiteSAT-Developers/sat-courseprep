@@ -109,7 +109,7 @@
       submitted: !!s.submitted_at, questions: s.item_ids.map(function (id) { return publicQ(byId[id]); }), checked: checked };
     if (s.result) o.result = s.result;
     var tag = parseTag(s.plan_task);
-    if (tag) o.level = { track: tag.track, n: tag.level, tier: BANK.levels.rungs[tag.level - 1].tier, pass: BANK.levels.pass, top: BANK.levels.count };
+    if (tag) o.level = { track: tag.track, n: tag.level, tier: BANK.levels.rungs[tag.level - 1].tier, pass: BANK.levels.pass, top: BANK.levels.count, boss: s.item_ids.length - 1 };
     return o;
   }
 
@@ -171,9 +171,16 @@
     if (!(i >= 0 && i < s.item_ids.length)) return fail(400, "That question isn't in this set.");
     var q = byId[s.item_ids[i]], a = cleanAnswer(q, data.answer);
     if (a === null) return fail(400, "Choose or type an answer first.");
-    var finished = [];
-    if (!(String(i) in s.checked)) { s.checked[i] = a; finished = markSeen(st, [q.id]); save(st); }
-    return Promise.resolve({ question: graded(q, i, s.checked[i]), finished: finished });
+    var finished = [], fresh = !(String(i) in s.checked);
+    if (fresh) { s.checked[i] = a; finished = markSeen(st, [q.id]); save(st); }
+    var g = graded(q, i, s.checked[i]);
+    // Level up rewards: XP, combos and the boss question (play-local.js, same rules as services/game.py).
+    if (fresh && parseTag(s.plan_task) && window.GraphitePlayLocal) {
+      var right = {};
+      Object.keys(s.checked).forEach(function (k) { right[k] = isCorrect(byId[s.item_ids[k]], s.checked[k]); });
+      g.game = window.GraphitePlayLocal.levelCheck(s, i, g.correct, right, s.item_ids.length);
+    }
+    return Promise.resolve({ question: g, finished: finished });
   }
   function submit(st, s, data) {
     if (s.submitted_at) return Promise.resolve({ result: s.result });
@@ -197,7 +204,12 @@
     var limit = s.minutes ? s.minutes * 60 + 120 : s.item_ids.length * 600;
     res.seconds_used = Math.max(0, Math.min(Number(data.seconds_used) || 0, limit));
     res.practice_id = s.id; res.mode = s.mode; res.title = s.title; res.submitted_at = now();
-    if (parseTag(s.plan_task)) res.level = levelResult(st, s, res.correct);
+    var tag = parseTag(s.plan_task);
+    if (tag) {
+      var before = lvProgress(st, tag.track).levels[tag.level];
+      res.level = levelResult(st, s, res.correct);
+      if (window.GraphitePlayLocal) res.game = window.GraphitePlayLocal.levelFinish(s, tag.level, res.correct, res.total, res.level.passed, !(before && before.passed), res.level.top);
+    }
     s.submitted_at = res.submitted_at; s.result = res; save(st);
     return Promise.resolve({ result: res });
   }
@@ -492,6 +504,13 @@
     return { track: t.track, track_name: tr ? tr.name : t.track, level: t.level, pass: LV.pass, total: s.item_ids.length, passed: passed,
       next: passed && t.level < LV.count ? t.level + 1 : null, unlocked: passed ? Math.max(p.unlocked, Math.min(LV.count, t.level + 1)) : p.unlocked, top: LV.count };
   }
+  // The hardest question goes last: it's the level's boss question (same as levels.boss_last).
+  var HARD = { easy: 0, medium: 1, hard: 2 };
+  function bossLast(ids) {
+    if (!ids.length) return ids;
+    var b = 0; ids.forEach(function (id, i) { if (HARD[byId[id].difficulty] >= HARD[byId[ids[b]].difficulty]) b = i; });
+    return ids.slice(0, b).concat(ids.slice(b + 1), [ids[b]]);
+  }
   function levelsCall(path, data) {
     var st = load();
     if (path === "/api/levels") {
@@ -513,7 +532,7 @@
       if (n > p.unlocked) return fail(403, "Pass level " + (n - 1) + " first to unlock level " + n + ".");
       var open = p.levels[n] && p.levels[n].open_id, s = open ? st.sessions[open] : null;
       if (!s) {
-        s = newSession(st, "quiz", tr.name + " · Level " + n, drawMix(st, tr.skills, LV.rungs[n - 1].mix), 0,
+        s = newSession(st, "quiz", tr.name + " · Level " + n, bossLast(drawMix(st, tr.skills, LV.rungs[n - 1].mix)), 0,
           { domain: tr.key === "mixed" ? null : tr.key, plan_task: "ladder:" + tr.key + ":" + n });
         save(st);
       }
