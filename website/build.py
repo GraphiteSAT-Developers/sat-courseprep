@@ -142,8 +142,8 @@ def pricing_html():
         intro = f'<p class="tier-intro">{esc(p["intro"])}</p>' if p["intro"] else ""
         feats = "".join(f"<li>{esc(f)}</li>" for f in p["features"])
         cta = ('<a class="btn btn-secondary btn-block" href="#start" data-track="plan_free">Start free</a>' if key == "free" else
-               f'<a class="btn {"btn-primary" if p["badge"] == "Most popular" else "btn-secondary"} btn-block" href="signin.html#create" '
-               f'data-track="plan_{key}">Choose {esc(p["name"])}</a>')
+               f'<a class="btn {"btn-primary" if p["badge"] == "Most popular" else "btn-secondary"} btn-block" href="checkout.html?plan={key}&amp;interval=year" '
+               f'data-checkout="{key}" data-track="plan_{key}">Choose {esc(p["name"])}</a>')
         save = saving(key, "year")
         cards.append(f"""<article class="tier tier-{key}{' tier-featured' if p['badge'] == 'Most popular' else ''}" aria-labelledby="tier-{key}" {attrs}>
             <div class="tier-head"><div class="tier-name"><h3 id="tier-{key}">{esc(p["name"])}</h3>{badge}</div><p class="tier-tagline">{esc(p["tagline"])}</p></div>
@@ -158,6 +158,49 @@ def pricing_html():
             <span><input type="radio" name="billing" id="bill-year" value="year" checked><label for="bill-year">Yearly <em>Save up to {best}%</em></label></span>
           </div>"""
     return toggle + '\n          <div class="tiers">' + "\n          ".join(cards) + "</div>"
+
+
+def compare_html():
+    """The "Compare every feature" table under the plans, from COMPARE in plans.py.
+    A table on wide screens; on phones each feature becomes a small card with the four plans under it."""
+    P = service("plans")
+    esc = lambda t: str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    names = [P.PLANS[k]["name"] for k in P.ORDER]
+    def cell(v):
+        if v is True:
+            return '<span class="yes" aria-hidden="true"></span><span class="visually-hidden">Included</span>'
+        if v is False:
+            return '<span class="no" aria-hidden="true"></span><span class="visually-hidden">Not included</span>'
+        return esc(v)
+    feat = lambda k: ' class="is-featured"' if P.PLANS[k]["badge"] == "Most popular" else ""
+    head = "".join(f'<th scope="col"{feat(k)}>{esc(P.PLANS[k]["name"])}</th>' for k in P.ORDER)
+    groups = []
+    for title, rows in P.COMPARE:
+        body = "".join(
+            '<tr><th scope="row">' + esc(label) + "</th>" + "".join(
+                f'<td data-plan="{esc(names[i])}"{feat(P.ORDER[i])}>{cell(v)}</td>'
+                for i, v in enumerate(vals)) + "</tr>" for label, vals in rows)
+        groups.append(f'<tbody><tr class="compare-group"><th scope="colgroup" colspan="5">{esc(title)}</th></tr>{body}</tbody>')
+    featured = next(i for i, k in enumerate(P.ORDER) if P.PLANS[k]["badge"] == "Most popular")
+    pick = "".join(f'<span><input type="radio" name="compare-show" id="compare-show-{i}" value="{i}"{" checked" if i == featured else ""}>'
+                   f'<label for="compare-show-{i}">{esc(n)}</label></span>' for i, n in enumerate(names))
+    return (f'''<div class="compare" id="compare" data-show="{featured}">
+          <h3 class="compare-title">Compare every feature</h3>
+          <div class="compare-pick" role="radiogroup" aria-label="Show plan">{pick}</div>
+          <table class="compare-table">
+            <caption class="visually-hidden">What each Graphite plan includes</caption>
+            <thead><tr><th scope="col"><span class="visually-hidden">Feature</span></th>{head}</tr></thead>
+            {"".join(groups)}
+          </table>
+          <p class="fine compare-more">And more to come: new practice tests, question sets and tutor features are added as they're ready.</p>
+        </div>''')
+
+
+def plans_json():
+    """Plans and prices for checkout.html, read by checkout.js. Same numbers as everywhere else."""
+    P = service("plans")
+    return ('<script type="application/json" id="plans-data">'
+            + json.dumps(P.public_plans(), separators=(",", ":")).replace("</", "<\\/") + "</script>")
 
 
 def bank_js():
@@ -222,6 +265,10 @@ def render(meta, mode):
     page_body = meta["body"].replace("{{SCORE_CHART}}", score_chart())
     if "{{PRICING}}" in page_body:
         page_body = page_body.replace("{{PRICING}}", pricing_html())
+    if "{{COMPARE}}" in page_body:
+        page_body = page_body.replace("{{COMPARE}}", compare_html())
+    if "{{PLANS_JSON}}" in page_body:
+        page_body = page_body.replace("{{PLANS_JSON}}", plans_json())
     body = head_nav + page_body + foot + ("" if meta.get("test") else banner)
     url = SITE + meta["path"]
     robots = meta.get("robots", "index, follow")
@@ -346,7 +393,7 @@ def build():
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
-    for n in ("ripple.js", "theme.js", "settings.js"):
+    for n in ("ripple.js", "theme.js", "settings.js", "checkout.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
@@ -360,7 +407,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

@@ -102,6 +102,11 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `POST /api/me/sign-out-others` | Sign out every other device | Yes |
 | `GET /api/me/export` | Download the account's data as JSON (no passwords) | Yes |
 | `POST /api/me/delete` | Delete the account and everything tied to it (needs the password and "DELETE") | Yes |
+| `GET /api/checkout` | Plans, prices and the parent's students, for the checkout page | No |
+| `POST /api/checkout` | Buy a plan: `{"plan", "interval", "student_id"}`. Returns Stripe's payment page, or starts the plan when Stripe isn't connected | Parent |
+| `GET /api/checkout/session/<id>` | After paying on Stripe: confirm the payment and start the plan | Parent |
+| `POST /api/parent/billing-portal` | Stripe's page for the parent's card and receipts | Parent |
+| `POST /api/stripe/webhook` | Stripe's payment updates (checked with the webhook signature) | Stripe |
 | `GET /api/health` | Health check for the host | No |
 
 ## Folder layout
@@ -168,11 +173,27 @@ Every plan, price and feature list lives in `app/services/plans.py`. The home pa
 | Sharpened | $9.99 ($43.29/month) | $39 | $348 ($29/month, 26% off) |
 | Masterstroke | $34.99 ($151.62/month) | $129 | $1,188 ($99/month, 23% off) |
 
-Prices are always shown per month. `LIMITS` in the same file says what each plan allows, but limits aren't enforced yet: every account can use everything until payments are connected. Masterstroke promises a weekly coach check-in, a monthly parent call and priority help, which someone has to deliver in person.
+Prices are always shown per month. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, but limits aren't enforced yet: every account can use everything. Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
+
+## Checkout and Stripe
+
+`checkout.html` is where a parent picks a plan and how to pay (weekly, monthly or yearly). Students and visitors are asked to sign in or create a parent account first; their choices stay in the link. Plan buttons on the home page and the parent dashboard lead there.
+
+Until Stripe is connected, checkout starts the plan right away and the billing history says "No card was charged". To connect Stripe:
+
+1. Create a Stripe account and copy the **test** secret key (Developers > API keys, starts with `sk_test_`).
+2. Set `STRIPE_SECRET_KEY` to it (in `backend/.env` on your computer, or in Render or Railway's environment settings).
+3. In Stripe, go to Developers > Webhooks and add the endpoint `https://your-site/api/stripe/webhook` with these events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`. Copy its signing secret (`whsec_...`) into `STRIPE_WEBHOOK_SECRET`.
+4. Restart the server, then buy a plan with Stripe's test card `4242 4242 4242 4242` (any future date, any CVC).
+5. In Stripe, turn on the customer portal (Settings > Billing > Customer portal) so the "Card and receipts" button on the parent dashboard works.
+6. When it all works, switch to the live key (`sk_live_...`) and add a live webhook the same way.
+
+No products need to be made in Stripe: the server creates each price from `plans.py` the first time someone buys it. If you change a price, the new price is created automatically and people already paying keep their old price. Canceling, pausing and resuming on the parent dashboard are sent to Stripe too.
+
+On your own computer, Stripe can't reach `127.0.0.1` for webhooks. Checkout still works, because the plan is also started when the parent comes back from Stripe. To test webhooks locally, use the Stripe CLI: `stripe listen --forward-to localhost:8000/api/stripe/webhook`.
 
 ## Not built yet
 
-- Payments (Stripe Checkout and webhooks would go in a new `billing` feature). Plan changes on the parent dashboard work but charge nothing.
 - Plan limits (see `LIMITS` in `app/services/plans.py`)
 - Email verification for new accounts
 - Sending the weekly progress email to parents

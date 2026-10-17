@@ -1,12 +1,12 @@
 """Students and parents: the student's Parent access card, and everything on the parent dashboard."""
-from datetime import date
+from datetime import date, timedelta
 
 from flask import Blueprint, current_app, jsonify
 
 from ..db import execute, query
 from ..security import (ApiError, body, clean_date, clean_target, current_user, login_required, rate_limited,
                         record_event)
-from ..services import family, mailer, parent as service
+from ..services import billing, family, mailer, parent as service, stripe_api
 
 # ---------- the student's side: make a code, see and remove parents ----------
 
@@ -63,7 +63,7 @@ def home():
     me = current_user()
     return jsonify({"parent": {"name": me["name"], "email": me["email"]},
                     "students": [{"id": s["id"], "name": s["name"]} for s in family.students_of(me["id"])],
-                    "plans": _plans(), "payments_live": service.PAYMENTS_LIVE, "alert_days": list(service.ALERT_DAYS)})
+                    "plans": _plans(), "payments_live": service.payments_live(), "alert_days": list(service.ALERT_DAYS)})
 
 
 @bp.post("/link")
@@ -135,15 +135,31 @@ def update_settings(student_id):
 @bp.post("/students/<int:student_id>/plan")
 @login_required
 def change_plan(student_id):
+    """Switching to free ends the paid plan when its paid time runs out. Paid plans are bought on checkout.html."""
     _student_or_404(student_id)
     data = body()
     plan, interval = data.get("plan"), data.get("interval")
     if plan not in service.PLANS:
         raise ApiError(400, "Pick a plan.", "plan")
-    if plan != "free" and interval not in service.INTERVALS:
+    if plan == "free":
+        sub = service.subscription(student_id)
+        if sub["plan"] != "free" and sub["status"] != "canceled":
+            _stripe(student_id, "cancel")
+            service.cancel(current_user()["id"], student_id)
+        return jsonify({"subscription": service.subscription(student_id), "billing": service.billing_history(student_id)})
+    if interval not in service.INTERVALS:
         raise ApiError(400, "Pick weekly, monthly or yearly billing.", "interval")
+    if service.payments_live():
+        raise ApiError(409, "Paid plans start on the checkout page.", code="checkout_required")
     return jsonify({"subscription": service.change_plan(current_user()["id"], student_id, plan, interval),
                     "billing": service.billing_history(student_id)})
+
+
+def _stripe(student_id, action, paused_until=None):
+    try:
+        billing.sync_action(student_id, action, paused_until)
+    except stripe_api.StripeError:
+        raise ApiError(502, "We couldn't reach the payment service, so nothing changed. Try again in a minute.") from None
 
 
 @bp.post("/students/<int:student_id>/plan/<action>")
@@ -159,8 +175,22 @@ def plan_action(student_id, action):
     if not allowed[action]:
         raise ApiError(409, {"pause": "Only an active paid plan can be paused.", "cancel": "There's no paid plan to cancel.",
                              "resume": "The plan is already active."}[action])
+    _stripe(student_id, action, (date.today() + timedelta(days=service.PAUSE_DAYS)).isoformat())
     sub = getattr(service, action)(current_user()["id"], student_id)
     return jsonify({"subscription": sub, "billing": service.billing_history(student_id)})
+
+
+@bp.post("/billing-portal")
+@login_required
+def billing_portal():
+    """Stripe's page for updating the card and downloading receipts."""
+    try:
+        url = billing.portal_url(current_user())
+    except stripe_api.StripeError:
+        raise ApiError(502, "We couldn't open the billing page. Try again in a minute.") from None
+    if not url:
+        raise ApiError(409, "There's no card on file yet. It's added when you buy a plan.")
+    return jsonify({"url": url})
 
 
 @bp.post("/students/<int:student_id>/report")

@@ -166,11 +166,13 @@
     $("pd-current").innerHTML = '<div><p class="label">Current plan</p><p class="pd-plan-name">' + esc(sub.plan_name) + ' <span class="pd-price">' + esc(sub.price_label) + "</span></p>" +
       '<p class="fine">' + esc(state) + "</p></div>" + '<span class="chip pd-status-' + sub.status + '">' + (sub.status === "active" ? "Active" : sub.status === "paused" ? "Paused" : "Canceled") + "</span>";
     if (sub.interval && $("pd-int-" + sub.interval)) $("pd-int-" + sub.interval).checked = true;
+    closeConfirm();
     drawPlans();
     var acts = [];
     if (sub.status === "active" && sub.plan !== "free") acts.push(["pause", "btn-secondary", "Pause for 30 days"], ["cancel", "btn-quiet", "Cancel plan"]);
     if (sub.status === "paused") acts.push(["resume", "btn-primary", "Resume now"], ["cancel", "btn-quiet", "Cancel plan"]);
-    if (sub.status === "canceled") acts.push(["resume", "btn-primary", "Keep the plan"]);
+    if (sub.status === "canceled") acts.push(["resume", "btn-primary", "Keep " + sub.plan_name]);
+    if (home.payments_live && sub.plan !== "free") acts.push(["portal", "btn-quiet", "Card and receipts"]);
     $("pd-plan-actions").innerHTML = acts.map(function (a) { return '<button class="btn ' + a[1] + '" type="button" data-act="' + a[0] + '">' + a[2] + "</button>"; }).join("");
     $("pd-history").innerHTML = S.billing.length ? S.billing.map(function (b) {
       return '<li><span class="pd-act-day">' + day(b.at) + "</span><span>" + esc(b.detail) + "</span></li>";
@@ -179,17 +181,22 @@
   function drawPlans() {
     var sub = S.subscription, iv = interval();
     $("pd-plans").innerHTML = home.plans.map(function (p) {
-      // Always shown per month; the line under it says what's actually billed.
+      // Always shown per month; the small line under it says what's actually billed.
       var cents = p.cents ? p.cents[iv] : (iv === "year" ? p.year_cents : p.month_cents);
       var each = p.per_month_cents ? p.per_month_cents[iv] : (iv === "year" ? Math.round(cents / 12) : cents);
       var here = p.key === sub.plan && (p.key === "free" || sub.interval === iv);
       var price = p.key === "free" ? "Free" : money(each) + "/month";
       var save = p.savings && p.savings[iv] && iv === "year" && p.savings[iv].percent > 0 ? " Saves " + money(p.savings[iv].per_year_cents) + " a year." : "";
       var billedLine = p.key === "free" ? "" : iv === "month" ? "Billed monthly." : "Billed " + money(cents) + (iv === "week" ? " weekly." : " yearly.") + save;
-      var sub2 = billedLine ? '<span class="fine">' + esc(billedLine) + "</span>" : "";
+      var sub2 = billedLine ? '<span class="pd-billed">' + esc(billedLine) + "</span>" : "";
+      var action;
+      if (here) action = '<span class="chip">Current plan</span>';
+      else if (p.key === "free" && sub.status === "canceled") action = '<span class="chip chip-quiet">Starts ' + esc(day(sub.renews_on)) + "</span>";
+      else if (p.key === "free") action = '<button class="btn btn-quiet" type="button" data-free>Switch to free</button>';
+      else action = '<a class="btn btn-secondary" href="checkout.html?plan=' + p.key + "&amp;interval=" + iv + "&amp;student=" + current + '">' +
+        (p.key === sub.plan ? "Switch to " + (iv === "week" ? "weekly" : iv === "month" ? "monthly" : "yearly") : "Choose " + esc(p.name)) + "</a>";
       return '<article class="pd-plan' + (here ? " is-current" : "") + '"><h3>' + esc(p.name) + '</h3><p class="pd-plan-price">' + price + "</p>" + sub2 +
-        '<p class="fine">' + esc(p.blurb) + "</p>" + (here ? '<span class="chip">Current plan</span>'
-        : '<button class="btn ' + (p.key === "free" ? "btn-quiet" : "btn-secondary") + '" type="button" data-plan="' + p.key + '">' + (p.key === "free" ? "Switch to free" : "Choose " + esc(p.name)) + "</button>") + "</article>";
+        '<p class="fine">' + esc(p.blurb) + "</p>" + action + "</article>";
     }).join("");
   }
   $("pd-interval").addEventListener("change", drawPlans);
@@ -199,30 +206,62 @@
     busy = true; clearStatus("pd-plan-status");
     var label = btn.textContent; btn.disabled = true; btn.textContent = "Saving…";
     call(path, data || {}).then(function (r) {
-      busy = false; S.subscription = r.subscription; S.billing = r.billing; renderBilling();
+      busy = false; S.subscription = r.subscription; S.billing = r.billing; closeConfirm(); renderBilling();
       status("pd-plan-status", "ok", done(r.subscription));
+      $("pd-plan-status").focus();
     }).catch(function (err) { busy = false; btn.disabled = false; btn.textContent = label; status("pd-plan-status", "err", failed(err, "That didn't save. Try again.")); });
   }
-  // Downgrades and cancellations ask for a second press.
+  // Disconnecting a student asks for a second press. Only one button is armed at a time.
   function confirmFirst(btn, key, text) {
     if (confirmArmed === key) { confirmArmed = null; return true; }
     confirmArmed = key; btn.textContent = text;
-    setTimeout(function () { if (confirmArmed === key) { confirmArmed = null; renderBilling(); } }, 5000);
+    setTimeout(function () { if (confirmArmed === key) { confirmArmed = null; renderFamily(); } }, 5000);
     return false;
   }
+
+  // Switching to free and canceling are the same thing: the paid plan runs to the end of the time paid for,
+  // then the free plan starts. One clear question instead of a button that changes its label.
+  var confirmFrom = null;
+  function openConfirm(from) {
+    var sub = S.subscription, free = home.plans[0], first = S.student.first_name || "your student";
+    confirmFrom = from;
+    $("pd-confirm").innerHTML = '<h3 id="pd-confirm-title" tabindex="-1">Switch to ' + esc(free.name) + "?</h3>" +
+      "<p>" + esc(sub.plan_name) + " stays on until " + esc(day(sub.renews_on)) + ", the end of the time already paid for. Then " + esc(first) +
+      " moves to the free plan: " + esc(free.blurb.charAt(0).toLowerCase() + free.blurb.slice(1)) + "</p>" +
+      '<p class="fine">Nothing else is charged. You can undo this any time before ' + esc(day(sub.renews_on)) + ".</p>" +
+      '<div class="pd-row"><button class="btn btn-primary" type="button" data-confirm="yes">Yes, switch to free</button>' +
+      '<button class="btn btn-secondary" type="button" data-confirm="no">Keep ' + esc(sub.plan_name) + "</button></div>";
+    $("pd-confirm").hidden = false;
+    $("pd-confirm-title").focus();
+  }
+  function closeConfirm(refocus) {
+    $("pd-confirm").hidden = true; $("pd-confirm").innerHTML = "";
+    if (refocus && confirmFrom) { var b = document.querySelector(confirmFrom); if (b) b.focus(); }
+    confirmFrom = null;
+  }
+  $("pd-confirm").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-confirm]"); if (!b) return;
+    if (b.getAttribute("data-confirm") === "no") { closeConfirm(true); return; }
+    planRequest("/api/parent/students/" + current + "/plan/cancel", null, function (sub) {
+      return "Done. " + sub.plan_name + " stays on until " + day(sub.renews_on) + ", then the free plan starts.";
+    }, b);
+  });
+  $("pd-confirm").addEventListener("keydown", function (e) { if (e.key === "Escape") closeConfirm(true); });
   $("pd-plans").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-plan]"); if (!b) return;
-    var plan = b.getAttribute("data-plan");
-    if (plan === "free" && !confirmFirst(b, "free", "Press again to switch to free")) return;
-    planRequest("/api/parent/students/" + current + "/plan", { plan: plan, interval: plan === "free" ? null : interval() },
-      function (sub) { return sub.plan === "free" ? "Switched to the free plan." : "Switched to " + sub.plan_name + " at " + sub.price_label + "."; }, b);
+    if (e.target.closest("[data-free]")) openConfirm("[data-free]");
   });
   $("pd-plan-actions").addEventListener("click", function (e) {
     var b = e.target.closest("[data-act]"); if (!b) return;
     var act = b.getAttribute("data-act");
-    if (act === "cancel" && !confirmFirst(b, "cancel", "Press again to cancel")) return;
+    if (act === "cancel") { openConfirm('[data-act="cancel"]'); return; }
+    if (act === "portal") {
+      b.disabled = true;
+      call("/api/parent/billing-portal", {}).then(function (r) { location.href = r.url; })
+        .catch(function (err) { b.disabled = false; status("pd-plan-status", "err", failed(err, "We couldn't open the billing page. Try again.")); });
+      return;
+    }
     planRequest("/api/parent/students/" + current + "/plan/" + act, null, function (sub) {
-      return act === "pause" ? "Paused until " + day(sub.paused_until) + "." : act === "cancel" ? "Canceled. It stays on until " + day(sub.renews_on) + "." : "The plan is active again.";
+      return act === "pause" ? "Paused until " + day(sub.paused_until) + "." : "The plan is active again.";
     }, b);
   });
 

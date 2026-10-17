@@ -1479,7 +1479,7 @@ body:has(.ripple-bg) .dash, body:has(.ripple-bg) .app-footer { position: relativ
 }
 
 /* Pricing: four plans across the full width, with a Weekly / Monthly / Yearly switch. Prices always show per month. */
-.pricing { grid-column: 1 / -1; display: grid; gap: var(--s5); min-width: 0; }
+.pricing { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
 .billing-switch { justify-self: start; display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
 .billing-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .billing-switch label { display: inline-flex; align-items: center; gap: var(--s2); min-height: 40px; padding: 0 var(--s4); border-radius: 999px; font-weight: 700; font-size: var(--t-sm); cursor: pointer; color: var(--muted); }
@@ -1501,7 +1501,7 @@ body:has(.ripple-bg) .dash, body:has(.ripple-bg) .app-footer { position: relativ
 .tier-tagline { color: var(--muted); font-size: var(--t-sm); min-height: 2.9em; }
 .tier-price { display: grid; gap: var(--s1); padding-block: var(--s3); border-block: 1px solid var(--line); }
 .tier .price .amount { font-size: clamp(2.2rem, 1.6rem + 1.4vw, 2.8rem); }
-.tier-billed { color: var(--muted); font-size: var(--t-xs); min-height: 1.5em; }
+.tier-billed { color: var(--muted); font-size: 0.6875rem; line-height: 1.4; min-height: 1.4em; }
 .tier-save { justify-self: start; font-size: var(--t-xs); font-weight: 800; color: var(--ok); }
 .tier-intro { font-weight: 800; font-size: var(--t-sm); }
 .tier-features { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--s3); font-size: var(--t-sm); }
@@ -1509,4 +1509,112 @@ body:has(.ripple-bg) .dash, body:has(.ripple-bg) .app-footer { position: relativ
 .tier-features li::before { content: ""; position: absolute; left: 0; top: 0.35em; width: 14px; height: 10px; border-radius: 50%; background: var(--accent); }
 .tier-free .tier-features li::before { background: var(--control); }
 @media (max-width: 1100px) { .tiers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 640px) { .tiers { grid-template-columns: minmax(0, 1fr); } .tier-tagline { min-height: 0; } .billing-switch { justify-self: stretch; justify-content: space-between; } .billing-switch label { padding: 0 var(--s3); } }
+@media (max-width: 640px) {
+  .tiers { grid-template-columns: minmax(0, 1fr); } .tier-tagline { min-height: 0; }
+  /* Three equal buttons; the yearly saving sits under its label. */
+  .billing-switch { justify-self: stretch; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-radius: 14px; }
+  .billing-switch label { flex-direction: column; justify-content: center; gap: 2px; min-height: 52px; padding: var(--s1); border-radius: 10px; text-align: center; }
+  .billing-switch em { font-size: 0.6875rem; padding: 0 6px; }
+}
+
+/* What's actually billed, under a per-month price: deliberately small. */
+.pd-billed { color: var(--muted); font-size: 0.6875rem; line-height: 1.4; }
+
+/* Switch to free: one clear question under the plans */
+.pd-confirm { display: grid; gap: var(--s3); padding: var(--s5); border-radius: 10px; background: var(--raised); }
+.pd-confirm h3 { font-size: var(--t-md); }
+.pd-confirm h3:focus { outline: none; }
+
+/* Compare every feature */
+.compare { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s4); min-width: 0; margin-top: var(--s4); }
+.compare-title { font-size: var(--t-lg); }
+.compare-table { width: 100%; min-width: 0; border-collapse: collapse; font-size: var(--t-sm); table-layout: fixed; }
+.compare-table th, .compare-table td { border-bottom: 0; vertical-align: middle; }
+.compare-table thead th { position: sticky; top: 0; z-index: 1; background: var(--bg); padding: var(--s3); text-align: center; font: 700 var(--t-sm)/1.3 var(--font-display); border-bottom: 1px solid var(--line); }
+.compare-table thead th:first-child { width: 34%; }
+.compare-table tbody th[scope="row"] { text-align: left; font-weight: 600; padding: var(--s3) var(--s3) var(--s3) 0; }
+.compare-table td { text-align: center; padding: var(--s3); color: var(--text); }
+.compare-table tbody tr + tr > * { border-top: 1px solid var(--line); }
+.compare-table .is-featured { background: var(--surface); }
+.compare-table thead th.is-featured { background: var(--raised); border-radius: 10px 10px 0 0; }
+.compare-group th { text-align: left; padding: var(--s5) 0 var(--s2); font: 800 var(--t-xs)/1.3 var(--font-body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.compare .yes { display: inline-block; width: 7px; height: 13px; border: solid var(--accent); border-width: 0 3px 3px 0; transform: rotate(45deg) translate(-1px, -2px); }
+.compare .no { display: inline-block; width: 12px; height: 2px; border-radius: 2px; background: var(--control); vertical-align: middle; }
+.compare-more { max-width: 70ch; }
+.compare-pick { display: none; }
+@media (max-width: 760px) {
+  /* Phones: pick a plan, see its column. Feature on the left, what that plan gets on the right. */
+  .compare-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); position: sticky; top: 64px; z-index: 2; }
+  .compare-pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .compare-pick label { display: grid; place-items: center; min-height: 40px; border-radius: 8px; font-weight: 700; font-size: var(--t-sm); color: var(--muted); cursor: pointer; text-align: center; }
+  .compare-pick input:checked + label { background: var(--accent); color: var(--accent-ink); }
+  .compare-pick input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .compare-table, .compare-table tbody { display: block; }
+  .compare-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .compare-table tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 40%); align-items: center; }
+  .compare-table tr.compare-group { display: block; }
+  .compare-table tbody tr + tr > * { border-top: 0; }
+  .compare-table tbody tr:not(.compare-group) { border-top: 1px solid var(--line); }
+  .compare-table tr.compare-group th { display: block; }
+  .compare-table td { display: none; text-align: right; padding: var(--s3) 0 var(--s3) var(--s3); }
+  .compare-table td.is-featured { background: none; }
+  .compare[data-show="0"] td:nth-of-type(1), .compare[data-show="1"] td:nth-of-type(2),
+  .compare[data-show="2"] td:nth-of-type(3), .compare[data-show="3"] td:nth-of-type(4) { display: block; }
+}
+
+/* Checkout */
+.checkout { padding-block: var(--s7) var(--s9); }
+.checkout .wrap { display: grid; gap: var(--s5); }
+.co-head { display: grid; gap: var(--s2); }
+.co-head h1 { font-size: var(--t-xl); }
+.co-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); gap: var(--s6); align-items: start; }
+.co-steps { display: grid; gap: var(--s6); min-width: 0; }
+.co-step { border: 0; margin: 0; padding: 0; display: grid; gap: var(--s3); min-width: 0; }
+.co-step legend, .co-legend { display: flex; align-items: center; gap: var(--s3); padding: 0; margin-bottom: var(--s3); font: 700 var(--t-lg)/1.3 var(--font-display); }
+.co-num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--raised); font: 800 var(--t-sm)/1 var(--font-body); }
+.co-plans { display: grid; gap: var(--s3); }
+.co-intervals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s3); }
+.co-choice { display: contents; }
+.co-choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.co-choice label { display: grid; gap: var(--s1); padding: var(--s4); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; min-width: 0; }
+.co-choice label:hover { border-color: var(--control); }
+.co-choice input:checked + label { border: 2px solid var(--accent); padding: calc(var(--s4) - 1px); background: var(--raised); }
+.co-choice input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: 2px; }
+.co-plans label { grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--s4); }
+.co-choice-top { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s2); font-size: var(--t-md); }
+.co-choice-price { font: 800 var(--t-lg)/1.2 var(--font-display); font-variant-numeric: tabular-nums; }
+.co-choice-price small { font: 600 var(--t-xs) var(--font-body); color: var(--muted); }
+.co-plans .co-choice-price { grid-column: 2; grid-row: 1; text-align: right; }
+.co-choice-text { grid-column: 1 / -1; color: var(--muted); font-size: var(--t-sm); }
+.co-iv label { text-align: left; }
+.co-iv-note { font-size: var(--t-xs); color: var(--muted); font-weight: 700; }
+.co-iv-note.is-save { color: var(--ok); }
+.co-for { font-size: var(--t-md); }
+#co-who { display: grid; gap: var(--s3); }
+.co-summary .check { font-weight: 400; }
+.co-link-row { display: flex; gap: var(--s3); flex-wrap: wrap; }
+.co-link-row input { flex: 1 1 160px; min-width: 0; text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.08em; }
+.co-summary { position: sticky; top: 88px; gap: var(--s4); }
+.co-sum-plan { display: grid; gap: var(--s1); }
+.co-sum-name { font-size: var(--t-md); }
+.co-billed { color: var(--muted); font-size: 0.6875rem; }
+.co-lines { margin: 0; display: grid; border-block: 1px solid var(--line); }
+.co-lines div { display: flex; justify-content: space-between; gap: var(--s3); padding-block: var(--s2); }
+.co-lines div + div { border-top: 1px solid var(--line); }
+.co-lines dt { color: var(--muted); }
+.co-lines dd { margin: 0; font-weight: 700; text-align: right; }
+.co-lines div:first-child dd { font: 800 var(--t-lg)/1.2 var(--font-display); }
+.co-incl { display: grid; gap: var(--s3); }
+.co-summary .tier-features li::before { background: var(--accent); }
+.co-done { max-width: 640px; }
+.co-done h2:focus { outline: none; }
+@media (max-width: 900px) {
+  .co-grid { grid-template-columns: minmax(0, 1fr); }
+  .co-summary { position: static; }
+}
+@media (max-width: 520px) {
+  .co-intervals { grid-template-columns: minmax(0, 1fr); }
+  .co-iv label { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; }
+  .co-iv .co-iv-note { grid-column: 1 / -1; }
+  .co-summary { padding: var(--s4); }
+}

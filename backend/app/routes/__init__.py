@@ -2,7 +2,7 @@
 
 The pages blueprint stays last: it catches every path that isn't an API route.
 """
-from . import account, auth, dashboard, family, leads, pages, plan, practice, settings, tests
+from . import account, auth, checkout, dashboard, family, leads, pages, plan, practice, settings, tests
 
 BLUEPRINTS = [
     auth.bp,        # /api/auth/...  create account, sign in and out, password reset
@@ -17,6 +17,8 @@ BLUEPRINTS = [
     family.student_bp,  # /api/family  a student's Parent access: link codes and connected parents
     family.bp,      # /api/parent  the parent dashboard
     settings.bp,    # /api/me/...    the settings page: appearance, photo, email, password, data, delete
+    checkout.bp,    # /api/checkout  the checkout page: buy a plan (Stripe, once connected)
+    checkout.webhook_bp,  # /api/stripe/webhook  payments, renewals and cancellations from Stripe
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health
 ]

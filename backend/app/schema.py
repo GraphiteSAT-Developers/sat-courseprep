@@ -201,7 +201,16 @@ MIGRATIONS = [
         "UPDATE users SET plan = 'sharpened' WHERE plan = 'daily'",
         "UPDATE users SET plan = 'masterstroke' WHERE plan = 'coached'",
     ]),
-    # (9, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (9, "Stripe: customer and subscription ids, and webhook events already handled", [
+        "ALTER TABLE users ADD COLUMN stripe_customer_id TEXT",
+        "ALTER TABLE subscriptions ADD COLUMN stripe_subscription_id TEXT",
+        """CREATE TABLE stripe_events (
+            id TEXT PRIMARY KEY,
+            kind TEXT NOT NULL,
+            received_at TEXT NOT NULL
+        )""",
+    ]),
+    # (10, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

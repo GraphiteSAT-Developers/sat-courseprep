@@ -2,18 +2,20 @@
 
 Everything here is read from the student's own records (the same ones the student's dashboard uses).
 Parents can change a few of the student's settings (weekly goal, test date, target score) and the
-student's plan. Billing isn't connected to a payment processor yet: plan changes take effect and are
-recorded in the billing history, but no card is charged (see PAYMENTS_LIVE).
+student's plan. Paid plans are bought on the checkout page (services/billing.py). Until Stripe is connected,
+plan changes take effect and are recorded in the billing history, but no card is charged.
 """
 import json
 from calendar import monthrange
 from datetime import date, datetime, timedelta, timezone
 
 from ..db import execute, now_iso, query
-from . import dashboard, levels, today as today_svc
+from . import dashboard, levels, stripe_api, today as today_svc
 from .plans import ALERT_DAYS, INTERVALS, PAUSE_DAYS, PLANS, interval_words, key_for, next_renewal, price_label  # noqa: F401
 
-PAYMENTS_LIVE = False  # True once a payment processor (for example Stripe) charges for plan changes
+def payments_live():
+    """True once Stripe is connected (STRIPE_SECRET_KEY is set)."""
+    return stripe_api.is_live()
 
 
 def money(cents):
@@ -64,7 +66,7 @@ def _save(student_id, sub, parent_id):
 
 
 def _event(student_id, parent_id, kind, detail, amount=0):
-    if not PAYMENTS_LIVE and amount:
+    if not payments_live() and amount:
         detail += " No card was charged: payments aren't connected yet."
     execute("INSERT INTO billing_events (student_id, parent_id, kind, detail, amount_cents, at) VALUES (?, ?, ?, ?, ?, ?)",
             (student_id, parent_id, kind, detail, amount, now_iso()))

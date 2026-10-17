@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en" class="live">
+<head>
+<meta charset="utf-8">
+<meta name="graphite-mode" content="live">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Checkout | Graphite SAT Tutoring</title>
+<meta name="description" content="Pick a Graphite plan and how you pay, then check out securely.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1c1e21">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Graphite">
+<meta property="og:title" content="Checkout | Graphite SAT Tutoring">
+<meta property="og:description" content="Pick a Graphite plan and how you pay, then check out securely.">
+<meta property="og:url" content="https://www.graphiteprep.com/checkout.html">
+<meta property="og:image" content="https://www.graphiteprep.com/og-image.png">
+<meta property="og:image:alt" content="Graphite: AI SAT tutoring. A yellow answer bubble on a graphite gray background.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/css/site.css?v=46bec0cbe6">
+<script src="/js/site.js?v=dbe4044737" defer></script><script src="/js/checkout.js?v=47d879d24e" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="logo" href="/" aria-label="Graphite home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7" fill="#2d3136"/><ellipse cx="16" cy="16" rx="10" ry="7" fill="#f2c14e"/></svg>
+      <span>Graphite</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="menu-bars" aria-hidden="true"><span></span></span><span class="menu-label">Menu</span>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="/#how">How it works</a></li>
+        <li><a href="/#calculator">Calculator</a></li>
+        <li><a href="/#tutor">The tutor</a></li>
+        <li><a href="/#test">The test</a></li>
+        <li><a href="/#pricing">Pricing</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="signin-link" href="/signin.html" data-track="nav_signin">Sign in</a>
+        <a class="btn btn-primary" href="/#start" data-track="nav_start">Start free diagnostic</a>
+      </div>
+    </nav>
+  </div>
+</header>
+<main id="main" class="checkout">
+  <div class="wrap">
+    <div class="co-head">
+      <p class="label">Checkout</p>
+      <h1 id="co-title">Choose your plan</h1>
+      <p class="lede" id="co-lede">Pick a plan and how you pay. Prices are shown per month, and you can switch or cancel anytime.</p>
+    </div>
+
+    <div class="status" id="co-status" role="status" aria-live="polite" tabindex="-1"></div>
+
+    <section class="panel co-done" id="co-done" aria-labelledby="co-done-title" hidden>
+      <h2 id="co-done-title" tabindex="-1">You're all set</h2>
+      <p id="co-done-text"></p>
+      <p class="fine" id="co-done-fine"></p>
+      <div class="pd-row"><a class="btn btn-primary" href="/parent.html">Open the parent dashboard</a><a class="btn btn-secondary" href="/#compare">See what's included</a></div>
+    </section>
+
+    <form class="co-grid" id="co-form" novalidate>
+      <div class="co-steps">
+        <fieldset class="co-step">
+          <legend><span class="co-num">1</span> Pick a plan</legend>
+          <div class="co-plans" id="co-plans"></div>
+        </fieldset>
+
+        <fieldset class="co-step">
+          <legend><span class="co-num">2</span> How you pay</legend>
+          <div class="co-intervals" id="co-intervals"></div>
+          <p class="fine">Yearly costs the least each month. Weekly costs more but you can stop any week, which helps for a final push before test day.</p>
+        </fieldset>
+
+        <section class="co-step" aria-labelledby="co-who-title">
+          <h2 class="co-legend" id="co-who-title"><span class="co-num">3</span> Who it's for</h2>
+          <div id="co-who"><p class="fine">Checking your account…</p></div>
+        </section>
+      </div>
+
+      <aside class="panel co-summary" aria-labelledby="co-sum-title">
+        <h2 id="co-sum-title">Order summary</h2>
+        <div class="co-sum-plan">
+          <p class="co-sum-name" id="co-sum-name"></p>
+          <p class="price"><span class="amount" id="co-sum-amount"></span><span class="per">/month</span></p>
+          <p class="co-billed" id="co-sum-billed"></p>
+        </div>
+        <dl class="co-lines">
+          <div><dt>Due today</dt><dd id="co-due"></dd></div>
+          <div><dt>Renews</dt><dd id="co-renews"></dd></div>
+          <div id="co-save-row"><dt>You save</dt><dd id="co-save"></dd></div>
+        </dl>
+        <div class="co-incl">
+          <p class="tier-intro" id="co-intro"></p>
+          <ul class="tier-features" id="co-feats"></ul>
+        </div>
+        <div class="field">
+          <label class="check" for="co-agree"><input type="checkbox" id="co-agree" name="agree"><span id="co-agree-text">I agree to the <a href="/terms.html">terms</a>.</span></label>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" id="co-pay" disabled>Continue</button>
+        <p class="fine co-secure" id="co-secure">Payments are handled by Stripe. Graphite never sees or stores your card number. Have a promo code? Add it on the payment page.</p>
+        <p class="fine co-demo" id="co-demo" hidden>Payments aren't connected yet, so the plan starts right away and no card is charged.</p>
+        <p class="fine">Cancel anytime from the parent dashboard; the plan stays on until the end of the time you paid for. First payments can be refunded within 7 days.</p>
+      </aside>
+    </form>
+  </div>
+</main>
+<script type="application/json" id="plans-data">[{"key":"free","name":"Scratch Paper","tagline":"Try Graphite before you commit.","blurb":"The diagnostic, one practice set a week and a few AI tutor questions a day.","badge":null,"intro":null,"features":["The 10-question diagnostic","Your strongest and weakest skill areas","1 practice set a week","5 AI tutor questions a day","Built-in graphing calculator"],"cents":{"week":0,"month":0,"year":0},"per_month_cents":{"week":0,"month":0,"year":0},"savings":{"week":{"percent":0,"per_year_cents":0},"month":{"percent":0,"per_year_cents":0},"year":{"percent":0,"per_year_cents":0}},"month_cents":0,"year_cents":0,"week_cents":0},{"key":"no2","name":"No. 2","tagline":"The pencil every SAT needs. Steady practice, every week.","blurb":"Daily practice sets, the AI tutor, 2 practice tests a month and a study plan to your test date.","badge":null,"intro":"Everything in Scratch Paper, plus:","features":["Daily practice sets picked from your weakest skills","AI tutor: 50 questions a day","2 full practice tests a month","Step-by-step explanations for every answer","A study plan built around your test date","A review queue that brings back every miss","Email support, answered within one school day"],"cents":{"week":499,"month":1900,"year":18000},"per_month_cents":{"week":2162,"month":1900,"year":1500},"savings":{"week":{"percent":-14,"per_year_cents":-3144},"month":{"percent":0,"per_year_cents":0},"year":{"percent":21,"per_year_cents":4800}},"month_cents":1900,"year_cents":18000,"week_cents":499},{"key":"sharpened","name":"Sharpened","tagline":"Everything you need to raise your score.","blurb":"Unlimited AI tutor and practice tests, video explanations, 24/7 support and the parent dashboard.","badge":"Most popular","intro":"Everything in No. 2, plus:","features":["Unlimited AI tutor, any time of day","Unlimited practice tests in the real test layout","In-depth video explanations","24/7 support","Level up: sets that get harder level by level","Score history and a skill breakdown after every test","Parent dashboard with weekly progress emails"],"cents":{"week":999,"month":3900,"year":34800},"per_month_cents":{"week":4329,"month":3900,"year":2900},"savings":{"week":{"percent":-11,"per_year_cents":-5148},"month":{"percent":0,"per_year_cents":0},"year":{"percent":26,"per_year_cents":12000}},"month_cents":3900,"year_cents":34800,"week_cents":999},{"key":"masterstroke","name":"Masterstroke","tagline":"Our most hands-on plan, with a coach in your corner.","blurb":"Everything in Sharpened, plus a weekly 1-on-1 check-in with a human coach and priority support.","badge":"Best results","intro":"Everything in Sharpened, plus:","features":["A weekly 30-minute 1-on-1 video check-in with a coach","Your study plan reviewed after every practice test","Priority 24/7 support, first in line","A test-week plan for pacing, sleep and logistics","A monthly call with your parent"],"cents":{"week":3499,"month":12900,"year":118800},"per_month_cents":{"week":15162,"month":12900,"year":9900},"savings":{"week":{"percent":-18,"per_year_cents":-27144},"month":{"percent":0,"per_year_cents":0},"year":{"percent":23,"per_year_cents":36000}},"month_cents":12900,"year_cents":118800,"week_cents":3499}]</script>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a class="logo" href="/" aria-label="Graphite home">
+          <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7" fill="#2d3136"/><ellipse cx="16" cy="16" rx="10" ry="7" fill="#f2c14e"/></svg>
+          <span>Graphite</span>
+        </a>
+        <p>AI SAT tutoring for high school students. Practice the digital SAT, learn from every miss, and walk into test day with a plan.</p>
+      </div>
+      <div>
+        <h2>Prep</h2>
+        <ul>
+          <li><a href="/#how">How it works</a></li>
+          <li><a href="/#tutor">The tutor</a></li>
+          <li><a href="/#test">The digital SAT</a></li>
+          <li><a href="/#pricing">Pricing</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Account</h2>
+        <ul>
+          <li><a href="/signin.html">Sign in</a></li>
+          <li><a href="/signin.html?as=parent">Parent sign-in</a></li>
+          <li><a href="/#start">Start free diagnostic</a></li>
+          <li><a href="/#contact">Contact</a></li>
+          <li><a href="tel:+19545550142">(954) 555-0142</a></li>
+          <li><a href="mailto:hello@graphiteprep.com">hello@graphiteprep.com</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Legal</h2>
+        <ul>
+          <li><a href="/privacy.html">Privacy policy</a></li>
+          <li><a href="/cookies.html">Cookie policy</a></li>
+          <li><a href="/terms.html">Terms of service</a></li>
+          <li><button class="linkish" type="button" data-cookie-settings>Cookie settings</button></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <p>&copy; <span data-year>2026</span> Graphite Learning, Inc. All rights reserved.</p>
+      <p>SAT is a registered trademark of the College Board, which is not affiliated with and does not endorse Graphite.</p>
+    </div>
+  </div>
+</footer>
+<section class="cookie-banner" id="cookie-banner" aria-labelledby="cookie-title" hidden>
+  <div class="cookie-inner">
+    <div>
+      <h2 id="cookie-title">Cookies on Graphite</h2>
+      <p>Essential cookies keep you signed in and protect forms. With your OK, analytics cookies show us which pages help students. Read the <a href="/cookies.html">cookie policy</a>.</p>
+    </div>
+    <div class="cookie-actions">
+      <button class="btn btn-quiet" type="button" id="cookie-choose" aria-expanded="false" aria-controls="cookie-prefs">Choose</button>
+      <button class="btn btn-secondary" type="button" id="cookie-reject">Essential only</button>
+      <button class="btn btn-primary" type="button" id="cookie-accept">Accept analytics</button>
+    </div>
+    <div class="cookie-prefs" id="cookie-prefs" hidden>
+      <label class="check"><input type="checkbox" checked disabled id="consent-essential"><span>Essential<small>Sign in, security and saving this choice. Always on.</small></span></label>
+      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Page views and button clicks, with IP addresses anonymized.</small></span></label>
+      <div><button class="btn btn-primary" type="button" id="cookie-save">Save choices</button></div>
+    </div>
+  </div>
+</section>
+<p class="visually-hidden" id="cookie-live" role="status" aria-live="polite"></p>
+
+</body>
+</html>

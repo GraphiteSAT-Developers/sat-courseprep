@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=023405e9dd">
-<script src="/js/site.js?v=0d5e93a5b5" defer></script><script src="/js/parent.js?v=c126ac85e7" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=46bec0cbe6">
+<script src="/js/site.js?v=dbe4044737" defer></script><script src="/js/parent.js?v=1651a72ff9" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -152,7 +152,7 @@
       <section class="panel" id="billing" aria-labelledby="pd-billing-title">
         <div class="panel-head"><h2 id="pd-billing-title">Plan &amp; billing</h2></div>
         <div class="pd-current" id="pd-current"></div>
-        <p class="sample-note pd-pay-note" id="pd-pay-note" hidden><span class="label">Billing</span> Card payments aren't connected yet. Plan changes take effect right away and show in the history below, but no card is charged.</p>
+        <p class="sample-note pd-pay-note" id="pd-pay-note" hidden><span class="label">Billing</span> Card payments aren't connected yet. Plans you pick at checkout start right away and show in the history below, but no card is charged.</p>
         <fieldset class="pd-interval">
           <legend class="label">Billing</legend>
           <div class="seg" id="pd-interval">
@@ -162,6 +162,7 @@
           </div>
         </fieldset>
         <div class="pd-plans" id="pd-plans"></div>
+        <div class="pd-confirm" id="pd-confirm" role="region" aria-labelledby="pd-confirm-title" hidden></div>
         <div class="pd-row" id="pd-plan-actions"></div>
         <div class="status" id="pd-plan-status" role="status" aria-live="polite" tabindex="-1"></div>
         <h3 class="pd-h3">Billing history</h3>

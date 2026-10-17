@@ -225,7 +225,9 @@
   }
   function safeNext() {
     var next = new URLSearchParams(location.search).get("next") || "";
-    return /^\/[a-z0-9-]+\.html$/i.test(next) ? next : CONFIG.dashboardUrl;
+    // A page on this site, optionally with simple settings after "?" (checkout.html?plan=sharpened&interval=year).
+    if (!/^\/[a-z0-9-]+\.html(\?[a-z0-9=&_%.-]*)?$/i.test(next)) return CONFIG.dashboardUrl;
+    return LIVE ? next : next.slice(1);  // the preview's pages sit side by side, so links there are relative
   }
 
   /* 7a. Diagnostic signup form */
@@ -323,8 +325,8 @@
     });
     function landing(role) {
       var next = safeNext();
-      if (role === "parent") return /parent\.html$/.test(next) ? next : "parent.html";
-      return /parent\.html$/.test(next) ? CONFIG.dashboardUrl : next;
+      if (role === "parent") return /^\/?(parent|checkout)\.html/.test(next) ? next : "parent.html";
+      return /^\/?parent\.html/.test(next) ? CONFIG.dashboardUrl : next;
     }
     var pw = $("#signin-password");
     var pwBtn = $("#pw-toggle");
@@ -468,10 +470,11 @@
         .then(function () {
           var hasNext = !!new URLSearchParams(location.search).get("next");
           var parent = ROLE === "parent";
-          showStatus(cs, "ok", "Your account is ready.", parent ? "Opening your parent dashboard." : hasNext ? "Taking you back." : "Opening your 10-question diagnostic.");
+          showStatus(cs, "ok", "Your account is ready.", parent && /^\/?checkout\.html/.test(safeNext()) ? "Taking you back to checkout." : parent ? "Opening your parent dashboard." : hasNext ? "Taking you back." : "Opening your 10-question diagnostic.");
           Analytics.track(parent ? "parent_account_created" : "account_created");
           try { sessionStorage.setItem("graphite_user", em); sessionStorage.setItem("graphite_role", ROLE); } catch (err) { /* storage blocked */ }
-          setTimeout(function () { location.href = parent ? "parent.html" : hasNext ? safeNext() : "plan.html"; }, 500);
+          var goCheckout = parent && /^\/?checkout\.html/.test(safeNext());
+          setTimeout(function () { location.href = goCheckout ? safeNext() : parent ? "parent.html" : hasNext ? safeNext() : "plan.html"; }, 500);
         })
         .catch(function (err) {
           showFieldError(err, { name: "create-name", email: "create-email", password: "create-password", grade: "create-grade", test_date: "create-date", target_score: "create-target" });
@@ -680,6 +683,8 @@
       if (!r.checked) return;
       var iv = r.value;
       $all(".tier").forEach(function (card) {
+        var cta = card.querySelector("[data-checkout]");  // the plan's button opens checkout with this billing option picked
+        if (cta) cta.setAttribute("href", "checkout.html?plan=" + cta.getAttribute("data-checkout") + "&interval=" + iv);
         card.querySelector("[data-amount]").textContent = card.getAttribute("data-" + iv + "-amount");
         card.querySelector("[data-billed]").textContent = card.getAttribute("data-" + iv + "-billed");
         var save = card.querySelector("[data-save]"), text = card.getAttribute("data-" + iv + "-save");
@@ -687,6 +692,12 @@
       });
       Analytics.track("pricing_interval", { interval: iv });
     });
+  });
+
+  // Phones show one plan's column of the feature table at a time.
+  var compare = $("#compare");
+  if (compare) $all('input[name="compare-show"]', compare).forEach(function (r) {
+    r.addEventListener("change", function () { if (r.checked) compare.setAttribute("data-show", r.value); });
   });
 
   /* 9. Dashboard */

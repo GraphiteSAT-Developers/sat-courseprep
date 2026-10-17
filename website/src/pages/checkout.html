@@ -1,0 +1,65 @@
+<!--{"file": "checkout.html", "path": "/checkout.html", "title": "Checkout | Graphite SAT Tutoring", "description": "Pick a Graphite plan and how you pay, then check out securely.", "robots": "noindex, nofollow", "scripts": ["checkout.js"]}-->
+<main id="main" class="checkout">
+  <div class="wrap">
+    <div class="co-head">
+      <p class="label">Checkout</p>
+      <h1 id="co-title">Choose your plan</h1>
+      <p class="lede" id="co-lede">Pick a plan and how you pay. Prices are shown per month, and you can switch or cancel anytime.</p>
+    </div>
+
+    <div class="status" id="co-status" role="status" aria-live="polite" tabindex="-1"></div>
+
+    <section class="panel co-done" id="co-done" aria-labelledby="co-done-title" hidden>
+      <h2 id="co-done-title" tabindex="-1">You're all set</h2>
+      <p id="co-done-text"></p>
+      <p class="fine" id="co-done-fine"></p>
+      <div class="pd-row"><a class="btn btn-primary" href="parent.html">Open the parent dashboard</a><a class="btn btn-secondary" href="./#compare">See what's included</a></div>
+    </section>
+
+    <form class="co-grid" id="co-form" novalidate>
+      <div class="co-steps">
+        <fieldset class="co-step">
+          <legend><span class="co-num">1</span> Pick a plan</legend>
+          <div class="co-plans" id="co-plans"></div>
+        </fieldset>
+
+        <fieldset class="co-step">
+          <legend><span class="co-num">2</span> How you pay</legend>
+          <div class="co-intervals" id="co-intervals"></div>
+          <p class="fine">Yearly costs the least each month. Weekly costs more but you can stop any week, which helps for a final push before test day.</p>
+        </fieldset>
+
+        <section class="co-step" aria-labelledby="co-who-title">
+          <h2 class="co-legend" id="co-who-title"><span class="co-num">3</span> Who it's for</h2>
+          <div id="co-who"><p class="fine">Checking your account…</p></div>
+        </section>
+      </div>
+
+      <aside class="panel co-summary" aria-labelledby="co-sum-title">
+        <h2 id="co-sum-title">Order summary</h2>
+        <div class="co-sum-plan">
+          <p class="co-sum-name" id="co-sum-name"></p>
+          <p class="price"><span class="amount" id="co-sum-amount"></span><span class="per">/month</span></p>
+          <p class="co-billed" id="co-sum-billed"></p>
+        </div>
+        <dl class="co-lines">
+          <div><dt>Due today</dt><dd id="co-due"></dd></div>
+          <div><dt>Renews</dt><dd id="co-renews"></dd></div>
+          <div id="co-save-row"><dt>You save</dt><dd id="co-save"></dd></div>
+        </dl>
+        <div class="co-incl">
+          <p class="tier-intro" id="co-intro"></p>
+          <ul class="tier-features" id="co-feats"></ul>
+        </div>
+        <div class="field">
+          <label class="check" for="co-agree"><input type="checkbox" id="co-agree" name="agree"><span id="co-agree-text">I agree to the <a href="terms.html">terms</a>.</span></label>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" id="co-pay" disabled>Continue</button>
+        <p class="fine co-secure" id="co-secure">Payments are handled by Stripe. Graphite never sees or stores your card number. Have a promo code? Add it on the payment page.</p>
+        <p class="fine co-demo" id="co-demo" hidden>Payments aren't connected yet, so the plan starts right away and no card is charged.</p>
+        <p class="fine">Cancel anytime from the parent dashboard; the plan stays on until the end of the time you paid for. First payments can be refunded within 7 days.</p>
+      </aside>
+    </form>
+  </div>
+</main>
+{{PLANS_JSON}}

@@ -161,15 +161,14 @@ class ParentTest(unittest.TestCase):
 
     def test_old_plan_names_carry_over(self):
         import sqlite3
-        from app.schema import migrate
+        from app.schema import MIGRATIONS
         db = self.app.config["DATABASE_URL"].replace("sqlite:///", "")
         con = sqlite3.connect(db)
         con.execute("UPDATE users SET plan = 'coached' WHERE id = ?", (self.student_id,))
         con.execute("INSERT INTO subscriptions (student_id, plan, billing_interval, status, updated_at) VALUES (?, 'daily', 'month', 'active', 'x')", (self.student_id,))
-        con.execute("DELETE FROM schema_version WHERE version = 8")
-        con.commit(); con.close()
-        migrate(self.app.config["DATABASE_URL"])
-        con = sqlite3.connect(db)
+        for stmt in next(m for m in MIGRATIONS if m[0] == 8)[2]:  # the renaming migration, run again on old data
+            con.execute(stmt)
+        con.commit()
         self.assertEqual(con.execute("SELECT plan FROM users WHERE id = ?", (self.student_id,)).fetchone()[0], "masterstroke")
         self.assertEqual(con.execute("SELECT plan FROM subscriptions WHERE student_id = ?", (self.student_id,)).fetchone()[0], "sharpened")
         con.close()

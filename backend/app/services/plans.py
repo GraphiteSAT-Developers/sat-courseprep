@@ -4,7 +4,7 @@ the parent dashboard's billing, and the site build (so the preview shows the sam
 Prices are in cents, for each way of paying. Everything shown to people is the price per month:
 weekly and yearly billing show what they work out to each month, plus what's actually billed.
 
-FEATURES and LIMITS describe each plan. LIMITS aren't enforced yet: every account can use every
+Each plan's features, COMPARE (the home page's feature table) and LIMITS describe what it includes. LIMITS aren't enforced yet: every account can use every
 feature until real payments are connected. To enforce them, check plan_limits(user["plan"]) in the
 routes that start practice sets, practice tests and Level up.
 """
@@ -18,7 +18,7 @@ PLANS = {
     "free": {
         "name": "Scratch Paper",
         "tagline": "Try Graphite before you commit.",
-        "blurb": "The diagnostic and one practice set a week.",
+        "blurb": "The diagnostic, one practice set a week and a few AI tutor questions a day.",
         "badge": None,
         "prices": {"week": 0, "month": 0, "year": 0},
         "intro": None,
@@ -26,63 +26,99 @@ PLANS = {
             "The 10-question diagnostic",
             "Your strongest and weakest skill areas",
             "1 practice set a week",
+            "5 AI tutor questions a day",
             "Built-in graphing calculator",
         ],
     },
     "no2": {
         "name": "No. 2",
         "tagline": "The pencil every SAT needs. Steady practice, every week.",
-        "blurb": "Unlimited practice, daily sets and a study plan to your test date.",
+        "blurb": "Daily practice sets, the AI tutor, 2 practice tests a month and a study plan to your test date.",
         "badge": None,
         "prices": {"week": 499, "month": 1900, "year": 18000},
         "intro": "Everything in Scratch Paper, plus:",
         "features": [
-            "Unlimited practice in all 8 skill areas",
-            "Daily sets picked from your weakest skills",
-            "A study plan built around your test date",
+            "Daily practice sets picked from your weakest skills",
+            "AI tutor: 50 questions a day",
+            "2 full practice tests a month",
             "Step-by-step explanations for every answer",
+            "A study plan built around your test date",
             "A review queue that brings back every miss",
+            "Email support, answered within one school day",
         ],
     },
     "sharpened": {
         "name": "Sharpened",
         "tagline": "Everything you need to raise your score.",
-        "blurb": "Unlimited timed practice tests, Level up, score tracking and the parent dashboard.",
+        "blurb": "Unlimited AI tutor and practice tests, video explanations, 24/7 support and the parent dashboard.",
         "badge": "Most popular",
         "prices": {"week": 999, "month": 3900, "year": 34800},
         "intro": "Everything in No. 2, plus:",
         "features": [
-            "Unlimited timed practice tests in the real test layout",
+            "Unlimited AI tutor, any time of day",
+            "Unlimited practice tests in the real test layout",
+            "In-depth video explanations",
+            "24/7 support",
             "Level up: sets that get harder level by level",
             "Score history and a skill breakdown after every test",
-            "Calculator shortcuts on every question where a graph is faster",
             "Parent dashboard with weekly progress emails",
-            "Alerts when practice stops",
         ],
     },
     "masterstroke": {
         "name": "Masterstroke",
         "tagline": "Our most hands-on plan, with a coach in your corner.",
-        "blurb": "Everything in Sharpened, plus a weekly 1-on-1 check-in with a human coach.",
+        "blurb": "Everything in Sharpened, plus a weekly 1-on-1 check-in with a human coach and priority support.",
         "badge": "Best results",
         "prices": {"week": 3499, "month": 12900, "year": 118800},
         "intro": "Everything in Sharpened, plus:",
         "features": [
             "A weekly 30-minute 1-on-1 video check-in with a coach",
             "Your study plan reviewed after every practice test",
+            "Priority 24/7 support, first in line",
             "A test-week plan for pacing, sleep and logistics",
             "A monthly call with your parent",
-            "Priority help, answered within one school day",
         ],
     },
 }
 
+# The "Compare every feature" table on the home page, in plan order (free, No. 2, Sharpened, Masterstroke).
+# True shows a check mark, False a dash, and text shows as written.
+COMPARE = [
+    ("Practice", [
+        ("10-question diagnostic with your strong and weak areas", [True, True, True, True]),
+        ("Daily practice sets", ["1 set a week", True, True, True]),
+        ("Full practice tests in the real test layout", [False, "2 a month", "Unlimited", "Unlimited"]),
+        ("Level up: sets that get harder level by level", [False, False, True, True]),
+        ("Review queue that brings back every miss", [False, True, True, True]),
+        ("Built-in graphing calculator", [True, True, True, True]),
+    ]),
+    ("Help when you're stuck", [
+        ("AI tutor", ["5 questions a day", "50 questions a day", "Unlimited", "Unlimited"]),
+        ("Step-by-step written explanations", ["Diagnostic only", True, True, True]),
+        ("In-depth video explanations", [False, False, True, True]),
+        ("Support", ["Help center", "Email, within 1 school day", "24/7", "24/7, priority"]),
+        ("1-on-1 coach check-ins", [False, False, False, "Weekly, 30 minutes"]),
+    ]),
+    ("Planning and progress", [
+        ("Study plan built around your test date", [False, True, True, True]),
+        ("Score history and skill breakdown", [False, False, True, True]),
+        ("Parent dashboard and weekly progress emails", [False, False, True, True]),
+        ("Study plan reviewed by a coach", [False, False, False, True]),
+        ("Test-week plan for pacing, sleep and logistics", [False, False, False, True]),
+        ("Monthly call with your parent", [False, False, False, True]),
+    ]),
+]
+
 # What each plan allows, for when limits are switched on (None means unlimited).
 LIMITS = {
-    "free": {"practice_sets_per_week": 1, "practice_tests": 0, "level_up": False, "study_plan": False, "parent_dashboard": False},
-    "no2": {"practice_sets_per_week": None, "practice_tests": 0, "level_up": False, "study_plan": True, "parent_dashboard": False},
-    "sharpened": {"practice_sets_per_week": None, "practice_tests": None, "level_up": True, "study_plan": True, "parent_dashboard": True},
-    "masterstroke": {"practice_sets_per_week": None, "practice_tests": None, "level_up": True, "study_plan": True, "parent_dashboard": True},
+    "free": {"practice_sets_per_week": 1, "practice_tests_per_month": 0, "ai_tutor_per_day": 5, "video_explanations": False,
+             "level_up": False, "study_plan": False, "parent_dashboard": False},
+    "no2": {"practice_sets_per_week": None, "practice_tests_per_month": 2, "ai_tutor_per_day": 50, "video_explanations": False,
+            "level_up": False, "study_plan": True, "parent_dashboard": False},
+    "sharpened": {"practice_sets_per_week": None, "practice_tests_per_month": None, "ai_tutor_per_day": None, "video_explanations": True,
+                  "level_up": True, "study_plan": True, "parent_dashboard": True},
+    "masterstroke": {"practice_sets_per_week": None, "practice_tests_per_month": None, "ai_tutor_per_day": None, "video_explanations": True,
+                     "level_up": True, "study_plan": True, "parent_dashboard": True},
 }
 
 # Plan names used before October 2026, mapped to the plan that replaced them.

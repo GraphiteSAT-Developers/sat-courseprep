@@ -20,7 +20,9 @@ CSP = ("default-src 'self'; script-src 'self' https://plausible.io https://www.g
        "frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'")
 # The calculator is one self-contained file with inline scripts.
 CSP_CALCULATOR = CSP.replace("script-src 'self'", "script-src 'self' 'unsafe-inline'")
-PARENT_APIS = ("/api/parent", "/api/auth", "/api/me", "/api/health")
+PARENT_APIS = ("/api/parent", "/api/auth", "/api/me", "/api/health", "/api/checkout")
+# Stripe posts here from its own servers: it proves who it is with a signature instead of the same-site check.
+WEBHOOKS = ("/api/stripe/webhook",)
 
 
 def create_app(overrides=None):
@@ -49,6 +51,8 @@ def create_app(overrides=None):
     def before():
         if app.config["FORCE_HTTPS"] and request.scheme == "http":
             return redirect(request.url.replace("http://", "https://", 1), code=301)
+        if request.path in WEBHOOKS:
+            return None
         if request.path.startswith("/api/"):
             check_same_origin()
             if random.random() < 0.01:

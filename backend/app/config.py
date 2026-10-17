@@ -46,6 +46,11 @@ class Config:
     MAIL_FROM = os.environ.get("MAIL_FROM", "Graphite <hello@graphiteprep.com>")
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "")
 
+    # Payments. Without STRIPE_SECRET_KEY, checkout starts plans without charging (handy for trying the site).
+    # Use test keys (sk_test_...) first. STRIPE_WEBHOOK_SECRET (whsec_...) comes from the webhook you add in Stripe.
+    STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
+    STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+
     # Sessions
     SESSION_COOKIE_NAME = "graphite_session"
     SESSION_COOKIE_HTTPONLY = True

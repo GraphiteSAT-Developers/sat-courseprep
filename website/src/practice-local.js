@@ -655,7 +655,13 @@
       var plan = data && data.plan, iv = data && data.interval;
       if (!planInfo(plan)) return fail(400, "Pick a plan.");
       if (plan !== "free" && !WORDS[iv]) return fail(400, "Pick weekly, monthly or yearly billing.");
-      if (plan === "free") { if (sub.plan !== "free") billEvent(f, "change", "Switched from " + sub.plan_name + " to the free " + planInfo("free").name + " plan."); f.sub = null; }
+      if (plan === "free") {
+        // Same as canceling: the paid plan runs to the end of the time paid for, then the free plan starts.
+        if (sub.plan !== "free" && sub.status !== "canceled") {
+          f.sub.status = "canceled"; f.sub.paused_until = null;
+          billEvent(f, "cancel", "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free " + planInfo("free").name + " plan.");
+        }
+      }
       else {
         var next = iv === "week" ? new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7) : addMonths(today, iv === "month" ? 1 : 12);
         var renews = iso10(next), price = planInfo(plan).cents[iv];
