@@ -95,6 +95,13 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `GET /api/dashboard` | Everything the dashboard shows | Yes |
 | `POST /api/review/<id>/right` | Mark a review question right | Yes |
 | `POST /api/activity` | Log practice time | Yes |
+| `PATCH /api/me/appearance` | Theme (dark, light, system), accent color, ripple on or off | Yes |
+| `POST /api/me/avatar`, `GET`, `DELETE` | Upload (as a data URL), view or remove the profile picture. Uploads are checked, cropped to a 256px square and re-encoded. | Yes |
+| `POST /api/me/email` | Change email (needs the current password; both addresses are emailed) | Yes |
+| `POST /api/me/password` | Change password (needs the current one; signs out other devices) | Yes |
+| `POST /api/me/sign-out-others` | Sign out every other device | Yes |
+| `GET /api/me/export` | Download the account's data as JSON (no passwords) | Yes |
+| `POST /api/me/delete` | Delete the account and everything tied to it (needs the password and "DELETE") | Yes |
 | `GET /api/health` | Health check for the host | No |
 
 ## Folder layout

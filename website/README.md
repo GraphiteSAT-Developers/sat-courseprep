@@ -19,6 +19,9 @@ The pages run in two modes:
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
   - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results. With `?session=<id>` it runs a set from the question bank: a timed random practice test, or untimed topic practice with a Check answer button.
   - `practice.js`: the practice page: start a random practice test or practice one topic.
+  - `theme.js`: signed-in pages only. Applies the theme and accent color before the page draws, and adds the profile picture to the header.
+  - `settings.js`: the Settings page.
+  - `ripple.js`: the dashboard's ripple background.
   - `practice-local.js`: preview only. Runs the practice requests in the browser when there's no server.
   - `htaccess`, `netlify.toml`: server settings for HTTPS, the 404 page, compression and caching.
 - `build.py`: rebuilds `site/` from `src/`. Run `python3 build.py` after any edit. Needs Python 3 and Pillow (`pip install pillow`).
@@ -32,6 +35,7 @@ The pages run in two modes:
 | Dashboard (signed-in students) | `dashboard.html` |
 | Practice: random practice test or one topic | `practice.html` |
 | Math practice test with graphing calculator | `practice-test.html` |
+| Settings: profile picture, name, theme and accent color, study goals, email, password, data download, delete account | `settings.html` |
 | Privacy policy | `privacy.html` |
 | Cookie policy | `cookies.html` |
 | Terms of service | `terms.html` |

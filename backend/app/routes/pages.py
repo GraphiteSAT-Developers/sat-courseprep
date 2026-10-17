@@ -10,6 +10,7 @@ bp = Blueprint("pages", __name__)
 # Pages that need a signed-in student. Visitors are sent to sign in first.
 PROTECTED = {"dashboard.html", "practice-test.html", "practice.html", "plan.html", "levels.html"}
 PARENT_PAGES = {"parent.html"}
+ANY_ACCOUNT_PAGES = {"settings.html"}  # need a signed-in account of either kind
 
 
 def home_for(user):
@@ -39,7 +40,7 @@ def page(path):
     if not target.is_file():
         abort(404)
     user = current_user()
-    if (path in PROTECTED or path in PARENT_PAGES) and not user:
+    if (path in PROTECTED or path in PARENT_PAGES or path in ANY_ACCOUNT_PAGES) and not user:
         return redirect(f"/signin.html?next=/{path}")
     # A page for the other kind of account: offer to sign in with that kind, instead of bouncing to your own
     # dashboard (a student who opens the parent dashboard wants to sign in as the parent, not be sent back).

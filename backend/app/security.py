@@ -75,6 +75,13 @@ def public_user(user):
         "plan": user["plan"], "weekly_goal_hours": user["weekly_goal_hours"], "parent_email": user["parent_email"],
         "role": user["role"] if "role" in user.keys() else "student",
         "created_at": user["created_at"],
+        "appearance": {
+            "theme": user["theme"] if "theme" in user.keys() else "dark",
+            "accent": user["accent"] if "accent" in user.keys() else "pencil",
+            "ripple": bool(user["ripple"]) if "ripple" in user.keys() else True,
+        },
+        "avatar_url": (f"/api/me/avatar?v={user['avatar_version']}"
+                       if "avatar_version" in user.keys() and user["avatar_version"] else None),
     }
 
 

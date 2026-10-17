@@ -1,0 +1,214 @@
+<!--{"file": "settings.html", "path": "/settings.html", "title": "Settings | Graphite SAT Tutoring", "description": "Your Graphite settings: profile picture, name, theme and accent color, study goals, email, password and your data.", "robots": "noindex, nofollow", "settings": true, "scripts": ["settings.js"]}-->
+<main id="main" class="settings-page">
+  <div class="wrap">
+    <div class="st-head">
+      <p class="label">Account</p>
+      <h1>Settings</h1>
+    </div>
+    <p class="sample-note" id="st-preview-note" hidden><span class="label">Preview</span> Changes to your look and photo are kept in this browser. Email, password and account changes work on the live site.</p>
+
+    <div class="st-layout">
+      <nav class="st-nav" aria-label="Settings sections">
+        <ul>
+          <li><a href="#profile">Profile</a></li>
+          <li><a href="#appearance">Appearance</a></li>
+          <li data-student-only><a href="#study">Study</a></li>
+          <li><a href="#security">Sign-in and security</a></li>
+          <li><a href="#data">Your data</a></li>
+        </ul>
+      </nav>
+
+      <div class="st-panels">
+        <!-- Profile -->
+        <section class="panel st-panel" id="profile" aria-labelledby="st-profile-title">
+          <div class="panel-head"><h2 id="st-profile-title">Profile</h2></div>
+          <div class="st-photo">
+            <span class="avatar avatar-lg" id="st-avatar" aria-hidden="true"></span>
+            <div class="st-photo-actions">
+              <p class="st-photo-label">Profile picture</p>
+              <div class="pd-row">
+                <input class="visually-hidden" type="file" id="st-photo-input" accept="image/png,image/jpeg,image/webp,image/gif">
+                <label class="btn btn-secondary st-upload" for="st-photo-input">Upload photo</label>
+                <button class="btn btn-quiet" type="button" id="st-photo-remove" hidden>Remove photo</button>
+              </div>
+              <p class="fine">PNG, JPEG, WebP or GIF. It's cropped to a square and shown next to your email.</p>
+            </div>
+          </div>
+          <div class="status" id="st-photo-status" role="status" aria-live="polite" tabindex="-1"></div>
+          <form class="form st-form" id="st-name-form" novalidate>
+            <div class="field">
+              <label for="st-name">Name</label>
+              <input type="text" id="st-name" name="name" autocomplete="name" maxlength="80" required>
+            </div>
+            <div class="status" id="st-name-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-primary" type="submit">Save name</button></div>
+          </form>
+        </section>
+
+        <!-- Appearance -->
+        <section class="panel st-panel" id="appearance" aria-labelledby="st-look-title">
+          <div class="panel-head"><h2 id="st-look-title">Appearance</h2><span class="label" id="st-look-saved" aria-live="polite"></span></div>
+          <p class="panel-lede">Applies to your dashboard and practice pages on every device you sign in on.</p>
+          <fieldset class="st-fieldset">
+            <legend>Theme</legend>
+            <div class="st-themes">
+              <label class="st-theme" for="st-theme-dark">
+                <input type="radio" name="theme" id="st-theme-dark" value="dark">
+                <span class="st-theme-art st-art-dark" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Dark</span>
+              </label>
+              <label class="st-theme" for="st-theme-light">
+                <input type="radio" name="theme" id="st-theme-light" value="light">
+                <span class="st-theme-art st-art-light" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Light</span>
+              </label>
+              <label class="st-theme" for="st-theme-system">
+                <input type="radio" name="theme" id="st-theme-system" value="system">
+                <span class="st-theme-art st-art-system" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="st-theme-name">Match my device</span>
+              </label>
+            </div>
+          </fieldset>
+          <fieldset class="st-fieldset">
+            <legend>Accent color</legend>
+            <div class="st-accents">
+              <label class="st-accent" for="st-accent-pencil"><input type="radio" name="accent" id="st-accent-pencil" value="pencil"><span class="st-dot" data-swatch="pencil" aria-hidden="true"></span><span>Pencil</span></label>
+              <label class="st-accent" for="st-accent-sky"><input type="radio" name="accent" id="st-accent-sky" value="sky"><span class="st-dot" data-swatch="sky" aria-hidden="true"></span><span>Sky</span></label>
+              <label class="st-accent" for="st-accent-mint"><input type="radio" name="accent" id="st-accent-mint" value="mint"><span class="st-dot" data-swatch="mint" aria-hidden="true"></span><span>Mint</span></label>
+              <label class="st-accent" for="st-accent-coral"><input type="radio" name="accent" id="st-accent-coral" value="coral"><span class="st-dot" data-swatch="coral" aria-hidden="true"></span><span>Coral</span></label>
+              <label class="st-accent" for="st-accent-lilac"><input type="radio" name="accent" id="st-accent-lilac" value="lilac"><span class="st-dot" data-swatch="lilac" aria-hidden="true"></span><span>Lilac</span></label>
+            </div>
+          </fieldset>
+          <label class="st-switch" for="st-ripple">
+            <input type="checkbox" id="st-ripple" role="switch">
+            <span class="st-switch-track" aria-hidden="true"></span>
+            <span><strong>Ripple background</strong><span class="fine">Dots behind the dashboard ripple where you click.</span></span>
+          </label>
+          <div class="status" id="st-look-status" role="status" aria-live="polite" tabindex="-1"></div>
+        </section>
+
+        <!-- Study (students) -->
+        <section class="panel st-panel" id="study" aria-labelledby="st-study-title" data-student-only>
+          <div class="panel-head"><h2 id="st-study-title">Study</h2></div>
+          <p class="panel-lede">Your study plan and daily sets are built around these.</p>
+          <form class="form st-form" id="st-study-form" novalidate>
+            <div class="st-grid">
+              <div class="field">
+                <label for="st-grade">Grade</label>
+                <select id="st-grade" name="grade">
+                  <option value="">Not set</option>
+                  <option value="9">9th grade</option>
+                  <option value="10">10th grade</option>
+                  <option value="11">11th grade</option>
+                  <option value="12">12th grade</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="st-goal">Weekly study goal</label>
+                <select id="st-goal" name="weekly_goal_hours">
+                  <option value="1">1 hour a week</option>
+                  <option value="2">2 hours a week</option>
+                  <option value="3">3 hours a week</option>
+                  <option value="4">4 hours a week</option>
+                  <option value="5">5 hours a week</option>
+                  <option value="6">6 hours a week</option>
+                  <option value="8">8 hours a week</option>
+                  <option value="10">10 hours a week</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="st-date">SAT date</label>
+                <input type="date" id="st-date" name="test_date">
+              </div>
+              <div class="field">
+                <label for="st-target">Target score</label>
+                <input type="number" id="st-target" name="target_score" min="400" max="1600" step="10" inputmode="numeric" placeholder="1400">
+              </div>
+            </div>
+            <div class="status" id="st-study-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-primary" type="submit">Save study settings</button></div>
+          </form>
+        </section>
+
+        <!-- Sign-in and security -->
+        <section class="panel st-panel" id="security" aria-labelledby="st-security-title">
+          <div class="panel-head"><h2 id="st-security-title">Sign-in and security</h2></div>
+          <p class="sample-note" id="st-test-note" hidden><span class="label">Test account</span> Test accounts keep their username and password, and can't be deleted. Create your own account to try these.</p>
+
+          <form class="form st-form" id="st-email-form" novalidate>
+            <h3 class="pd-h3">Email</h3>
+            <p class="fine">You sign in with <strong id="st-current-email"></strong>.</p>
+            <div class="st-grid">
+              <div class="field">
+                <label for="st-new-email">New email</label>
+                <input type="email" id="st-new-email" name="email" autocomplete="email" inputmode="email" required>
+              </div>
+              <div class="field">
+                <label for="st-email-password">Current password</label>
+                <input type="password" id="st-email-password" name="password" autocomplete="current-password" required>
+              </div>
+            </div>
+            <div class="status" id="st-email-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-primary" type="submit">Change email</button></div>
+          </form>
+
+          <form class="form st-form" id="st-password-form" novalidate>
+            <h3 class="pd-h3">Password</h3>
+            <input type="text" class="visually-hidden" name="username" autocomplete="username" id="st-username" tabindex="-1" aria-hidden="true">
+            <div class="st-grid">
+              <div class="field">
+                <label for="st-current-password">Current password</label>
+                <input type="password" id="st-current-password" name="current_password" autocomplete="current-password" required>
+              </div>
+              <div class="field">
+                <label for="st-new-password">New password <span class="hint">(at least 8 characters)</span></label>
+                <input type="password" id="st-new-password" name="new_password" autocomplete="new-password" minlength="8" required>
+              </div>
+              <div class="field">
+                <label for="st-confirm-password">Type the new password again</label>
+                <input type="password" id="st-confirm-password" autocomplete="new-password" minlength="8" required>
+              </div>
+            </div>
+            <div class="status" id="st-password-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-primary" type="submit">Change password</button></div>
+            <p class="fine">Changing your password signs you out everywhere except here.</p>
+          </form>
+
+          <div class="st-form">
+            <h3 class="pd-h3">Devices</h3>
+            <p class="fine">Signed in on a shared or lost device? Sign out everywhere except here.</p>
+            <div class="status" id="st-devices-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-secondary" type="button" id="st-sign-out-others">Sign out of other devices</button></div>
+          </div>
+        </section>
+
+        <!-- Your data -->
+        <section class="panel st-panel" id="data" aria-labelledby="st-data-title">
+          <div class="panel-head"><h2 id="st-data-title">Your data</h2></div>
+          <div class="st-form">
+            <h3 class="pd-h3">Download your data</h3>
+            <p class="fine">A file with your account, practice tests, practice sets, review questions and study plan. Passwords are never included.</p>
+            <div class="pd-row"><a class="btn btn-secondary" id="st-export" href="/api/me/export" download>Download my data</a></div>
+            <p class="fine" id="st-export-note" hidden>Downloads work on the live site.</p>
+          </div>
+          <form class="form st-form st-danger" id="st-delete-form" novalidate>
+            <h3 class="pd-h3">Delete your account</h3>
+            <p class="fine">This deletes your account, practice history, study plan and profile picture for good. Connected parents lose access. It can't be undone.</p>
+            <div class="st-grid">
+              <div class="field">
+                <label for="st-delete-confirm">Type DELETE to confirm</label>
+                <input type="text" id="st-delete-confirm" name="confirm" autocomplete="off" autocapitalize="characters" spellcheck="false">
+              </div>
+              <div class="field">
+                <label for="st-delete-password">Current password</label>
+                <input type="password" id="st-delete-password" name="password" autocomplete="current-password">
+              </div>
+            </div>
+            <div class="status" id="st-delete-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-danger" type="submit">Delete my account</button></div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>

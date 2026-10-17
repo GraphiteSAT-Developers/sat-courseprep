@@ -24,6 +24,8 @@
 
   var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
   var ripples = [], frame = 0, w = 0, h = 0, dpr = 1, base = [62, 67, 74], hot = [242, 193, 78];
+  // The Settings page can turn the effect off (theme.js keeps the choice).
+  function enabled() { return !(window.GraphiteTheme && window.GraphiteTheme.get().ripple === false); }
 
   function rgb(token, fallback) {
     var v = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
@@ -40,11 +42,14 @@
     canvas.style.width = w + "px"; canvas.style.height = h + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     base = rgb("--line", base); hot = rgb("--accent", hot);
+    if (frame) { cancelAnimationFrame(frame); frame = 0; }
     draw(performance.now());
   }
 
   function draw(now) {
     ctx.clearRect(0, 0, w, h);
+    canvas.hidden = !enabled();
+    if (canvas.hidden) { ripples = []; frame = 0; return; }
     ripples = ripples.filter(function (r) { return now - r.t < LIFE; });
     var live = ripples.map(function (r) {
       var age = now - r.t;
@@ -76,7 +81,7 @@
   }
 
   document.addEventListener("pointerdown", function (e) {
-    if (reduce.matches || document.hidden) return;
+    if (reduce.matches || document.hidden || !enabled()) return;
     ripples.push({ x: e.clientX, y: e.clientY, t: performance.now() });
     if (ripples.length > MAX_RIPPLES) ripples.shift();
     if (!frame) frame = requestAnimationFrame(draw);
@@ -84,5 +89,7 @@
 
   var resizeTimer = 0;
   window.addEventListener("resize", function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(size, 120); });
+  // New theme or accent: pick up the new colors (and show or hide the dots).
+  document.addEventListener("graphite:appearance", function () { size(); });
   size();
 })();

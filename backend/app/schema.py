@@ -183,7 +183,19 @@ MIGRATIONS = [
         )""",
         "CREATE INDEX idx_billing_student ON billing_events (student_id, at)",
     ]),
-    # (7, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (7, "Settings page: theme, accent color, ripple background and profile pictures", [
+        "ALTER TABLE users ADD COLUMN theme TEXT NOT NULL DEFAULT 'dark'",
+        "ALTER TABLE users ADD COLUMN accent TEXT NOT NULL DEFAULT 'pencil'",
+        "ALTER TABLE users ADD COLUMN ripple INTEGER NOT NULL DEFAULT 1",
+        "ALTER TABLE users ADD COLUMN avatar_version INTEGER NOT NULL DEFAULT 0",
+        """CREATE TABLE avatars (
+            user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+            mime TEXT NOT NULL,
+            data TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )""",
+    ]),
+    # (8, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

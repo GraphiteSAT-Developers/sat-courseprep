@@ -22,6 +22,7 @@ header = (SRC / "partials/header.html").read_text()
 footer = (SRC / "partials/footer.html").read_text()
 app_header = (SRC / "partials/app-header.html").read_text()
 parent_header = (SRC / "partials/parent-header.html").read_text()
+settings_header = (SRC / "partials/settings-header.html").read_text()
 app_footer = (SRC / "partials/app-footer.html").read_text()
 banner = (SRC / "partials/cookie-banner.html").read_text()
 TOPLINE = ROOT.parent / "topline" / "index.html"
@@ -157,6 +158,8 @@ def render(meta, mode):
         head_nav, foot = "", ""
     elif meta.get("parent"):
         head_nav, foot = parent_header, app_footer
+    elif meta.get("settings"):
+        head_nav, foot = settings_header, app_footer
     elif meta.get("app"):
         head_nav, foot = app_header, app_footer
     else:
@@ -221,9 +224,15 @@ def render(meta, mode):
     if mode == "dist":
         head = head.replace('<meta name="claude:viewport-fit-sides" content="cover">\n', "")
     live_meta = '<meta name="graphite-mode" content="live">\n' if mode == "dist" else ""
+    # Signed-in pages pick their theme and accent color before anything is drawn (theme.js, not deferred).
+    signed_in = any(meta.get(k) for k in ("app", "parent", "test", "settings"))
+    theme_tag = ""
+    if signed_in:
+        theme_tag = ('<script src="/js/theme.js"></script>\n' if mode == "dist"
+                     else "<script>" + (SRC / "theme.js").read_text() + "</script>\n")
     return ('<!doctype html>\n<html lang="en"' + (' class="live"' if mode == "dist" else "") + '>\n<head>\n<meta charset="utf-8">\n' + live_meta +
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-            + head + "\n" + (script if mode == "dist" else "") + "\n</head>\n<body>\n" + body
+            + theme_tag + head + "\n" + (script if mode == "dist" else "") + "\n</head>\n<body>\n" + body
             + (script if mode == "artifact" else "") + "\n</body>\n</html>\n")
 
 def make_images(out):
@@ -280,7 +289,8 @@ def build():
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
-    shutil.copy(SRC / "ripple.js", DIST / "js" / "ripple.js")
+    for n in ("ripple.js", "theme.js", "settings.js"):
+        shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
     for p in pages:
@@ -293,7 +303,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

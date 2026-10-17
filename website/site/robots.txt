@@ -6,6 +6,7 @@ Disallow: /practice.html
 Disallow: /plan.html
 Disallow: /levels.html
 Disallow: /parent.html
+Disallow: /settings.html
 Disallow: /calculator.html
 
 Sitemap: https://www.graphiteprep.com/sitemap.xml
