@@ -270,11 +270,20 @@ td.num, th.num { text-align: right; font-family: var(--font-mono); font-weight: 
 .field { display: grid; gap: var(--s2); min-width: 0; }
 .field label, .field .field-label { font-weight: 700; font-size: var(--t-sm); }
 .field .hint { color: var(--muted); font-size: var(--t-xs); }
-input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], select, textarea {
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], input[type="date"], select, textarea {
   width: 100%; min-height: 48px; padding: var(--s3) var(--s4);
   font: inherit; font-size: 1rem; color: var(--text);
   background: var(--bg); border: 1px solid var(--control); border-radius: var(--radius);
 }
+/* Date boxes: same height, text size and left alignment as the other boxes on every browser.
+   Without these, Chrome and Edge draw a short box with small text, and Safari centers the date. */
+input[type="date"] { display: block; box-sizing: border-box; min-width: 0; max-width: 100%; line-height: 1.6;
+  -webkit-appearance: none; appearance: none; text-align: left; color-scheme: dark; }
+input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+input[type="date"]::-webkit-datetime-edit, input[type="date"]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.85; margin: 0 0 0 var(--s2); }
+/* Dropdowns line up with the text boxes beside them (padding + 1.6 line height + border). */
+select { min-height: calc(1.6rem + 2 * var(--s3) + 2px); }
 textarea { min-height: 120px; resize: vertical; }
 input:hover, select:hover, textarea:hover { border-color: var(--text); }
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
