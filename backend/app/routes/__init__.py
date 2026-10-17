@@ -23,6 +23,7 @@ BLUEPRINTS = [
     play.speed_bp,    # /api/speed    the daily speed round and leaderboards
     play.focus_bp,    # /api/focus    the focus timer
     play.lessons_bp,  # /api/lessons  active recall lessons
+    play.market_bp,   # /api/market   the collectibles market
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health
 ]

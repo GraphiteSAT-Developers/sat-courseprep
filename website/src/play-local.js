@@ -423,6 +423,135 @@
     return fail(404, "Not found.");
   }
 
+  /* ---------- market (services/market.py) ----------
+     Same prices, limits and badges as the server. A preview has no other students, so pretend players trade
+     in the background (from a seeded random walk) to show how other people's trades move prices. */
+  var MK = P.market, MK_ITEMS = MK && MK.items, MK_BY = {}, HALF = MK ? MK.half_life_hours * 3600000 : 1;
+  (MK_ITEMS || []).forEach(function (i) { MK_BY[i.key] = i; });
+  function mkLimits(it) { var g = Math.log(MK.rarities[it.rarity].growth); return [Math.log(MK.floor) / g, Math.log(MK.ceiling) / g]; }
+  function mkDecay(d, since, at) { return d ? d * Math.pow(0.5, Math.max(0, at - since) / HALF) : 0; }
+  function mkPrice(it, d) { var l = mkLimits(it); d = Math.min(l[1], Math.max(l[0], d)); return Math.max(1, Math.round(it.base * Math.pow(MK.rarities[it.rarity].growth, d))); }
+  function mkSell(p) { return Math.max(1, Math.floor(p * (1 - MK.spread))); }
+  function mkClamp(it, d) { var l = mkLimits(it); return Math.min(l[1], Math.max(l[0], d)); }
+  function mkState(s) {
+    if (!s.market) s.market = { demand: {}, trades: [], holdings: {}, others: {}, simAt: ms() - 7 * 86400000 };
+    var m = s.market;
+    MK_ITEMS.forEach(function (it) {
+      if (!m.demand[it.key]) m.demand[it.key] = { d: 0, ms: 0 };
+      if (m.others[it.key] == null) { var sup = MK.rarities[it.rarity].supply; m.others[it.key] = sup ? Math.floor(sup * (0.55 + 0.3 * seeded("held" + it.key)())) : 0; }
+    });
+    mkSimulate(m);
+    return m;
+  }
+  function mkRecord(m, it, side, price, at, mine) {
+    var cur = m.demand[it.key], d = mkDecay(cur.d, cur.ms, at), nd = mkClamp(it, d + (side === "buy" ? 1 : -1));
+    m.demand[it.key] = { d: nd, ms: at };
+    m.trades.push({ item: it.key, side: side, price: price, demand_after: nd, at_ms: at, mine: !!mine, day: today() });
+    return d;
+  }
+  function mkSimulate(m) {
+    var end = ms(), t = Math.max(m.simAt, end - 7 * 86400000), weights = { common: 5, uncommon: 3, rare: 2, legendary: 1 };
+    var pool = []; MK_ITEMS.forEach(function (it) { for (var w = 0; w < weights[it.rarity]; w++) pool.push(it); });
+    var rnd = seeded("market" + Math.floor(t / 60000));
+    while (true) {
+      t += Math.round(-Math.log(1 - rnd()) * 25 * 60000);  // about one pretend trade every 25 minutes
+      if (t > end) break;
+      var it = pool[Math.floor(rnd() * pool.length)];
+      // Each item has slow waves of buying and selling, so prices trend instead of jittering.
+      var phase = seeded("phase" + it.key)() * 6.28, mood = Math.sin(t / (36 * 3600000) + phase) * 0.35 + Math.sin(t / (9 * 3600000) + 2 * phase) * 0.12;
+      var side = rnd() < 0.5 + mood ? "buy" : "sell", sup = MK.rarities[it.rarity].supply, held = m.others[it.key];
+      if (side === "sell" && sup && held <= 0) side = "buy";
+      if (side === "buy" && sup && held + mkMine(m, it.key) >= sup) side = "sell";
+      var cur = m.demand[it.key], p = mkPrice(it, mkDecay(cur.d, cur.ms, t));
+      mkRecord(m, it, side, side === "buy" ? p : mkSell(p), t, false);
+      if (sup) m.others[it.key] += side === "buy" ? 1 : -1;
+    }
+    m.simAt = end;
+    var cut = end - 8 * 86400000, last = {};
+    m.trades = m.trades.filter(function (tr) { if (tr.at_ms >= cut) return true; last[tr.item] = tr; return false; });
+    Object.keys(last).forEach(function (k) { m.trades.unshift(last[k]); });  // keep one older trade per item for the charts
+    m.trades.sort(function (a, b) { return a.at_ms - b.at_ms; });
+  }
+  function mkMine(m, key) { var h = m.holdings[key]; return h ? h.qty : 0; }
+  function mkHistory(m, key, hours, at) {
+    var it = MK_BY[key], end = at || ms(), start = end - hours * 3600000, N = MK.history_points, d = 0, since = start, i = 0, out = [];
+    var trades = m.trades.filter(function (t) { return t.item === key; });
+    trades.forEach(function (t) { if (t.at_ms <= start) { d = t.demand_after; since = t.at_ms; } });
+    trades = trades.filter(function (t) { return t.at_ms > start && t.at_ms <= end; });
+    for (var n = 0; n < N; n++) {
+      var t = start + Math.floor((end - start) * n / (N - 1));
+      while (i < trades.length && trades[i].at_ms <= t) { d = trades[i].demand_after; since = trades[i].at_ms; i++; }
+      out.push({ at_ms: t, price: mkPrice(it, mkDecay(d, since, t)) });
+    }
+    return out;
+  }
+  function mkItem(m, it, at) {
+    var cur = m.demand[it.key], buy = mkPrice(it, mkDecay(cur.d, cur.ms, at)), r = MK.rarities[it.rarity], h = m.holdings[it.key];
+    var then = mkHistory(m, it.key, 24, at)[0].price, owned = h ? h.qty : 0;
+    return { key: it.key, set: it.set, name: it.name, about: it.about, rarity: it.rarity, rarity_name: r.name, art: it.art,
+             glyph: it.glyph || null, color: it.color || null, base: it.base, price: buy, sell_price: mkSell(buy),
+             change_24h: then ? Math.round((buy - then) / then * 1000) / 10 : 0, supply: r.supply,
+             left: r.supply == null ? null : Math.max(0, r.supply - m.others[it.key] - owned), max_hold: r.max_hold,
+             owned: owned, avg_cost: owned ? Math.round(h.cost / owned) : null };
+  }
+  function mkTradesToday(m) { var d = today(); return m.trades.filter(function (t) { return t.mine && t.day === d; }).length; }
+  function mkOverview(s) {
+    var m = mkState(s), at = ms(), items = MK_ITEMS.map(function (it) { return mkItem(m, it, at); });
+    var mine = {}; items.forEach(function (i) { if (i.owned) mine[i.key] = 1; });
+    var paid = 0; Object.keys(m.holdings).forEach(function (k) { paid += m.holdings[k].cost; });
+    return {
+      items: items, sets: MK.sets.map(function (st) {
+        var of = MK_ITEMS.filter(function (i) { return i.set === st.key; });
+        return { key: st.key, name: st.name, about: st.about, have: of.filter(function (i) { return mine[i.key]; }).length, of: of.length };
+      }),
+      coins: totals(s).coins, value: items.reduce(function (a, i) { return a + i.owned * i.sell_price; }, 0), paid: paid,
+      trades_left: Math.max(0, MK.trades_per_day - mkTradesToday(m)), trades_per_day: MK.trades_per_day,
+      activity: m.trades.slice(-12).reverse().map(function (t) { return { item: t.item, name: MK_BY[t.item].name, side: t.side, price: t.price, at_ms: t.at_ms }; }),
+      rules: MK,
+    };
+  }
+  function marketCall(path, data) {
+    var s = load(), m = mkState(s), parts = path.split("?"), clean = parts[0];
+    if (clean === "/api/market") { var o = mkOverview(s); save(s); return ok(o); }
+    var hm = /^\/api\/market\/([^/]+)\/history$/.exec(clean);
+    if (hm) {
+      var hrs = (/hours=(\d+)/.exec(parts[1] || "") || [0, "24"])[1];
+      if (hrs !== "24" && hrs !== "168") return fail(400, "Pick a day or a week.");
+      if (!MK_BY[hm[1]]) return fail(404, "That isn't in the market.");
+      save(s); return ok({ key: hm[1], hours: +hrs, points: mkHistory(m, hm[1], +hrs) });
+    }
+    if (clean === "/api/market/trade") {
+      var it = MK_BY[data && data.item], side = data && data.side;
+      if (!it || (side !== "buy" && side !== "sell")) return fail(400, "Pick something to buy or sell.", "item");
+      if (mkTradesToday(m) >= MK.trades_per_day) return fail(429, "That's " + MK.trades_per_day + " trades today. The market opens again for you tomorrow.");
+      var at = ms(), cur = m.demand[it.key], buy = mkPrice(it, mkDecay(cur.d, cur.ms, at)), r = MK.rarities[it.rarity];
+      var h = m.holdings[it.key] || { qty: 0, cost: 0 }, t0 = totals(s), badges = [], price;
+      if (side === "buy") {
+        if (data.price != null && data.price !== buy) return Promise.reject(Object.assign(new Error("The price changed since you looked."), { status: 409, data: { error: "The price changed since you looked.", price: buy } }));
+        if (h.qty >= r.max_hold) return fail(400, "You can hold up to " + r.max_hold + " of this one.");
+        if (r.supply != null && m.others[it.key] + h.qty >= r.supply) return fail(409, "Sold out. One comes back when someone sells.");
+        if (t0.coins < buy) return fail(400, "You need " + (buy - t0.coins) + " more coins for that.");
+        price = buy; h.qty += 1; h.cost += price;
+      } else {
+        price = mkSell(buy);
+        if (data.price != null && data.price !== price) return Promise.reject(Object.assign(new Error("The price changed since you looked."), { status: 409, data: { error: "The price changed since you looked.", price: price } }));
+        if (h.qty < 1) return fail(400, "You don't have one to sell.");
+        var avg = Math.round(h.cost / h.qty); h.qty -= 1; h.cost = Math.max(0, h.cost - avg);
+        if (price > avg) badges.push(earnBadge(s, "buy_low"));
+      }
+      m.holdings[it.key] = h;
+      mkRecord(m, it, side, price, at, true);
+      s.events.push({ kind: "market_" + side, xp: 0, coins: side === "buy" ? -price : price, detail: it.key, day: today(), at: now() });
+      badges.push(earnBadge(s, "market_debut"));
+      if (side === "buy" && MK.sets.some(function (st) { return MK_ITEMS.filter(function (i) { return i.set === st.key; }).every(function (i) { return mkMine(m, i.key) > 0; }); }))
+        badges.push(earnBadge(s, "collector"));
+      var rep = report(s, t0.xp, 0, side === "buy" ? -price : price, badges);
+      var out = { reward: rep, item: mkItem(m, it, ms()), price: price, side: side };
+      save(s); return ok(out);
+    }
+    return fail(404, "Not found.");
+  }
+
   function call(path, data, method) {
     var clean = path.split("?")[0];
     if (clean.indexOf("/api/game") === 0) return gameCall(clean, data);
@@ -430,6 +559,7 @@
     if (clean.indexOf("/api/speed") === 0) return speedCall(clean, data, method);
     if (clean.indexOf("/api/focus") === 0) return focusCall(clean, data);
     if (clean.indexOf("/api/lessons") === 0) return lessonsCall(clean, data);
+    if (clean.indexOf("/api/market") === 0 && MK) return marketCall(path, data);
     if (window.GraphitePracticeLocal) return window.GraphitePracticeLocal.call(path, data, method);
     return fail(404, "Not found.");
   }

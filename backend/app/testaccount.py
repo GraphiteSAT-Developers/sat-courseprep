@@ -55,7 +55,7 @@ def ensure(url):
 # Everything a student's practice leaves behind. study_plans goes before diagnostics, which it points to.
 STUDENT_TABLES = ["practice_sessions", "practice_seen", "practice_completions", "study_plans", "diagnostics",
                   "review_items", "test_attempts", "activity", "xp_events", "badges", "inventory", "speed_runs",
-                  "focus_sessions", "lesson_progress"]
+                  "focus_sessions", "lesson_progress", "market_holdings"]
 TEST_COINS = 100_000  # so everything in the shop can be tried right away
 STUDENT_ID_TABLES = ["subscriptions", "billing_events"]  # keyed by student_id
 
@@ -67,6 +67,8 @@ def reset(user_id):
         execute(f"DELETE FROM {table} WHERE user_id = ?", (user_id,))  # table names come from the fixed list above
     for table in STUDENT_ID_TABLES:
         execute(f"DELETE FROM {table} WHERE student_id = ?", (user_id,))
+    # Market trades stay (they're the price history everyone sees) but stop pointing at the account.
+    execute("UPDATE market_trades SET user_id = NULL WHERE user_id = ?", (user_id,))
     execute("UPDATE users SET plan = 'free' WHERE id = ?", (user_id,))
     execute("UPDATE users SET frame = NULL, title = NULL, board_opt_in = 0, nickname = NULL, state = NULL, accent = 'pencil', "
             "theme = 'dark', prefs = '{}', reminder_sent_on = NULL "

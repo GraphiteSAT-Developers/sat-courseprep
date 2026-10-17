@@ -121,7 +121,7 @@ def service(name):
         app_pkg = types.ModuleType("graphite_app")
         app_pkg.__path__ = []
         db = types.ModuleType("graphite_app.db")
-        for fn in ("execute", "query", "now_iso", "days_from_today", "today", "connect", "is_postgres", "now", "iso"):
+        for fn in ("execute", "changed", "query", "now_iso", "days_from_today", "today", "connect", "is_postgres", "now", "iso"):
             setattr(db, fn, lambda *a, **k: None)
         svc = types.ModuleType("graphite_app.services")
         svc.__path__ = [str(SERVICES)]
@@ -252,7 +252,8 @@ def bank_js():
                  "focus": {"lengths": [{"minutes": m, "break": focus.BREAKS[m]} for m in focus.LENGTHS],
                            "labels": [{"key": k, "name": v} for k, v in focus.LABELS.items()],
                            "counted_elsewhere": sorted(focus.COUNTED_ELSEWHERE), "finish_share": focus.FINISH_SHARE,
-                           "min_credit": focus.MIN_CREDIT}},
+                           "min_credit": focus.MIN_CREDIT},
+                 "market": service("market").rules()},
     }
     return "window.GRAPHITE_BANK = " + json.dumps(data, separators=(",", ":")).replace("</", "<\\/") + ";"
 
@@ -413,7 +414,7 @@ def build():
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
     for n in ("ripple.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
-              "lessons.js", "dash-play.js", "dash-layout.js"):
+              "lessons.js", "dash-play.js", "dash-layout.js", "market.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
@@ -427,7 +428,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /market.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

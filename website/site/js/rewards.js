@@ -16,7 +16,9 @@
     track_cleared: "10", streak_3: "3d", streak_7: "7d", streak_30: "30d", off_the_line: "GO", lightning: "3:00",
     deep_focus: "25", in_the_zone: "10×", recall_rookie: "R", memory_palace: "3R", total_recall: "8/8", fresh_look: "¢" };
   var KIND = { level_q: "Level up answer", boss: "Boss question", level_done: "Level finished", speed: "Speed round",
-    focus: "Focus session", lesson: "Lesson", recall: "Recall check", streak: "Streak reward", shop: "Shop", gift: "Starting coins" };
+    focus: "Focus session", lesson: "Lesson", recall: "Recall check", streak: "Streak reward", shop: "Shop", gift: "Starting coins",
+    market_buy: "Market", market_sell: "Market" };
+  var MARKET = ((window.GRAPHITE_BANK || {}).play || {}).market;
   var KIND_NAMES = { accent: "Accent colors", frame: "Profile frames", title: "Titles", theme: "Themes", avatar: "Avatar items" };
 
   function day(iso) { if (!iso) return ""; var d = new Date(iso.length === 10 ? iso + "T12:00:00" : iso); return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); }
@@ -71,7 +73,8 @@
     $("shop").hidden = false;
 
     $("rw-recent").innerHTML = g.recent.length ? g.recent.map(function (e) {
-      var label = e.kind === "shop" ? "Bought " + ((g.shop.filter(function (i) { return i.key === e.detail; })[0] || {}).name || "an item") : e.kind === "streak" || e.kind === "gift" ? (e.detail || KIND[e.kind]) : KIND[e.kind] || e.kind;
+      var mkName = e.kind.indexOf("market_") === 0 ? e.name || (((MARKET && MARKET.items) || []).filter(function (i) { return i.key === e.detail; })[0] || {}).name || e.detail : null;
+      var label = mkName ? (e.kind === "market_buy" ? "Bought " : "Sold ") + mkName + " on the market" : e.kind === "shop" ? "Bought " + ((g.shop.filter(function (i) { return i.key === e.detail; })[0] || {}).name || "an item") : e.kind === "streak" || e.kind === "gift" ? (e.detail || KIND[e.kind]) : KIND[e.kind] || e.kind;
       return "<li><span>" + esc(label) + '</span><span class="fine">' + day(e.at) + "</span><strong>" + (e.xp ? "+" + num(e.xp) + " XP " : "") +
         (e.coins ? (e.coins > 0 ? "+" : "−") + num(Math.abs(e.coins)) + ' <i class="coin" aria-hidden="true"></i>' : "") + "</strong></li>";
     }).join("") : '<li class="pd-empty">Nothing yet. Start a level, a speed round or a lesson.</li>';

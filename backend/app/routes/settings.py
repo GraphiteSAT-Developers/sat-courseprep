@@ -32,7 +32,8 @@ EXPORT_TABLES = [("test_attempts", "user_id"), ("review_items", "user_id"), ("ac
                  ("practice_sessions", "user_id"), ("practice_seen", "user_id"), ("practice_completions", "user_id"),
                  ("diagnostics", "user_id"), ("study_plans", "user_id"), ("subscriptions", "student_id"),
                  ("billing_events", "student_id"), ("xp_events", "user_id"), ("badges", "user_id"), ("inventory", "user_id"),
-                 ("speed_runs", "user_id"), ("focus_sessions", "user_id"), ("lesson_progress", "user_id")]
+                 ("speed_runs", "user_id"), ("focus_sessions", "user_id"), ("lesson_progress", "user_id"),
+                 ("market_holdings", "user_id"), ("market_trades", "user_id")]
 NEVER_EXPORTED = {"password_hash", "session_version", "token_hash", "code_hash"}
 
 

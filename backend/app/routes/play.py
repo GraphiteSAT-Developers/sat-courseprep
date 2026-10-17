@@ -2,7 +2,7 @@
 from flask import Blueprint, jsonify, request
 
 from ..security import ApiError, body, current_user, login_required
-from ..services import focus, game, lessons, speed
+from ..services import focus, game, lessons, market, speed
 
 
 def _student():
@@ -211,6 +211,47 @@ def focus_finish(sid):
         raise ApiError(404, "That focus session doesn't exist.")
     row, rep = focus.finish(user["id"], row, completed=bool(body().get("completed")))
     return jsonify({"session": focus.public(row), "reward": rep, "overview": focus.overview(current_user())})
+
+
+# ---------- market ----------
+market_bp = Blueprint("market", __name__, url_prefix="/api/market")
+
+
+@market_bp.get("")
+@login_required
+def market_overview():
+    return jsonify(market.overview(_student()))
+
+
+@market_bp.get("/<key>/history")
+@login_required
+def market_history(key):
+    _student()
+    hours = request.args.get("hours", "24")
+    if hours not in ("24", "168"):
+        raise ApiError(400, "Pick a day or a week.")
+    try:
+        return jsonify(market.item_history(key, int(hours)))
+    except market.MarketError as err:
+        raise ApiError(err.status, str(err))
+
+
+@market_bp.post("/trade")
+@login_required
+def market_trade():
+    user = _student()
+    data = body()
+    key, side, price = data.get("item"), data.get("side"), data.get("price")
+    if not isinstance(key, str) or side not in ("buy", "sell"):
+        raise ApiError(400, "Pick something to buy or sell.", "item")
+    if price is not None and (not isinstance(price, int) or isinstance(price, bool) or price < 1):
+        raise ApiError(400, "That price isn't right.", "price")
+    try:
+        out = market.trade(user["id"], key, side, price)
+    except market.MarketError as err:
+        resp = jsonify({"error": str(err), **err.extra})
+        return resp, err.status
+    return jsonify(out)
 
 
 # ---------- lessons ----------

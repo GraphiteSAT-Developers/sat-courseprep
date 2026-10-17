@@ -287,7 +287,36 @@ MIGRATIONS = [
         "ALTER TABLE users ADD COLUMN prefs TEXT NOT NULL DEFAULT '{}'",
         "ALTER TABLE users ADD COLUMN reminder_sent_on TEXT",
     ]),
-    # (12, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (12, "Market: collectibles whose prices move with what students buy and sell", [
+        """CREATE TABLE market_items (
+            item TEXT PRIMARY KEY,
+            demand REAL NOT NULL DEFAULT 0,
+            demand_ms BIGINT NOT NULL DEFAULT 0,
+            version INTEGER NOT NULL DEFAULT 0
+        )""",
+        """CREATE TABLE market_holdings (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            item TEXT NOT NULL,
+            qty INTEGER NOT NULL DEFAULT 0,
+            cost INTEGER NOT NULL DEFAULT 0,
+            UNIQUE (user_id, item)
+        )""",
+        """CREATE TABLE market_trades (
+            id {pk},
+            user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            item TEXT NOT NULL,
+            side TEXT NOT NULL,
+            price INTEGER NOT NULL,
+            demand_after REAL NOT NULL,
+            at_ms BIGINT NOT NULL,
+            day TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_trades_item ON market_trades (item, at_ms)",
+        "CREATE INDEX idx_trades_user ON market_trades (user_id, day)",
+        "ALTER TABLE users ADD COLUMN market_seq INTEGER NOT NULL DEFAULT 0",
+    ]),
+    # (13, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

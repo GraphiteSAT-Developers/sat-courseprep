@@ -1,0 +1,92 @@
+<!--{"file": "market.html", "path": "/market.html", "title": "Market | Graphite SAT Tutoring", "description": "Buy and sell Graphite collectibles. Prices move with what every student buys and sells.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "market.js", "ripple.js"]}-->
+<main id="main" class="practice market-page">
+  <div class="wrap dash-stack">
+    <p class="sample-note" id="mk-preview-note" hidden><span class="label">Preview</span> Prices here move with trades from pretend players, and what you buy stays in this browser. On the live site, prices move with what real students buy and sell.</p>
+
+    <div class="dash-top">
+      <div>
+        <p class="label">Market</p>
+        <h1>Buy low, sell high</h1>
+      </div>
+      <a class="btn btn-secondary" href="rewards.html">Rewards</a>
+    </div>
+    <p class="lede pr-lede">Collect math symbols, pencils and famous numbers with the coins you earn. When students buy something, its price goes up for everyone. When they sell, it goes down. If nobody trades it, the price drifts back to normal.</p>
+
+    <p class="field-error pr-error" id="mk-error" role="alert" hidden></p>
+    <p class="fine" id="mk-loading">Loading the market…</p>
+
+    <section class="mk-strip" id="mk-strip" aria-label="Your coins and collection" hidden>
+      <div class="hud-stat"><strong id="mk-coins"></strong><span>coins</span></div>
+      <div class="hud-stat"><strong id="mk-value"></strong><span>collection worth</span><em>if you sold it all now</em></div>
+      <div class="hud-stat"><strong id="mk-gain"></strong><span>gain or loss</span><em>against what you paid</em></div>
+      <div class="hud-stat"><strong id="mk-left"></strong><span>trades left today</span></div>
+    </section>
+
+    <div class="mk-cols" id="mk-body" hidden>
+      <section class="panel" aria-labelledby="mk-list-title">
+        <div class="panel-head"><h2 id="mk-list-title">Collectibles</h2>
+          <label class="mk-sort"><span class="fine">Sort</span>
+            <select id="mk-sort">
+              <option value="set">By set</option>
+              <option value="up">Biggest gains today</option>
+              <option value="down">Biggest drops today</option>
+              <option value="high">Price, high to low</option>
+              <option value="low">Price, low to high</option>
+            </select>
+          </label>
+        </div>
+        <div class="seg mk-filter" role="radiogroup" aria-label="Show" id="mk-filter"></div>
+        <ul class="mk-items" id="mk-items"></ul>
+      </section>
+
+      <div class="mk-side">
+        <section class="panel mk-detail" id="mk-detail" aria-labelledby="mk-d-name" tabindex="-1">
+          <div class="mk-d-top">
+            <span id="mk-d-art"></span>
+            <div>
+              <p class="label" id="mk-d-set"></p>
+              <h2 id="mk-d-name"></h2>
+              <p class="mk-rarity" id="mk-d-rarity"></p>
+            </div>
+          </div>
+          <p class="fine" id="mk-d-about"></p>
+          <div class="mk-d-price">
+            <strong id="mk-d-price"></strong>
+            <span id="mk-d-change"></span>
+          </div>
+          <div class="mk-chart-head">
+            <span class="fine" id="mk-chart-note"></span>
+            <div class="seg mk-range" role="radiogroup" aria-label="Chart range">
+              <span><input type="radio" name="mk-range" id="mk-r-day" value="24" checked><label for="mk-r-day">Day</label></span>
+              <span><input type="radio" name="mk-range" id="mk-r-week" value="168"><label for="mk-r-week">Week</label></span>
+            </div>
+          </div>
+          <div class="mk-chart" id="mk-chart"></div>
+          <dl class="mk-facts" id="mk-facts"></dl>
+          <div class="mk-actions">
+            <button class="btn btn-primary" type="button" id="mk-buy"></button>
+            <button class="btn btn-secondary" type="button" id="mk-sell"></button>
+          </div>
+          <div class="status" id="mk-status" role="status" aria-live="polite" tabindex="-1"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="mk-sets-title">
+          <div class="panel-head"><h2 id="mk-sets-title">Your sets</h2></div>
+          <p class="panel-lede">Own one of everything in a set to earn the Collector badge.</p>
+          <ul class="mk-sets" id="mk-sets"></ul>
+        </section>
+
+        <section class="panel" aria-labelledby="mk-feed-title">
+          <div class="panel-head"><h2 id="mk-feed-title">Market activity</h2></div>
+          <p class="panel-lede">The latest trades by students. Names are never shown.</p>
+          <ul class="mk-feed" id="mk-feed"></ul>
+        </section>
+      </div>
+    </div>
+
+    <section class="panel" aria-labelledby="mk-how-title" id="mk-how" hidden>
+      <div class="panel-head"><h2 id="mk-how-title">How prices work</h2></div>
+      <ul class="mk-how" id="mk-how-list"></ul>
+    </section>
+  </div>
+</main>

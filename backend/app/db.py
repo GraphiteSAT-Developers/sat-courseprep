@@ -77,6 +77,15 @@ def execute(sql, params=()):
     return dict(row) if row else None
 
 
+def changed(sql, params=()):
+    """Run a write and commit. Returns how many rows it changed (0 means a WHERE guard didn't match)."""
+    conn = get_db()
+    cur = conn.execute(_sql(sql), params)
+    n = cur.rowcount
+    conn.commit()
+    return n
+
+
 # Time helpers. Times are stored as ISO 8601 text in UTC so both databases agree.
 def now():
     return datetime.now(timezone.utc)

@@ -65,6 +65,9 @@ BADGES = [
     {"key": "memory_palace", "name": "Memory Palace", "how": "Master 3 lessons with recall checks."},
     {"key": "total_recall", "name": "Total Recall", "how": "Finish every lesson."},
     {"key": "fresh_look", "name": "Fresh Look", "how": "Buy something in the shop."},
+    {"key": "market_debut", "name": "Market Debut", "how": "Buy or sell a collectible on the market."},
+    {"key": "buy_low", "name": "Buy Low, Sell High", "how": "Sell a collectible for more than you paid."},
+    {"key": "collector", "name": "Collector", "how": "Own every collectible in a set."},
 ]
 BADGE_KEYS = {b["key"] for b in BADGES}
 
@@ -317,7 +320,9 @@ def profile(user):
     out["ranks"] = [{"at": a, "name": n} for a, n in RANKS]
     out["streak_coins"] = [{"days": d, "coins": c} for d, c in sorted(STREAK_COINS.items())]
     out["earn"] = earn_table()
-    out["recent"] = [dict(r) for r in query(
+    from .market import BY_KEY as MARKET_ITEMS
+    out["recent"] = [dict(r, name=MARKET_ITEMS[r["detail"]]["name"]) if r["kind"].startswith("market_") and r["detail"] in MARKET_ITEMS
+                     else dict(r) for r in query(
         "SELECT kind, xp, coins, detail, at FROM xp_events WHERE user_id = ? ORDER BY id DESC LIMIT 12", (uid,))]
     return out
 
