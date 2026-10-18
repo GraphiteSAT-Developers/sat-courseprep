@@ -34,7 +34,7 @@ def price_id(plan, interval):
     p = PLANS[plan]
     made = stripe_api.request("POST", "/prices", {
         "currency": "usd", "unit_amount": p["prices"][interval], "recurring": {"interval": interval},
-        "lookup_key": key, "product_data": {"name": f"Graphite {p['name']}", "metadata": {"plan": plan}},
+        "lookup_key": key, "product_data": {"name": f"Graphite SAT {p['name']}", "metadata": {"plan": plan}},
         "metadata": {"plan": plan, "interval": interval}})
     _price_ids[key] = made["id"]
     return made["id"]
@@ -52,7 +52,7 @@ def start(payer, student, plan, interval):
         "line_items": [{"price": price_id(plan, interval), "quantity": 1}],
         "client_reference_id": student["id"],
         "metadata": meta,
-        "subscription_data": {"metadata": meta, "description": f"Graphite {PLANS[plan]['name']} for {student['name']}"},
+        "subscription_data": {"metadata": meta, "description": f"Graphite SAT {PLANS[plan]['name']} for {student['name']}"},
         "allow_promotion_codes": True,
         "success_url": f"{base}/checkout.html?session_id={{CHECKOUT_SESSION_ID}}",
         "cancel_url": f"{base}/checkout.html?plan={plan}&interval={interval}&student={student['id']}&canceled=1",

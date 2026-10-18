@@ -1,4 +1,4 @@
-/* Graphite focus timer. The server keeps the real clock (/api/focus); this page shows the countdown, handles
+/* Graphite SAT focus timer. The server keeps the real clock (/api/focus); this page shows the countdown, handles
    pausing, plays the chime and runs the break. Preview: the same requests go to play-local.js. */
 (function () {
   "use strict";
@@ -74,7 +74,7 @@
     var left = remaining(), total = mode === "break" ? run.break_minutes * 60 : run.minutes * 60;
     $("fo-time").textContent = mmss(left);
     $("fo-ring").style.strokeDashoffset = String(Math.round(1000 * (1 - Math.max(0, left) / total)));
-    document.title = mmss(left) + (mode === "break" ? " · Break" : " · Focus") + " | Graphite";
+    document.title = mmss(left) + (mode === "break" ? " · Break" : " · Focus") + " | Graphite SAT";
     if (Math.ceil(left) % 60 === 0) $("fo-time-sr").textContent = Math.ceil(left / 60) + " minutes left";
     if (left <= 0) { if (mode === "break") endBreak(); else if (!pauseState().at) finish(true); }
   }

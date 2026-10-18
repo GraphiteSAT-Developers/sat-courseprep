@@ -1,4 +1,4 @@
-/* Graphite practice, preview mode only.
+/* Graphite SAT practice, preview mode only.
    The live site sends these requests to the backend (backend/app/routes/practice.py). In the static preview there
    is no server, so this file answers the same requests in the browser from GRAPHITE_BANK (bank.js, built from the
    backend's question bank) and keeps the done list in localStorage. The rules match services/practice.py. */

@@ -1,4 +1,4 @@
-"""Graphite backend. create_app() builds the Flask app; wsgi.py runs it."""
+"""Graphite SAT backend. create_app() builds the Flask app; wsgi.py runs it."""
 import logging
 import random
 from datetime import timedelta

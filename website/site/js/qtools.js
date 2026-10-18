@@ -1,4 +1,4 @@
-/* Graphite question tools: the graphing calculator and the tutor, on every page with math questions.
+/* Graphite SAT question tools: the graphing calculator and the tutor, on every page with math questions.
    On a computer they open as a panel on the right and the page slides left, so the whole question stays in view.
    On a phone they open as a sheet over the bottom of the screen. Nothing opens a new tab or window.
 

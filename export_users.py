@@ -1,4 +1,4 @@
-"""Export everything Graphite has stored about its users to spreadsheet files (CSV).
+"""Export everything Graphite SAT has stored about its users to spreadsheet files (CSV).
 
     python export_users.py        (on Mac, python3)
 

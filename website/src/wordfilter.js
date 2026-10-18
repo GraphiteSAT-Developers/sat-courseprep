@@ -1,4 +1,4 @@
-/* Graphite word filter: no curse words in any text box. The same rules as backend/app/services/wordfilter.py,
+/* Graphite SAT word filter: no curse words in any text box. The same rules as backend/app/services/wordfilter.py,
    from the same list (backend/app/content/blocked_words.txt, ROT13). build.py fills in WORDS.
    Every text box and text area is checked as you type and before its form sends. Boxes where it doesn't
    apply (passwords, sign-in emails, codes, answers) carry data-no-filter. The server checks again. */

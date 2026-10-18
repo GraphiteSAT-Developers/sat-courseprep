@@ -45,7 +45,7 @@ class Config:
     SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
     SMTP_USER = os.environ.get("SMTP_USER", "")
     SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
-    MAIL_FROM = os.environ.get("MAIL_FROM", "Graphite <hello@graphiteprep.com>")
+    MAIL_FROM = os.environ.get("MAIL_FROM", "Graphite SAT <hello@graphiteprep.com>")
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "")
 
     # Payments. Without STRIPE_SECRET_KEY, checkout starts plans without charging (handy for trying the site).

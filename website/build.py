@@ -1,4 +1,4 @@
-"""Build Graphite into two outputs:
+"""Build Graphite SAT into two outputs:
 site/      deployable site (linked CSS/JS, root-absolute links, server files)
 artifact/  self-contained pages for the hosted preview (inlined CSS/JS/images)
 """
@@ -35,7 +35,7 @@ def calculator_html():
     swaps = [
         ("const STORE = 'plotline-state-v1';", "const STORE = (window.TOPLINE_EMBED && window.TOPLINE_EMBED.store) || 'plotline-state-v1';"),
         ("if (!load()) rows = exampleRows();", "if (!load()) rows = window.TOPLINE_EMBED ? (colorCounter = 0, [newRow('')]) : exampleRows();"),
-        ("<head>\n", "<head>\n<meta name=\"robots\" content=\"noindex\">\n<meta name=\"description\" content=\"Graphite graphing calculator for SAT Math practice.\">\n<script>window.TOPLINE_EMBED = { store: 'graphite-test-calc-v1' };</script>\n"),
+        ("<head>\n", "<head>\n<meta name=\"robots\" content=\"noindex\">\n<meta name=\"description\" content=\"Graphite SAT graphing calculator for SAT Math practice.\">\n<script>window.TOPLINE_EMBED = { store: 'graphite-test-calc-v1' };</script>\n"),
     ]
     for old, new in swaps:
         assert t.count(old) == 1, "Topline changed; update calculator_html(): " + old[:40]
@@ -71,7 +71,7 @@ def load_pages():
 
 JSONLD = {
     "@context": "https://schema.org", "@type": "EducationalOrganization",
-    "name": "Graphite", "url": SITE + "/", "logo": SITE + "/apple-touch-icon.png",
+    "name": "Graphite SAT", "url": SITE + "/", "logo": SITE + "/apple-touch-icon.png",
     "email": "hello@graphiteprep.com", "telephone": "+1-954-555-0142",
     "description": "AI SAT tutoring for high school students.",
 }
@@ -205,7 +205,7 @@ def compare_html():
           <h3 class="compare-title">Compare every feature</h3>
           <div class="compare-pick" role="radiogroup" aria-label="Show plan">{pick}</div>
           <table class="compare-table">
-            <caption class="visually-hidden">What each Graphite plan includes</caption>
+            <caption class="visually-hidden">What each Graphite SAT plan includes</caption>
             <thead><tr><th scope="col"><span class="visually-hidden">Feature</span></th>{head}</tr></thead>
             {"".join(groups)}
           </table>
@@ -373,12 +373,12 @@ def render(meta, mode):
 <meta name="robots" content="{robots}">
 <meta name="theme-color" content="#1c1e21">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Graphite">
+<meta property="og:site_name" content="Graphite SAT">
 <meta property="og:title" content="{meta['title']}">
 <meta property="og:description" content="{meta['description']}">
 <meta property="og:url" content="{url}">
 <meta property="og:image" content="{SITE}/og-image.png">
-<meta property="og:image:alt" content="Graphite: AI SAT tutoring. A yellow answer bubble on a graphite gray background.">
+<meta property="og:image:alt" content="Graphite SAT: a yellow pencil end beside the line SAT prep that starts with the questions you miss.">
 <meta name="twitter:card" content="summary_large_image">
 {canonical}
 {icons}
@@ -444,7 +444,7 @@ def make_images(out):
     og.paste(mark(120), (80, 80), mark(120))
     d.text((80, 260), "SAT prep that starts with", font=ImageFont.truetype(bold, 64), fill="#eceef0")
     d.text((80, 340), "the questions you miss.", font=ImageFont.truetype(bold, 64), fill="#f2c14e")
-    d.text((80, 470), "Graphite  ·  SAT tutoring for high school students", font=ImageFont.truetype(reg, 30), fill="#b1b6bd")
+    d.text((80, 470), "Graphite SAT  ·  tutoring for high school students", font=ImageFont.truetype(reg, 30), fill="#b1b6bd")
     og.quantize(colors=32, method=Image.FASTOCTREE).save(out / "og-image.png", optimize=True)
 
 ASSET_LINK = re.compile(r'((?:src|href)="/)((?:js|css)/[\w.-]+\.(?:js|css))"')
@@ -496,7 +496,7 @@ def build():
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
     (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /market.html\nDisallow: /tutor.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
-        "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
+        "name": "Graphite SAT", "short_name": "Graphite SAT", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",
         "icons": [{"src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png"},
                   {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"}]}, indent=2) + "\n")

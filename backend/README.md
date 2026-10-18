@@ -1,6 +1,6 @@
-# Graphite backend
+# Graphite SAT backend
 
-A Flask server that runs the whole Graphite site: it serves every page in `website/site/`, keeps student accounts, grades practice tests, and powers the dashboard. Data lives in SQLite on your computer and in Postgres when hosted.
+A Flask server that runs the whole Graphite SAT site: it serves every page in `website/site/`, keeps student accounts, grades practice tests, and powers the dashboard. Data lives in SQLite on your computer and in Postgres when hosted.
 
 ## Run it on your computer
 
@@ -9,9 +9,9 @@ You need Python 3.10 or newer ([python.org](https://www.python.org/downloads/); 
 1. Get the latest code: `git pull` in the `sat-courseprep` folder (or clone it again).
 2. In VS Code, open the **whole `sat-courseprep` folder** (File > Open Folder), not just `backend` or `website`.
 3. Start the server, either way:
-   - Press **F5** and pick **Start Graphite**, or
+   - Press **F5** and pick **Start Graphite SAT**, or
    - Open a terminal (Terminal > New Terminal) and run `python start.py` (on a Mac, `python3 start.py`).
-4. Wait for the line **Graphite is running. Open http://127.0.0.1:8000** and open that exact address. The port can be 8080 or 5050 if 8000 is busy, so use the one it prints.
+4. Wait for the line **Graphite SAT is running. Open http://127.0.0.1:8000** and open that exact address. The port can be 8080 or 5050 if 8000 is busy, so use the one it prints.
 5. Keep that terminal open. Closing it, or pressing Ctrl+C, stops the site.
 
 `start.py` installs Flask if it's missing and picks a free port. Emails (welcome, password reset, diagnostic link) are printed in the terminal until you set `SMTP_HOST`.

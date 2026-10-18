@@ -1,4 +1,4 @@
-# Graphite: Netlify config (use instead of .htaccess when hosting on Netlify)
+# Graphite SAT: Netlify config (use instead of .htaccess when hosting on Netlify)
 # Netlify serves HTTPS automatically and redirects http:// to https://.
 
 [[redirects]]

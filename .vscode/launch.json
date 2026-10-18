@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start Graphite",
+      "name": "Start Graphite SAT",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/start.py",

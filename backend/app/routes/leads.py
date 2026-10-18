@@ -33,9 +33,9 @@ def create_lead():
     execute("INSERT INTO leads (name, email, grade, test_date, target_score, message, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (name, email, grade, test_date, target, crypto.seal(message), now_iso()))
     base = current_app.config["BASE_URL"]
-    mailer.send(email, "Your free Graphite diagnostic",
+    mailer.send(email, "Your free Graphite SAT diagnostic",
                 f"Hi {name.split(' ')[0]},\n\nCreate your free account here, then take the 10-question diagnostic. "
-                f"It takes about 15 minutes and builds your study plan:\n{base}/signin.html#create\n\nGraphite")
+                f"It takes about 15 minutes and builds your study plan:\n{base}/signin.html#create\n\nGraphite SAT")
     admin = current_app.config["ADMIN_EMAIL"]
     if admin:
         mailer.send(admin, f"New diagnostic signup: {name}",

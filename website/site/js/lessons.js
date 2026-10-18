@@ -1,4 +1,4 @@
-/* Graphite lessons: active recall instead of reading. Every step asks for an answer before it explains.
+/* Graphite SAT lessons: active recall instead of reading. Every step asks for an answer before it explains.
    Step types (backend/app/services/lessons.py): recall, predict, fill, order, spot, and the hands-on ones:
    slider, plot, graph, sort, match, line, build, grid, flash (drawn with lesson-kit.js).
    Each lesson has a format that changes how it plays (hearts, a clock, a cold open, a story, a case file,
@@ -96,7 +96,7 @@
       steps = kind === "recall" ? lesson.recall : lesson.steps;
       $("ls-kicker").textContent = (kind === "recall" ? "Recall check · " : "Lesson · ") + lesson.skill_name;
       $("ls-title").innerHTML = T(lesson.title);
-      document.title = P(lesson.title) + " | Graphite SAT Tutoring";
+      document.title = P(lesson.title) + " | Graphite SAT";
       if (window.GraphiteCrumb) window.GraphiteCrumb(P(lesson.title), "lessons.html?list=1");
       if (tools) { tools.available(lesson.domain !== "memory"); tools.context({ title: P(lesson.title), detail: lesson.skill_name }); }
       $("ls-player").hidden = false;

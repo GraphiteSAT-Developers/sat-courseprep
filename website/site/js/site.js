@@ -1,4 +1,4 @@
-/* Graphite word filter: no curse words in any text box. The same rules as backend/app/services/wordfilter.py,
+/* Graphite SAT word filter: no curse words in any text box. The same rules as backend/app/services/wordfilter.py,
    from the same list (backend/app/content/blocked_words.txt, ROT13). build.py fills in WORDS.
    Every text box and text area is checked as you type and before its form sends. Boxes where it doesn't
    apply (passwords, sign-in emails, codes, answers) carry data-no-filter. The server checks again. */
@@ -90,11 +90,11 @@
   }, true);
 })();
 
-/* Graphite site script. Edit CONFIG to connect real services. */
+/* Graphite SAT site script. Edit CONFIG to connect real services. */
 (function () {
   "use strict";
 
-  // Live mode: pages served by the Graphite backend (backend/) carry <meta name="graphite-mode" content="live">
+  // Live mode: pages served by the Graphite SAT backend (backend/) carry <meta name="graphite-mode" content="live">
   // and talk to its API. Without it (a static preview), forms behave as a demo and nothing is sent.
   var LIVE = !!document.querySelector('meta[name="graphite-mode"][content="live"]');
 
@@ -362,7 +362,7 @@
     return api(endpoint, data);
   }
   function networkMessage(err) {
-    return err && err.status ? err.message : "We couldn't reach Graphite. Check your connection and try again.";
+    return err && err.status ? err.message : "We couldn't reach Graphite SAT. Check your connection and try again.";
   }
   // Puts a server-side field error next to the matching input. fieldMap: { serverField: inputId }.
   function showFieldError(err, fieldMap) {
@@ -457,7 +457,7 @@
       var parent = r === "parent", creating = !$("#create-form").hidden;
       $all(".student-only").forEach(function (el) { el.hidden = parent; });
       $all(".parent-only").forEach(function (el) { el.hidden = !parent; });
-      $("#signin-title").textContent = creating ? (parent ? "Create a parent account" : "Create your Graphite account")
+      $("#signin-title").textContent = creating ? (parent ? "Create a parent account" : "Create your Graphite SAT account")
         : (parent ? "Sign in to your parent dashboard" : "Sign in to your dashboard");
       $("#create-name-label").textContent = parent ? "Your name" : "Student's name";
       $("#create-lede").textContent = parent ? "Follow your student's progress, study time and plan. You'll connect to your student with a code from their dashboard."

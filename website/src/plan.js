@@ -1,4 +1,4 @@
-/* Graphite study plan: the 10-question diagnostic, its results, and the week-by-week plan.
+/* Graphite SAT study plan: the 10-question diagnostic, its results, and the week-by-week plan.
    Live: talks to /api/plan. Preview: the same requests go to GraphitePracticeLocal (practice-local.js). */
 (function () {
   "use strict";
@@ -31,7 +31,7 @@
   if (!LIVE) $("pl-preview-note").hidden = false;
   if (!LIVE) store("graphite_diag_prompted", true);
   if (/[?&]welcome=1/.test(location.search)) {
-    $("pl-intro-kicker").textContent = "Welcome to Graphite";
+    $("pl-intro-kicker").textContent = "Welcome to Graphite SAT";
     $("pl-intro-title").textContent = "Let's start with a quick 10-question diagnostic";
   }
   if (LIVE) API.call("/api/me").then(function (r) { $("account-email").textContent = r.user.email; }, function () {});

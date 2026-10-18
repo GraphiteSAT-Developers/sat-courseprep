@@ -1,4 +1,4 @@
-"""A small Stripe client: just the calls Graphite needs, with no extra packages to install.
+"""A small Stripe client: just the calls Graphite SAT needs, with no extra packages to install.
 
 Payments switch on when STRIPE_SECRET_KEY is set (see backend/README.md, "Connect Stripe"). Until then,
 is_live() is False and checkout starts plans without charging anyone.

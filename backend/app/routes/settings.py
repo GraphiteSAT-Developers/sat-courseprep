@@ -217,11 +217,11 @@ def change_email():
         raise ApiError(409, "Another account already uses that email.", "email", "email_taken")
     old = user["email"]
     execute("UPDATE users SET email = ? WHERE id = ?", (email, user["id"]))
-    mailer.send(old, "Your Graphite email was changed",
-                f"Hi {user['name'].split(' ')[0]},\n\nThe email on your Graphite account was changed to {email}. "
-                "If you didn't do this, reply to this email right away.\n\nGraphite")
-    mailer.send(email, "Your Graphite email is updated",
-                f"Hi {user['name'].split(' ')[0]},\n\nYou'll sign in to Graphite with this email from now on.\n\nGraphite")
+    mailer.send(old, "Your Graphite SAT email was changed",
+                f"Hi {user['name'].split(' ')[0]},\n\nThe email on your Graphite SAT account was changed to {email}. "
+                "If you didn't do this, reply to this email right away.\n\nGraphite SAT")
+    mailer.send(email, "Your Graphite SAT email is updated",
+                f"Hi {user['name'].split(' ')[0]},\n\nYou'll sign in to Graphite SAT with this email from now on.\n\nGraphite SAT")
     return jsonify({"user": public_user(_fresh(user["id"]))})
 
 
@@ -238,9 +238,9 @@ def change_password():
     execute("UPDATE users SET password_hash = ?, session_version = session_version + 1 WHERE id = ?",
             (generate_password_hash(new), user["id"]))
     login_user(_fresh(user["id"]), remember=True)  # stay signed in here; other devices are signed out
-    mailer.send(user["email"], "Your Graphite password was changed",
-                f"Hi {user['name'].split(' ')[0]},\n\nYour Graphite password was just changed, and other devices were "
-                "signed out. If you didn't do this, reset your password from the sign-in page.\n\nGraphite")
+    mailer.send(user["email"], "Your Graphite SAT password was changed",
+                f"Hi {user['name'].split(' ')[0]},\n\nYour Graphite SAT password was just changed, and other devices were "
+                "signed out. If you didn't do this, reset your password from the sign-in page.\n\nGraphite SAT")
     return jsonify({"user": public_user(_fresh(user["id"]))})
 
 
@@ -314,7 +314,7 @@ def delete_account():
     execute("DELETE FROM study_plans WHERE user_id = ?", (user["id"],))
     execute("DELETE FROM users WHERE id = ?", (user["id"],))
     logout_user()
-    mailer.send(email, "Your Graphite account was deleted",
-                f"Hi {first},\n\nYour Graphite account and its practice history were deleted. "
-                "Thanks for studying with us.\n\nGraphite")
+    mailer.send(email, "Your Graphite SAT account was deleted",
+                f"Hi {first},\n\nYour Graphite SAT account and its practice history were deleted. "
+                "Thanks for studying with us.\n\nGraphite SAT")
     return jsonify({"ok": True})

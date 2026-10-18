@@ -1,6 +1,6 @@
-# Graphite website
+# Graphite SAT website
 
-Marketing site, sign-in, student dashboard and math practice test for Graphite, the AI SAT tutor. Dark graphite gray with a pencil-yellow accent.
+Marketing site, sign-in, student dashboard and math practice test for Graphite SAT, the AI SAT tutor. Dark graphite gray with a pencil-yellow accent.
 
 The pages run in two modes:
 

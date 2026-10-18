@@ -1,4 +1,4 @@
-"""Start Graphite on your computer.
+"""Start Graphite SAT on your computer.
 
     python start.py        (on Mac, use python3 if python isn't found)
 
@@ -27,7 +27,7 @@ def stop(text):
 
 
 if sys.version_info < (3, 10):
-    stop(f"Graphite needs Python 3.10 or newer. This is Python {sys.version.split()[0]}. "
+    stop(f"Graphite SAT needs Python 3.10 or newer. This is Python {sys.version.split()[0]}. "
          "Install a newer Python from python.org, then run this again.")
 
 if not BACKEND.joinpath("app").exists():
@@ -35,7 +35,7 @@ if not BACKEND.joinpath("app").exists():
          "'git pull' if you downloaded the project before the backend was added.")
 
 if importlib.util.find_spec("flask") is None:
-    say("Installing Flask, the web framework Graphite runs on...")
+    say("Installing Flask, the web framework Graphite SAT runs on...")
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "flask"])
     except subprocess.CalledProcessError:
@@ -78,6 +78,6 @@ sys.path.insert(0, str(BACKEND))
 from app import create_app  # noqa: E402  (imported after the checks above)
 
 app = create_app()
-say(f"Graphite is running. Open {url} in your browser.")
+say(f"Graphite SAT is running. Open {url} in your browser.")
 say("Keep this terminal open while you use the site. Press Ctrl+C to stop.\n")
 app.run(host="127.0.0.1", port=port, debug=True, use_reloader=False)

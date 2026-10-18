@@ -35,7 +35,7 @@
     if (id && $(id)) { fieldError($(id), err.message); $(id).focus(); return true; }
     return false;
   }
-  function message(err) { return err && err.status ? err.message : "We couldn't reach Graphite. Check your connection and try again."; }
+  function message(err) { return err && err.status ? err.message : "We couldn't reach Graphite SAT. Check your connection and try again."; }
   function busy(btn, on, label) {
     if (!btn) return;
     if (on) { btn.dataset.label = btn.textContent; btn.textContent = label; btn.disabled = true; }

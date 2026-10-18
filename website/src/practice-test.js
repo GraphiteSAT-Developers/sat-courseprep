@@ -1,4 +1,4 @@
-/* Graphite practice test engine.
+/* Graphite SAT practice test engine.
    Live (served by the backend): questions come from /api/tests/<id> without answers, and the server grades.
    Static preview: questions come from GRAPHITE_TEST in questions.js and are graded in the browser.
    With ?session=<id>, the page runs a practice set from the question bank instead (see practice.js):
@@ -627,7 +627,7 @@
     if (REVIEW && back) back.textContent = "Back to your dashboard";
     var doneLink = document.querySelector("#done-dialog a");
     if (doneLink) { doneLink.setAttribute("href", BACK_URL); doneLink.textContent = backText; }
-    document.title = heading + " | Graphite SAT Tutoring";
+    document.title = heading + " | Graphite SAT";
   }
 
   /* ---------- boot ---------- */

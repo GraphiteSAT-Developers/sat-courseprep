@@ -1,4 +1,4 @@
-/* Graphite market: collectibles whose prices move with what every student buys and sells.
+/* Graphite SAT market: collectibles whose prices move with what every student buys and sells.
    Live: /api/market (backend/app/services/market.py). Preview: the same requests go to play-local.js. */
 (function () {
   "use strict";

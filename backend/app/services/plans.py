@@ -17,7 +17,7 @@ WEEKS_PER_MONTH = 52 / 12
 PLANS = {
     "free": {
         "name": "Scratch Paper",
-        "tagline": "Try Graphite before you commit.",
+        "tagline": "Try Graphite SAT before you commit.",
         "blurb": "The diagnostic, one practice set a week and a few tutor questions a day.",
         "badge": None,
         "prices": {"week": 0, "month": 0, "year": 0},

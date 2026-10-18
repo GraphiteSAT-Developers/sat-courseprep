@@ -1,4 +1,4 @@
-/* Graphite checkout (checkout.html): pick a plan and how to pay, then pay on Stripe.
+/* Graphite SAT checkout (checkout.html): pick a plan and how to pay, then pay on Stripe.
    Live: /api/checkout sends the parent to Stripe's payment page, or, before Stripe is connected, starts the plan
    without charging. Preview: the plan is saved in this browser, where the parent dashboard preview reads it.
    Links in: checkout.html?plan=sharpened&interval=year&student=12 (all optional). */

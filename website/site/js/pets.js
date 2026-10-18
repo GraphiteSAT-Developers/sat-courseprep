@@ -1,4 +1,4 @@
-/* Graphite pets: the drawings. GraphitePets.draw({ species, stage, gear, mood, egg, progress }) returns an SVG string.
+/* Graphite SAT pets: the drawings. GraphitePets.draw({ species, stage, gear, mood, egg, progress }) returns an SVG string.
    Species and rules come from backend/app/services/pet.py; gear from services/cosmetics.py (PETGEAR).
    Stages grow the pet (baby → young → teen → grown → legend). Moods: "happy" (studied today) or "sleepy". */
 (function () {

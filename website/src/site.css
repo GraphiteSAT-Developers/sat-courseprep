@@ -2661,3 +2661,14 @@ html.qt-motion .qt-launch { transition: right 0.22s ease; }
 .xp-pretty .tex .katex { font-size: 1em; color: var(--x-muted, var(--muted)); }
 .tex .katex .mfrac .frac-line { border-bottom-width: 0.06em; }
 .mc-text, .q-stem, .xp li, .xp p, .res-stem, .res-choices li { overflow-wrap: anywhere; }
+
+/* The name "Graphite SAT" stays on one line; small phones get a slightly smaller wordmark. */
+.logo > span { white-space: nowrap; }
+@media (max-width: 400px) {
+  .logo { font-size: 1.15rem; gap: 6px; }
+  .logo svg { width: 28px; height: 28px; }
+  .logo-tag { margin-left: 2px; padding: 2px 6px; font-size: 11px; }
+}
+@media (max-width: 340px) {
+  .menu-toggle .menu-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}

@@ -203,7 +203,7 @@ def send_report(student_id):
         raise ApiError(429, "Reports are limited to five an hour.")
     record_event(bucket)
     s = service.summary(student, link)
-    mailer.send(me["email"], f"{s['student']['first_name']}'s week on Graphite", service.report_text(me, s))
+    mailer.send(me["email"], f"{s['student']['first_name']}'s week on Graphite SAT", service.report_text(me, s))
     return jsonify({"ok": True, "to": me["email"]})
 
 
@@ -214,7 +214,7 @@ def send_weekly_reports():
         p = query("SELECT * FROM users WHERE id = ?", (link["parent_id"],), one=True)
         st = query("SELECT * FROM users WHERE id = ?", (link["student_id"],), one=True)
         s = service.summary(st, link, date.today())
-        mailer.send(p["email"], f"{s['student']['first_name']}'s week on Graphite", service.report_text(p, s))
+        mailer.send(p["email"], f"{s['student']['first_name']}'s week on Graphite SAT", service.report_text(p, s))
         sent += 1
     current_app.logger.info("Sent %d weekly parent reports", sent)
     return sent

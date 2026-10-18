@@ -1,4 +1,4 @@
-/* Graphite Level up: practice sets that get harder one level at a time.
+/* Graphite SAT Level up: practice sets that get harder one level at a time.
    Live: talks to /api/levels. Preview: the same requests go to GraphitePracticeLocal (practice-local.js). */
 (function () {
   "use strict";

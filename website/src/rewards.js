@@ -1,4 +1,4 @@
-/* Graphite Rewards: the locker (try on, buy and wear cosmetics), the pet, and badges and ranks.
+/* Graphite SAT Rewards: the locker (try on, buy and wear cosmetics), the pet, and badges and ranks.
    Live: /api/game and /api/pet. Preview: the same requests go to play-local.js. */
 (function () {
   "use strict";
@@ -223,7 +223,7 @@
     }).join("") + (pets.egg ? "" : '<li class="rw-pets-buy"><button class="btn btn-secondary" type="button" id="rw-buy-egg"' + (data.coins < pets.rules.egg_price ? " disabled" : "") + ">Get a new egg for " + coin(pets.rules.egg_price) + "</button></li>");
     var be = $("rw-buy-egg"); if (be) be.addEventListener("click", function () { petCall("/api/pet/egg", {}, "A new egg! Earn XP to hatch it."); });
     $("rw-pet-rules").innerHTML = [
-      "An egg hatches after you earn " + r.egg_xp + " XP anywhere on Graphite.",
+      "An egg hatches after you earn " + r.egg_xp + " XP anywhere on Graphite SAT.",
       "Your active pet grows with every XP you earn. Treats add a little more, up to " + r.treats_per_day + " a day.",
       "Pets change as they grow: baby, young, teen, grown, and a legend at level " + r.max_level + ".",
       "Some kinds are rare. Nova is the rarest."

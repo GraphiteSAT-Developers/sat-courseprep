@@ -248,7 +248,7 @@ def summary(student, link, today=None):
 
 def report_text(parent, s):
     st, o = s["student"], s["overview"]
-    lines = [f"Hi {parent['name'].split(' ')[0]},", "", f"Here's {st['first_name']}'s week on Graphite.", ""]
+    lines = [f"Hi {parent['name'].split(' ')[0]},", "", f"Here's {st['first_name']}'s week on Graphite SAT.", ""]
     lines.append(f"- Study time: {o['minutes_week']} of {o['goal_minutes']} minutes")
     lines.append(f"- Days practiced this week: {sum(1 for x in o['study_days_week'] if x)} of 7")
     lines.append(f"- Questions answered: {o['questions_week']}" + (f" ({o['accuracy_week']}% right)" if o["accuracy_week"] is not None else ""))
@@ -260,5 +260,5 @@ def report_text(parent, s):
         lines.append(f"- Study plan: week {s['plan']['week']} of {s['plan']['weeks']}, {s['plan']['done']} of {s['plan']['tasks']} tasks done")
     if s["alerts"]:
         lines += ["", "Worth a look:"] + [f"- {a['text']}" for a in s["alerts"]]
-    lines += ["", "See the full picture on your parent dashboard.", "", "Graphite"]
+    lines += ["", "See the full picture on your parent dashboard.", "", "Graphite SAT"]
     return "\n".join(lines)

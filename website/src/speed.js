@@ -1,4 +1,4 @@
-/* Graphite speed round: ten quick questions on the server's clock, then the leaderboards.
+/* Graphite SAT speed round: ten quick questions on the server's clock, then the leaderboards.
    Live: /api/speed. Preview: the same requests go to play-local.js. */
 (function () {
   "use strict";

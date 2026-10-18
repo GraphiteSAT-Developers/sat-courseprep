@@ -1,4 +1,4 @@
-# Graphite: Apache config
+# Graphite SAT: Apache config
 
 # Force HTTPS and the www host
 RewriteEngine On

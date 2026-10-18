@@ -1,4 +1,4 @@
-/* Graphite lesson kit: the pieces lessons.js draws hands-on steps with, and the grading the preview uses.
+/* Graphite SAT lesson kit: the pieces lessons.js draws hands-on steps with, and the grading the preview uses.
    - An expression reader (numbers, x, + - * / ^, brackets, 2x and 3(x + 1), sqrt, abs, pi). Never eval.
      backend/app/services/mathexpr.py is the same reader in Python; a test checks they agree.
    - right(step, answer) and grade(steps, answers): the same rules as backend/app/services/lessons.py.

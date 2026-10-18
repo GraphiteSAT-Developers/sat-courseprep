@@ -1,4 +1,4 @@
-/* Graphite parent dashboard: a linked student's progress, alerts, activity, plan and settings.
+/* Graphite SAT parent dashboard: a linked student's progress, alerts, activity, plan and settings.
    Live: talks to /api/parent. Preview: the same requests go to GraphitePracticeLocal (practice-local.js),
    which treats the practice done in this browser as the student's. */
 (function () {

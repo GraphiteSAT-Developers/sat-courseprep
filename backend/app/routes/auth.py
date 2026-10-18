@@ -52,14 +52,14 @@ def register():
     user = query("SELECT * FROM users WHERE id = ?", (row["id"],), one=True)
     login_user(user, remember=True)
     if not student:
-        mailer.send(email, "Welcome to Graphite",
+        mailer.send(email, "Welcome to Graphite SAT",
                     f"Hi {user['name'].split(' ')[0]},\n\nYour parent account is ready. To see your student's progress, "
-                    f"ask them to open Account, then Parent access, on their Graphite dashboard and send you the code. "
-                    f"Enter it here:\n{current_app.config['BASE_URL']}/parent.html\n\nGraphite")
+                    f"ask them to open Account, then Parent access, on their Graphite SAT dashboard and send you the code. "
+                    f"Enter it here:\n{current_app.config['BASE_URL']}/parent.html\n\nGraphite SAT")
         return jsonify({"user": public_user(user)}), 201
-    mailer.send(email, "Welcome to Graphite",
-                f"Hi {user['name'].split(' ')[0]},\n\nYour Graphite account is ready. Start with the 10-question diagnostic "
-                f"to build your study plan:\n{current_app.config['BASE_URL']}/plan.html\n\nGraphite")
+    mailer.send(email, "Welcome to Graphite SAT",
+                f"Hi {user['name'].split(' ')[0]},\n\nYour Graphite SAT account is ready. Start with the 10-question diagnostic "
+                f"to build your study plan:\n{current_app.config['BASE_URL']}/plan.html\n\nGraphite SAT")
     return jsonify({"user": public_user(user)}), 201
 
 
@@ -118,7 +118,7 @@ def forgot():
         execute("INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)",
                 (user["id"], hash_text(token), iso(now() + timedelta(minutes=RESET_MINUTES))))
         link = f"{current_app.config['BASE_URL']}/signin.html?reset={token}"
-        mailer.send(email, "Reset your Graphite password",
+        mailer.send(email, "Reset your Graphite SAT password",
                     f"Hi {user['name'].split(' ')[0]},\n\nChoose a new password here. The link works for "
                     f"{RESET_MINUTES} minutes:\n{link}\n\nIf you didn't ask for this, you can ignore this email.")
     # Same answer whether or not the account exists, so this can't be used to look up emails.

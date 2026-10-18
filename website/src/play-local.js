@@ -1,4 +1,4 @@
-/* Graphite rewards, speed rounds, focus sessions and lessons, preview mode only.
+/* Graphite SAT rewards, speed rounds, focus sessions and lessons, preview mode only.
    The live site sends these requests to the backend (routes/play.py). With no server, this file answers the same
    requests in the browser and keeps progress in localStorage. The rules and numbers come from the backend through
    GRAPHITE_BANK.play (services/game.py, speed.py, focus.py, lessons.py), so they match the server.

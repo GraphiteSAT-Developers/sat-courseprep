@@ -2,7 +2,7 @@
 
     cd backend && python give_coins.py student@example.com 100000
 
-The gift shows in the account's Recent list on the Rewards page as "Gift from Graphite".
+The gift shows in the account's Recent list on the Rewards page as "Gift from Graphite SAT".
 """
 import sys
 from datetime import date
@@ -24,6 +24,6 @@ if __name__ == "__main__":
         if user["role"] != "student":
             sys.exit("Coins are for student accounts.")
         execute("INSERT INTO xp_events (user_id, kind, xp, coins, detail, day, at) VALUES (?, 'gift', 0, ?, ?, ?, ?)",
-                (user["id"], amount, "Gift from Graphite", date.today().isoformat(), now_iso()))
+                (user["id"], amount, "Gift from Graphite SAT", date.today().isoformat(), now_iso()))
         total = query("SELECT COALESCE(SUM(coins), 0) AS c FROM xp_events WHERE user_id = ?", (user["id"],), one=True)["c"]
         print(f"Gave {amount:,} coins to {email}. They now have {total:,}.")

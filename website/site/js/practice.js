@@ -1,4 +1,4 @@
-/* Graphite practice hub: start a random practice test or practice one topic.
+/* Graphite SAT practice hub: start a random practice test or practice one topic.
    Live: talks to /api/practice. Preview: the same requests go to GraphitePracticeLocal (practice-local.js). */
 (function () {
   "use strict";

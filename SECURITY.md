@@ -1,6 +1,6 @@
 # Security
 
-How Graphite handles each item on the security checklist, where it lives in the code, and what to do when you
+How Graphite SAT handles each item on the security checklist, where it lives in the code, and what to do when you
 deploy. `backend/tests/test_security.py` checks most of this automatically, and the Security workflow
 (`.github/workflows/security.yml`) runs those tests, a dependency audit and a secret scan on every push.
 
