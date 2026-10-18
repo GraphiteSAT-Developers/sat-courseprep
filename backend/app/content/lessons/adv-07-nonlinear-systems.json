@@ -1,128 +1,155 @@
 {
- "id": "nonlinear-systems",
- "order": 208,
- "domain": "advanced-math",
- "skill": "nonlinear-equations-in-one-variable-and-systems-of-equations-in-two-variables",
- "title": "When a line meets a curve",
- "minutes": 6,
- "hook": "Substitute the line into the curve and solve the quadratic that falls out.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: how do you solve y = x² and y = x + 2 algebraically?",
-   "answer": "Set them equal: x² = x + 2, so x² − x − 2 = 0 and (x − 2)(x + 1) = 0. The points are (2, 4) and (−1, 1)."
-  },
-  {
-   "type": "predict",
-   "prompt": "How many solutions does y = x² + 1 and y = 1 have?",
-   "choices": [
-    "1",
-    "0",
-    "2"
-   ],
-   "answer": 0,
-   "why": "x² + 1 = 1 gives x = 0 only: the line touches the vertex."
-  },
-  {
-   "type": "fill",
-   "prompt": "Solve y = x² − 4 and y = 0.",
-   "lines": [
-    "x² − 4 = 0",
-    "Positive solution: x = ___"
-   ],
-   "accept": [
-    "2"
-   ],
-   "why": "x = 2 or −2."
-  },
-  {
-   "type": "predict",
-   "prompt": "Solve y = 2x and y = x² − 3. The x-values are:",
-   "choices": [
-    "3 and −1",
-    "−3 and 1",
-    "2 and 0",
-    "3 only"
-   ],
-   "answer": 0,
-   "why": "x² − 2x − 3 = 0 factors as (x − 3)(x + 1)."
-  },
-  {
-   "type": "spot",
-   "prompt": "Solving y = x² − 2x and y = 2x − 4. Tap the line with the mistake.",
-   "lines": [
-    "x² − 2x = 2x − 4",
-    "x² − 4x + 4 = 0",
-    "(x − 2)² = 0",
-    "Two solutions: x = 2 and x = −2"
-   ],
-   "wrong": 3,
-   "why": "(x − 2)² = 0 has one solution, x = 2. The line is tangent to the parabola."
-  },
-  {
-   "type": "predict",
-   "prompt": "y = x² and y = k have no real solutions when:",
-   "choices": [
-    "k < 0",
-    "k = 0",
-    "k > 0"
-   ],
-   "answer": 0,
-   "why": "x² is never negative."
-  },
-  {
-   "type": "predict",
-   "prompt": "Solve x² + y² = 25 and y = 3.",
-   "choices": [
-    "(4, 3) and (−4, 3)",
-    "(3, 4) only",
-    "(5, 3) and (−5, 3)",
-    "(4, 3) only"
-   ],
-   "answer": 0,
-   "why": "x² + 9 = 25, so x = ±4."
-  }
- ],
- "keys": [
-  "Substitute one equation into the other.",
-  "The number of solutions of the new equation = the number of intersection points.",
-  "A double root means the line just touches the curve."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "Solve y = x² and y = 4.",
-   "choices": [
-    "(2, 4) and (−2, 4)",
-    "(4, 2)",
-    "(2, 4) only"
-   ],
-   "answer": 0,
-   "why": "x² = 4."
-  },
-  {
-   "type": "predict",
-   "prompt": "How many solutions: y = x² + 3 and y = 1?",
-   "choices": [
-    "0",
-    "1",
-    "2"
-   ],
-   "answer": 0,
-   "why": "x² = −2 has no real solutions."
-  },
-  {
-   "type": "fill",
-   "prompt": "Solve y = x + 6 and y = x².",
-   "lines": [
-    "x² = x + 6",
-    "(x − 3)(x + 2) = 0",
-    "Positive x = ___"
-   ],
-   "accept": [
-    "3"
-   ],
-   "why": "x = 3 or −2."
-  }
- ]
+  "id": "nonlinear-systems",
+  "order": 208,
+  "domain": "advanced-math",
+  "skill": "nonlinear-equations-in-one-variable-and-systems-of-equations-in-two-variables",
+  "title": "When a line meets a curve",
+  "minutes": 6,
+  "hook": "Substitute the line into the curve and solve the quadratic that falls out.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: how do you solve y = x² and y = x + 2 algebraically?",
+      "answer": "Set them equal: x² = x + 2, so x² − x − 2 = 0 and (x − 2)(x + 1) = 0. The points are (2, 4) and (−1, 1)."
+    },
+    {
+      "type": "predict",
+      "prompt": "How many solutions does y = x² + 1 and y = 1 have?",
+      "choices": [
+        "1",
+        "0",
+        "2"
+      ],
+      "answer": 0,
+      "why": "x² + 1 = 1 gives x = 0 only: the line touches the vertex."
+    },
+    {
+      "type": "fill",
+      "prompt": "Solve y = x² − 4 and y = 0.",
+      "lines": [
+        "x² − 4 = 0",
+        "Positive solution: x = ___"
+      ],
+      "accept": [
+        "2"
+      ],
+      "why": "x = 2 or −2."
+    },
+    {
+      "type": "plot",
+      "prompt": "The drone flies along y = x + 2. Tap where its path meets the ramp y = x² on the right.",
+      "curves": [
+        "x^2",
+        "x+2"
+      ],
+      "answer": [
+        2,
+        4
+      ],
+      "why": "x² = x + 2 gives x² − x − 2 = 0, so x = 2 or x = −1. On the right: (2, 4).",
+      "window": {
+        "x": [
+          -3,
+          4
+        ],
+        "y": [
+          -1,
+          9
+        ]
+      },
+      "snap": 1,
+      "scene": "Where does the drone's path cross the ramp?"
+    },
+    {
+      "type": "predict",
+      "prompt": "Solve y = 2x and y = x² − 3. The x-values are:",
+      "choices": [
+        "3 and −1",
+        "−3 and 1",
+        "2 and 0",
+        "3 only"
+      ],
+      "answer": 0,
+      "why": "x² − 2x − 3 = 0 factors as (x − 3)(x + 1)."
+    },
+    {
+      "type": "spot",
+      "prompt": "Solving y = x² − 2x and y = 2x − 4. Tap the line with the mistake.",
+      "lines": [
+        "x² − 2x = 2x − 4",
+        "x² − 4x + 4 = 0",
+        "(x − 2)² = 0",
+        "Two solutions: x = 2 and x = −2"
+      ],
+      "wrong": 3,
+      "why": "(x − 2)² = 0 has one solution, x = 2. The line is tangent to the parabola."
+    },
+    {
+      "type": "predict",
+      "prompt": "y = x² and y = k have no real solutions when:",
+      "choices": [
+        "k < 0",
+        "k = 0",
+        "k > 0"
+      ],
+      "answer": 0,
+      "why": "x² is never negative."
+    },
+    {
+      "type": "predict",
+      "prompt": "Solve x² + y² = 25 and y = 3.",
+      "choices": [
+        "(4, 3) and (−4, 3)",
+        "(3, 4) only",
+        "(5, 3) and (−5, 3)",
+        "(4, 3) only"
+      ],
+      "answer": 0,
+      "why": "x² + 9 = 25, so x = ±4."
+    }
+  ],
+  "keys": [
+    "Substitute one equation into the other.",
+    "The number of solutions of the new equation = the number of intersection points.",
+    "A double root means the line just touches the curve."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Solve y = x² and y = 4.",
+      "choices": [
+        "(2, 4) and (−2, 4)",
+        "(4, 2)",
+        "(2, 4) only"
+      ],
+      "answer": 0,
+      "why": "x² = 4."
+    },
+    {
+      "type": "predict",
+      "prompt": "How many solutions: y = x² + 3 and y = 1?",
+      "choices": [
+        "0",
+        "1",
+        "2"
+      ],
+      "answer": 0,
+      "why": "x² = −2 has no real solutions."
+    },
+    {
+      "type": "fill",
+      "prompt": "Solve y = x + 6 and y = x².",
+      "lines": [
+        "x² = x + 6",
+        "(x − 3)(x + 2) = 0",
+        "Positive x = ___"
+      ],
+      "accept": [
+        "3"
+      ],
+      "why": "x = 3 or −2."
+    }
+  ],
+  "format": "story",
+  "intro": "A drone is filming a skater on a curved ramp. The ramp is y = x² and the drone flies along a straight line."
 }

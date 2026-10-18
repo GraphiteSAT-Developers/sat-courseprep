@@ -1,4 +1,4 @@
-<!--{"file": "lessons.html", "path": "/lessons.html", "title": "Lessons | Graphite SAT Tutoring", "description": "Short SAT Math lessons where you answer before you're told: predict, fill in a step, put steps in order and find the mistake. Recall checks bring each lesson back so it sticks.", "robots": "noindex, nofollow", "app": true, "calculator": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "qtools.js", "lessons.js", "effects.js"]}-->
+<!--{"file": "lessons.html", "path": "/lessons.html", "title": "Lessons | Graphite SAT Tutoring", "description": "Hands-on SAT Math lessons: drag sliders, tap graphs, sort and match, race Desmos against doing it by hand. Every lesson plays differently, and recall checks bring each one back so it sticks.", "robots": "noindex, nofollow", "app": true, "calculator": true, "scripts": ["bank.js", "practice-local.js", "lesson-kit.js", "play-local.js", "game-ui.js", "qtools.js", "lessons.js", "effects.js"]}-->
 <main id="main" class="practice lessons-page">
   <div class="wrap dash-stack">
     <p class="sample-note" id="ls-preview-note" hidden><span class="label">Preview</span> Lesson progress is saved in this browser only. On the live site it stays with your account.</p>
@@ -15,10 +15,16 @@
           <button type="button" data-subject="rw">Reading and Writing <span class="soon">Soon</span></button>
         </div>
       </div>
-      <p class="lede pr-lede">There's a lesson for every skill on SAT Math, plus the Desmos course and a few lessons on how memory works. You answer something on every step before you see how it's done. A few days later the lesson comes back as a quick recall check, so it actually sticks.</p>
+      <p class="lede pr-lede">There's a lesson for every skill on SAT Math, plus the Desmos course and a few lessons on how memory works. No two play the same way: some give you three hearts, some put you on the clock, some are a story or a case to crack, and most have you drag, tap or build something before anything is explained. A few days later each lesson comes back as a quick recall check, so it sticks.</p>
 
       <p class="field-error pr-error" id="ls-error" role="alert" hidden></p>
       <p class="fine" id="ls-loading">Loading lessons…</p>
+
+      <section class="panel ls-start" id="ls-start" aria-labelledby="ls-start-title" hidden>
+        <div class="panel-head"><h2 id="ls-start-title">Start here: Desmos hacks</h2></div>
+        <p class="panel-lede">Seven minutes on the calculator you'll have on test day. Every other lesson opens when you finish it.</p>
+        <a class="btn btn-primary" href="lessons.html?lesson=desmos-hacks">Start Desmos hacks</a>
+      </section>
 
       <section class="panel ls-due" id="ls-due" aria-labelledby="ls-due-title" hidden>
         <div class="panel-head"><h2 id="ls-due-title">Recall checks due</h2><span class="label" id="ls-due-count"></span></div>
@@ -43,9 +49,11 @@
     <!-- One lesson -->
     <section class="ls-player" id="ls-player" aria-labelledby="ls-title" hidden>
       <div class="ls-player-head">
-        <a class="ls-back" href="lessons.html" id="ls-back">All lessons</a>
+        <a class="ls-back" href="lessons.html?list=1" id="ls-back">All lessons</a>
         <p class="label" id="ls-kicker">Lesson</p>
         <h1 id="ls-title" tabindex="-1">Lesson</h1>
+        <p class="ls-firsttime" id="ls-firsttime" hidden></p>
+        <div class="ls-hud" id="ls-hud" hidden></div>
         <div class="ls-progress" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" id="ls-progress"><span></span></div>
         <p class="fine" id="ls-step-count"></p>
       </div>
@@ -61,6 +69,8 @@
         <p class="label" id="ls-end-kicker">Lesson finished</p>
         <h2 id="ls-end-title" tabindex="-1">Nice work</h2>
         <p class="lede" id="ls-end-score"></p>
+        <p class="ls-end-format" id="ls-end-format" hidden></p>
+        <p class="ls-unlocked" id="ls-unlocked" hidden><strong>Every lesson is open now.</strong> <a href="lessons.html?list=1">See all lessons</a></p>
         <div class="ls-keys" id="ls-keys-box">
           <h3>Key ideas</h3>
           <ol id="ls-keys"></ol>
@@ -68,7 +78,7 @@
         <p class="ls-next-recall" id="ls-next-recall"></p>
         <div class="pd-row">
           <a class="btn btn-primary" href="practice.html" id="ls-practice">Practice this skill</a>
-          <a class="btn btn-secondary" href="lessons.html">All lessons</a>
+          <a class="btn btn-secondary" href="lessons.html?list=1">All lessons</a>
         </div>
       </div>
     </section>

@@ -229,17 +229,32 @@ class PlayTest(PracticeTest):
     def answers(steps, n_right):
         """The first n_right steps answered right, the rest wrong."""
         def ans(step, ok):
+            if ok:
+                return lessons.key(step)
             t = step["type"]
             if t == "recall":
-                return ok
-            if t == "predict":
-                return step["answer"] if ok else (step["answer"] + 1) % len(step["choices"])
+                return False
+            if t in ("predict", "flash"):
+                return (step["answer"] + 1) % len(step["choices"])
             if t == "spot":
-                return step["wrong"] if ok else (step["wrong"] + 1) % len(step["lines"])
-            if t == "order":
-                n = list(range(len(step["items"])))
-                return n if ok else list(reversed(n))
-            return step["accept"][0] if ok else "nope"
+                return (step["wrong"] + 1) % len(step["lines"])
+            if t in ("order", "match"):
+                return list(reversed(lessons.key(step)))
+            if t == "sort":
+                return [(b + 1) % len(step["buckets"]) for b in lessons.key(step)]
+            if t == "slider":
+                return step["answer"] + 1
+            if t == "plot":
+                return [step["answer"][0] + 1, step["answer"][1]]
+            if t == "graph":
+                return step["accept"][0] + "+1"
+            if t == "line":
+                return dict(step["answer"], closed=not step["answer"]["closed"])
+            if t == "build":
+                return []
+            if t == "grid":
+                return ["nope"] * len(step["accept"])
+            return "nope"
         return [ans(s, i < n_right) for i, s in enumerate(steps)]
 
     def test_lessons_grade_every_step_type(self):
@@ -252,6 +267,9 @@ class PlayTest(PracticeTest):
         self.assertTrue(lessons.right({"type": "fill", "accept": ["0.275", "11/40"]}, "55/200"))
         self.assertFalse(lessons.right({"type": "predict", "answer": 1}, True))  # True isn't 1 here
     def test_lessons_and_spaced_recall(self):
+        hacks = lessons.lesson(lessons.START_LESSON)  # everyone does Desmos hacks first
+        r0 = self.post(f"/api/lessons/{hacks['id']}/complete", {"kind": "lesson", "answers": self.answers(hacks["steps"], 0)}).json
+        self.assertIn("recall_rookie", [b["key"] for b in r0["badges"]])
         ov = self.client.get("/api/lessons").json
         self.assertEqual(len(ov["lessons"]), len(lessons.all_lessons()))
         first = ov["lessons"][0]
@@ -265,7 +283,6 @@ class PlayTest(PracticeTest):
         r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "lesson", "answers": self.answers(L["steps"], 5)}).json
         self.assertEqual((r["xp"], r["coins"]), (game.XP_LESSON_FIRST, game.COINS_LESSON_FIRST))
         self.assertEqual(r["progress"]["due_on"], (date.today() + timedelta(days=1)).isoformat())
-        self.assertIn("recall_rookie", [b["key"] for b in r["badges"]])
         r = self.post(f"/api/lessons/{first['id']}/complete", {"kind": "lesson", "answers": self.answers(L["steps"], 7)}).json
         self.assertEqual(r["xp"], 0)  # a replay the same day
         self.assertEqual(r["progress"]["best"], 7)

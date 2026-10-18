@@ -1,123 +1,151 @@
 {
- "id": "studies-and-experiments",
- "order": 312,
- "domain": "psda",
- "skill": "evaluating-statistical-claims-observational-studies-and-experiments",
- "title": "Studies and experiments: what can you conclude?",
- "minutes": 5,
- "hook": "Random assignment lets you claim cause. Random sampling lets you generalize.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what's the difference between random sampling and random assignment?",
-   "answer": "Random sampling chooses who is studied, so results generalize to the population. Random assignment puts subjects into groups at random, so you can conclude cause and effect."
-  },
-  {
-   "type": "predict",
-   "prompt": "Researchers randomly assign 100 volunteers to drink green tea or not, and the tea group loses more weight. What can they conclude?",
-   "choices": [
-    "Green tea caused more weight loss for these volunteers, but it may not apply to everyone",
-    "Green tea causes weight loss in all people",
-    "Nothing at all",
-    "Only that they're associated"
-   ],
-   "answer": 0,
-   "why": "Random assignment supports cause; volunteers aren't a random sample, so it may not generalize."
-  },
-  {
-   "type": "predict",
-   "prompt": "A survey finds students who sleep more have higher grades. Nothing was assigned. What can you conclude?",
-   "choices": [
-    "There's an association, not necessarily cause",
-    "More sleep causes higher grades",
-    "Higher grades cause more sleep"
-   ],
-   "answer": 0,
-   "why": "Without random assignment, other factors could explain both."
-  },
-  {
-   "type": "order",
-   "prompt": "Design a strong study of \"Does a study app raise scores?\" Put the steps in order.",
-   "items": [
-    "Pick a random sample from the population",
-    "Randomly assign them to use the app or not",
-    "Measure scores after the same amount of time",
-    "Compare the two groups"
-   ],
-   "why": "Random sampling, then random assignment, then a fair comparison."
-  },
-  {
-   "type": "predict",
-   "prompt": "A gym surveys its own members about exercise habits. What's the main problem?",
-   "choices": [
-    "The sample doesn't represent the general population",
-    "The sample is too large",
-    "Nothing"
-   ],
-   "answer": 0,
-   "why": "Gym members exercise more than most people."
-  },
-  {
-   "type": "spot",
-   "prompt": "A study randomly selects 500 adults nationwide and randomly assigns half to a new diet. Tap the false statement.",
-   "lines": [
-    "The results can generalize to adults nationwide",
-    "The diet's effect can be called causal",
-    "Because it's random, the results are certain",
-    "It used both random sampling and random assignment"
-   ],
-   "wrong": 2,
-   "why": "Randomness supports the conclusions, but there's always some uncertainty."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which conclusion needs random assignment?",
-   "choices": [
-    "\"Music while studying improves recall\"",
-    "\"Most students in our sample listen to music\"",
-    "\"Students who listen to music study longer, on average\""
-   ],
-   "answer": 0,
-   "why": "\"Improves\" is a cause-and-effect claim."
-  }
- ],
- "keys": [
-  "Random assignment → cause and effect.",
-  "Random sampling → generalize to the population.",
-  "Without random assignment you can only claim an association."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "To claim cause and effect you need:",
-   "choices": [
-    "Random assignment",
-    "A big survey",
-    "Volunteers"
-   ],
-   "answer": 0,
-   "why": "Groups assigned at random."
-  },
-  {
-   "type": "predict",
-   "prompt": "To generalize to a population you need:",
-   "choices": [
-    "A random sample from it",
-    "Random assignment",
-    "A large group of volunteers"
-   ],
-   "answer": 0,
-   "why": "Random sampling."
-  },
-  {
-   "type": "predict",
-   "prompt": "An observational study can show:",
-   "choices": [
-    "An association",
-    "Cause and effect"
-   ],
-   "answer": 0,
-   "why": "Nothing was assigned."
-  }
- ]
+  "id": "studies-and-experiments",
+  "order": 312,
+  "domain": "psda",
+  "skill": "evaluating-statistical-claims-observational-studies-and-experiments",
+  "title": "Studies and experiments: what can you conclude?",
+  "minutes": 5,
+  "hook": "Random assignment lets you claim cause. Random sampling lets you generalize.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: what's the difference between random sampling and random assignment?",
+      "answer": "Random sampling chooses who is studied, so results generalize to the population. Random assignment puts subjects into groups at random, so you can conclude cause and effect."
+    },
+    {
+      "type": "predict",
+      "prompt": "Researchers randomly assign 100 volunteers to drink green tea or not, and the tea group loses more weight. What can they conclude?",
+      "choices": [
+        "Green tea caused more weight loss for these volunteers, but it may not apply to everyone",
+        "Green tea causes weight loss in all people",
+        "Nothing at all",
+        "Only that they're associated"
+      ],
+      "answer": 0,
+      "why": "Random assignment supports cause; volunteers aren't a random sample, so it may not generalize."
+    },
+    {
+      "type": "predict",
+      "prompt": "A survey finds students who sleep more have higher grades. Nothing was assigned. What can you conclude?",
+      "choices": [
+        "There's an association, not necessarily cause",
+        "More sleep causes higher grades",
+        "Higher grades cause more sleep"
+      ],
+      "answer": 0,
+      "why": "Without random assignment, other factors could explain both."
+    },
+    {
+      "type": "sort",
+      "prompt": "What can each study conclude?",
+      "buckets": [
+        "It causes",
+        "They're only related"
+      ],
+      "cards": [
+        {
+          "text": "Volunteers randomly assigned to use a study app scored higher",
+          "bucket": 0
+        },
+        {
+          "text": "A survey: students who sleep more have higher grades",
+          "bucket": 1
+        },
+        {
+          "text": "Towns with parks have healthier people",
+          "bucket": 1
+        },
+        {
+          "text": "Plants randomly given fertilizer grew taller",
+          "bucket": 0
+        }
+      ],
+      "why": "Only random assignment rules out other explanations, so only experiments can show cause."
+    },
+    {
+      "type": "order",
+      "prompt": "Design a strong study of \"Does a study app raise scores?\" Put the steps in order.",
+      "items": [
+        "Pick a random sample from the population",
+        "Randomly assign them to use the app or not",
+        "Measure scores after the same amount of time",
+        "Compare the two groups"
+      ],
+      "why": "Random sampling, then random assignment, then a fair comparison."
+    },
+    {
+      "type": "predict",
+      "prompt": "A gym surveys its own members about exercise habits. What's the main problem?",
+      "choices": [
+        "The sample doesn't represent the general population",
+        "The sample is too large",
+        "Nothing"
+      ],
+      "answer": 0,
+      "why": "Gym members exercise more than most people."
+    },
+    {
+      "type": "spot",
+      "prompt": "A study randomly selects 500 adults nationwide and randomly assigns half to a new diet. Tap the false statement.",
+      "lines": [
+        "The results can generalize to adults nationwide",
+        "The diet's effect can be called causal",
+        "Because it's random, the results are certain",
+        "It used both random sampling and random assignment"
+      ],
+      "wrong": 2,
+      "why": "Randomness supports the conclusions, but there's always some uncertainty."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which conclusion needs random assignment?",
+      "choices": [
+        "\"Music while studying improves recall\"",
+        "\"Most students in our sample listen to music\"",
+        "\"Students who listen to music study longer, on average\""
+      ],
+      "answer": 0,
+      "why": "\"Improves\" is a cause-and-effect claim."
+    }
+  ],
+  "keys": [
+    "Random assignment → cause and effect.",
+    "Random sampling → generalize to the population.",
+    "Without random assignment you can only claim an association."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "To claim cause and effect you need:",
+      "choices": [
+        "Random assignment",
+        "A big survey",
+        "Volunteers"
+      ],
+      "answer": 0,
+      "why": "Groups assigned at random."
+    },
+    {
+      "type": "predict",
+      "prompt": "To generalize to a population you need:",
+      "choices": [
+        "A random sample from it",
+        "Random assignment",
+        "A large group of volunteers"
+      ],
+      "answer": 0,
+      "why": "Random sampling."
+    },
+    {
+      "type": "predict",
+      "prompt": "An observational study can show:",
+      "choices": [
+        "An association",
+        "Cause and effect"
+      ],
+      "answer": 0,
+      "why": "Nothing was assigned."
+    }
+  ],
+  "format": "classic"
 }

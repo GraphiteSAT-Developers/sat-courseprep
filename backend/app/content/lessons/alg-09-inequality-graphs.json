@@ -1,121 +1,154 @@
 {
- "id": "inequality-graphs",
- "order": 111,
- "domain": "algebra",
- "skill": "linear-inequalities-in-one-or-two-variables",
- "title": "Inequalities in two variables",
- "minutes": 6,
- "hook": "Shade the side that makes it true, and test a point to be sure.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: on a graph of y > 2x + 1, is the boundary solid or dashed, and which side is shaded?",
-   "answer": "Dashed, because > is strict and the line itself isn't included. The region above the line is shaded."
-  },
-  {
-   "type": "predict",
-   "prompt": "Is (0, 0) a solution of y ≤ −x + 3?",
-   "choices": [
-    "Yes",
-    "No"
-   ],
-   "answer": 0,
-   "why": "0 ≤ 0 + 3 is true."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which point is a solution of both y > x and y < 5?",
-   "choices": [
-    "(1, 3)",
-    "(4, 2)",
-    "(2, 6)",
-    "(0, −1)"
-   ],
-   "answer": 0,
-   "why": "(1, 3): 3 > 1 and 3 < 5. The others each fail one inequality."
-  },
-  {
-   "type": "predict",
-   "prompt": "How does y ≥ 3 graph?",
-   "choices": [
-    "A solid horizontal line at y = 3, shaded above",
-    "A dashed vertical line at x = 3",
-    "A solid line at y = 3, shaded below"
-   ],
-   "answer": 0,
-   "why": "≥ means solid, and greater y-values are above."
-  },
-  {
-   "type": "spot",
-   "prompt": "Does (2, 1) satisfy 3x − 2y > 5? Tap the line with the mistake.",
-   "lines": [
-    "3(2) − 2(1)",
-    "= 6 − 2 = 4",
-    "4 > 5 is true, so it's a solution"
-   ],
-   "wrong": 2,
-   "why": "4 > 5 is false, so (2, 1) is not a solution."
-  },
-  {
-   "type": "predict",
-   "prompt": "A trip needs c + s ≥ 40 people in all and at least one chaperone per 10 students: c ≥ s/10. Which works?",
-   "choices": [
-    "c = 4, s = 36",
-    "c = 3, s = 36",
-    "c = 2, s = 30",
-    "c = 5, s = 30"
-   ],
-   "answer": 0,
-   "why": "4 + 36 = 40 and 4 ≥ 3.6. The others are under 40 people."
-  },
-  {
-   "type": "order",
-   "prompt": "Graph y < −2x + 4 by hand. Put the steps in order.",
-   "items": [
-    "Draw the line y = −2x + 4",
-    "Make it dashed, since < is strict",
-    "Test (0, 0): 0 < 4 is true",
-    "Shade the side that contains (0, 0)"
-   ],
-   "why": "Line, style, test point, shade."
-  }
- ],
- "keys": [
-  "≤ or ≥: solid line. < or >: dashed line.",
-  "Test a point like (0, 0) to pick the side.",
-  "For a system, the solutions are where the shadings overlap."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "y > x − 2: what kind of boundary line?",
-   "choices": [
-    "Dashed",
-    "Solid"
-   ],
-   "answer": 0,
-   "why": "Strict inequality."
-  },
-  {
-   "type": "predict",
-   "prompt": "Is (1, 1) a solution of 2x + y ≤ 2?",
-   "choices": [
-    "No",
-    "Yes"
-   ],
-   "answer": 0,
-   "why": "2 + 1 = 3, which isn't ≤ 2."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which point satisfies y ≥ 2x?",
-   "choices": [
-    "(1, 3)",
-    "(2, 3)",
-    "(3, 1)"
-   ],
-   "answer": 0,
-   "why": "3 ≥ 2."
-  }
- ]
+  "id": "inequality-graphs",
+  "order": 111,
+  "domain": "algebra",
+  "skill": "linear-inequalities-in-one-or-two-variables",
+  "title": "Inequalities in two variables",
+  "minutes": 6,
+  "hook": "Shade the side that makes it true, and test a point to be sure.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: on a graph of y > 2x + 1, is the boundary solid or dashed, and which side is shaded?",
+      "answer": "Dashed, because > is strict and the line itself isn't included. The region above the line is shaded."
+    },
+    {
+      "type": "predict",
+      "prompt": "Is (0, 0) a solution of y ≤ −x + 3?",
+      "choices": [
+        "Yes",
+        "No"
+      ],
+      "answer": 0,
+      "why": "0 ≤ 0 + 3 is true."
+    },
+    {
+      "type": "sort",
+      "prompt": "Test each point in y ≤ −x + 3.",
+      "buckets": [
+        "Solution",
+        "Not a solution"
+      ],
+      "cards": [
+        {
+          "text": "(0, 0)",
+          "bucket": 0
+        },
+        {
+          "text": "(4, 1)",
+          "bucket": 1
+        },
+        {
+          "text": "(1, 2)",
+          "bucket": 0
+        },
+        {
+          "text": "(−2, 6)",
+          "bucket": 1
+        },
+        {
+          "text": "(3, −1)",
+          "bucket": 0
+        }
+      ],
+      "why": "Plug in. (1, 2): 2 ≤ 2, true, so points on a solid boundary count. (4, 1): 1 ≤ −1 is false."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which point is a solution of both y > x and y < 5?",
+      "choices": [
+        "(1, 3)",
+        "(4, 2)",
+        "(2, 6)",
+        "(0, −1)"
+      ],
+      "answer": 0,
+      "why": "(1, 3): 3 > 1 and 3 < 5. The others each fail one inequality."
+    },
+    {
+      "type": "predict",
+      "prompt": "How does y ≥ 3 graph?",
+      "choices": [
+        "A solid horizontal line at y = 3, shaded above",
+        "A dashed vertical line at x = 3",
+        "A solid line at y = 3, shaded below"
+      ],
+      "answer": 0,
+      "why": "≥ means solid, and greater y-values are above."
+    },
+    {
+      "type": "spot",
+      "prompt": "Does (2, 1) satisfy 3x − 2y > 5? Tap the line with the mistake.",
+      "lines": [
+        "3(2) − 2(1)",
+        "= 6 − 2 = 4",
+        "4 > 5 is true, so it's a solution"
+      ],
+      "wrong": 2,
+      "why": "4 > 5 is false, so (2, 1) is not a solution."
+    },
+    {
+      "type": "predict",
+      "prompt": "A trip needs c + s ≥ 40 people in all and at least one chaperone per 10 students: c ≥ s/10. Which works?",
+      "choices": [
+        "c = 4, s = 36",
+        "c = 3, s = 36",
+        "c = 2, s = 30",
+        "c = 5, s = 30"
+      ],
+      "answer": 0,
+      "why": "4 + 36 = 40 and 4 ≥ 3.6. The others are under 40 people."
+    },
+    {
+      "type": "order",
+      "prompt": "Graph y < −2x + 4 by hand. Put the steps in order.",
+      "items": [
+        "Draw the line y = −2x + 4",
+        "Make it dashed, since < is strict",
+        "Test (0, 0): 0 < 4 is true",
+        "Shade the side that contains (0, 0)"
+      ],
+      "why": "Line, style, test point, shade."
+    }
+  ],
+  "keys": [
+    "≤ or ≥: solid line. < or >: dashed line.",
+    "Test a point like (0, 0) to pick the side.",
+    "For a system, the solutions are where the shadings overlap."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "y > x − 2: what kind of boundary line?",
+      "choices": [
+        "Dashed",
+        "Solid"
+      ],
+      "answer": 0,
+      "why": "Strict inequality."
+    },
+    {
+      "type": "predict",
+      "prompt": "Is (1, 1) a solution of 2x + y ≤ 2?",
+      "choices": [
+        "No",
+        "Yes"
+      ],
+      "answer": 0,
+      "why": "2 + 1 = 3, which isn't ≤ 2."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which point satisfies y ≥ 2x?",
+      "choices": [
+        "(1, 3)",
+        "(2, 3)",
+        "(3, 1)"
+      ],
+      "answer": 0,
+      "why": "3 ≥ 2."
+    }
+  ],
+  "format": "case",
+  "intro": "Case file: five points claim to be solutions of y ≤ −x + 3. Some are lying. Check each one."
 }

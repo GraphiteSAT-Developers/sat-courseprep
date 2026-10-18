@@ -1,128 +1,150 @@
 {
- "id": "function-notation-transformations",
- "order": 211,
- "domain": "advanced-math",
- "skill": "nonlinear-functions",
- "title": "Function notation and shifts",
- "minutes": 6,
- "hook": "f(x + 2) moves left, f(x) + 2 moves up, and f(g(x)) works from the inside out.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: how does the graph of y = f(x − 3) compare to y = f(x)?",
-   "answer": "It's shifted 3 units right. Changes inside the parentheses go opposite to the sign."
-  },
-  {
-   "type": "fill",
-   "prompt": "f(x) = x² − 1 and g(x) = 2x + 3. Find f(g(1)).",
-   "lines": [
-    "g(1) = 5",
-    "f(5) = 25 − 1 = ___"
-   ],
-   "accept": [
-    "24"
-   ],
-   "why": "Inside first, then outside."
-  },
-  {
-   "type": "predict",
-   "prompt": "If f(x) = 3x − 2, what is f(x + 1)?",
-   "choices": [
-    "3x + 1",
-    "3x − 1",
-    "3x + 3",
-    "4x − 2"
-   ],
-   "answer": 0,
-   "why": "3(x + 1) − 2 = 3x + 1."
-  },
-  {
-   "type": "predict",
-   "prompt": "The graph of y = f(x) + 4 is the graph of f moved:",
-   "choices": [
-    "up 4",
-    "down 4",
-    "left 4",
-    "right 4"
-   ],
-   "answer": 0,
-   "why": "Adding outside the function changes the output."
-  },
-  {
-   "type": "predict",
-   "prompt": "The vertex of y = x² is (0, 0). The vertex of y = (x + 2)² − 5 is:",
-   "choices": [
-    "(−2, −5)",
-    "(2, −5)",
-    "(−2, 5)",
-    "(2, 5)"
-   ],
-   "answer": 0,
-   "why": "Left 2 and down 5."
-  },
-  {
-   "type": "spot",
-   "prompt": "f(x) = x² + 1. Finding f(−3). Tap the line with the mistake.",
-   "lines": [
-    "f(−3) = −3² + 1",
-    "= −9 + 1",
-    "= −8"
-   ],
-   "wrong": 0,
-   "why": "Substitute with parentheses: (−3)² + 1 = 9 + 1 = 10."
-  },
-  {
-   "type": "predict",
-   "prompt": "f(1) = 4, f(2) = 7 and f(3) = 10. If g(x) = f(x) − 1, what is g(2)?",
-   "choices": [
-    "6",
-    "7",
-    "8",
-    "3"
-   ],
-   "answer": 0,
-   "why": "f(2) − 1 = 6."
-  }
- ],
- "keys": [
-  "Plug in with parentheses, especially for negatives.",
-  "f(g(x)): do g first, then f.",
-  "f(x − h) + k moves the graph right h and up k. Inside the parentheses goes opposite to the sign."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "y = f(x + 5) is the graph of f moved:",
-   "choices": [
-    "left 5",
-    "right 5",
-    "up 5"
-   ],
-   "answer": 0,
-   "why": "Opposite to the sign."
-  },
-  {
-   "type": "fill",
-   "prompt": "f(x) = 2x + 1 and g(x) = x². Find g(f(1)).",
-   "lines": [
-    "f(1) = 3",
-    "g(3) = ___"
-   ],
-   "accept": [
-    "9"
-   ],
-   "why": "3² = 9."
-  },
-  {
-   "type": "predict",
-   "prompt": "The vertex of y = (x − 4)² + 1 is:",
-   "choices": [
-    "(4, 1)",
-    "(−4, 1)",
-    "(4, −1)"
-   ],
-   "answer": 0,
-   "why": "Right 4, up 1."
-  }
- ]
+  "id": "function-notation-transformations",
+  "order": 211,
+  "domain": "advanced-math",
+  "skill": "nonlinear-functions",
+  "title": "Function notation and shifts",
+  "minutes": 6,
+  "hook": "f(x + 2) moves left, f(x) + 2 moves up, and f(g(x)) works from the inside out.",
+  "steps": [
+    {
+      "type": "graph",
+      "prompt": "f(x) = x² is drawn. Type the function that moves it right 2 and up 3.",
+      "accept": [
+        "(x-2)^2+3"
+      ],
+      "why": "Right 2 means x − 2 inside; up 3 means + 3 outside: (x − 2)² + 3. The vertex moves from (0, 0) to (2, 3).",
+      "window": {
+        "x": [
+          -4,
+          6
+        ],
+        "y": [
+          -2,
+          10
+        ]
+      },
+      "fixed": [
+        "x^2"
+      ]
+    },
+    {
+      "type": "recall",
+      "prompt": "From memory: how does the graph of y = f(x − 3) compare to y = f(x)?",
+      "answer": "It's shifted 3 units right. Changes inside the parentheses go opposite to the sign."
+    },
+    {
+      "type": "fill",
+      "prompt": "f(x) = x² − 1 and g(x) = 2x + 3. Find f(g(1)).",
+      "lines": [
+        "g(1) = 5",
+        "f(5) = 25 − 1 = ___"
+      ],
+      "accept": [
+        "24"
+      ],
+      "why": "Inside first, then outside."
+    },
+    {
+      "type": "predict",
+      "prompt": "If f(x) = 3x − 2, what is f(x + 1)?",
+      "choices": [
+        "3x + 1",
+        "3x − 1",
+        "3x + 3",
+        "4x − 2"
+      ],
+      "answer": 0,
+      "why": "3(x + 1) − 2 = 3x + 1."
+    },
+    {
+      "type": "predict",
+      "prompt": "The graph of y = f(x) + 4 is the graph of f moved:",
+      "choices": [
+        "up 4",
+        "down 4",
+        "left 4",
+        "right 4"
+      ],
+      "answer": 0,
+      "why": "Adding outside the function changes the output."
+    },
+    {
+      "type": "predict",
+      "prompt": "The vertex of y = x² is (0, 0). The vertex of y = (x + 2)² − 5 is:",
+      "choices": [
+        "(−2, −5)",
+        "(2, −5)",
+        "(−2, 5)",
+        "(2, 5)"
+      ],
+      "answer": 0,
+      "why": "Left 2 and down 5."
+    },
+    {
+      "type": "spot",
+      "prompt": "f(x) = x² + 1. Finding f(−3). Tap the line with the mistake.",
+      "lines": [
+        "f(−3) = −3² + 1",
+        "= −9 + 1",
+        "= −8"
+      ],
+      "wrong": 0,
+      "why": "Substitute with parentheses: (−3)² + 1 = 9 + 1 = 10."
+    },
+    {
+      "type": "predict",
+      "prompt": "f(1) = 4, f(2) = 7 and f(3) = 10. If g(x) = f(x) − 1, what is g(2)?",
+      "choices": [
+        "6",
+        "7",
+        "8",
+        "3"
+      ],
+      "answer": 0,
+      "why": "f(2) − 1 = 6."
+    }
+  ],
+  "keys": [
+    "Plug in with parentheses, especially for negatives.",
+    "f(g(x)): do g first, then f.",
+    "f(x − h) + k moves the graph right h and up k. Inside the parentheses goes opposite to the sign."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "y = f(x + 5) is the graph of f moved:",
+      "choices": [
+        "left 5",
+        "right 5",
+        "up 5"
+      ],
+      "answer": 0,
+      "why": "Opposite to the sign."
+    },
+    {
+      "type": "fill",
+      "prompt": "f(x) = 2x + 1 and g(x) = x². Find g(f(1)).",
+      "lines": [
+        "f(1) = 3",
+        "g(3) = ___"
+      ],
+      "accept": [
+        "9"
+      ],
+      "why": "3² = 9."
+    },
+    {
+      "type": "predict",
+      "prompt": "The vertex of y = (x − 4)² + 1 is:",
+      "choices": [
+        "(4, 1)",
+        "(−4, 1)",
+        "(4, −1)"
+      ],
+      "answer": 0,
+      "why": "Right 4, up 1."
+    }
+  ],
+  "format": "lab"
 }

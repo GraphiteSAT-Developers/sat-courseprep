@@ -1,133 +1,165 @@
 {
- "id": "desmos-trig",
- "order": 512,
- "domain": "desmos",
- "skill": "trig",
- "title": "Trig: check the angle mode first",
- "minutes": 5,
- "hook": "The costliest Desmos trig mistake is radians vs degrees. Check the setting before you type sin.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what's the most costly trig mistake in Desmos?",
-   "answer": "Being in the wrong angle mode. Check radians vs degrees in the settings (the wrench) before any trig."
+  "id": "desmos-trig",
+  "order": 512,
+  "domain": "desmos",
+  "skill": "trig",
+  "title": "Trig: check the angle mode first",
+  "minutes": 5,
+  "hook": "The costliest Desmos trig mistake is radians vs degrees. Check the setting before you type sin.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: what's the most costly trig mistake in Desmos?",
+      "answer": "Being in the wrong angle mode. Check radians vs degrees in the settings (the wrench) before any trig."
+    },
+    {
+      "type": "predict",
+      "prompt": "In radian mode, sin(30) is about −0.988. In degree mode it's:",
+      "choices": [
+        "0.5",
+        "−0.988",
+        "30",
+        "0.866"
+      ],
+      "answer": 0,
+      "why": "sin 30° = 1/2."
+    },
+    {
+      "type": "sort",
+      "prompt": "Which mode was Desmos in?",
+      "buckets": [
+        "Degree mode",
+        "Radian mode"
+      ],
+      "cards": [
+        {
+          "text": "sin(30) = 0.5",
+          "bucket": 0
+        },
+        {
+          "text": "sin(30) ≈ −0.988",
+          "bucket": 1
+        },
+        {
+          "text": "cos(60) = 0.5",
+          "bucket": 0
+        },
+        {
+          "text": "cos(π) = −1",
+          "bucket": 1
+        },
+        {
+          "text": "tan(45) = 1",
+          "bucket": 0
+        }
+      ],
+      "why": "SAT questions in degrees need degree mode. If sin(30) isn't 0.5, check the wrench menu."
+    },
+    {
+      "type": "fill",
+      "prompt": "In degree mode, what is cos(60)?",
+      "lines": [
+        "cos(60) = ___"
+      ],
+      "accept": [
+        "0.5",
+        "1/2"
+      ],
+      "why": "cos 60° = 1/2.",
+      "desmos": [
+        "cos(60)"
+      ]
+    },
+    {
+      "type": "predict",
+      "prompt": "In a right triangle, sin(x°) = 0.6. What's cos(90° − x°)?",
+      "choices": [
+        "0.6",
+        "0.8",
+        "0.4",
+        "1.6"
+      ],
+      "answer": 0,
+      "why": "sin x = cos(90° − x). No calculator needed."
+    },
+    {
+      "type": "spot",
+      "prompt": "Finding tan 45° with Desmos. Tap the step that went wrong.",
+      "lines": [
+        "Skip checking the angle mode",
+        "Type tan(45) and get about 1.62",
+        "Remember that tan 45° should be 1"
+      ],
+      "wrong": 0,
+      "why": "1.62 is tan of 45 radians. Switch to degrees first."
+    },
+    {
+      "type": "predict",
+      "prompt": "Often a special right triangle beats Desmos. A 30-60-90 triangle with short leg 4 has hypotenuse:",
+      "choices": [
+        "8",
+        "4√3",
+        "4√2",
+        "2"
+      ],
+      "answer": 0,
+      "why": "2 × the short leg."
+    },
+    {
+      "type": "predict",
+      "prompt": "180° equals:",
+      "choices": [
+        "π radians",
+        "2π radians",
+        "π/2 radians",
+        "180 radians"
+      ],
+      "answer": 0,
+      "why": "The conversion factor is π/180."
+    }
+  ],
+  "keys": [
+    "Check degrees vs radians before any trig.",
+    "sin x = cos(90° − x): no calculator needed.",
+    "Special right triangles are often faster."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "tan(45) shows 1.62. You're in:",
+      "choices": [
+        "Radian mode",
+        "Degree mode"
+      ],
+      "answer": 0,
+      "why": "Switch to degrees."
+    },
+    {
+      "type": "predict",
+      "prompt": "In degrees, sin(90) is:",
+      "choices": [
+        "1",
+        "0",
+        "0.89"
+      ],
+      "answer": 0,
+      "why": "sin 90° = 1."
+    },
+    {
+      "type": "predict",
+      "prompt": "cos x = 0.3. Then sin(90° − x) is:",
+      "choices": [
+        "0.3",
+        "0.7",
+        "0.95"
+      ],
+      "answer": 0,
+      "why": "Complementary angles."
+    }
+  ],
+  "practice": {
+    "domain": "geometry-trig",
+    "skill": "right-triangles-and-trigonometry"
   },
-  {
-   "type": "predict",
-   "prompt": "In radian mode, sin(30) is about −0.988. In degree mode it's:",
-   "choices": [
-    "0.5",
-    "−0.988",
-    "30",
-    "0.866"
-   ],
-   "answer": 0,
-   "why": "sin 30° = 1/2."
-  },
-  {
-   "type": "fill",
-   "prompt": "In degree mode, what is cos(60)?",
-   "lines": [
-    "cos(60) = ___"
-   ],
-   "accept": [
-    "0.5",
-    "1/2"
-   ],
-   "why": "cos 60° = 1/2.",
-   "desmos": [
-    "cos(60)"
-   ]
-  },
-  {
-   "type": "predict",
-   "prompt": "In a right triangle, sin(x°) = 0.6. What's cos(90° − x°)?",
-   "choices": [
-    "0.6",
-    "0.8",
-    "0.4",
-    "1.6"
-   ],
-   "answer": 0,
-   "why": "sin x = cos(90° − x). No calculator needed."
-  },
-  {
-   "type": "spot",
-   "prompt": "Finding tan 45° with Desmos. Tap the step that went wrong.",
-   "lines": [
-    "Skip checking the angle mode",
-    "Type tan(45) and get about 1.62",
-    "Remember that tan 45° should be 1"
-   ],
-   "wrong": 0,
-   "why": "1.62 is tan of 45 radians. Switch to degrees first."
-  },
-  {
-   "type": "predict",
-   "prompt": "Often a special right triangle beats Desmos. A 30-60-90 triangle with short leg 4 has hypotenuse:",
-   "choices": [
-    "8",
-    "4√3",
-    "4√2",
-    "2"
-   ],
-   "answer": 0,
-   "why": "2 × the short leg."
-  },
-  {
-   "type": "predict",
-   "prompt": "180° equals:",
-   "choices": [
-    "π radians",
-    "2π radians",
-    "π/2 radians",
-    "180 radians"
-   ],
-   "answer": 0,
-   "why": "The conversion factor is π/180."
-  }
- ],
- "keys": [
-  "Check degrees vs radians before any trig.",
-  "sin x = cos(90° − x): no calculator needed.",
-  "Special right triangles are often faster."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "tan(45) shows 1.62. You're in:",
-   "choices": [
-    "Radian mode",
-    "Degree mode"
-   ],
-   "answer": 0,
-   "why": "Switch to degrees."
-  },
-  {
-   "type": "predict",
-   "prompt": "In degrees, sin(90) is:",
-   "choices": [
-    "1",
-    "0",
-    "0.89"
-   ],
-   "answer": 0,
-   "why": "sin 90° = 1."
-  },
-  {
-   "type": "predict",
-   "prompt": "cos x = 0.3. Then sin(90° − x) is:",
-   "choices": [
-    "0.3",
-    "0.7",
-    "0.95"
-   ],
-   "answer": 0,
-   "why": "Complementary angles."
-  }
- ],
- "practice": {
-  "domain": "geometry-trig",
-  "skill": "right-triangles-and-trigonometry"
- }
+  "format": "lives"
 }

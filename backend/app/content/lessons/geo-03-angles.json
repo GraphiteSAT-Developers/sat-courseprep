@@ -1,127 +1,148 @@
 {
- "id": "angles-parallel-lines",
- "order": 403,
- "domain": "geometry-trig",
- "skill": "lines-angles-and-triangles",
- "title": "Angles: lines, parallels and triangles",
- "minutes": 5,
- "hook": "A straight line is 180°, a triangle is 180°, and parallel lines copy angles.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what do the angles in a triangle add up to?",
-   "answer": "180°."
-  },
-  {
-   "type": "fill",
-   "prompt": "Two angles of a triangle are 47° and 68°. Find the third.",
-   "lines": [
-    "180 − 47 − 68 = ___"
-   ],
-   "accept": [
-    "65"
-   ],
-   "why": "Subtract from 180."
-  },
-  {
-   "type": "predict",
-   "prompt": "Two angles form a straight line. One is 115°. The other is:",
-   "choices": [
-    "65°",
-    "75°",
-    "115°",
-    "245°"
-   ],
-   "answer": 0,
-   "why": "They add to 180°."
-  },
-  {
-   "type": "predict",
-   "prompt": "Parallel lines are cut by a transversal. One angle is 72°. Its alternate interior angle is:",
-   "choices": [
-    "72°",
-    "108°",
-    "18°",
-    "144°"
-   ],
-   "answer": 0,
-   "why": "Alternate interior angles are equal."
-  },
-  {
-   "type": "predict",
-   "prompt": "Same lines: the same-side interior angle to that 72° angle is:",
-   "choices": [
-    "108°",
-    "72°",
-    "18°",
-    "288°"
-   ],
-   "answer": 0,
-   "why": "Same-side interior angles add to 180°."
-  },
-  {
-   "type": "spot",
-   "prompt": "An isosceles triangle has a 40° top angle. Finding a base angle. Tap the line with the mistake.",
-   "lines": [
-    "The base angles are equal",
-    "2b + 40 = 180",
-    "2b = 140",
-    "b = 140°"
-   ],
-   "wrong": 3,
-   "why": "140 ÷ 2 = 70°."
-  },
-  {
-   "type": "predict",
-   "prompt": "An exterior angle of a triangle is 130°. The two interior angles not next to it add to:",
-   "choices": [
-    "130°",
-    "50°",
-    "180°",
-    "230°"
-   ],
-   "answer": 0,
-   "why": "An exterior angle equals the sum of the two remote interior angles."
-  }
- ],
- "keys": [
-  "Straight line: 180°. Triangle: 180°. Around a point: 360°.",
-  "Parallel lines: corresponding and alternate angles are equal; same-side interior angles add to 180°.",
-  "Isosceles: the base angles are equal."
- ],
- "recall": [
-  {
-   "type": "fill",
-   "prompt": "A triangle has angles of 90° and 35°. What is the third angle?",
-   "lines": [
-    "180 − 90 − 35 = ___"
-   ],
-   "accept": [
-    "55"
-   ],
-   "why": "Subtract."
-  },
-  {
-   "type": "predict",
-   "prompt": "Vertical angles are:",
-   "choices": [
-    "Equal",
-    "Supplementary",
-    "Always 90°"
-   ],
-   "answer": 0,
-   "why": "Opposite angles at a crossing are equal."
-  },
-  {
-   "type": "predict",
-   "prompt": "Same-side interior angles with parallel lines:",
-   "choices": [
-    "Add to 180°",
-    "Are equal",
-    "Add to 90°"
-   ],
-   "answer": 0,
-   "why": "They're supplementary."
-  }
- ]
+  "id": "angles-parallel-lines",
+  "order": 403,
+  "domain": "geometry-trig",
+  "skill": "lines-angles-and-triangles",
+  "title": "Angles: lines, parallels and triangles",
+  "minutes": 5,
+  "hook": "A straight line is 180°, a triangle is 180°, and parallel lines copy angles.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "An exterior angle of a triangle is 130°. The two interior angles not next to it add to:",
+      "choices": [
+        "130°",
+        "50°",
+        "180°",
+        "230°"
+      ],
+      "answer": 0,
+      "why": "An exterior angle equals the sum of the two remote interior angles.",
+      "gate": true
+    },
+    {
+      "type": "recall",
+      "prompt": "From memory: what do the angles in a triangle add up to?",
+      "answer": "180°.",
+      "skip_if": 0
+    },
+    {
+      "type": "fill",
+      "prompt": "Two angles of a triangle are 47° and 68°. Find the third.",
+      "lines": [
+        "180 − 47 − 68 = ___"
+      ],
+      "accept": [
+        "65"
+      ],
+      "why": "Subtract from 180.",
+      "skip_if": 0
+    },
+    {
+      "type": "predict",
+      "prompt": "Two angles form a straight line. One is 115°. The other is:",
+      "choices": [
+        "65°",
+        "75°",
+        "115°",
+        "245°"
+      ],
+      "answer": 0,
+      "why": "They add to 180°."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each pair or set of angles to its rule.",
+      "left": [
+        "Vertical angles",
+        "A linear pair",
+        "Angles around a point",
+        "Complementary angles"
+      ],
+      "right": [
+        "Always equal",
+        "Add to 180°",
+        "Add to 360°",
+        "Add to 90°"
+      ],
+      "why": "Vertical angles are equal. A straight line is 180°, a full turn is 360°, and complementary means 90°."
+    },
+    {
+      "type": "predict",
+      "prompt": "Parallel lines are cut by a transversal. One angle is 72°. Its alternate interior angle is:",
+      "choices": [
+        "72°",
+        "108°",
+        "18°",
+        "144°"
+      ],
+      "answer": 0,
+      "why": "Alternate interior angles are equal."
+    },
+    {
+      "type": "predict",
+      "prompt": "Same lines: the same-side interior angle to that 72° angle is:",
+      "choices": [
+        "108°",
+        "72°",
+        "18°",
+        "288°"
+      ],
+      "answer": 0,
+      "why": "Same-side interior angles add to 180°."
+    },
+    {
+      "type": "spot",
+      "prompt": "An isosceles triangle has a 40° top angle. Finding a base angle. Tap the line with the mistake.",
+      "lines": [
+        "The base angles are equal",
+        "2b + 40 = 180",
+        "2b = 140",
+        "b = 140°"
+      ],
+      "wrong": 3,
+      "why": "140 ÷ 2 = 70°."
+    }
+  ],
+  "keys": [
+    "Straight line: 180°. Triangle: 180°. Around a point: 360°.",
+    "Parallel lines: corresponding and alternate angles are equal; same-side interior angles add to 180°.",
+    "Isosceles: the base angles are equal."
+  ],
+  "recall": [
+    {
+      "type": "fill",
+      "prompt": "A triangle has angles of 90° and 35°. What is the third angle?",
+      "lines": [
+        "180 − 90 − 35 = ___"
+      ],
+      "accept": [
+        "55"
+      ],
+      "why": "Subtract."
+    },
+    {
+      "type": "predict",
+      "prompt": "Vertical angles are:",
+      "choices": [
+        "Equal",
+        "Supplementary",
+        "Always 90°"
+      ],
+      "answer": 0,
+      "why": "Opposite angles at a crossing are equal."
+    },
+    {
+      "type": "predict",
+      "prompt": "Same-side interior angles with parallel lines:",
+      "choices": [
+        "Add to 180°",
+        "Are equal",
+        "Add to 90°"
+      ],
+      "answer": 0,
+      "why": "They're supplementary."
+    }
+  ],
+  "format": "path"
 }

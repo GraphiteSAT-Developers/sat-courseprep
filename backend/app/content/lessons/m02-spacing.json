@@ -1,125 +1,158 @@
 {
- "id": "spacing",
- "order": 2,
- "domain": "memory",
- "skill": "spacing",
- "title": "Spacing: forget a little, then pull it back",
- "minutes": 5,
- "hook": "The same study time spread over days beats one long session. Here's why, and how the recall checks are timed.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what happens to something you learned if you never review it?",
-   "answer": "You forget most of it within days. Memory drops fast at first, then levels off (the forgetting curve)."
-  },
-  {
-   "type": "predict",
-   "prompt": "You have 3 hours to study circles for a test in two weeks. Which plan gives the best memory on test day?",
-   "choices": [
-    "3 hours the night before",
-    "1 hour today, 1 hour in 4 days, 1 hour in 10 days",
-    "3 hours today"
-   ],
-   "answer": 1,
-   "why": "Same time, spread out. Spacing beats cramming for anything you need to remember for more than a day or two."
-  },
-  {
-   "type": "predict",
-   "prompt": "Why does waiting a bit before you review help?",
-   "choices": [
-    "You've forgotten a little, so pulling it back takes effort, and that effort strengthens it",
-    "Your brain has to rest before it can store anything",
-    "It doesn't; reviewing right away is best"
-   ],
-   "answer": 0,
-   "why": "Easy review feels good but does little. Effortful recall after a gap is what builds lasting memory."
-  },
-  {
-   "type": "fill",
-   "prompt": "You finish a lesson on the 1st and pass each recall check on the day it's due. The gaps grow: 1 day, then 3, then 7.",
-   "lines": [
-    "Check 1: the 2nd (1 day later)",
-    "Check 2: the 5th (3 days later)",
-    "Check 3: the ___ (7 days later)"
-   ],
-   "accept": [
-    "12",
-    "12th"
-   ],
-   "why": "5 + 7 = 12. Each successful recall makes the memory last longer, so the next gap can be longer."
-  },
-  {
-   "type": "predict",
-   "prompt": "Interleaving means mixing problem types (slope, percents, circles) in one session instead of 20 of one kind. Why does it help on the SAT?",
-   "choices": [
-    "The test mixes them, so you practice choosing the method, not just using it",
-    "It's faster",
-    "It's easier"
-   ],
-   "answer": 0,
-   "why": "In a block of 20 slope problems you never decide what kind of problem it is. The SAT makes you decide every time."
-  },
-  {
-   "type": "spot",
-   "prompt": "Jay's week of study. Tap the day that's cramming.",
-   "lines": [
-    "Mon: a 20-minute lesson on percents",
-    "Tue: a recall check on percents and a new lesson on ratios",
-    "Wed: a mixed set of 10 questions",
-    "Sat: 4 hours on the whole unit, the night before the test"
-   ],
-   "wrong": 3,
-   "why": "Four hours in one sitting right before the test feels productive, but most of it fades fast."
-  },
-  {
-   "type": "order",
-   "prompt": "Order a spaced plan for one new skill.",
-   "items": [
-    "Day 1: learn it and do a few problems",
-    "Day 2: a quick recall check from memory",
-    "Day 5: mixed practice that includes it",
-    "Day 12: another recall check"
-   ],
-   "why": "The gaps grow each time, just like the lesson recall checks."
-  }
- ],
- "keys": [
-  "Spread the same study time out: spacing beats cramming.",
-  "Review when you've started to forget; the effort to remember is what helps.",
-  "Mix problem types so you practice choosing the method."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "Which plan is better for a test in two weeks?",
-   "choices": [
-    "Several short sessions spread out",
-    "One long session the night before"
-   ],
-   "answer": 0,
-   "why": "Spacing wins for anything you need to keep."
-  },
-  {
-   "type": "predict",
-   "prompt": "Why does a gap before reviewing help?",
-   "choices": [
-    "Recalling takes effort, and effort builds memory",
-    "It doesn't help",
-    "You need sleep to read"
-   ],
-   "answer": 0,
-   "why": "The struggle to pull it back is the point."
-  },
-  {
-   "type": "predict",
-   "prompt": "Interleaving means...",
-   "choices": [
-    "Mixing different problem types in one session",
-    "Doing 20 of the same type",
-    "Studying with a partner"
-   ],
-   "answer": 0,
-   "why": "Mixing makes you choose the method, like the real test."
-  }
- ]
+  "id": "spacing",
+  "order": 2,
+  "domain": "memory",
+  "skill": "spacing",
+  "title": "Spacing: forget a little, then pull it back",
+  "minutes": 5,
+  "hook": "The same study time spread over days beats one long session. Here's why, and how the recall checks are timed.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: what happens to something you learned if you never review it?",
+      "answer": "You forget most of it within days. Memory drops fast at first, then levels off (the forgetting curve)."
+    },
+    {
+      "type": "predict",
+      "prompt": "You have 3 hours to study circles for a test in two weeks. Which plan gives the best memory on test day?",
+      "choices": [
+        "3 hours the night before",
+        "1 hour today, 1 hour in 4 days, 1 hour in 10 days",
+        "3 hours today"
+      ],
+      "answer": 1,
+      "why": "Same time, spread out. Spacing beats cramming for anything you need to remember for more than a day or two."
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort these study plans.",
+      "buckets": [
+        "Spaced",
+        "Crammed"
+      ],
+      "cards": [
+        {
+          "text": "3 hours the night before",
+          "bucket": 1
+        },
+        {
+          "text": "30 minutes on 6 different days",
+          "bucket": 0
+        },
+        {
+          "text": "Review after 1, 3 and 7 days",
+          "bucket": 0
+        },
+        {
+          "text": "Reread the chapter 5 times in a row",
+          "bucket": 1
+        },
+        {
+          "text": "Mixed practice twice a week for a month",
+          "bucket": 0
+        }
+      ],
+      "why": "Same total time, different results. Gaps between sessions make you work to remember, and that's what lasts."
+    },
+    {
+      "type": "predict",
+      "prompt": "Why does waiting a bit before you review help?",
+      "choices": [
+        "You've forgotten a little, so pulling it back takes effort, and that effort strengthens it",
+        "Your brain has to rest before it can store anything",
+        "It doesn't; reviewing right away is best"
+      ],
+      "answer": 0,
+      "why": "Easy review feels good but does little. Effortful recall after a gap is what builds lasting memory."
+    },
+    {
+      "type": "fill",
+      "prompt": "You finish a lesson on the 1st and pass each recall check on the day it's due. The gaps grow: 1 day, then 3, then 7.",
+      "lines": [
+        "Check 1: the 2nd (1 day later)",
+        "Check 2: the 5th (3 days later)",
+        "Check 3: the ___ (7 days later)"
+      ],
+      "accept": [
+        "12",
+        "12th"
+      ],
+      "why": "5 + 7 = 12. Each successful recall makes the memory last longer, so the next gap can be longer."
+    },
+    {
+      "type": "predict",
+      "prompt": "Interleaving means mixing problem types (slope, percents, circles) in one session instead of 20 of one kind. Why does it help on the SAT?",
+      "choices": [
+        "The test mixes them, so you practice choosing the method, not just using it",
+        "It's faster",
+        "It's easier"
+      ],
+      "answer": 0,
+      "why": "In a block of 20 slope problems you never decide what kind of problem it is. The SAT makes you decide every time."
+    },
+    {
+      "type": "spot",
+      "prompt": "Jay's week of study. Tap the day that's cramming.",
+      "lines": [
+        "Mon: a 20-minute lesson on percents",
+        "Tue: a recall check on percents and a new lesson on ratios",
+        "Wed: a mixed set of 10 questions",
+        "Sat: 4 hours on the whole unit, the night before the test"
+      ],
+      "wrong": 3,
+      "why": "Four hours in one sitting right before the test feels productive, but most of it fades fast."
+    },
+    {
+      "type": "order",
+      "prompt": "Order a spaced plan for one new skill.",
+      "items": [
+        "Day 1: learn it and do a few problems",
+        "Day 2: a quick recall check from memory",
+        "Day 5: mixed practice that includes it",
+        "Day 12: another recall check"
+      ],
+      "why": "The gaps grow each time, just like the lesson recall checks."
+    }
+  ],
+  "keys": [
+    "Spread the same study time out: spacing beats cramming.",
+    "Review when you've started to forget; the effort to remember is what helps.",
+    "Mix problem types so you practice choosing the method."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Which plan is better for a test in two weeks?",
+      "choices": [
+        "Several short sessions spread out",
+        "One long session the night before"
+      ],
+      "answer": 0,
+      "why": "Spacing wins for anything you need to keep."
+    },
+    {
+      "type": "predict",
+      "prompt": "Why does a gap before reviewing help?",
+      "choices": [
+        "Recalling takes effort, and effort builds memory",
+        "It doesn't help",
+        "You need sleep to read"
+      ],
+      "answer": 0,
+      "why": "The struggle to pull it back is the point."
+    },
+    {
+      "type": "predict",
+      "prompt": "Interleaving means...",
+      "choices": [
+        "Mixing different problem types in one session",
+        "Doing 20 of the same type",
+        "Studying with a partner"
+      ],
+      "answer": 0,
+      "why": "Mixing makes you choose the method, like the real test."
+    }
+  ],
+  "format": "case",
+  "intro": "Case file: Jay studied for 6 hours and forgot most of it by test day. Figure out what went wrong."
 }

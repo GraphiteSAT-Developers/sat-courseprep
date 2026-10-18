@@ -480,16 +480,10 @@
 
   /* ---------- lessons (services/lessons.py) ---------- */
   var LESSONS = P.lessons, DAYS = P.recall_days;
-  function nrm(v) { return String(v == null ? "" : v).replace(/[\s,]/g, "").replace(/[\u2212\u2013]/g, "-").replace(/%$/, "").toLowerCase(); }
-  function num(v) { v = nrm(v); var m = /^(-?\d+)\/(\d+)$/.exec(v); if (m && +m[2]) return +m[1] / +m[2]; return /^-?(\d+\.?\d*|\.\d+)$/.test(v) ? Number(v) : null; }
-  function stepRight(st, a) {
-    if (st.type === "recall") return a === true;
-    if (st.type === "predict") return a === st.answer;
-    if (st.type === "spot") return a === st.wrong;
-    if (st.type === "order") return Array.isArray(a) && a.length === st.items.length && a.every(function (v, i) { return v === i; });
-    if (st.type === "fill") return typeof a === "string" && st.accept.some(function (x) { var n = num(a), y = num(x); return n !== null && y !== null ? Math.abs(n - y) < 1e-9 : nrm(x) === nrm(a); });
-    return false;
-  }
+  // Grading is lesson-kit.js (the same rules as lessons.right and lessons.grade on the server).
+  function gradeSteps(steps, given) { var K = window.GraphiteLessonKit; return K ? K.grade(steps, given) : 0; }
+  function startFirst(s, id) { return id !== P.start_lesson && !!lessonById(P.start_lesson) && !s.lessons[P.start_lesson]; }
+  function failFirst() { var e = new Error("Start with Desmos hacks. Every other lesson opens after it."); e.status = 409; e.data = { error: e.message, code: "start_first" }; return Promise.reject(e); }
   function lessonById(id) { return LESSONS.filter(function (l) { return l.id === id; })[0]; }
   function lstatus(row) {
     if (!row) return { done: false, stage: 0, mastered: false, due: false, due_on: null, best: null, total: null };
@@ -501,20 +495,21 @@
     var s = load(), m;
     if (path === "/api/lessons") {
       var items = LESSONS.map(function (l) {
-        return Object.assign({ id: l.id, title: l.title, hook: l.hook, minutes: l.minutes, domain: l.domain, skill: l.skill, steps: l.steps.length, progress: lstatus(s.lessons[l.id]) }, names(l));
+        return Object.assign({ id: l.id, title: l.title, hook: l.hook, minutes: l.minutes, domain: l.domain, skill: l.skill, steps: l.steps.length, format: l.format || "classic", progress: lstatus(s.lessons[l.id]) }, names(l));
       });
-      return ok({ lessons: items, recall_days: DAYS, due: items.filter(function (i) { return i.progress.due; }).map(function (i) { return i.id; }),
+      return ok({ lessons: items, recall_days: DAYS, start_with: startFirst(s, "") ? P.start_lesson : null, formats: P.lesson_formats, due: items.filter(function (i) { return i.progress.due; }).map(function (i) { return i.id; }),
                   done: items.filter(function (i) { return i.progress.done; }).length, mastered: items.filter(function (i) { return i.progress.mastered; }).length });
     }
     if ((m = /^\/api\/lessons\/([\w-]+)(\/complete)?$/.exec(path))) {
       var l = lessonById(m[1]);
       if (!l) return fail(404, "That lesson doesn't exist.");
-      if (!m[2]) return ok({ lesson: Object.assign({}, l, names(l), { progress: lstatus(s.lessons[l.id]), recall_days: DAYS }) });
+      if (startFirst(s, l.id)) return failFirst();
+      if (!m[2]) return ok({ lesson: Object.assign({}, l, names(l), { progress: lstatus(s.lessons[l.id]), recall_days: DAYS, format_rule: (P.lesson_formats || {})[l.format || "classic"] }) });
       data = data || {};
       var kind = data.kind || "lesson", total = (kind === "lesson" ? l.steps : l.recall).length;
       var steps = kind === "lesson" ? l.steps : l.recall, given = Array.isArray(data.answers) ? data.answers : [];
       if (given.length !== steps.length) return fail(400, "Send one answer for each step.");
-      var score = steps.filter(function (st, i) { return stepRight(st, given[i]); }).length;  // same grading as lessons.right
+      var score = gradeSteps(steps, given);  // same grading as lessons.grade
       var row = s.lessons[l.id], xpBefore = totals(s).xp, badges = [], passed = null, xp, coins;
       if (kind === "lesson") {
         if (row) {

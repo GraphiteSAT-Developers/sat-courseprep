@@ -1,126 +1,173 @@
 {
- "id": "volume-surface-scaling",
- "order": 402,
- "domain": "geometry-trig",
- "skill": "area-and-volume",
- "title": "Volume, surface area and scaling",
- "minutes": 6,
- "hook": "Scale lengths by k and areas scale by k², volumes by k³.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: the volume of a cylinder?",
-   "answer": "V = πr²h."
-  },
-  {
-   "type": "fill",
-   "prompt": "A box is 3 × 4 × 5. Find its volume.",
-   "lines": [
-    "3 × 4 × 5 = ___"
-   ],
-   "accept": [
-    "60"
-   ],
-   "why": "Length × width × height."
-  },
-  {
-   "type": "predict",
-   "prompt": "A cylinder has radius 3 and height 10. Its volume is:",
-   "choices": [
-    "90π",
-    "30π",
-    "60π",
-    "9π"
-   ],
-   "answer": 0,
-   "why": "π × 3² × 10 = 90π."
-  },
-  {
-   "type": "predict",
-   "prompt": "A cube has volume 64. Its surface area is:",
-   "choices": [
-    "96",
-    "64",
-    "16",
-    "24"
-   ],
-   "answer": 0,
-   "why": "The side is 4, and 6 faces × 16 = 96."
-  },
-  {
-   "type": "predict",
-   "prompt": "Every length of a solid is doubled. Its volume is multiplied by:",
-   "choices": [
-    "8",
-    "2",
-    "4",
-    "6"
-   ],
-   "answer": 0,
-   "why": "2³ = 8."
-  },
-  {
-   "type": "spot",
-   "prompt": "A cone has radius 3 and height 4, and V = ⅓πr²h. Tap the line with the mistake.",
-   "lines": [
-    "⅓ × π × 3² × 4",
-    "= ⅓ × π × 9 × 4",
-    "= 36π"
-   ],
-   "wrong": 2,
-   "why": "⅓ × 36π = 12π."
-  },
-  {
-   "type": "predict",
-   "prompt": "A sphere has radius 3, and V = (4/3)πr³. Its volume is:",
-   "choices": [
-    "36π",
-    "12π",
-    "108π",
-    "27π"
-   ],
-   "answer": 0,
-   "why": "(4/3) × 27π = 36π."
-  }
- ],
- "keys": [
-  "Prism or cylinder: base area × height. Cone or pyramid: ⅓ of that.",
-  "Scale lengths by k: areas by k², volumes by k³.",
-  "The formulas are given on the test's reference sheet, but knowing them saves time."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "A cylinder's volume formula is:",
-   "choices": [
-    "πr²h",
-    "2πrh",
-    "⅓πr²h"
-   ],
-   "answer": 0,
-   "why": "Base area times height."
-  },
-  {
-   "type": "predict",
-   "prompt": "Triple every length. The volume is multiplied by:",
-   "choices": [
-    "27",
-    "9",
-    "3"
-   ],
-   "answer": 0,
-   "why": "3³."
-  },
-  {
-   "type": "fill",
-   "prompt": "A cube has side 5. What is its volume?",
-   "lines": [
-    "5³ = ___"
-   ],
-   "accept": [
-    "125"
-   ],
-   "why": "5 × 5 × 5."
-  }
- ]
+  "id": "volume-surface-scaling",
+  "order": 402,
+  "domain": "geometry-trig",
+  "skill": "area-and-volume",
+  "title": "Volume, surface area and scaling",
+  "minutes": 6,
+  "hook": "Scale lengths by k and areas scale by k², volumes by k³.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: the volume of a cylinder?",
+      "answer": "V = πr²h."
+    },
+    {
+      "type": "fill",
+      "prompt": "A box is 3 × 4 × 5. Find its volume.",
+      "lines": [
+        "3 × 4 × 5 = ___"
+      ],
+      "accept": [
+        "60"
+      ],
+      "why": "Length × width × height.",
+      "scene": "First, the model's main hall."
+    },
+    {
+      "type": "predict",
+      "prompt": "A cylinder has radius 3 and height 10. Its volume is:",
+      "choices": [
+        "90π",
+        "30π",
+        "60π",
+        "9π"
+      ],
+      "answer": 0,
+      "why": "π × 3² × 10 = 90π."
+    },
+    {
+      "type": "predict",
+      "prompt": "A cube has volume 64. Its surface area is:",
+      "choices": [
+        "96",
+        "64",
+        "16",
+        "24"
+      ],
+      "answer": 0,
+      "why": "The side is 4, and 6 faces × 16 = 96."
+    },
+    {
+      "type": "predict",
+      "prompt": "Every length of a solid is doubled. Its volume is multiplied by:",
+      "choices": [
+        "8",
+        "2",
+        "4",
+        "6"
+      ],
+      "answer": 0,
+      "why": "2³ = 8."
+    },
+    {
+      "type": "grid",
+      "prompt": "Fill in how lengths, areas and volumes scale.",
+      "head": [
+        "Scale factor",
+        "Lengths ×",
+        "Areas ×",
+        "Volume ×"
+      ],
+      "rows": [
+        [
+          "2",
+          "2",
+          "4",
+          "8"
+        ],
+        [
+          "3",
+          "3",
+          "___",
+          "___"
+        ],
+        [
+          "1/2",
+          "1/2",
+          "___",
+          "1/8"
+        ]
+      ],
+      "accept": [
+        [
+          "9"
+        ],
+        [
+          "27"
+        ],
+        [
+          "1/4",
+          "0.25"
+        ]
+      ],
+      "why": "Areas scale by k² and volumes by k³. Scale 3: × 9 and × 27. Scale 1/2: area × 1/4.",
+      "scene": "Your teacher wants a bigger model."
+    },
+    {
+      "type": "spot",
+      "prompt": "A cone has radius 3 and height 4, and V = ⅓πr²h. Tap the line with the mistake.",
+      "lines": [
+        "⅓ × π × 3² × 4",
+        "= ⅓ × π × 9 × 4",
+        "= 36π"
+      ],
+      "wrong": 2,
+      "why": "⅓ × 36π = 12π."
+    },
+    {
+      "type": "predict",
+      "prompt": "A sphere has radius 3, and V = (4/3)πr³. Its volume is:",
+      "choices": [
+        "36π",
+        "12π",
+        "108π",
+        "27π"
+      ],
+      "answer": 0,
+      "why": "(4/3) × 27π = 36π."
+    }
+  ],
+  "keys": [
+    "Prism or cylinder: base area × height. Cone or pyramid: ⅓ of that.",
+    "Scale lengths by k: areas by k², volumes by k³.",
+    "The formulas are given on the test's reference sheet, but knowing them saves time."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "A cylinder's volume formula is:",
+      "choices": [
+        "πr²h",
+        "2πrh",
+        "⅓πr²h"
+      ],
+      "answer": 0,
+      "why": "Base area times height."
+    },
+    {
+      "type": "predict",
+      "prompt": "Triple every length. The volume is multiplied by:",
+      "choices": [
+        "27",
+        "9",
+        "3"
+      ],
+      "answer": 0,
+      "why": "3³."
+    },
+    {
+      "type": "fill",
+      "prompt": "A cube has side 5. What is its volume?",
+      "lines": [
+        "5³ = ___"
+      ],
+      "accept": [
+        "125"
+      ],
+      "why": "5 × 5 × 5."
+    }
+  ],
+  "format": "story",
+  "intro": "You're building a scale model of the school for a project. Everything gets bigger or smaller by the same factor."
 }

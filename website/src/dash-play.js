@@ -30,9 +30,9 @@
                  "speed.html", !t || t.open ? "Play" : "Leaderboard"]);
     }
     if (ls) {
-      var due = ls.lessons.filter(function (l) { return l.progress.due; }), fresh = ls.lessons.filter(function (l) { return !l.progress.done; })[0];
+      var due = ls.lessons.filter(function (l) { return l.progress.due; }), fresh = ls.start_with ? ls.lessons.filter(function (l) { return l.id === ls.start_with; })[0] : ls.lessons.filter(function (l) { return !l.progress.done; })[0];
       if (due.length) rows.push(["Recall check", due.length + (due.length === 1 ? " lesson is" : " lessons are") + " due: " + due[0].title + (due.length > 1 ? " and more" : "") + ".", "lessons.html?lesson=" + encodeURIComponent(due[0].id) + "&mode=recall", "Recall it"]);
-      else if (fresh) rows.push(["Lesson", fresh.title + ". " + fresh.minutes + " minutes, all doing, no reading walls.", "lessons.html?lesson=" + encodeURIComponent(fresh.id), "Start"]);
+      else if (fresh) rows.push(["Lesson", fresh.title + ". " + fresh.minutes + " minutes" + (ls.start_with ? ". Every other lesson opens after it." : ", hands-on the whole way."), "lessons.html?lesson=" + encodeURIComponent(fresh.id), "Start"]);
     }
     if (lv) {
       var m = lv.tracks[0];

@@ -1,128 +1,154 @@
 {
- "id": "desmos-test-choices",
- "order": 513,
- "domain": "desmos",
- "skill": "choices",
- "title": "Test the answer choices",
- "minutes": 5,
- "hook": "Graph or plug in each choice and cross out the ones that don't fit.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what's the \"test the choices\" move?",
-   "answer": "Enter or graph each answer choice and eliminate the ones that don't fit. It's best for multiple choice when setting up the math is slow."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which is equivalent to (x + 3)² − 9? The Desmos move:",
-   "choices": [
-    "Graph y=(x+3)^2-9 and each choice, and keep the one that overlaps",
-    "Average the choices",
-    "Graph only the first choice"
-   ],
-   "answer": 0,
-   "why": "Equivalent expressions have identical graphs.",
-   "desmos": [
-    "y=(x+3)^2-9",
-    "y=x(x+6)"
-   ]
-  },
-  {
-   "type": "predict",
-   "prompt": "Which choice is equivalent to (x + 3)² − 9?",
-   "choices": [
-    "x(x + 6)",
-    "x² + 9",
-    "x² − 6x",
-    "(x − 3)(x + 3)"
-   ],
-   "answer": 0,
-   "why": "x² + 6x + 9 − 9 = x² + 6x = x(x + 6)."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which point lies on y = 2x² − 3?",
-   "choices": [
-    "(2, 5)",
-    "(1, 1)",
-    "(−1, 1)",
-    "(0, 3)"
-   ],
-   "answer": 0,
-   "why": "2(4) − 3 = 5."
-  },
-  {
-   "type": "spot",
-   "prompt": "A student tests the choices. Tap the slow move.",
-   "lines": [
-    "Graph the original expression once",
-    "Graph each choice on its own line in the same calculator",
-    "Open a fresh calculator and retype everything for each choice"
-   ],
-   "wrong": 2,
-   "why": "Keep one calculator. Add each choice on a new line."
-  },
-  {
-   "type": "predict",
-   "prompt": "When doesn't testing the choices work?",
-   "choices": [
-    "On a grid-in, which has no choices",
-    "On any multiple-choice question",
-    "When the choices are expressions"
-   ],
-   "answer": 0,
-   "why": "There's nothing to test."
-  },
-  {
-   "type": "fill",
-   "prompt": "f(x) = 3x − 4. Which choice makes f(x) = 11? Try x = 5.",
-   "lines": [
-    "3(5) − 4 = ___"
-   ],
-   "accept": [
-    "11"
-   ],
-   "why": "It matches, so x = 5."
-  }
- ],
- "keys": [
-  "Graph or plug in each choice; keep the one that fits.",
-  "Use one calculator with a line per choice.",
-  "Grid-ins need a real solve."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "Testing choices works best on:",
-   "choices": [
-    "Multiple choice",
-    "Grid-ins"
-   ],
-   "answer": 0,
-   "why": "You need choices to test."
-  },
-  {
-   "type": "predict",
-   "prompt": "Two expressions are equivalent when their graphs:",
-   "choices": [
-    "Overlap",
-    "Cross",
-    "Are parallel"
-   ],
-   "answer": 0,
-   "why": "Identical."
-  },
-  {
-   "type": "fill",
-   "prompt": "Does x = 2 solve 4x + 1 = 9? 4(2) + 1?",
-   "lines": [
-    "4(2) + 1 = ___"
-   ],
-   "accept": [
-    "9"
-   ],
-   "why": "Yes."
-  }
- ],
- "practice": null
+  "id": "desmos-test-choices",
+  "order": 513,
+  "domain": "desmos",
+  "skill": "choices",
+  "title": "Test the answer choices",
+  "minutes": 5,
+  "hook": "Graph or plug in each choice and cross out the ones that don't fit.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: what's the \"test the choices\" move?",
+      "answer": "Enter or graph each answer choice and eliminate the ones that don't fit. It's best for multiple choice when setting up the math is slow."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which is equivalent to (x + 3)² − 9? The Desmos move:",
+      "choices": [
+        "Graph y=(x+3)^2-9 and each choice, and keep the one that overlaps",
+        "Average the choices",
+        "Graph only the first choice"
+      ],
+      "answer": 0,
+      "why": "Equivalent expressions have identical graphs.",
+      "desmos": [
+        "y=(x+3)^2-9",
+        "y=x(x+6)"
+      ]
+    },
+    {
+      "type": "graph",
+      "prompt": "(x + 3)² − 9 is drawn. Type an equivalent expression with no brackets. If it's right, it lands exactly on top.",
+      "accept": [
+        "x^2+6x"
+      ],
+      "why": "x² + 6x + 9 − 9 = x² + 6x. Matching graphs mean equivalent expressions.",
+      "window": {
+        "x": [
+          -8,
+          3
+        ],
+        "y": [
+          -10,
+          10
+        ]
+      },
+      "fixed": [
+        "(x+3)^2-9"
+      ],
+      "forbid": [
+        "("
+      ]
+    },
+    {
+      "type": "predict",
+      "prompt": "Which choice is equivalent to (x + 3)² − 9?",
+      "choices": [
+        "x(x + 6)",
+        "x² + 9",
+        "x² − 6x",
+        "(x − 3)(x + 3)"
+      ],
+      "answer": 0,
+      "why": "x² + 6x + 9 − 9 = x² + 6x = x(x + 6)."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which point lies on y = 2x² − 3?",
+      "choices": [
+        "(2, 5)",
+        "(1, 1)",
+        "(−1, 1)",
+        "(0, 3)"
+      ],
+      "answer": 0,
+      "why": "2(4) − 3 = 5."
+    },
+    {
+      "type": "spot",
+      "prompt": "A student tests the choices. Tap the slow move.",
+      "lines": [
+        "Graph the original expression once",
+        "Graph each choice on its own line in the same calculator",
+        "Open a fresh calculator and retype everything for each choice"
+      ],
+      "wrong": 2,
+      "why": "Keep one calculator. Add each choice on a new line."
+    },
+    {
+      "type": "predict",
+      "prompt": "When doesn't testing the choices work?",
+      "choices": [
+        "On a grid-in, which has no choices",
+        "On any multiple-choice question",
+        "When the choices are expressions"
+      ],
+      "answer": 0,
+      "why": "There's nothing to test."
+    },
+    {
+      "type": "fill",
+      "prompt": "f(x) = 3x − 4. Which choice makes f(x) = 11? Try x = 5.",
+      "lines": [
+        "3(5) − 4 = ___"
+      ],
+      "accept": [
+        "11"
+      ],
+      "why": "It matches, so x = 5."
+    }
+  ],
+  "keys": [
+    "Graph or plug in each choice; keep the one that fits.",
+    "Use one calculator with a line per choice.",
+    "Grid-ins need a real solve."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Testing choices works best on:",
+      "choices": [
+        "Multiple choice",
+        "Grid-ins"
+      ],
+      "answer": 0,
+      "why": "You need choices to test."
+    },
+    {
+      "type": "predict",
+      "prompt": "Two expressions are equivalent when their graphs:",
+      "choices": [
+        "Overlap",
+        "Cross",
+        "Are parallel"
+      ],
+      "answer": 0,
+      "why": "Identical."
+    },
+    {
+      "type": "fill",
+      "prompt": "Does x = 2 solve 4x + 1 = 9? 4(2) + 1?",
+      "lines": [
+        "4(2) + 1 = ___"
+      ],
+      "accept": [
+        "9"
+      ],
+      "why": "Yes."
+    }
+  ],
+  "practice": null,
+  "format": "case",
+  "intro": "Case file: four answer choices, one is equivalent. Let Desmos be the witness."
 }

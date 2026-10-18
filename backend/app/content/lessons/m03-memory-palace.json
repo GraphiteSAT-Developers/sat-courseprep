@@ -1,124 +1,165 @@
 {
- "id": "memory-palace",
- "order": 3,
- "domain": "memory",
- "skill": "memory-palace",
- "title": "Build a memory palace for formulas",
- "minutes": 7,
- "hook": "Hang each formula on a spot in a place you know by heart, then walk through it to remember.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "Picture your home. From memory, name five things you pass walking from the front door to your bed, in order.",
-   "answer": "Anything works, like door, light switch, couch, hallway mirror, bed. A route you already know by heart is the frame of a memory palace."
-  },
-  {
-   "type": "predict",
-   "prompt": "A memory palace (also called the method of loci) works because...",
-   "choices": [
-    "Your memory for places and routes is strong, so you hang new facts on a route you already know",
-    "Places are easier to write down",
-    "It turns facts into a song"
-   ],
-   "answer": 0,
-   "why": "People remember spaces and routes very well. Each stop gives a fact a fixed spot and a built-in order."
-  },
-  {
-   "type": "order",
-   "prompt": "Put the steps for building a memory palace in order.",
-   "items": [
-    "Pick a place you know well",
-    "Choose a route through it with fixed stops",
-    "Turn each fact into a vivid image",
-    "Put one image at each stop",
-    "Walk the route in your head to recall them"
-   ],
-   "why": "Place, route, images, placement, then practice walking it."
-  },
-  {
-   "type": "predict",
-   "prompt": "Your first stop is your desk, and it holds the area of a circle, A = πr². Which image will stick best?",
-   "choices": [
-    "The words \"pi r squared\" written on the desk",
-    "A pirate on your desk slicing a giant pie into a perfect square",
-    "A plain circle"
-   ],
-   "answer": 1,
-   "why": "Vivid, strange and active images stick. Pie, pirate and square encode π, r and the squared."
-  },
-  {
-   "type": "predict",
-   "prompt": "Stop 2 is your chair, and it holds a² + b² = c². Which image fits the method best?",
-   "choices": [
-    "An ant on one square cushion and a bee on another, and together they flood the chair with a whole sea",
-    "The formula on a sticky note",
-    "A triangle drawn on the chair"
-   ],
-   "answer": 0,
-   "why": "Ant (a), bee (b), sea (c), and squares for the squared: every part of the formula is in the picture."
-  },
-  {
-   "type": "spot",
-   "prompt": "Leo's palace for geometry facts. Tap the stop that breaks the method.",
-   "lines": [
-    "Front door: a glowing 45-45-90 sign with sides 1, 1 and √2",
-    "Hallway: a 30-60-90 triangle rug with sides 1, √3 and 2",
-    "Kitchen: he puts nothing there and just hopes he remembers the circle formulas",
-    "Bathroom: x² + y² = r² written in the fog on a round mirror"
-   ],
-   "wrong": 2,
-   "why": "Every fact needs an image at a stop. An empty stop gives you nothing to walk back to."
-  },
-  {
-   "type": "predict",
-   "prompt": "On test day you blank on the volume of a cone. Using your palace, what do you do?",
-   "choices": [
-    "Walk the route in your head to the stop where you put it",
-    "Guess",
-    "Skip every geometry question"
-   ],
-   "answer": 0,
-   "why": "The route is the index. Walk it stop by stop until you reach the image."
-  }
- ],
- "keys": [
-  "Use a route you know by heart; each stop holds one fact.",
-  "Make images vivid, strange and moving: a pirate slicing pie into squares.",
-  "To recall, walk the route in your head, stop by stop. Practice the walk a few times."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "What makes a memory palace work?",
-   "choices": [
-    "Strong memory for places and routes",
-    "Repeating words out loud",
-    "Writing things neatly"
-   ],
-   "answer": 0,
-   "why": "Facts hang on a route you already know."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which image is strongest?",
-   "choices": [
-    "Something vivid, odd and moving",
-    "Plain words on a wall",
-    "A small, ordinary object"
-   ],
-   "answer": 0,
-   "why": "Strange and active images are easier to find again."
-  },
-  {
-   "type": "predict",
-   "prompt": "You forget a formula you stored. What do you do?",
-   "choices": [
-    "Walk the route to its stop",
-    "Start a new palace",
-    "Give up"
-   ],
-   "answer": 0,
-   "why": "The route takes you straight to it."
-  }
- ]
+  "id": "memory-palace",
+  "order": 3,
+  "domain": "memory",
+  "skill": "memory-palace",
+  "title": "Build a memory palace for formulas",
+  "minutes": 7,
+  "hook": "Hang each formula on a spot in a place you know by heart, then walk through it to remember.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "Picture your home. From memory, name five things you pass walking from the front door to your bed, in order.",
+      "answer": "Anything works, like door, light switch, couch, hallway mirror, bed. A route you already know by heart is the frame of a memory palace."
+    },
+    {
+      "type": "predict",
+      "prompt": "A memory palace (also called the method of loci) works because...",
+      "choices": [
+        "Your memory for places and routes is strong, so you hang new facts on a route you already know",
+        "Places are easier to write down",
+        "It turns facts into a song"
+      ],
+      "answer": 0,
+      "why": "People remember spaces and routes very well. Each stop gives a fact a fixed spot and a built-in order."
+    },
+    {
+      "type": "match",
+      "prompt": "Your palace: put each formula at a stop. Match them the way the images suggest.",
+      "left": [
+        "Front door: a giant pizza blocks it",
+        "Kitchen: a ladder leans on the fridge",
+        "Couch: a soup can as tall as you",
+        "Bed: a ramp from the floor to the pillow"
+      ],
+      "right": [
+        "A = πr²",
+        "a² + b² = c²",
+        "V = πr²h",
+        "y = mx + b"
+      ],
+      "why": "Pizza for a circle's area, a ladder for a right triangle, a can for a cylinder, a ramp for slope. Odd, vivid images stick.",
+      "scene": "You stand at the front door and start walking."
+    },
+    {
+      "type": "order",
+      "prompt": "Put the steps for building a memory palace in order.",
+      "items": [
+        "Pick a place you know well",
+        "Choose a route through it with fixed stops",
+        "Turn each fact into a vivid image",
+        "Put one image at each stop",
+        "Walk the route in your head to recall them"
+      ],
+      "why": "Place, route, images, placement, then practice walking it."
+    },
+    {
+      "type": "predict",
+      "prompt": "Your first stop is your desk, and it holds the area of a circle, A = πr². Which image will stick best?",
+      "choices": [
+        "The words \"pi r squared\" written on the desk",
+        "A pirate on your desk slicing a giant pie into a perfect square",
+        "A plain circle"
+      ],
+      "answer": 1,
+      "why": "Vivid, strange and active images stick. Pie, pirate and square encode π, r and the squared."
+    },
+    {
+      "type": "predict",
+      "prompt": "Stop 2 is your chair, and it holds a² + b² = c². Which image fits the method best?",
+      "choices": [
+        "An ant on one square cushion and a bee on another, and together they flood the chair with a whole sea",
+        "The formula on a sticky note",
+        "A triangle drawn on the chair"
+      ],
+      "answer": 0,
+      "why": "Ant (a), bee (b), sea (c), and squares for the squared: every part of the formula is in the picture."
+    },
+    {
+      "type": "spot",
+      "prompt": "Leo's palace for geometry facts. Tap the stop that breaks the method.",
+      "lines": [
+        "Front door: a glowing 45-45-90 sign with sides 1, 1 and √2",
+        "Hallway: a 30-60-90 triangle rug with sides 1, √3 and 2",
+        "Kitchen: he puts nothing there and just hopes he remembers the circle formulas",
+        "Bathroom: x² + y² = r² written in the fog on a round mirror"
+      ],
+      "wrong": 2,
+      "why": "Every fact needs an image at a stop. An empty stop gives you nothing to walk back to."
+    },
+    {
+      "type": "flash",
+      "prompt": "What was waiting on the couch?",
+      "show": [
+        "Front door: a giant pizza (A = πr²)",
+        "Kitchen: a ladder on the fridge (a² + b² = c²)",
+        "Couch: a soup can as tall as you (V = πr²h)",
+        "Bed: a ramp to the pillow (y = mx + b)"
+      ],
+      "seconds": 8,
+      "choices": [
+        "A soup can: V = πr²h",
+        "A ladder: a² + b² = c²",
+        "A pizza: A = πr²",
+        "A ramp: y = mx + b"
+      ],
+      "answer": 0,
+      "why": "Walking the stops in order brings back each image, and the image brings back the formula.",
+      "scene": "A week later. Walk through it again."
+    },
+    {
+      "type": "predict",
+      "prompt": "On test day you blank on the volume of a cone. Using your palace, what do you do?",
+      "choices": [
+        "Walk the route in your head to the stop where you put it",
+        "Guess",
+        "Skip every geometry question"
+      ],
+      "answer": 0,
+      "why": "The route is the index. Walk it stop by stop until you reach the image.",
+      "scene": "Test day. You walk the palace in your head."
+    }
+  ],
+  "keys": [
+    "Use a route you know by heart; each stop holds one fact.",
+    "Make images vivid, strange and moving: a pirate slicing pie into squares.",
+    "To recall, walk the route in your head, stop by stop. Practice the walk a few times."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "What makes a memory palace work?",
+      "choices": [
+        "Strong memory for places and routes",
+        "Repeating words out loud",
+        "Writing things neatly"
+      ],
+      "answer": 0,
+      "why": "Facts hang on a route you already know."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which image is strongest?",
+      "choices": [
+        "Something vivid, odd and moving",
+        "Plain words on a wall",
+        "A small, ordinary object"
+      ],
+      "answer": 0,
+      "why": "Strange and active images are easier to find again."
+    },
+    {
+      "type": "predict",
+      "prompt": "You forget a formula you stored. What do you do?",
+      "choices": [
+        "Walk the route to its stop",
+        "Start a new palace",
+        "Give up"
+      ],
+      "answer": 0,
+      "why": "The route takes you straight to it."
+    }
+  ],
+  "format": "story",
+  "intro": "You're turning your own home into a place to keep formulas. Walk through it with us."
 }

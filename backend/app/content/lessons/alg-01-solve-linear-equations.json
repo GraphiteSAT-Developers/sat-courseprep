@@ -1,129 +1,152 @@
 {
- "id": "solve-linear-equations",
- "order": 101,
- "domain": "algebra",
- "skill": "linear-equations-in-one-variable",
- "title": "Solve any linear equation",
- "minutes": 6,
- "hook": "Distribute, collect, move, divide: one routine for every linear equation, even with fractions.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what are the four moves for solving a linear equation like 3(x − 2) + 4 = 2x + 9?",
-   "answer": "Distribute, collect the x terms on one side, move the numbers to the other side, then divide by the coefficient of x."
-  },
-  {
-   "type": "fill",
-   "prompt": "Solve 3(x − 2) + 4 = 2x + 9.",
-   "lines": [
-    "3x − 6 + 4 = 2x + 9",
-    "3x − 2 = 2x + 9",
-    "x = ___"
-   ],
-   "accept": [
-    "11"
-   ],
-   "why": "Subtract 2x from both sides: x − 2 = 9, so x = 11. Check: 3(9) + 4 = 31 and 2(11) + 9 = 31."
-  },
-  {
-   "type": "predict",
-   "prompt": "Solve x/3 + x/2 = 10. What's the fastest first move?",
-   "choices": [
-    "Multiply every term by 6",
-    "Add the fractions to get x/5",
-    "Subtract x/2 from both sides"
-   ],
-   "answer": 0,
-   "why": "6 is the least common denominator: 2x + 3x = 60, so 5x = 60 and x = 12."
-  },
-  {
-   "type": "spot",
-   "prompt": "Solving 5 − 2(x + 3) = 9. Tap the line with the mistake.",
-   "lines": [
-    "5 − 2x − 6 = 9",
-    "−2x − 1 = 9",
-    "−2x = 8",
-    "x = −4"
-   ],
-   "wrong": 2,
-   "why": "Add 1 to both sides: −2x = 10, so x = −5."
-  },
-  {
-   "type": "order",
-   "prompt": "Put the steps in order to solve 4(x + 1) = 2x − 6.",
-   "items": [
-    "Distribute: 4x + 4 = 2x − 6",
-    "Subtract 2x: 2x + 4 = −6",
-    "Subtract 4: 2x = −10",
-    "Divide by 2: x = −5"
-   ],
-   "why": "Check: 4(−5 + 1) = −16 and 2(−5) − 6 = −16."
-  },
-  {
-   "type": "predict",
-   "prompt": "If 2x + 5 = 17, what is 6x + 15?",
-   "choices": [
-    "36",
-    "51",
-    "6",
-    "45"
-   ],
-   "answer": 1,
-   "why": "6x + 15 is 3 times (2x + 5), so it's 3 × 17 = 51. No need to find x."
-  },
-  {
-   "type": "fill",
-   "prompt": "Solve 0.4x − 1.2 = 0.1x + 0.3.",
-   "lines": [
-    "Multiply every term by 10: 4x − 12 = x + 3",
-    "3x = 15",
-    "x = ___"
-   ],
-   "accept": [
-    "5"
-   ],
-   "why": "Clearing decimals first keeps the arithmetic clean. Check: 0.4(5) − 1.2 = 0.8 = 0.1(5) + 0.3."
-  }
- ],
- "keys": [
-  "Distribute, collect the x's, move the numbers, divide.",
-  "Clear fractions or decimals first by multiplying every term.",
-  "Look for shortcuts: if 2x + 5 = 17, then 6x + 15 = 3 × 17."
- ],
- "recall": [
-  {
-   "type": "fill",
-   "prompt": "Solve 2(x − 1) = x + 7.",
-   "lines": [
-    "2x − 2 = x + 7",
-    "x = ___"
-   ],
-   "accept": [
-    "9"
-   ],
-   "why": "Subtract x and add 2: x = 9."
-  },
-  {
-   "type": "predict",
-   "prompt": "First move for x/4 + x/6 = 5?",
-   "choices": [
-    "Multiply every term by 12",
-    "Add to get x/10",
-    "Multiply only the left side by 24"
-   ],
-   "answer": 0,
-   "why": "12 is the least common denominator: 3x + 2x = 60, so x = 12."
-  },
-  {
-   "type": "predict",
-   "prompt": "If 3x − 2 = 10, what is 6x − 4?",
-   "choices": [
-    "20",
-    "24",
-    "8"
-   ],
-   "answer": 0,
-   "why": "6x − 4 = 2(3x − 2) = 2 × 10 = 20."
-  }
- ]
+  "id": "solve-linear-equations",
+  "order": 101,
+  "domain": "algebra",
+  "skill": "linear-equations-in-one-variable",
+  "title": "Solve any linear equation",
+  "minutes": 6,
+  "hook": "Distribute, collect, move, divide: one routine for every linear equation, even with fractions.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: what are the four moves for solving a linear equation like 3(x − 2) + 4 = 2x + 9?",
+      "answer": "Distribute, collect the x terms on one side, move the numbers to the other side, then divide by the coefficient of x."
+    },
+    {
+      "type": "fill",
+      "prompt": "Solve 3(x − 2) + 4 = 2x + 9.",
+      "lines": [
+        "3x − 6 + 4 = 2x + 9",
+        "3x − 2 = 2x + 9",
+        "x = ___"
+      ],
+      "accept": [
+        "11"
+      ],
+      "why": "Subtract 2x from both sides: x − 2 = 9, so x = 11. Check: 3(9) + 4 = 31 and 2(11) + 9 = 31."
+    },
+    {
+      "type": "build",
+      "prompt": "4x − 7 = 2x + 9. Subtract 2x and add 7 on both sides. Build the line you get.",
+      "tiles": [
+        "2x",
+        "=",
+        "16",
+        "6x",
+        "2",
+        "+",
+        "−",
+        "9"
+      ],
+      "answers": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "why": "4x − 2x = 2x and 9 + 7 = 16, so 2x = 16. Then x = 8."
+    },
+    {
+      "type": "predict",
+      "prompt": "Solve x/3 + x/2 = 10. What's the fastest first move?",
+      "choices": [
+        "Multiply every term by 6",
+        "Add the fractions to get x/5",
+        "Subtract x/2 from both sides"
+      ],
+      "answer": 0,
+      "why": "6 is the least common denominator: 2x + 3x = 60, so 5x = 60 and x = 12."
+    },
+    {
+      "type": "spot",
+      "prompt": "Solving 5 − 2(x + 3) = 9. Tap the line with the mistake.",
+      "lines": [
+        "5 − 2x − 6 = 9",
+        "−2x − 1 = 9",
+        "−2x = 8",
+        "x = −4"
+      ],
+      "wrong": 2,
+      "why": "Add 1 to both sides: −2x = 10, so x = −5."
+    },
+    {
+      "type": "order",
+      "prompt": "Put the steps in order to solve 4(x + 1) = 2x − 6.",
+      "items": [
+        "Distribute: 4x + 4 = 2x − 6",
+        "Subtract 2x: 2x + 4 = −6",
+        "Subtract 4: 2x = −10",
+        "Divide by 2: x = −5"
+      ],
+      "why": "Check: 4(−5 + 1) = −16 and 2(−5) − 6 = −16."
+    },
+    {
+      "type": "predict",
+      "prompt": "If 2x + 5 = 17, what is 6x + 15?",
+      "choices": [
+        "36",
+        "51",
+        "6",
+        "45"
+      ],
+      "answer": 1,
+      "why": "6x + 15 is 3 times (2x + 5), so it's 3 × 17 = 51. No need to find x."
+    },
+    {
+      "type": "fill",
+      "prompt": "Solve 0.4x − 1.2 = 0.1x + 0.3.",
+      "lines": [
+        "Multiply every term by 10: 4x − 12 = x + 3",
+        "3x = 15",
+        "x = ___"
+      ],
+      "accept": [
+        "5"
+      ],
+      "why": "Clearing decimals first keeps the arithmetic clean. Check: 0.4(5) − 1.2 = 0.8 = 0.1(5) + 0.3."
+    }
+  ],
+  "keys": [
+    "Distribute, collect the x's, move the numbers, divide.",
+    "Clear fractions or decimals first by multiplying every term.",
+    "Look for shortcuts: if 2x + 5 = 17, then 6x + 15 = 3 × 17."
+  ],
+  "recall": [
+    {
+      "type": "fill",
+      "prompt": "Solve 2(x − 1) = x + 7.",
+      "lines": [
+        "2x − 2 = x + 7",
+        "x = ___"
+      ],
+      "accept": [
+        "9"
+      ],
+      "why": "Subtract x and add 2: x = 9."
+    },
+    {
+      "type": "predict",
+      "prompt": "First move for x/4 + x/6 = 5?",
+      "choices": [
+        "Multiply every term by 12",
+        "Add to get x/10",
+        "Multiply only the left side by 24"
+      ],
+      "answer": 0,
+      "why": "12 is the least common denominator: 3x + 2x = 60, so x = 12."
+    },
+    {
+      "type": "predict",
+      "prompt": "If 3x − 2 = 10, what is 6x − 4?",
+      "choices": [
+        "20",
+        "24",
+        "8"
+      ],
+      "answer": 0,
+      "why": "6x − 4 = 2(3x − 2) = 2 × 10 = 20."
+    }
+  ],
+  "format": "classic"
 }

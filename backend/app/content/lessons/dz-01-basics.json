@@ -1,125 +1,146 @@
 {
- "id": "desmos-basics",
- "order": 501,
- "domain": "desmos",
- "skill": "basics",
- "title": "Desmos basics: type it so it reads it right",
- "minutes": 6,
- "hook": "Parentheses, subscripts, lists in square brackets, and zooming out. Small typing habits prevent big mistakes.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: where do you get Desmos on the SAT, and where can you practice on the same version?",
-   "answer": "It's built into Bluebook on every Math question, next to a scientific calculator. Practice on the College Board version at desmos.com/testing/collegeboard/graphing."
-  },
-  {
-   "type": "predict",
-   "prompt": "You want (x + 1) ÷ (x − 3). Which entry is right?",
-   "choices": [
-    "(x+1)/(x-3)",
-    "x+1/x-3",
-    "x+1/(x-3)",
-    "(x+1)/x-3"
-   ],
-   "answer": 0,
-   "why": "Without parentheses, Desmos divides only the term right next to the slash."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which of these makes a list in Desmos?",
-   "choices": [
-    "[2,4,6]",
-    "{2,4,6}",
-    "(2,4,6)"
-   ],
-   "answer": 0,
-   "why": "Square brackets make lists. Curly braces are restrictions, like {0<x<5}, and parentheses make points."
-  },
-  {
-   "type": "predict",
-   "prompt": "Why type x_1 (x with a subscript 1) in tables and regressions?",
-   "choices": [
-    "It matches the table's column names, and keeps Desmos from reading two letters as multiplication",
-    "It looks nicer",
-    "Every equation needs it"
-   ],
-   "answer": 0,
-   "why": "Desmos reads ab as a × b. Subscripts like x_1 and y_1 are single names, and they're what a table's columns are called."
-  },
-  {
-   "type": "order",
-   "prompt": "The pre-flight checklist before you trust a Desmos answer. Put it in order.",
-   "items": [
-    "Check the angle mode (degrees or radians)",
-    "Zoom to fit, so nothing is off-screen",
-    "Check your parentheses",
-    "Check [ ] for lists and { } for restrictions",
-    "Ask: does the question need an exact answer?"
-   ],
-   "why": "This is the course's checklist. Run it in the same order every time so it becomes automatic."
-  },
-  {
-   "type": "spot",
-   "prompt": "Finding the mean of 4, 9 and 11 in Desmos. Tap the entry that won't work.",
-   "lines": [
-    "mean([4,9,11])",
-    "L=[4,9,11], then mean(L)",
-    "mean({4,9,11})"
-   ],
-   "wrong": 2,
-   "why": "Curly braces aren't a list, so there's nothing to average."
-  },
-  {
-   "type": "predict",
-   "prompt": "You expect two intersections, but only one shows on screen. What's the fix?",
-   "choices": [
-    "Zoom out (or use the zoom-to-fit button)",
-    "Decide there's only one solution",
-    "Retype the equations"
-   ],
-   "answer": 0,
-   "why": "Many SAT traps are just \"you didn't zoom.\""
-  }
- ],
- "keys": [
-  "Wrap numerators, denominators and exponents in parentheses.",
-  "[ ] makes a list; { } restricts; ( , ) is a point.",
-  "Pre-flight: angle mode, zoom, parentheses, brackets, exact answer?"
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "Which makes a list?",
-   "choices": [
-    "[1,2,3]",
-    "{1,2,3}",
-    "(1,2,3)"
-   ],
-   "answer": 0,
-   "why": "Square brackets."
-  },
-  {
-   "type": "predict",
-   "prompt": "Type (x − 2) ÷ 4 as:",
-   "choices": [
-    "(x-2)/4",
-    "x-2/4",
-    "x/4-2"
-   ],
-   "answer": 0,
-   "why": "Parentheses around the numerator."
-  },
-  {
-   "type": "predict",
-   "prompt": "Only one intersection is on screen. First move?",
-   "choices": [
-    "Zoom out",
-    "Answer \"one solution\"",
-    "Close Desmos"
-   ],
-   "answer": 0,
-   "why": "Check off-screen."
-  }
- ],
- "practice": null
+  "id": "desmos-basics",
+  "order": 501,
+  "domain": "desmos",
+  "skill": "basics",
+  "title": "Desmos basics: type it so it reads it right",
+  "minutes": 6,
+  "hook": "Parentheses, subscripts, lists in square brackets, and zooming out. Small typing habits prevent big mistakes.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: where do you get Desmos on the SAT, and where can you practice on the same version?",
+      "answer": "It's built into Bluebook on every Math question, next to a scientific calculator. Practice on the College Board version at desmos.com/testing/collegeboard/graphing."
+    },
+    {
+      "type": "predict",
+      "prompt": "You want (x + 1) ÷ (x − 3). Which entry is right?",
+      "choices": [
+        "(x+1)/(x-3)",
+        "x+1/x-3",
+        "x+1/(x-3)",
+        "(x+1)/x-3"
+      ],
+      "answer": 0,
+      "why": "Without parentheses, Desmos divides only the term right next to the slash."
+    },
+    {
+      "type": "build",
+      "prompt": "Build the Desmos entry for (x + 1) ÷ (x − 3).",
+      "tiles": [
+        "(x+1)",
+        "/",
+        "(x-3)",
+        "x+1",
+        "x-3",
+        "÷"
+      ],
+      "answers": [
+        [
+          0,
+          1,
+          2
+        ]
+      ],
+      "why": "Brackets around the top and the bottom. Without them, Desmos divides only 1 by x."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which of these makes a list in Desmos?",
+      "choices": [
+        "[2,4,6]",
+        "{2,4,6}",
+        "(2,4,6)"
+      ],
+      "answer": 0,
+      "why": "Square brackets make lists. Curly braces are restrictions, like {0<x<5}, and parentheses make points."
+    },
+    {
+      "type": "predict",
+      "prompt": "Why type x_1 (x with a subscript 1) in tables and regressions?",
+      "choices": [
+        "It matches the table's column names, and keeps Desmos from reading two letters as multiplication",
+        "It looks nicer",
+        "Every equation needs it"
+      ],
+      "answer": 0,
+      "why": "Desmos reads ab as a × b. Subscripts like x_1 and y_1 are single names, and they're what a table's columns are called."
+    },
+    {
+      "type": "order",
+      "prompt": "The pre-flight checklist before you trust a Desmos answer. Put it in order.",
+      "items": [
+        "Check the angle mode (degrees or radians)",
+        "Zoom to fit, so nothing is off-screen",
+        "Check your parentheses",
+        "Check [ ] for lists and { } for restrictions",
+        "Ask: does the question need an exact answer?"
+      ],
+      "why": "This is the course's checklist. Run it in the same order every time so it becomes automatic."
+    },
+    {
+      "type": "spot",
+      "prompt": "Finding the mean of 4, 9 and 11 in Desmos. Tap the entry that won't work.",
+      "lines": [
+        "mean([4,9,11])",
+        "L=[4,9,11], then mean(L)",
+        "mean({4,9,11})"
+      ],
+      "wrong": 2,
+      "why": "Curly braces aren't a list, so there's nothing to average."
+    },
+    {
+      "type": "predict",
+      "prompt": "You expect two intersections, but only one shows on screen. What's the fix?",
+      "choices": [
+        "Zoom out (or use the zoom-to-fit button)",
+        "Decide there's only one solution",
+        "Retype the equations"
+      ],
+      "answer": 0,
+      "why": "Many SAT traps are just \"you didn't zoom.\""
+    }
+  ],
+  "keys": [
+    "Wrap numerators, denominators and exponents in parentheses.",
+    "[ ] makes a list; { } restricts; ( , ) is a point.",
+    "Pre-flight: angle mode, zoom, parentheses, brackets, exact answer?"
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Which makes a list?",
+      "choices": [
+        "[1,2,3]",
+        "{1,2,3}",
+        "(1,2,3)"
+      ],
+      "answer": 0,
+      "why": "Square brackets."
+    },
+    {
+      "type": "predict",
+      "prompt": "Type (x − 2) ÷ 4 as:",
+      "choices": [
+        "(x-2)/4",
+        "x-2/4",
+        "x/4-2"
+      ],
+      "answer": 0,
+      "why": "Parentheses around the numerator."
+    },
+    {
+      "type": "predict",
+      "prompt": "Only one intersection is on screen. First move?",
+      "choices": [
+        "Zoom out",
+        "Answer \"one solution\"",
+        "Close Desmos"
+      ],
+      "answer": 0,
+      "why": "Check off-screen."
+    }
+  ],
+  "practice": null,
+  "format": "lives"
 }

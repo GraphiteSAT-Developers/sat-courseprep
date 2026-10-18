@@ -1,131 +1,198 @@
 {
- "id": "slope-and-intercept",
- "order": 104,
- "domain": "algebra",
- "skill": "linear-functions",
- "title": "Slope and intercept from any form",
- "minutes": 6,
- "hook": "Read a line's rate and starting value from any equation, without graphing.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "Before anything else: what does the slope of a line tell you? Say it or type it, then check.",
-   "answer": "How much y changes each time x goes up by 1. Rise over run."
-  },
-  {
-   "type": "predict",
-   "prompt": "A phone plan costs C = 15m + 40 dollars for m months. What does the 40 mean?",
-   "choices": [
-    "The cost per month",
-    "The cost before any months pass, like a signup fee",
-    "The total after 15 months",
-    "The number of months"
-   ],
-   "answer": 1,
-   "why": "When m = 0, C = 40. The constant is the starting value (the y-intercept). The 15 is the slope: dollars per month."
-  },
-  {
-   "type": "fill",
-   "prompt": "Find the slope of the line through (2, 5) and (6, 17).",
-   "lines": [
-    "slope = (17 − 5) ÷ (6 − 2)",
-    "slope = 12 ÷ 4",
-    "slope = ___"
-   ],
-   "accept": [
-    "3"
-   ],
-   "why": "Change in y divided by change in x: 12 ÷ 4 = 3."
-  },
-  {
-   "type": "predict",
-   "prompt": "What is the slope of 2x + 3y = 12?",
-   "choices": [
-    "2",
-    "−2/3",
-    "3",
-    "4"
-   ],
-   "answer": 1,
-   "why": "Solve for y: 3y = −2x + 12, so y = −(2/3)x + 4. Shortcut for Ax + By = C: the slope is −A/B."
-  },
-  {
-   "type": "spot",
-   "prompt": "Maya found the y-intercept of the line through (1, 7) with slope 3. Tap the line with the mistake.",
-   "lines": [
-    "y = 3x + b",
-    "7 = 3(1) + b",
-    "7 = 3 + b",
-    "b = 10"
-   ],
-   "wrong": 3,
-   "why": "7 = 3 + b means b = 4. She added 3 instead of subtracting it."
-  },
-  {
-   "type": "order",
-   "prompt": "Put the steps in order to write the line through (0, −1) and (2, 3).",
-   "items": [
-    "Find the slope: (3 − (−1)) ÷ (2 − 0) = 2",
-    "Read the intercept: (0, −1) means b = −1",
-    "Write y = mx + b: y = 2x − 1",
-    "Check (2, 3): 2(2) − 1 = 3. It works."
-   ],
-   "why": "Slope first, then the intercept, then the equation, then a quick check with a point you know."
-  },
-  {
-   "type": "fill",
-   "prompt": "A line has slope 4 and passes through (2, 3). What is its y-intercept?",
-   "lines": [
-    "3 = 4(2) + b",
-    "3 = 8 + b",
-    "b = ___"
-   ],
-   "accept": [
-    "-5"
-   ],
-   "why": "Subtract 8 from both sides: b = 3 − 8 = −5."
-  }
- ],
- "keys": [
-  "Slope is the change in y for each 1 that x goes up: (y₂ − y₁) ÷ (x₂ − x₁).",
-  "In y = mx + b, b is the value of y when x = 0: the starting value.",
-  "For Ax + By = C, the slope is −A/B."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "In y = mx + b, which letter is the starting value?",
-   "choices": [
-    "m",
-    "x",
-    "b",
-    "y"
-   ],
-   "answer": 2,
-   "why": "b is y when x = 0."
-  },
-  {
-   "type": "fill",
-   "prompt": "Slope of the line through (1, 2) and (4, 11):",
-   "lines": [
-    "(11 − 2) ÷ (4 − 1) = ___"
-   ],
-   "accept": [
-    "3"
-   ],
-   "why": "9 ÷ 3 = 3."
-  },
-  {
-   "type": "predict",
-   "prompt": "What is the slope of 4x + 2y = 10?",
-   "choices": [
-    "4",
-    "−2",
-    "2",
-    "5"
-   ],
-   "answer": 1,
-   "why": "−A/B = −4/2 = −2."
-  }
- ]
+  "id": "slope-and-intercept",
+  "order": 104,
+  "domain": "algebra",
+  "skill": "linear-functions",
+  "title": "Slope and intercept from any form",
+  "minutes": 6,
+  "hook": "Read a line's rate and starting value from any equation, without graphing.",
+  "steps": [
+    {
+      "type": "slider",
+      "prompt": "Drag m until the line y = mx + 1 goes through the ring at (2, 7).",
+      "param": {
+        "name": "m",
+        "min": -4,
+        "max": 6,
+        "step": 0.5,
+        "start": 0
+      },
+      "answer": 3,
+      "why": "From (0, 1) to (2, 7) the line rises 6 while it runs 2. So m = 6 ÷ 2 = 3. Slope is rise over run.",
+      "curves": [
+        "m*x+1"
+      ],
+      "points": [
+        [
+          2,
+          7
+        ]
+      ],
+      "window": {
+        "x": [
+          -2,
+          6
+        ],
+        "y": [
+          -4,
+          12
+        ]
+      },
+      "readout": "y = {m}x + 1"
+    },
+    {
+      "type": "slider",
+      "prompt": "Now drag b until y = 2x + b goes through (3, 4).",
+      "param": {
+        "name": "b",
+        "min": -6,
+        "max": 6,
+        "step": 1,
+        "start": 0
+      },
+      "answer": -2,
+      "why": "4 = 2(3) + b, so b = −2. Changing b slides the line up or down without turning it.",
+      "curves": [
+        "2x+b"
+      ],
+      "points": [
+        [
+          3,
+          4
+        ]
+      ],
+      "window": {
+        "x": [
+          -2,
+          6
+        ],
+        "y": [
+          -8,
+          10
+        ]
+      },
+      "readout": "y = 2x + {b}"
+    },
+    {
+      "type": "recall",
+      "prompt": "Before anything else: what does the slope of a line tell you? Say it or type it, then check.",
+      "answer": "How much y changes each time x goes up by 1. Rise over run."
+    },
+    {
+      "type": "predict",
+      "prompt": "A phone plan costs C = 15m + 40 dollars for m months. What does the 40 mean?",
+      "choices": [
+        "The cost per month",
+        "The cost before any months pass, like a signup fee",
+        "The total after 15 months",
+        "The number of months"
+      ],
+      "answer": 1,
+      "why": "When m = 0, C = 40. The constant is the starting value (the y-intercept). The 15 is the slope: dollars per month."
+    },
+    {
+      "type": "fill",
+      "prompt": "Find the slope of the line through (2, 5) and (6, 17).",
+      "lines": [
+        "slope = (17 − 5) ÷ (6 − 2)",
+        "slope = 12 ÷ 4",
+        "slope = ___"
+      ],
+      "accept": [
+        "3"
+      ],
+      "why": "Change in y divided by change in x: 12 ÷ 4 = 3."
+    },
+    {
+      "type": "predict",
+      "prompt": "What is the slope of 2x + 3y = 12?",
+      "choices": [
+        "2",
+        "−2/3",
+        "3",
+        "4"
+      ],
+      "answer": 1,
+      "why": "Solve for y: 3y = −2x + 12, so y = −(2/3)x + 4. Shortcut for Ax + By = C: the slope is −A/B."
+    },
+    {
+      "type": "spot",
+      "prompt": "Maya found the y-intercept of the line through (1, 7) with slope 3. Tap the line with the mistake.",
+      "lines": [
+        "y = 3x + b",
+        "7 = 3(1) + b",
+        "7 = 3 + b",
+        "b = 10"
+      ],
+      "wrong": 3,
+      "why": "7 = 3 + b means b = 4. She added 3 instead of subtracting it."
+    },
+    {
+      "type": "order",
+      "prompt": "Put the steps in order to write the line through (0, −1) and (2, 3).",
+      "items": [
+        "Find the slope: (3 − (−1)) ÷ (2 − 0) = 2",
+        "Read the intercept: (0, −1) means b = −1",
+        "Write y = mx + b: y = 2x − 1",
+        "Check (2, 3): 2(2) − 1 = 3. It works."
+      ],
+      "why": "Slope first, then the intercept, then the equation, then a quick check with a point you know."
+    },
+    {
+      "type": "fill",
+      "prompt": "A line has slope 4 and passes through (2, 3). What is its y-intercept?",
+      "lines": [
+        "3 = 4(2) + b",
+        "3 = 8 + b",
+        "b = ___"
+      ],
+      "accept": [
+        "-5"
+      ],
+      "why": "Subtract 8 from both sides: b = 3 − 8 = −5."
+    }
+  ],
+  "keys": [
+    "Slope is the change in y for each 1 that x goes up: (y₂ − y₁) ÷ (x₂ − x₁).",
+    "In y = mx + b, b is the value of y when x = 0: the starting value.",
+    "For Ax + By = C, the slope is −A/B."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "In y = mx + b, which letter is the starting value?",
+      "choices": [
+        "m",
+        "x",
+        "b",
+        "y"
+      ],
+      "answer": 2,
+      "why": "b is y when x = 0."
+    },
+    {
+      "type": "fill",
+      "prompt": "Slope of the line through (1, 2) and (4, 11):",
+      "lines": [
+        "(11 − 2) ÷ (4 − 1) = ___"
+      ],
+      "accept": [
+        "3"
+      ],
+      "why": "9 ÷ 3 = 3."
+    },
+    {
+      "type": "predict",
+      "prompt": "What is the slope of 4x + 2y = 10?",
+      "choices": [
+        "4",
+        "−2",
+        "2",
+        "5"
+      ],
+      "answer": 1,
+      "why": "−A/B = −4/2 = −2."
+    }
+  ],
+  "format": "lab"
 }

@@ -1,128 +1,190 @@
 {
- "id": "how-many-solutions",
- "order": 108,
- "domain": "algebra",
- "skill": "systems-of-two-linear-equations-in-two-variables",
- "title": "One, none or infinitely many solutions",
- "minutes": 6,
- "hook": "Tell how many solutions a system has in seconds, just from slopes and intercepts.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "What does the solution to a system of two linear equations look like on a graph?",
-   "answer": "The point where the two lines cross."
-  },
-  {
-   "type": "predict",
-   "prompt": "y = 2x + 3 and y = 2x − 5. How many solutions?",
-   "choices": [
-    "Exactly one",
-    "None",
-    "Infinitely many",
-    "Exactly two"
-   ],
-   "answer": 1,
-   "why": "Same slope, different intercepts: the lines are parallel and never meet."
-  },
-  {
-   "type": "predict",
-   "prompt": "y = 3x + 1 and 6x − 2y = −2. How many solutions?",
-   "choices": [
-    "Exactly one",
-    "None",
-    "Infinitely many"
-   ],
-   "answer": 2,
-   "why": "Solve the second for y: −2y = −6x − 2, so y = 3x + 1. It's the same line, so every point on it works."
-  },
-  {
-   "type": "fill",
-   "prompt": "Solve by elimination: x + y = 10 and x − y = 4.",
-   "lines": [
-    "Add the equations: 2x = 14",
-    "x = 7",
-    "y = ___"
-   ],
-   "accept": [
-    "3"
-   ],
-   "why": "7 + y = 10, so y = 3."
-  },
-  {
-   "type": "spot",
-   "prompt": "Solving 2x + y = 7 and y = x + 1 by substitution. Tap the line with the mistake.",
-   "lines": [
-    "2x + (x + 1) = 7",
-    "3x + 1 = 7",
-    "3x = 8",
-    "x = 8/3"
-   ],
-   "wrong": 2,
-   "why": "3x + 1 = 7 means 3x = 6. So x = 2 and y = 3."
-  },
-  {
-   "type": "predict",
-   "prompt": "For what value of k does the system kx + 2y = 6 and 3x + y = 5 have no solution?",
-   "choices": [
-    "3",
-    "6",
-    "−6",
-    "2"
-   ],
-   "answer": 1,
-   "why": "No solution means parallel: equal slopes, different intercepts. −k/2 = −3 gives k = 6, and the intercepts (3 and 5) differ."
-  },
-  {
-   "type": "order",
-   "prompt": "Put the steps in order to solve 3x + 2y = 16 and x − 2y = 0.",
-   "items": [
-    "Add the equations so y cancels: 4x = 16",
-    "Divide: x = 4",
-    "Put x = 4 into x − 2y = 0: 4 − 2y = 0",
-    "Solve: y = 2"
-   ],
-   "why": "The +2y and −2y cancel when you add, which leaves one variable."
-  }
- ],
- "keys": [
-  "One solution: different slopes. The lines cross once.",
-  "No solution: same slope, different intercepts. Parallel lines.",
-  "Infinitely many: same slope and same intercept. It's one line written twice."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "Same slope and same intercept means how many solutions?",
-   "choices": [
-    "None",
-    "One",
-    "Infinitely many"
-   ],
-   "answer": 2,
-   "why": "It's the same line twice."
-  },
-  {
-   "type": "predict",
-   "prompt": "How many solutions: y = −x + 4 and y = −x + 1?",
-   "choices": [
-    "None",
-    "One",
-    "Infinitely many"
-   ],
-   "answer": 0,
-   "why": "Same slope, different intercepts: parallel."
-  },
-  {
-   "type": "fill",
-   "prompt": "x + y = 9 and x − y = 1.",
-   "lines": [
-    "Add: 2x = 10",
-    "x = ___"
-   ],
-   "accept": [
-    "5"
-   ],
-   "why": "10 ÷ 2 = 5."
-  }
- ]
+  "id": "how-many-solutions",
+  "order": 108,
+  "domain": "algebra",
+  "skill": "systems-of-two-linear-equations-in-two-variables",
+  "title": "One, none or infinitely many solutions",
+  "minutes": 6,
+  "hook": "Tell how many solutions a system has in seconds, just from slopes and intercepts.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "What does the solution to a system of two linear equations look like on a graph?",
+      "answer": "The point where the two lines cross."
+    },
+    {
+      "type": "predict",
+      "prompt": "y = 2x + 3 and y = 2x − 5. How many solutions?",
+      "choices": [
+        "Exactly one",
+        "None",
+        "Infinitely many",
+        "Exactly two"
+      ],
+      "answer": 1,
+      "why": "Same slope, different intercepts: the lines are parallel and never meet."
+    },
+    {
+      "type": "slider",
+      "prompt": "Drag k until the lines y = 2x + 1 and y = kx + 4 never meet.",
+      "param": {
+        "name": "k",
+        "min": -4,
+        "max": 4,
+        "step": 0.5,
+        "start": -1
+      },
+      "answer": 2,
+      "why": "Lines with the same slope and different intercepts are parallel, so they never cross: no solution.",
+      "curves": [
+        "2x+1",
+        "k*x+4"
+      ],
+      "window": {
+        "x": [
+          -6,
+          6
+        ],
+        "y": [
+          -8,
+          10
+        ]
+      },
+      "readout": "y = {k}x + 4"
+    },
+    {
+      "type": "predict",
+      "prompt": "y = 3x + 1 and 6x − 2y = −2. How many solutions?",
+      "choices": [
+        "Exactly one",
+        "None",
+        "Infinitely many"
+      ],
+      "answer": 2,
+      "why": "Solve the second for y: −2y = −6x − 2, so y = 3x + 1. It's the same line, so every point on it works."
+    },
+    {
+      "type": "fill",
+      "prompt": "Solve by elimination: x + y = 10 and x − y = 4.",
+      "lines": [
+        "Add the equations: 2x = 14",
+        "x = 7",
+        "y = ___"
+      ],
+      "accept": [
+        "3"
+      ],
+      "why": "7 + y = 10, so y = 3."
+    },
+    {
+      "type": "spot",
+      "prompt": "Solving 2x + y = 7 and y = x + 1 by substitution. Tap the line with the mistake.",
+      "lines": [
+        "2x + (x + 1) = 7",
+        "3x + 1 = 7",
+        "3x = 8",
+        "x = 8/3"
+      ],
+      "wrong": 2,
+      "why": "3x + 1 = 7 means 3x = 6. So x = 2 and y = 3."
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each system by how many solutions it has.",
+      "buckets": [
+        "One",
+        "None",
+        "Infinitely many"
+      ],
+      "cards": [
+        {
+          "text": "y = 3x + 2 and y = −x + 6",
+          "bucket": 0
+        },
+        {
+          "text": "y = 4x − 1 and y = 4x + 5",
+          "bucket": 1
+        },
+        {
+          "text": "2x + y = 3 and 4x + 2y = 6",
+          "bucket": 2
+        },
+        {
+          "text": "x + y = 5 and x − y = 1",
+          "bucket": 0
+        },
+        {
+          "text": "y = −2x and 2x + y = 7",
+          "bucket": 1
+        }
+      ],
+      "why": "Different slopes cross once. Same slope, different intercept: never. The same line twice: infinitely many."
+    },
+    {
+      "type": "predict",
+      "prompt": "For what value of k does the system kx + 2y = 6 and 3x + y = 5 have no solution?",
+      "choices": [
+        "3",
+        "6",
+        "−6",
+        "2"
+      ],
+      "answer": 1,
+      "why": "No solution means parallel: equal slopes, different intercepts. −k/2 = −3 gives k = 6, and the intercepts (3 and 5) differ."
+    },
+    {
+      "type": "order",
+      "prompt": "Put the steps in order to solve 3x + 2y = 16 and x − 2y = 0.",
+      "items": [
+        "Add the equations so y cancels: 4x = 16",
+        "Divide: x = 4",
+        "Put x = 4 into x − 2y = 0: 4 − 2y = 0",
+        "Solve: y = 2"
+      ],
+      "why": "The +2y and −2y cancel when you add, which leaves one variable."
+    }
+  ],
+  "keys": [
+    "One solution: different slopes. The lines cross once.",
+    "No solution: same slope, different intercepts. Parallel lines.",
+    "Infinitely many: same slope and same intercept. It's one line written twice."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Same slope and same intercept means how many solutions?",
+      "choices": [
+        "None",
+        "One",
+        "Infinitely many"
+      ],
+      "answer": 2,
+      "why": "It's the same line twice."
+    },
+    {
+      "type": "predict",
+      "prompt": "How many solutions: y = −x + 4 and y = −x + 1?",
+      "choices": [
+        "None",
+        "One",
+        "Infinitely many"
+      ],
+      "answer": 0,
+      "why": "Same slope, different intercepts: parallel."
+    },
+    {
+      "type": "fill",
+      "prompt": "x + y = 9 and x − y = 1.",
+      "lines": [
+        "Add: 2x = 10",
+        "x = ___"
+      ],
+      "accept": [
+        "5"
+      ],
+      "why": "10 ÷ 2 = 5."
+    }
+  ],
+  "format": "timed",
+  "seconds": 50
 }

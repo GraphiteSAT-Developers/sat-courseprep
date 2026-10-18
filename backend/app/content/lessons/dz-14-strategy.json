@@ -1,121 +1,139 @@
 {
- "id": "desmos-or-by-hand",
- "order": 514,
- "domain": "desmos",
- "skill": "strategy",
- "title": "Desmos or by hand?",
- "minutes": 6,
- "hook": "Use Desmos when you know how you'll use it, and be able to solve every type both ways.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what's the 15-second rule?",
-   "answer": "If you can solve it by hand in under about 15 seconds, skip Desmos. Use Desmos when graphing or computing beats the algebra."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which is Desmos-first?",
-   "choices": [
-    "Solve 2^x = x + 5",
-    "Solve 3x = 12",
-    "Find a triangle's third angle given 50° and 60°"
-   ],
-   "answer": 0,
-   "why": "No clean algebra solves it, but a graph does."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which is by-hand first?",
-   "choices": [
-    "\"Which must be true\" questions about structure",
-    "A system with messy decimals",
-    "Where a parabola meets a line"
-   ],
-   "answer": 0,
-   "why": "Reasoning questions, geometry and word-problem setup are usually faster by hand."
-  },
-  {
-   "type": "predict",
-   "prompt": "About how much of SAT Math can Desmos solve or check, by prep sources' estimates?",
-   "choices": [
-    "About a third to a half",
-    "Almost all of it",
-    "Under 5%"
-   ],
-   "answer": 0,
-   "why": "Estimates run from about one-third (counted from practice tests) to about one-half. It's a tool, not the whole test."
-  },
-  {
-   "type": "order",
-   "prompt": "A good routine for a hard question. Put it in order.",
-   "items": [
-    "Read the question and pick the faster route",
-    "Solve it",
-    "If you used Desmos, run the pre-flight checklist",
-    "Check with the other route if time allows"
-   ],
-   "why": "Pick, solve, check the tool, check the answer."
-  },
-  {
-   "type": "spot",
-   "prompt": "Tap the bad habit.",
-   "lines": [
-    "Know how to solve each question type both ways",
-    "Use Desmos to check by-hand answers on easy questions",
-    "Open Desmos for every question before reading it"
-   ],
-   "wrong": 2,
-   "why": "Use Desmos when you know how you'll use it."
-  },
-  {
-   "type": "predict",
-   "prompt": "Why check easy questions too?",
-   "choices": [
-    "A careless miss on an easy question hurts your score and can send you to the easier second module",
-    "Easy questions are worth more",
-    "They're never scored"
-   ],
-   "answer": 0,
-   "why": "The SAT is adaptive. A fast Desmos check of a by-hand answer is cheap insurance."
-  }
- ],
- "keys": [
-  "15-second rule: quick by hand? Skip Desmos.",
-  "Desmos-first: messy equations, systems, regression, statistics. Hand-first: structure, geometry, setup.",
-  "Know both routes, and use the other one to check."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "2x + 6 = 14: Desmos or by hand?",
-   "choices": [
-    "By hand",
-    "Desmos"
-   ],
-   "answer": 0,
-   "why": "Seconds by hand."
-  },
-  {
-   "type": "predict",
-   "prompt": "x³ − 2x = 5: Desmos or by hand?",
-   "choices": [
-    "Desmos",
-    "By hand"
-   ],
-   "answer": 0,
-   "why": "Graph and find the crossing."
-  },
-  {
-   "type": "predict",
-   "prompt": "The best habit:",
-   "choices": [
-    "Know both routes",
-    "Always Desmos",
-    "Never Desmos"
-   ],
-   "answer": 0,
-   "why": "Use each where it's faster."
-  }
- ],
- "practice": null
+  "id": "desmos-or-by-hand",
+  "order": 514,
+  "domain": "desmos",
+  "skill": "strategy",
+  "title": "Desmos or by hand?",
+  "minutes": 6,
+  "hook": "Use Desmos when you know how you'll use it, and be able to solve every type both ways.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: what's the 15-second rule?",
+      "answer": "If you can solve it by hand in under about 15 seconds, skip Desmos. Use Desmos when graphing or computing beats the algebra."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which is Desmos-first?",
+      "choices": [
+        "Solve 2^x = x + 5",
+        "Solve 3x = 12",
+        "Find a triangle's third angle given 50° and 60°"
+      ],
+      "answer": 0,
+      "why": "No clean algebra solves it, but a graph does."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each question to the fastest first move.",
+      "left": [
+        "Solve 2ˣ = x + 5",
+        "Solve 3x + 4 = 19",
+        "Find a, b and c in an equivalent expression",
+        "Fit a model to a table"
+      ],
+      "right": [
+        "Desmos: graph both sides",
+        "By hand, in seconds",
+        "Desmos: the tilde trick",
+        "Desmos: regression"
+      ],
+      "why": "No algebra solves 2ˣ = x + 5 neatly, so graph it. One-step equations are faster by hand."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which is by-hand first?",
+      "choices": [
+        "\"Which must be true\" questions about structure",
+        "A system with messy decimals",
+        "Where a parabola meets a line"
+      ],
+      "answer": 0,
+      "why": "Reasoning questions, geometry and word-problem setup are usually faster by hand."
+    },
+    {
+      "type": "predict",
+      "prompt": "About how much of SAT Math can Desmos solve or check, by prep sources' estimates?",
+      "choices": [
+        "About a third to a half",
+        "Almost all of it",
+        "Under 5%"
+      ],
+      "answer": 0,
+      "why": "Estimates run from about one-third (counted from practice tests) to about one-half. It's a tool, not the whole test."
+    },
+    {
+      "type": "order",
+      "prompt": "A good routine for a hard question. Put it in order.",
+      "items": [
+        "Read the question and pick the faster route",
+        "Solve it",
+        "If you used Desmos, run the pre-flight checklist",
+        "Check with the other route if time allows"
+      ],
+      "why": "Pick, solve, check the tool, check the answer."
+    },
+    {
+      "type": "spot",
+      "prompt": "Tap the bad habit.",
+      "lines": [
+        "Know how to solve each question type both ways",
+        "Use Desmos to check by-hand answers on easy questions",
+        "Open Desmos for every question before reading it"
+      ],
+      "wrong": 2,
+      "why": "Use Desmos when you know how you'll use it."
+    },
+    {
+      "type": "predict",
+      "prompt": "Why check easy questions too?",
+      "choices": [
+        "A careless miss on an easy question hurts your score and can send you to the easier second module",
+        "Easy questions are worth more",
+        "They're never scored"
+      ],
+      "answer": 0,
+      "why": "The SAT is adaptive. A fast Desmos check of a by-hand answer is cheap insurance."
+    }
+  ],
+  "keys": [
+    "15-second rule: quick by hand? Skip Desmos.",
+    "Desmos-first: messy equations, systems, regression, statistics. Hand-first: structure, geometry, setup.",
+    "Know both routes, and use the other one to check."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "2x + 6 = 14: Desmos or by hand?",
+      "choices": [
+        "By hand",
+        "Desmos"
+      ],
+      "answer": 0,
+      "why": "Seconds by hand."
+    },
+    {
+      "type": "predict",
+      "prompt": "x³ − 2x = 5: Desmos or by hand?",
+      "choices": [
+        "Desmos",
+        "By hand"
+      ],
+      "answer": 0,
+      "why": "Graph and find the crossing."
+    },
+    {
+      "type": "predict",
+      "prompt": "The best habit:",
+      "choices": [
+        "Know both routes",
+        "Always Desmos",
+        "Never Desmos"
+      ],
+      "answer": 0,
+      "why": "Use each where it's faster."
+    }
+  ],
+  "practice": null,
+  "format": "classic"
 }

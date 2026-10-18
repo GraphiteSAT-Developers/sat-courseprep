@@ -1,125 +1,154 @@
 {
- "id": "scatterplots-best-fit",
- "order": 307,
- "domain": "psda",
- "skill": "two-variable-data-models-and-scatterplots",
- "title": "Scatterplots and lines of best fit",
- "minutes": 6,
- "hook": "Read the slope as a rate, predict with the line, and find residuals as actual minus predicted.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what's a residual?",
-   "answer": "The actual value minus the value the model predicts."
-  },
-  {
-   "type": "predict",
-   "prompt": "A line of best fit is y = 2.5x + 40, where x is hours studied and y is the score. What does 2.5 mean?",
-   "choices": [
-    "Each extra hour predicts 2.5 more points",
-    "The predicted score with 0 hours",
-    "2.5 hours of study"
-   ],
-   "answer": 0,
-   "why": "The slope is the predicted change per hour."
-  },
-  {
-   "type": "fill",
-   "prompt": "Predict the score for 8 hours with y = 2.5x + 40.",
-   "lines": [
-    "2.5(8) + 40 = ___"
-   ],
-   "accept": [
-    "60"
-   ],
-   "why": "20 + 40 = 60."
-  },
-  {
-   "type": "predict",
-   "prompt": "A student studied 8 hours and scored 66. What's the residual?",
-   "choices": [
-    "6",
-    "−6",
-    "66",
-    "60"
-   ],
-   "answer": 0,
-   "why": "66 − 60 = 6. Positive means the point is above the line."
-  },
-  {
-   "type": "predict",
-   "prompt": "Points fall from left to right, tightly around a line. The association is:",
-   "choices": [
-    "Strong and negative",
-    "Weak and positive",
-    "Strong and positive",
-    "None"
-   ],
-   "answer": 0,
-   "why": "Downward means negative; tightly packed means strong."
-  },
-  {
-   "type": "spot",
-   "prompt": "Tap the false statement about a line of best fit.",
-   "lines": [
-    "It can be used to predict values",
-    "Points above the line have positive residuals",
-    "Every data point lies on the line",
-    "Its slope describes the trend"
-   ],
-   "wrong": 2,
-   "why": "It's the best fit, not a perfect one. Most points are off the line."
-  },
-  {
-   "type": "predict",
-   "prompt": "The data only went up to 10 hours. Is it reasonable to predict the score for 30 hours with this line?",
-   "choices": [
-    "No, that's far outside the data",
-    "Yes, any x works",
-    "Yes, as long as the score is under 100"
-   ],
-   "answer": 0,
-   "why": "Predicting far outside the data (extrapolation) is unreliable."
-  }
- ],
- "keys": [
-  "Slope = predicted change in y per 1 unit of x.",
-  "Residual = actual − predicted.",
-  "Only predict inside (or near) the range of the data."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "Residual means:",
-   "choices": [
-    "Actual − predicted",
-    "Predicted − actual",
-    "The slope"
-   ],
-   "answer": 0,
-   "why": "Above the line is positive."
-  },
-  {
-   "type": "fill",
-   "prompt": "y = 3x + 10. Predict y at x = 4.",
-   "lines": [
-    "3(4) + 10 = ___"
-   ],
-   "accept": [
-    "22"
-   ],
-   "why": "12 + 10."
-  },
-  {
-   "type": "predict",
-   "prompt": "Points rise from left to right, loosely scattered. The association is:",
-   "choices": [
-    "Weak and positive",
-    "Strong and negative",
-    "None"
-   ],
-   "answer": 0,
-   "why": "Rising and loose."
-  }
- ]
+  "id": "scatterplots-best-fit",
+  "order": 307,
+  "domain": "psda",
+  "skill": "two-variable-data-models-and-scatterplots",
+  "title": "Scatterplots and lines of best fit",
+  "minutes": 6,
+  "hook": "Read the slope as a rate, predict with the line, and find residuals as actual minus predicted.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: what's a residual?",
+      "answer": "The actual value minus the value the model predicts."
+    },
+    {
+      "type": "predict",
+      "prompt": "A line of best fit is y = 2.5x + 40, where x is hours studied and y is the score. What does 2.5 mean?",
+      "choices": [
+        "Each extra hour predicts 2.5 more points",
+        "The predicted score with 0 hours",
+        "2.5 hours of study"
+      ],
+      "answer": 0,
+      "why": "The slope is the predicted change per hour."
+    },
+    {
+      "type": "fill",
+      "prompt": "Predict the score for 8 hours with y = 2.5x + 40.",
+      "lines": [
+        "2.5(8) + 40 = ___"
+      ],
+      "accept": [
+        "60"
+      ],
+      "why": "20 + 40 = 60.",
+      "lane": "hand"
+    },
+    {
+      "type": "plot",
+      "prompt": "The Desmos way: y = 2.5x + 40 is graphed. Tap the predicted score at 8 hours.",
+      "curves": [
+        "2.5x+40"
+      ],
+      "answer": [
+        8,
+        60
+      ],
+      "why": "Click the line at x = 8: (8, 60). Same as 2.5(8) + 40 by hand.",
+      "window": {
+        "x": [
+          0,
+          12
+        ],
+        "y": [
+          0,
+          80
+        ]
+      },
+      "snap": [
+        1,
+        5
+      ],
+      "lane": "desmos"
+    },
+    {
+      "type": "predict",
+      "prompt": "A student studied 8 hours and scored 66. What's the residual?",
+      "choices": [
+        "6",
+        "−6",
+        "66",
+        "60"
+      ],
+      "answer": 0,
+      "why": "66 − 60 = 6. Positive means the point is above the line."
+    },
+    {
+      "type": "predict",
+      "prompt": "Points fall from left to right, tightly around a line. The association is:",
+      "choices": [
+        "Strong and negative",
+        "Weak and positive",
+        "Strong and positive",
+        "None"
+      ],
+      "answer": 0,
+      "why": "Downward means negative; tightly packed means strong."
+    },
+    {
+      "type": "spot",
+      "prompt": "Tap the false statement about a line of best fit.",
+      "lines": [
+        "It can be used to predict values",
+        "Points above the line have positive residuals",
+        "Every data point lies on the line",
+        "Its slope describes the trend"
+      ],
+      "wrong": 2,
+      "why": "It's the best fit, not a perfect one. Most points are off the line."
+    },
+    {
+      "type": "predict",
+      "prompt": "The data only went up to 10 hours. Is it reasonable to predict the score for 30 hours with this line?",
+      "choices": [
+        "No, that's far outside the data",
+        "Yes, any x works",
+        "Yes, as long as the score is under 100"
+      ],
+      "answer": 0,
+      "why": "Predicting far outside the data (extrapolation) is unreliable."
+    }
+  ],
+  "keys": [
+    "Slope = predicted change in y per 1 unit of x.",
+    "Residual = actual − predicted.",
+    "Only predict inside (or near) the range of the data."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Residual means:",
+      "choices": [
+        "Actual − predicted",
+        "Predicted − actual",
+        "The slope"
+      ],
+      "answer": 0,
+      "why": "Above the line is positive."
+    },
+    {
+      "type": "fill",
+      "prompt": "y = 3x + 10. Predict y at x = 4.",
+      "lines": [
+        "3(4) + 10 = ___"
+      ],
+      "accept": [
+        "22"
+      ],
+      "why": "12 + 10."
+    },
+    {
+      "type": "predict",
+      "prompt": "Points rise from left to right, loosely scattered. The association is:",
+      "choices": [
+        "Weak and positive",
+        "Strong and negative",
+        "None"
+      ],
+      "answer": 0,
+      "why": "Rising and loose."
+    }
+  ],
+  "format": "race"
 }

@@ -6,13 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="/js/theme.js?v=cee64bfb20"></script>
 <title>Lessons | Graphite SAT Tutoring</title>
-<meta name="description" content="Short SAT Math lessons where you answer before you're told: predict, fill in a step, put steps in order and find the mistake. Recall checks bring each lesson back so it sticks.">
+<meta name="description" content="Hands-on SAT Math lessons: drag sliders, tap graphs, sort and match, race Desmos against doing it by hand. Every lesson plays differently, and recall checks bring each one back so it sticks.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#1c1e21">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Graphite">
 <meta property="og:title" content="Lessons | Graphite SAT Tutoring">
-<meta property="og:description" content="Short SAT Math lessons where you answer before you're told: predict, fill in a step, put steps in order and find the mistake. Recall checks bring each lesson back so it sticks.">
+<meta property="og:description" content="Hands-on SAT Math lessons: drag sliders, tap graphs, sort and match, race Desmos against doing it by hand. Every lesson plays differently, and recall checks bring each one back so it sticks.">
 <meta property="og:url" content="https://www.graphiteprep.com/lessons.html">
 <meta property="og:image" content="https://www.graphiteprep.com/og-image.png">
 <meta property="og:image:alt" content="Graphite: AI SAT tutoring. A yellow answer bubble on a graphite gray background.">
@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=c270c7cdaa">
-<script src="/js/site.js?v=4c779e48ab" defer></script><script src="/js/game-ui.js?v=b46dc13746" defer></script><script src="/js/qtools.js?v=01407ffb91" defer></script><script src="/js/lessons.js?v=98a7c05d9e" defer></script><script src="/js/effects.js?v=e171d8f500" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=1dd00b4d0f">
+<script src="/js/site.js?v=4c779e48ab" defer></script><script src="/js/lesson-kit.js?v=369114ca3b" defer></script><script src="/js/game-ui.js?v=b46dc13746" defer></script><script src="/js/qtools.js?v=01407ffb91" defer></script><script src="/js/lessons.js?v=4f8c5e45d9" defer></script><script src="/js/effects.js?v=e171d8f500" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -74,10 +74,16 @@
           <button type="button" data-subject="rw">Reading and Writing <span class="soon">Soon</span></button>
         </div>
       </div>
-      <p class="lede pr-lede">There's a lesson for every skill on SAT Math, plus the Desmos course and a few lessons on how memory works. You answer something on every step before you see how it's done. A few days later the lesson comes back as a quick recall check, so it actually sticks.</p>
+      <p class="lede pr-lede">There's a lesson for every skill on SAT Math, plus the Desmos course and a few lessons on how memory works. No two play the same way: some give you three hearts, some put you on the clock, some are a story or a case to crack, and most have you drag, tap or build something before anything is explained. A few days later each lesson comes back as a quick recall check, so it sticks.</p>
 
       <p class="field-error pr-error" id="ls-error" role="alert" hidden></p>
       <p class="fine" id="ls-loading">Loading lessons…</p>
+
+      <section class="panel ls-start" id="ls-start" aria-labelledby="ls-start-title" hidden>
+        <div class="panel-head"><h2 id="ls-start-title">Start here: Desmos hacks</h2></div>
+        <p class="panel-lede">Seven minutes on the calculator you'll have on test day. Every other lesson opens when you finish it.</p>
+        <a class="btn btn-primary" href="/lessons.html?lesson=desmos-hacks">Start Desmos hacks</a>
+      </section>
 
       <section class="panel ls-due" id="ls-due" aria-labelledby="ls-due-title" hidden>
         <div class="panel-head"><h2 id="ls-due-title">Recall checks due</h2><span class="label" id="ls-due-count"></span></div>
@@ -102,9 +108,11 @@
     <!-- One lesson -->
     <section class="ls-player" id="ls-player" aria-labelledby="ls-title" hidden>
       <div class="ls-player-head">
-        <a class="ls-back" href="/lessons.html" id="ls-back">All lessons</a>
+        <a class="ls-back" href="/lessons.html?list=1" id="ls-back">All lessons</a>
         <p class="label" id="ls-kicker">Lesson</p>
         <h1 id="ls-title" tabindex="-1">Lesson</h1>
+        <p class="ls-firsttime" id="ls-firsttime" hidden></p>
+        <div class="ls-hud" id="ls-hud" hidden></div>
         <div class="ls-progress" role="progressbar" aria-label="Lesson progress" aria-valuemin="0" id="ls-progress"><span></span></div>
         <p class="fine" id="ls-step-count"></p>
       </div>
@@ -120,6 +128,8 @@
         <p class="label" id="ls-end-kicker">Lesson finished</p>
         <h2 id="ls-end-title" tabindex="-1">Nice work</h2>
         <p class="lede" id="ls-end-score"></p>
+        <p class="ls-end-format" id="ls-end-format" hidden></p>
+        <p class="ls-unlocked" id="ls-unlocked" hidden><strong>Every lesson is open now.</strong> <a href="/lessons.html?list=1">See all lessons</a></p>
         <div class="ls-keys" id="ls-keys-box">
           <h3>Key ideas</h3>
           <ol id="ls-keys"></ol>
@@ -127,7 +137,7 @@
         <p class="ls-next-recall" id="ls-next-recall"></p>
         <div class="pd-row">
           <a class="btn btn-primary" href="/practice.html" id="ls-practice">Practice this skill</a>
-          <a class="btn btn-secondary" href="/lessons.html">All lessons</a>
+          <a class="btn btn-secondary" href="/lessons.html?list=1">All lessons</a>
         </div>
       </div>
     </section>

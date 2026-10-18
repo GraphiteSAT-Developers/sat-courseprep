@@ -243,7 +243,7 @@ def bank_js():
                    "alert_days": list(plans.ALERT_DAYS), "pause_days": plans.PAUSE_DAYS},
         # Rewards, speed rounds, focus and lessons: the same numbers and content as the server (play-local.js).
         "play": {"rules": game.rules(), "lessons": lessons.all_lessons(), "recall_days": list(lessons.RECALL_DAYS),
-                 "recall_pass": lessons.RECALL_PASS,
+                 "recall_pass": lessons.RECALL_PASS, "lesson_formats": lessons.FORMATS, "start_lesson": lessons.START_LESSON,
                  "topic_names": lessons.topic_names(),
                  "speed": {"size": speed.SIZE, "penalty_ms": speed.PENALTY_MS, "max_ms": speed.MAX_MS,
                            "lightning_ms": speed.LIGHTNING_MS, "states": [{"code": c, "name": n} for c, n in speed.STATES],
@@ -438,7 +438,7 @@ def build():
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
     for n in ("effects.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
-              "lessons.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js"):
+              "lessons.js", "lesson-kit.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)

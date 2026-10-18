@@ -1,130 +1,176 @@
 {
- "id": "ratios-and-proportions",
- "order": 302,
- "domain": "psda",
- "skill": "ratios-rates-proportional-relationships-and-units",
- "title": "Ratios, rates and proportions",
- "minutes": 5,
- "hook": "Set up equal fractions with matching units in matching places.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: boys to girls is 3 : 5 in a class of 32. How many girls?",
-   "answer": "20. There are 3 + 5 = 8 parts, 32 ÷ 8 = 4 students per part, and 5 × 4 = 20."
-  },
-  {
-   "type": "fill",
-   "prompt": "Solve x/12 = 5/8.",
-   "lines": [
-    "8x = 60",
-    "x = ___"
-   ],
-   "accept": [
-    "7.5",
-    "15/2"
-   ],
-   "why": "Cross-multiply, then divide by 8."
-  },
-  {
-   "type": "predict",
-   "prompt": "A map scale is 1 inch : 25 miles. Two cities are 3.2 inches apart. How far apart are they?",
-   "choices": [
-    "80 miles",
-    "78 miles",
-    "28.2 miles",
-    "8 miles"
-   ],
-   "answer": 0,
-   "why": "3.2 × 25 = 80."
-  },
-  {
-   "type": "predict",
-   "prompt": "y is proportional to x, and y = 21 when x = 7. What is y when x = 10?",
-   "choices": [
-    "30",
-    "24",
-    "70",
-    "21"
-   ],
-   "answer": 0,
-   "why": "y = 3x."
-  },
-  {
-   "type": "spot",
-   "prompt": "2 cans of paint cover 450 square feet. How many cans for 1,575 square feet? Tap the line with the mistake.",
-   "lines": [
-    "2/450 = c/1575",
-    "450c = 3150",
-    "c = 3150 / 450",
-    "c = 6"
-   ],
-   "wrong": 3,
-   "why": "3150 ÷ 450 = 7 cans."
-  },
-  {
-   "type": "predict",
-   "prompt": "Juice is 2 parts concentrate to 7 parts water. For 36 cups in all, how much concentrate?",
-   "choices": [
-    "8 cups",
-    "4 cups",
-    "10 cups",
-    "28 cups"
-   ],
-   "answer": 0,
-   "why": "9 parts make 36 cups, so a part is 4 cups and 2 parts are 8."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which is a proportional relationship?",
-   "choices": [
-    "y = 4x",
-    "y = 4x + 1",
-    "y = x + 4",
-    "y = x²"
-   ],
-   "answer": 0,
-   "why": "Proportional means y = kx: a line through the origin."
-  }
- ],
- "keys": [
-  "Ratios: add the parts, find the size of one part, then multiply.",
-  "Proportions: keep matching units in matching places and cross-multiply.",
-  "Proportional means y = kx, a line through the origin."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "A ratio of 2 : 3 with a total of 25. The larger part is:",
-   "choices": [
-    "15",
-    "10",
-    "12.5"
-   ],
-   "answer": 0,
-   "why": "5 parts of 5."
-  },
-  {
-   "type": "fill",
-   "prompt": "Solve x/9 = 4/6.",
-   "lines": [
-    "6x = 36",
-    "x = ___"
-   ],
-   "accept": [
-    "6"
-   ],
-   "why": "36 ÷ 6."
-  },
-  {
-   "type": "predict",
-   "prompt": "The graph of a proportional relationship passes through:",
-   "choices": [
-    "The origin",
-    "(1, 1)",
-    "(0, 1)"
-   ],
-   "answer": 0,
-   "why": "When x = 0, y = 0."
-  }
- ]
+  "id": "ratios-and-proportions",
+  "order": 302,
+  "domain": "psda",
+  "skill": "ratios-rates-proportional-relationships-and-units",
+  "title": "Ratios, rates and proportions",
+  "minutes": 5,
+  "hook": "Set up equal fractions with matching units in matching places.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: boys to girls is 3 : 5 in a class of 32. How many girls?",
+      "answer": "20. There are 3 + 5 = 8 parts, 32 ÷ 8 = 4 students per part, and 5 × 4 = 20."
+    },
+    {
+      "type": "fill",
+      "prompt": "Solve x/12 = 5/8.",
+      "lines": [
+        "8x = 60",
+        "x = ___"
+      ],
+      "accept": [
+        "7.5",
+        "15/2"
+      ],
+      "why": "Cross-multiply, then divide by 8."
+    },
+    {
+      "type": "predict",
+      "prompt": "A map scale is 1 inch : 25 miles. Two cities are 3.2 inches apart. How far apart are they?",
+      "choices": [
+        "80 miles",
+        "78 miles",
+        "28.2 miles",
+        "8 miles"
+      ],
+      "answer": 0,
+      "why": "3.2 × 25 = 80."
+    },
+    {
+      "type": "predict",
+      "prompt": "y is proportional to x, and y = 21 when x = 7. What is y when x = 10?",
+      "choices": [
+        "30",
+        "24",
+        "70",
+        "21"
+      ],
+      "answer": 0,
+      "why": "y = 3x."
+    },
+    {
+      "type": "grid",
+      "prompt": "Scale the recipe. Fill in the table.",
+      "head": [
+        "Batches",
+        "Concentrate",
+        "Water",
+        "Total cups"
+      ],
+      "rows": [
+        [
+          "1",
+          "2",
+          "7",
+          "9"
+        ],
+        [
+          "4",
+          "___",
+          "28",
+          "36"
+        ],
+        [
+          "5",
+          "10",
+          "___",
+          "___"
+        ]
+      ],
+      "accept": [
+        [
+          "8"
+        ],
+        [
+          "35"
+        ],
+        [
+          "45"
+        ]
+      ],
+      "why": "Every column scales by the same factor. 4 batches: 8 cups of concentrate. 5 batches: 35 cups of water, 45 in all.",
+      "scene": "Halftime: you need a lot more."
+    },
+    {
+      "type": "spot",
+      "prompt": "2 cans of paint cover 450 square feet. How many cans for 1,575 square feet? Tap the line with the mistake.",
+      "lines": [
+        "2/450 = c/1575",
+        "450c = 3150",
+        "c = 3150 / 450",
+        "c = 6"
+      ],
+      "wrong": 3,
+      "why": "3150 ÷ 450 = 7 cans."
+    },
+    {
+      "type": "predict",
+      "prompt": "Juice is 2 parts concentrate to 7 parts water. For 36 cups in all, how much concentrate?",
+      "choices": [
+        "8 cups",
+        "4 cups",
+        "10 cups",
+        "28 cups"
+      ],
+      "answer": 0,
+      "why": "9 parts make 36 cups, so a part is 4 cups and 2 parts are 8.",
+      "scene": "Closing time: one last big batch."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which is a proportional relationship?",
+      "choices": [
+        "y = 4x",
+        "y = 4x + 1",
+        "y = x + 4",
+        "y = x²"
+      ],
+      "answer": 0,
+      "why": "Proportional means y = kx: a line through the origin."
+    }
+  ],
+  "keys": [
+    "Ratios: add the parts, find the size of one part, then multiply.",
+    "Proportions: keep matching units in matching places and cross-multiply.",
+    "Proportional means y = kx, a line through the origin."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "A ratio of 2 : 3 with a total of 25. The larger part is:",
+      "choices": [
+        "15",
+        "10",
+        "12.5"
+      ],
+      "answer": 0,
+      "why": "5 parts of 5."
+    },
+    {
+      "type": "fill",
+      "prompt": "Solve x/9 = 4/6.",
+      "lines": [
+        "6x = 36",
+        "x = ___"
+      ],
+      "accept": [
+        "6"
+      ],
+      "why": "36 ÷ 6."
+    },
+    {
+      "type": "predict",
+      "prompt": "The graph of a proportional relationship passes through:",
+      "choices": [
+        "The origin",
+        "(1, 1)",
+        "(0, 1)"
+      ],
+      "answer": 0,
+      "why": "When x = 0, y = 0."
+    }
+  ],
+  "format": "story",
+  "intro": "You're selling lemonade at the game. The recipe is 2 cups of concentrate to 7 cups of water."
 }

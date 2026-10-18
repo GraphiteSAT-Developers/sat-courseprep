@@ -1,127 +1,145 @@
 {
- "id": "arcs-sectors-radians",
- "order": 408,
- "domain": "geometry-trig",
- "skill": "circles",
- "title": "Arcs, sectors and radians",
- "minutes": 6,
- "hook": "An arc or a sector is a fraction of the whole circle: the angle over 360°, or over 2π.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: how many radians are in 180°?",
-   "answer": "π radians."
-  },
-  {
-   "type": "fill",
-   "prompt": "Convert 60° to radians.",
-   "lines": [
-    "60 × π/180",
-    "= π/___"
-   ],
-   "accept": [
-    "3"
-   ],
-   "why": "60/180 = 1/3."
-  },
-  {
-   "type": "predict",
-   "prompt": "A circle has radius 6. How long is an arc with a 90° central angle?",
-   "choices": [
-    "3π",
-    "6π",
-    "9π",
-    "12π"
-   ],
-   "answer": 0,
-   "why": "90/360 of the circumference 12π."
-  },
-  {
-   "type": "predict",
-   "prompt": "Radius 10, central angle 72°. What's the sector's area?",
-   "choices": [
-    "20π",
-    "4π",
-    "10π",
-    "72π"
-   ],
-   "answer": 0,
-   "why": "72/360 = 1/5 of 100π."
-  },
-  {
-   "type": "predict",
-   "prompt": "In radians, arc length = rθ. Radius 4 and θ = 2.5 radians. Arc length?",
-   "choices": [
-    "10",
-    "6.5",
-    "1.6",
-    "20"
-   ],
-   "answer": 0,
-   "why": "4 × 2.5."
-  },
-  {
-   "type": "spot",
-   "prompt": "Converting 3π/4 radians to degrees. Tap the line with the mistake.",
-   "lines": [
-    "3π/4 × 180/π",
-    "= 3 × 180 / 4",
-    "= 145°"
-   ],
-   "wrong": 2,
-   "why": "540 ÷ 4 = 135°."
-  },
-  {
-   "type": "predict",
-   "prompt": "An arc is 1/6 of the circumference. Its central angle in radians is:",
-   "choices": [
-    "π/3",
-    "π/6",
-    "π/12",
-    "π/2"
-   ],
-   "answer": 0,
-   "why": "1/6 of 2π."
-  }
- ],
- "keys": [
-  "Fraction of the circle = angle/360° = angle/2π.",
-  "Arc = fraction × 2πr. Sector = fraction × πr².",
-  "Degrees to radians: × π/180. Radians to degrees: × 180/π."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "90° in radians is:",
-   "choices": [
-    "π/2",
-    "π",
-    "π/4"
-   ],
-   "answer": 0,
-   "why": "Half of π."
-  },
-  {
-   "type": "fill",
-   "prompt": "Radius 3 and θ = 2 radians. Arc length?",
-   "lines": [
-    "rθ = 3 × 2 = ___"
-   ],
-   "accept": [
-    "6"
-   ],
-   "why": "rθ."
-  },
-  {
-   "type": "predict",
-   "prompt": "A semicircle's arc is what fraction of the circumference?",
-   "choices": [
-    "1/2",
-    "1/4",
-    "1/3"
-   ],
-   "answer": 0,
-   "why": "180 of 360 degrees."
-  }
- ]
+  "id": "arcs-sectors-radians",
+  "order": 408,
+  "domain": "geometry-trig",
+  "skill": "circles",
+  "title": "Arcs, sectors and radians",
+  "minutes": 6,
+  "hook": "An arc or a sector is a fraction of the whole circle: the angle over 360°, or over 2π.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: how many radians are in 180°?",
+      "answer": "π radians."
+    },
+    {
+      "type": "fill",
+      "prompt": "Convert 60° to radians.",
+      "lines": [
+        "60 × π/180",
+        "= π/___"
+      ],
+      "accept": [
+        "3"
+      ],
+      "why": "60/180 = 1/3."
+    },
+    {
+      "type": "predict",
+      "prompt": "A circle has radius 6. How long is an arc with a 90° central angle?",
+      "choices": [
+        "3π",
+        "6π",
+        "9π",
+        "12π"
+      ],
+      "answer": 0,
+      "why": "90/360 of the circumference 12π."
+    },
+    {
+      "type": "slider",
+      "prompt": "A circle has radius 6. Drag the central angle until the sector's area is 12π.",
+      "param": {
+        "name": "t",
+        "min": 0,
+        "max": 360,
+        "step": 10,
+        "start": 60
+      },
+      "answer": 120,
+      "why": "Sector area = (θ/360) × πr² = (θ/360) × 36π. That's 12π when θ = 120°, a third of the circle.",
+      "readout": "Angle: {t}°   Sector area: {=t/10}π",
+      "pie": {
+        "angle": "t"
+      }
+    },
+    {
+      "type": "predict",
+      "prompt": "Radius 10, central angle 72°. What's the sector's area?",
+      "choices": [
+        "20π",
+        "4π",
+        "10π",
+        "72π"
+      ],
+      "answer": 0,
+      "why": "72/360 = 1/5 of 100π."
+    },
+    {
+      "type": "predict",
+      "prompt": "In radians, arc length = rθ. Radius 4 and θ = 2.5 radians. Arc length?",
+      "choices": [
+        "10",
+        "6.5",
+        "1.6",
+        "20"
+      ],
+      "answer": 0,
+      "why": "4 × 2.5."
+    },
+    {
+      "type": "spot",
+      "prompt": "Converting 3π/4 radians to degrees. Tap the line with the mistake.",
+      "lines": [
+        "3π/4 × 180/π",
+        "= 3 × 180 / 4",
+        "= 145°"
+      ],
+      "wrong": 2,
+      "why": "540 ÷ 4 = 135°."
+    },
+    {
+      "type": "predict",
+      "prompt": "An arc is 1/6 of the circumference. Its central angle in radians is:",
+      "choices": [
+        "π/3",
+        "π/6",
+        "π/12",
+        "π/2"
+      ],
+      "answer": 0,
+      "why": "1/6 of 2π."
+    }
+  ],
+  "keys": [
+    "Fraction of the circle = angle/360° = angle/2π.",
+    "Arc = fraction × 2πr. Sector = fraction × πr².",
+    "Degrees to radians: × π/180. Radians to degrees: × 180/π."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "90° in radians is:",
+      "choices": [
+        "π/2",
+        "π",
+        "π/4"
+      ],
+      "answer": 0,
+      "why": "Half of π."
+    },
+    {
+      "type": "fill",
+      "prompt": "Radius 3 and θ = 2 radians. Arc length?",
+      "lines": [
+        "rθ = 3 × 2 = ___"
+      ],
+      "accept": [
+        "6"
+      ],
+      "why": "rθ."
+    },
+    {
+      "type": "predict",
+      "prompt": "A semicircle's arc is what fraction of the circumference?",
+      "choices": [
+        "1/2",
+        "1/4",
+        "1/3"
+      ],
+      "answer": 0,
+      "why": "180 of 360 degrees."
+    }
+  ],
+  "format": "classic"
 }

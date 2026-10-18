@@ -1,125 +1,161 @@
 {
- "id": "exponential-models",
- "order": 210,
- "domain": "advanced-math",
- "skill": "nonlinear-functions",
- "title": "Exponential growth and decay",
- "minutes": 6,
- "hook": "a(1 + r)^t: the start times the growth factor, once per period.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: in y = a(b)^t, what do a and b mean?",
-   "answer": "a is the starting amount. b is the growth factor per period: above 1 is growth, between 0 and 1 is decay."
-  },
-  {
-   "type": "predict",
-   "prompt": "A town of 5,000 grows 3% a year. Which model?",
-   "choices": [
-    "5000(1.03)^t",
-    "5000(0.03)^t",
-    "5000 + 0.03t",
-    "5000(1.3)^t"
-   ],
-   "answer": 0,
-   "why": "Growth of 3% is a factor of 1.03."
-  },
-  {
-   "type": "predict",
-   "prompt": "A car worth $20,000 loses 15% of its value each year. The growth factor is:",
-   "choices": [
-    "0.85",
-    "0.15",
-    "1.15",
-    "−0.15"
-   ],
-   "answer": 0,
-   "why": "It keeps 85% each year."
-  },
-  {
-   "type": "fill",
-   "prompt": "Bacteria double every 4 hours, starting at 100. How many after 12 hours?",
-   "lines": [
-    "12 ÷ 4 = 3 doublings",
-    "100 × 2³ = ___"
-   ],
-   "accept": [
-    "800"
-   ],
-   "why": "100 × 8 = 800."
-  },
-  {
-   "type": "predict",
-   "prompt": "f(t) = 300(0.5)^(t/10). What does 10 mean?",
-   "choices": [
-    "The amount halves every 10 units of time",
-    "It loses 10% each step",
-    "It starts at 10"
-   ],
-   "answer": 0,
-   "why": "The exponent t/10 goes up by 1 every 10 units of t, so one halving each time."
-  },
-  {
-   "type": "spot",
-   "prompt": "$1,000 earns 4% a year. Finding the value after 2 years. Tap the line with the mistake.",
-   "lines": [
-    "V = 1000(1.04)²",
-    "= 1000(1.0816)",
-    "= 1,080"
-   ],
-   "wrong": 2,
-   "why": "1000 × 1.0816 = 1,081.60."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which pattern is exponential?",
-   "choices": [
-    "y: 3, 6, 12, 24 as x goes 0, 1, 2, 3",
-    "y: 3, 6, 9, 12 as x goes 0, 1, 2, 3",
-    "y: 3, 5, 9, 15 as x goes 0, 1, 2, 3"
-   ],
-   "answer": 0,
-   "why": "Exponential multiplies by the same factor each step (here 2). Linear adds the same amount."
-  }
- ],
- "keys": [
-  "Model: start × (factor)^t. Growth of r%: factor 1 + r. Decay of r%: factor 1 − r.",
-  "Watch the time unit: ^(t/10) means one factor every 10 units.",
-  "Equal ratios mean exponential; equal differences mean linear."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "Decay of 20% a year has factor:",
-   "choices": [
-    "0.8",
-    "0.2",
-    "1.2"
-   ],
-   "answer": 0,
-   "why": "It keeps 80%."
-  },
-  {
-   "type": "predict",
-   "prompt": "In y = 50(1.07)^t, 50 is:",
-   "choices": [
-    "The starting value",
-    "The growth rate",
-    "The time"
-   ],
-   "answer": 0,
-   "why": "y = 50 when t = 0."
-  },
-  {
-   "type": "fill",
-   "prompt": "A count starts at 40 and triples each hour. How many after 2 hours?",
-   "lines": [
-    "40 × 3² = ___"
-   ],
-   "accept": [
-    "360"
-   ],
-   "why": "40 × 9 = 360."
-  }
- ]
+  "id": "exponential-models",
+  "order": 210,
+  "domain": "advanced-math",
+  "skill": "nonlinear-functions",
+  "title": "Exponential growth and decay",
+  "minutes": 6,
+  "hook": "a(1 + r)^t: the start times the growth factor, once per period.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: in y = a(b)^t, what do a and b mean?",
+      "answer": "a is the starting amount. b is the growth factor per period: above 1 is growth, between 0 and 1 is decay."
+    },
+    {
+      "type": "predict",
+      "prompt": "A town of 5,000 grows 3% a year. Which model?",
+      "choices": [
+        "5000(1.03)^t",
+        "5000(0.03)^t",
+        "5000 + 0.03t",
+        "5000(1.3)^t"
+      ],
+      "answer": 0,
+      "why": "Growth of 3% is a factor of 1.03."
+    },
+    {
+      "type": "slider",
+      "prompt": "Drag b until y = 100 · bˣ goes through (2, 144).",
+      "param": {
+        "name": "b",
+        "min": 0.5,
+        "max": 2,
+        "step": 0.05,
+        "start": 1
+      },
+      "answer": 1.2,
+      "why": "100b² = 144, so b² = 1.44 and b = 1.2. That's 20% growth each step.",
+      "curves": [
+        "100*b^x"
+      ],
+      "points": [
+        [
+          2,
+          144
+        ]
+      ],
+      "window": {
+        "x": [
+          -1,
+          4
+        ],
+        "y": [
+          0,
+          250
+        ]
+      },
+      "readout": "y = 100 · ({b})ˣ",
+      "tol": 0.001
+    },
+    {
+      "type": "predict",
+      "prompt": "A car worth $20,000 loses 15% of its value each year. The growth factor is:",
+      "choices": [
+        "0.85",
+        "0.15",
+        "1.15",
+        "−0.15"
+      ],
+      "answer": 0,
+      "why": "It keeps 85% each year."
+    },
+    {
+      "type": "fill",
+      "prompt": "Bacteria double every 4 hours, starting at 100. How many after 12 hours?",
+      "lines": [
+        "12 ÷ 4 = 3 doublings",
+        "100 × 2³ = ___"
+      ],
+      "accept": [
+        "800"
+      ],
+      "why": "100 × 8 = 800."
+    },
+    {
+      "type": "predict",
+      "prompt": "f(t) = 300(0.5)^(t/10). What does 10 mean?",
+      "choices": [
+        "The amount halves every 10 units of time",
+        "It loses 10% each step",
+        "It starts at 10"
+      ],
+      "answer": 0,
+      "why": "The exponent t/10 goes up by 1 every 10 units of t, so one halving each time."
+    },
+    {
+      "type": "spot",
+      "prompt": "$1,000 earns 4% a year. Finding the value after 2 years. Tap the line with the mistake.",
+      "lines": [
+        "V = 1000(1.04)²",
+        "= 1000(1.0816)",
+        "= 1,080"
+      ],
+      "wrong": 2,
+      "why": "1000 × 1.0816 = 1,081.60."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which pattern is exponential?",
+      "choices": [
+        "y: 3, 6, 12, 24 as x goes 0, 1, 2, 3",
+        "y: 3, 6, 9, 12 as x goes 0, 1, 2, 3",
+        "y: 3, 5, 9, 15 as x goes 0, 1, 2, 3"
+      ],
+      "answer": 0,
+      "why": "Exponential multiplies by the same factor each step (here 2). Linear adds the same amount."
+    }
+  ],
+  "keys": [
+    "Model: start × (factor)^t. Growth of r%: factor 1 + r. Decay of r%: factor 1 − r.",
+    "Watch the time unit: ^(t/10) means one factor every 10 units.",
+    "Equal ratios mean exponential; equal differences mean linear."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Decay of 20% a year has factor:",
+      "choices": [
+        "0.8",
+        "0.2",
+        "1.2"
+      ],
+      "answer": 0,
+      "why": "It keeps 80%."
+    },
+    {
+      "type": "predict",
+      "prompt": "In y = 50(1.07)^t, 50 is:",
+      "choices": [
+        "The starting value",
+        "The growth rate",
+        "The time"
+      ],
+      "answer": 0,
+      "why": "y = 50 when t = 0."
+    },
+    {
+      "type": "fill",
+      "prompt": "A count starts at 40 and triples each hour. How many after 2 hours?",
+      "lines": [
+        "40 × 3² = ___"
+      ],
+      "accept": [
+        "360"
+      ],
+      "why": "40 × 9 = 360."
+    }
+  ],
+  "format": "timed",
+  "seconds": 45
 }

@@ -1,127 +1,150 @@
 {
- "id": "percent-of-and-reverse",
- "order": 304,
- "domain": "psda",
- "skill": "percentages",
- "title": "Percent of, percent more, and going backward",
- "minutes": 5,
- "hook": "Turn every percent into a multiplier, then run it forward or backward.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: what multiplier means \"increase by 25%\"?",
-   "answer": "1.25. A 25% decrease is 0.75."
-  },
-  {
-   "type": "fill",
-   "prompt": "What is 35% of 80?",
-   "lines": [
-    "0.35 × 80 = ___"
-   ],
-   "accept": [
-    "28"
-   ],
-   "why": "Percent of means multiply."
-  },
-  {
-   "type": "predict",
-   "prompt": "A jacket costs $68 after a 15% discount. What was the original price?",
-   "choices": [
-    "$80",
-    "$78.20",
-    "$83",
-    "$57.80"
-   ],
-   "answer": 0,
-   "why": "The sale price is 0.85 × the original, so divide: 68 ÷ 0.85 = 80."
-  },
-  {
-   "type": "predict",
-   "prompt": "A price rises 20%, then falls 20%. The final price is:",
-   "choices": [
-    "4% lower than the start",
-    "The same",
-    "4% higher",
-    "20% lower"
-   ],
-   "answer": 0,
-   "why": "1.2 × 0.8 = 0.96."
-  },
-  {
-   "type": "spot",
-   "prompt": "18 is what percent of 72? Tap the line with the mistake.",
-   "lines": [
-    "Part ÷ whole: 18 / 72",
-    "= 0.25",
-    "= 2.5%"
-   ],
-   "wrong": 2,
-   "why": "0.25 = 25%."
-  },
-  {
-   "type": "predict",
-   "prompt": "p is 40% more than q. Which is true?",
-   "choices": [
-    "p = 1.4q",
-    "p = 0.4q",
-    "q = 1.4p",
-    "p = q + 40"
-   ],
-   "answer": 0,
-   "why": "40% more means times 1.4."
-  },
-  {
-   "type": "fill",
-   "prompt": "A town grew from 2,500 to 3,000 people. Find the percent increase.",
-   "lines": [
-    "(3000 − 2500) / 2500",
-    "= 500 / 2500 = 0.2",
-    "= ___%"
-   ],
-   "accept": [
-    "20"
-   ],
-   "why": "Divide the change by the original."
-  }
- ],
- "keys": [
-  "Percent to multiplier: an r% increase is (1 + r), a decrease is (1 − r).",
-  "To go backward, divide by the multiplier.",
-  "Changes stack by multiplying: +20% then −20% is 1.2 × 0.8 = 0.96."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "After 10% off, a shirt costs $45. Original price?",
-   "choices": [
-    "$50",
-    "$49.50",
-    "$40.50"
-   ],
-   "answer": 0,
-   "why": "45 ÷ 0.9."
-  },
-  {
-   "type": "fill",
-   "prompt": "Find 60% of 45.",
-   "lines": [
-    "0.6 × 45 = ___"
-   ],
-   "accept": [
-    "27"
-   ],
-   "why": "Multiply."
-  },
-  {
-   "type": "predict",
-   "prompt": "a is 30% less than b:",
-   "choices": [
-    "a = 0.7b",
-    "a = 0.3b",
-    "b = 0.7a"
-   ],
-   "answer": 0,
-   "why": "It keeps 70%."
-  }
- ]
+  "id": "percent-of-and-reverse",
+  "order": 304,
+  "domain": "psda",
+  "skill": "percentages",
+  "title": "Percent of, percent more, and going backward",
+  "minutes": 5,
+  "hook": "Turn every percent into a multiplier, then run it forward or backward.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "A jacket costs $68 after a 15% discount. What was the original price?",
+      "choices": [
+        "$80",
+        "$78.20",
+        "$83",
+        "$57.80"
+      ],
+      "answer": 0,
+      "why": "The sale price is 0.85 × the original, so divide: 68 ÷ 0.85 = 80.",
+      "gate": true
+    },
+    {
+      "type": "recall",
+      "prompt": "From memory: what multiplier means \"increase by 25%\"?",
+      "answer": "1.25. A 25% decrease is 0.75.",
+      "skip_if": 0
+    },
+    {
+      "type": "fill",
+      "prompt": "What is 35% of 80?",
+      "lines": [
+        "0.35 × 80 = ___"
+      ],
+      "accept": [
+        "28"
+      ],
+      "why": "Percent of means multiply.",
+      "skip_if": 0
+    },
+    {
+      "type": "predict",
+      "prompt": "A price rises 20%, then falls 20%. The final price is:",
+      "choices": [
+        "4% lower than the start",
+        "The same",
+        "4% higher",
+        "20% lower"
+      ],
+      "answer": 0,
+      "why": "1.2 × 0.8 = 0.96."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each phrase to its multiplier.",
+      "left": [
+        "Increase by 25%",
+        "Decrease by 25%",
+        "35% of",
+        "Increase by 5%",
+        "Decrease by 5%"
+      ],
+      "right": [
+        "× 1.25",
+        "× 0.75",
+        "× 0.35",
+        "× 1.05",
+        "× 0.95"
+      ],
+      "why": "Up p%: multiply by 1 + p/100. Down p%: by 1 − p/100. p% of: by p/100."
+    },
+    {
+      "type": "spot",
+      "prompt": "18 is what percent of 72? Tap the line with the mistake.",
+      "lines": [
+        "Part ÷ whole: 18 / 72",
+        "= 0.25",
+        "= 2.5%"
+      ],
+      "wrong": 2,
+      "why": "0.25 = 25%."
+    },
+    {
+      "type": "predict",
+      "prompt": "p is 40% more than q. Which is true?",
+      "choices": [
+        "p = 1.4q",
+        "p = 0.4q",
+        "q = 1.4p",
+        "p = q + 40"
+      ],
+      "answer": 0,
+      "why": "40% more means times 1.4."
+    },
+    {
+      "type": "fill",
+      "prompt": "A town grew from 2,500 to 3,000 people. Find the percent increase.",
+      "lines": [
+        "(3000 − 2500) / 2500",
+        "= 500 / 2500 = 0.2",
+        "= ___%"
+      ],
+      "accept": [
+        "20"
+      ],
+      "why": "Divide the change by the original."
+    }
+  ],
+  "keys": [
+    "Percent to multiplier: an r% increase is (1 + r), a decrease is (1 − r).",
+    "To go backward, divide by the multiplier.",
+    "Changes stack by multiplying: +20% then −20% is 1.2 × 0.8 = 0.96."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "After 10% off, a shirt costs $45. Original price?",
+      "choices": [
+        "$50",
+        "$49.50",
+        "$40.50"
+      ],
+      "answer": 0,
+      "why": "45 ÷ 0.9."
+    },
+    {
+      "type": "fill",
+      "prompt": "Find 60% of 45.",
+      "lines": [
+        "0.6 × 45 = ___"
+      ],
+      "accept": [
+        "27"
+      ],
+      "why": "Multiply."
+    },
+    {
+      "type": "predict",
+      "prompt": "a is 30% less than b:",
+      "choices": [
+        "a = 0.7b",
+        "a = 0.3b",
+        "b = 0.7a"
+      ],
+      "answer": 0,
+      "why": "It keeps 70%."
+    }
+  ],
+  "format": "path"
 }

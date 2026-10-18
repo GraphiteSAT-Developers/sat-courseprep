@@ -336,6 +336,8 @@ def lessons_get(lesson_id):
     l = lessons.lesson(lesson_id)
     if not l:
         raise ApiError(404, "That lesson doesn't exist.")
+    if lessons.must_start_first(user["id"], lesson_id):
+        raise ApiError(409, "Start with Desmos hacks. Every other lesson opens after it.", code="start_first")
     from ..db import query
     row = query("SELECT * FROM lesson_progress WHERE user_id = ? AND lesson_id = ?", (user["id"], lesson_id), one=True)
     return jsonify({"lesson": lessons.public(l, row)})
@@ -347,6 +349,8 @@ def lessons_complete(lesson_id):
     user = _student()
     if not lessons.lesson(lesson_id):
         raise ApiError(404, "That lesson doesn't exist.")
+    if lessons.must_start_first(user["id"], lesson_id):
+        raise ApiError(409, "Start with Desmos hacks. Every other lesson opens after it.", code="start_first")
     data = body()
     kind = data.get("kind", "lesson")
     if kind not in ("lesson", "recall"):

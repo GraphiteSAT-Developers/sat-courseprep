@@ -1,128 +1,149 @@
 {
- "id": "desmos-statistics",
- "order": 507,
- "domain": "desmos",
- "skill": "statistics",
- "title": "Lists and statistics",
- "minutes": 5,
- "hook": "mean, median, stdev and friends work on lists in square brackets.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: how do you get the mean of 12, 15, 20 and 21 in Desmos?",
-   "answer": "Type mean([12,15,20,21]). Square brackets make the list."
+  "id": "desmos-statistics",
+  "order": 507,
+  "domain": "desmos",
+  "skill": "statistics",
+  "title": "Lists and statistics",
+  "minutes": 5,
+  "hook": "mean, median, stdev and friends work on lists in square brackets.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "Value 1 appears 3 times, value 2 appears 5 times and value 4 appears 2 times. Which list gives the right mean?",
+      "choices": [
+        "[1,1,1,2,2,2,2,2,4,4]",
+        "[1,2,4]",
+        "[3,5,2]"
+      ],
+      "answer": 0,
+      "why": "Each value must appear as often as its frequency. The mean is (3 + 10 + 8) / 10 = 2.1.",
+      "gate": true
+    },
+    {
+      "type": "recall",
+      "prompt": "From memory: how do you get the mean of 12, 15, 20 and 21 in Desmos?",
+      "answer": "Type mean([12,15,20,21]). Square brackets make the list.",
+      "skip_if": 0
+    },
+    {
+      "type": "fill",
+      "prompt": "What does Desmos show for mean([12,15,20,21])?",
+      "lines": [
+        "mean = ___"
+      ],
+      "accept": [
+        "17"
+      ],
+      "why": "68 ÷ 4 = 17.",
+      "desmos": [
+        "mean([12,15,20,21])"
+      ],
+      "skip_if": 0
+    },
+    {
+      "type": "predict",
+      "prompt": "Which entry gives the median?",
+      "choices": [
+        "median([3,9,4,7])",
+        "median{3,9,4,7}",
+        "median(3 9 4 7)"
+      ],
+      "answer": 0,
+      "why": "A function of a list in square brackets."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each Desmos entry to what it shows.",
+      "left": [
+        "mean([2,4,9])",
+        "median([2,4,9])",
+        "max([2,4,9]) − min([2,4,9])",
+        "total([2,4,9])"
+      ],
+      "right": [
+        "5",
+        "4",
+        "7",
+        "15"
+      ],
+      "why": "mean adds and divides by 3, median is the middle value, max − min is the range, and total is the sum."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which is the population standard deviation?",
+      "choices": [
+        "stdevp",
+        "stdev"
+      ],
+      "answer": 0,
+      "why": "stdev is the sample standard deviation and stdevp is the population one. Most SAT questions compare spread instead of asking for the exact number."
+    },
+    {
+      "type": "spot",
+      "prompt": "Finding the range of [8, 3, 15, 6]. Tap the line with the mistake.",
+      "lines": [
+        "L=[8,3,15,6]",
+        "max(L)-min(L)",
+        "= 15 − 6 = 9"
+      ],
+      "wrong": 2,
+      "why": "The minimum is 3: 15 − 3 = 12."
+    },
+    {
+      "type": "predict",
+      "prompt": "When is Desmos not the best tool for a statistics question?",
+      "choices": [
+        "Conceptual ones, like \"what happens to the mean if the largest value doubles?\"",
+        "Finding the mean of 10 numbers",
+        "Finding the median of 7 values"
+      ],
+      "answer": 0,
+      "why": "Reasoning questions are faster in your head."
+    }
+  ],
+  "keys": [
+    "Lists use [ ]. mean, median, min, max, stdev and stdevp take a list.",
+    "Repeat values by their frequency.",
+    "Conceptual questions are faster by reasoning."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "The mean of a list is:",
+      "choices": [
+        "mean([2,4,9])",
+        "mean{2,4,9}",
+        "avg(2,4,9)"
+      ],
+      "answer": 0,
+      "why": "Square brackets."
+    },
+    {
+      "type": "fill",
+      "prompt": "max([4,11,7]) − min([4,11,7])?",
+      "lines": [
+        "11 − 4 = ___"
+      ],
+      "accept": [
+        "7"
+      ],
+      "why": "The range."
+    },
+    {
+      "type": "predict",
+      "prompt": "stdevp gives the:",
+      "choices": [
+        "Population standard deviation",
+        "Sample standard deviation",
+        "Mean"
+      ],
+      "answer": 0,
+      "why": "p for population."
+    }
+  ],
+  "practice": {
+    "domain": "psda",
+    "skill": "one-variable-data-distributions-and-measures-of-center-and-spread"
   },
-  {
-   "type": "fill",
-   "prompt": "What does Desmos show for mean([12,15,20,21])?",
-   "lines": [
-    "mean = ___"
-   ],
-   "accept": [
-    "17"
-   ],
-   "why": "68 ÷ 4 = 17.",
-   "desmos": [
-    "mean([12,15,20,21])"
-   ]
-  },
-  {
-   "type": "predict",
-   "prompt": "Which entry gives the median?",
-   "choices": [
-    "median([3,9,4,7])",
-    "median{3,9,4,7}",
-    "median(3 9 4 7)"
-   ],
-   "answer": 0,
-   "why": "A function of a list in square brackets."
-  },
-  {
-   "type": "predict",
-   "prompt": "Which is the population standard deviation?",
-   "choices": [
-    "stdevp",
-    "stdev"
-   ],
-   "answer": 0,
-   "why": "stdev is the sample standard deviation and stdevp is the population one. Most SAT questions compare spread instead of asking for the exact number."
-  },
-  {
-   "type": "predict",
-   "prompt": "Value 1 appears 3 times, value 2 appears 5 times and value 4 appears 2 times. Which list gives the right mean?",
-   "choices": [
-    "[1,1,1,2,2,2,2,2,4,4]",
-    "[1,2,4]",
-    "[3,5,2]"
-   ],
-   "answer": 0,
-   "why": "Each value must appear as often as its frequency. The mean is (3 + 10 + 8) / 10 = 2.1."
-  },
-  {
-   "type": "spot",
-   "prompt": "Finding the range of [8, 3, 15, 6]. Tap the line with the mistake.",
-   "lines": [
-    "L=[8,3,15,6]",
-    "max(L)-min(L)",
-    "= 15 − 6 = 9"
-   ],
-   "wrong": 2,
-   "why": "The minimum is 3: 15 − 3 = 12."
-  },
-  {
-   "type": "predict",
-   "prompt": "When is Desmos not the best tool for a statistics question?",
-   "choices": [
-    "Conceptual ones, like \"what happens to the mean if the largest value doubles?\"",
-    "Finding the mean of 10 numbers",
-    "Finding the median of 7 values"
-   ],
-   "answer": 0,
-   "why": "Reasoning questions are faster in your head."
-  }
- ],
- "keys": [
-  "Lists use [ ]. mean, median, min, max, stdev and stdevp take a list.",
-  "Repeat values by their frequency.",
-  "Conceptual questions are faster by reasoning."
- ],
- "recall": [
-  {
-   "type": "predict",
-   "prompt": "The mean of a list is:",
-   "choices": [
-    "mean([2,4,9])",
-    "mean{2,4,9}",
-    "avg(2,4,9)"
-   ],
-   "answer": 0,
-   "why": "Square brackets."
-  },
-  {
-   "type": "fill",
-   "prompt": "max([4,11,7]) − min([4,11,7])?",
-   "lines": [
-    "11 − 4 = ___"
-   ],
-   "accept": [
-    "7"
-   ],
-   "why": "The range."
-  },
-  {
-   "type": "predict",
-   "prompt": "stdevp gives the:",
-   "choices": [
-    "Population standard deviation",
-    "Sample standard deviation",
-    "Mean"
-   ],
-   "answer": 0,
-   "why": "p for population."
-  }
- ],
- "practice": {
-  "domain": "psda",
-  "skill": "one-variable-data-distributions-and-measures-of-center-and-spread"
- }
+  "format": "path"
 }

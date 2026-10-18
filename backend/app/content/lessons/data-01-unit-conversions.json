@@ -1,124 +1,152 @@
 {
- "id": "unit-conversions",
- "order": 301,
- "domain": "psda",
- "skill": "ratios-rates-proportional-relationships-and-units",
- "title": "Unit conversions that cancel",
- "minutes": 5,
- "hook": "Multiply by fractions equal to 1 and watch the units cancel.",
- "steps": [
-  {
-   "type": "recall",
-   "prompt": "From memory: how do you convert 3 hours to seconds?",
-   "answer": "3 × 60 × 60 = 10,800 seconds: multiply by 60 minutes per hour, then 60 seconds per minute."
-  },
-  {
-   "type": "fill",
-   "prompt": "A car travels 66 feet per second. How many feet per minute?",
-   "lines": [
-    "66 × 60 = ___"
-   ],
-   "accept": [
-    "3960"
-   ],
-   "why": "There are 60 seconds in a minute."
-  },
-  {
-   "type": "predict",
-   "prompt": "Convert 2.5 square meters to square centimeters (1 m = 100 cm).",
-   "choices": [
-    "25,000",
-    "250",
-    "2,500",
-    "250,000"
-   ],
-   "answer": 0,
-   "why": "Square units square the factor: 1 m² = 100 × 100 = 10,000 cm²."
-  },
-  {
-   "type": "order",
-   "prompt": "Convert 72 km/h to meters per second. Put the steps in order.",
-   "items": [
-    "Start: 72 km/h",
-    "× 1,000 m per km = 72,000 m/h",
-    "÷ 3,600 seconds per hour",
-    "= 20 m/s"
-   ],
-   "why": "Change the distance unit, then the time unit."
-  },
-  {
-   "type": "predict",
-   "prompt": "A recipe uses 3 cups of flour for 24 cookies. How much for 40 cookies?",
-   "choices": [
-    "5 cups",
-    "4 cups",
-    "6 cups",
-    "3.5 cups"
-   ],
-   "answer": 0,
-   "why": "3/24 = 1/8 cup per cookie, and 40 × 1/8 = 5."
-  },
-  {
-   "type": "spot",
-   "prompt": "Converting 5 yards to inches (1 yd = 3 ft and 1 ft = 12 in). Tap the line with the mistake.",
-   "lines": [
-    "5 yd × 3 ft per yd = 15 ft",
-    "15 ft ÷ 12 in per ft = 1.25 in"
-   ],
-   "wrong": 1,
-   "why": "Multiply: 15 × 12 = 180 inches. Check the units: ft × (in / ft) = in."
-  },
-  {
-   "type": "predict",
-   "prompt": "Density is mass ÷ volume. A 600 g block measures 5 cm × 4 cm × 3 cm. What's its density?",
-   "choices": [
-    "10 g/cm³",
-    "120 g/cm³",
-    "0.1 g/cm³",
-    "50 g/cm³"
-   ],
-   "answer": 0,
-   "why": "The volume is 60 cm³, and 600 ÷ 60 = 10."
-  }
- ],
- "keys": [
-  "Write each conversion as a fraction equal to 1 so units cancel.",
-  "Area units square the factor; volume units cube it.",
-  "Check that the units you're left with are the ones the question asks for."
- ],
- "recall": [
-  {
-   "type": "fill",
-   "prompt": "Convert 2 hours to minutes.",
-   "lines": [
-    "2 × 60 = ___"
-   ],
-   "accept": [
-    "120"
-   ],
-   "why": "60 minutes per hour."
-  },
-  {
-   "type": "predict",
-   "prompt": "1 m² equals how many cm²?",
-   "choices": [
-    "10,000",
-    "100",
-    "1,000"
-   ],
-   "answer": 0,
-   "why": "100²."
-  },
-  {
-   "type": "predict",
-   "prompt": "36 km/h in m/s is:",
-   "choices": [
-    "10",
-    "3.6",
-    "36,000"
-   ],
-   "answer": 0,
-   "why": "36,000 m ÷ 3,600 s."
-  }
- ]
+  "id": "unit-conversions",
+  "order": 301,
+  "domain": "psda",
+  "skill": "ratios-rates-proportional-relationships-and-units",
+  "title": "Unit conversions that cancel",
+  "minutes": 5,
+  "hook": "Multiply by fractions equal to 1 and watch the units cancel.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: how do you convert 3 hours to seconds?",
+      "answer": "3 × 60 × 60 = 10,800 seconds: multiply by 60 minutes per hour, then 60 seconds per minute."
+    },
+    {
+      "type": "fill",
+      "prompt": "A car travels 66 feet per second. How many feet per minute?",
+      "lines": [
+        "66 × 60 = ___"
+      ],
+      "accept": [
+        "3960"
+      ],
+      "why": "There are 60 seconds in a minute."
+    },
+    {
+      "type": "predict",
+      "prompt": "Convert 2.5 square meters to square centimeters (1 m = 100 cm).",
+      "choices": [
+        "25,000",
+        "250",
+        "2,500",
+        "250,000"
+      ],
+      "answer": 0,
+      "why": "Square units square the factor: 1 m² = 100 × 100 = 10,000 cm²."
+    },
+    {
+      "type": "order",
+      "prompt": "Convert 72 km/h to meters per second. Put the steps in order.",
+      "items": [
+        "Start: 72 km/h",
+        "× 1,000 m per km = 72,000 m/h",
+        "÷ 3,600 seconds per hour",
+        "= 20 m/s"
+      ],
+      "why": "Change the distance unit, then the time unit."
+    },
+    {
+      "type": "build",
+      "prompt": "Convert 72 km/h to m/s. Tap the pieces in order.",
+      "tiles": [
+        "72 km/h",
+        "× 1000 m/km",
+        "÷ 3600 s/h",
+        "× 60",
+        "÷ 1000",
+        "= 20 m/s"
+      ],
+      "answers": [
+        [
+          0,
+          1,
+          2,
+          5
+        ],
+        [
+          0,
+          2,
+          1,
+          5
+        ]
+      ],
+      "why": "km → m: × 1000. hours → seconds: ÷ 3600. 72,000 ÷ 3600 = 20 m/s."
+    },
+    {
+      "type": "predict",
+      "prompt": "A recipe uses 3 cups of flour for 24 cookies. How much for 40 cookies?",
+      "choices": [
+        "5 cups",
+        "4 cups",
+        "6 cups",
+        "3.5 cups"
+      ],
+      "answer": 0,
+      "why": "3/24 = 1/8 cup per cookie, and 40 × 1/8 = 5."
+    },
+    {
+      "type": "spot",
+      "prompt": "Converting 5 yards to inches (1 yd = 3 ft and 1 ft = 12 in). Tap the line with the mistake.",
+      "lines": [
+        "5 yd × 3 ft per yd = 15 ft",
+        "15 ft ÷ 12 in per ft = 1.25 in"
+      ],
+      "wrong": 1,
+      "why": "Multiply: 15 × 12 = 180 inches. Check the units: ft × (in / ft) = in."
+    },
+    {
+      "type": "predict",
+      "prompt": "Density is mass ÷ volume. A 600 g block measures 5 cm × 4 cm × 3 cm. What's its density?",
+      "choices": [
+        "10 g/cm³",
+        "120 g/cm³",
+        "0.1 g/cm³",
+        "50 g/cm³"
+      ],
+      "answer": 0,
+      "why": "The volume is 60 cm³, and 600 ÷ 60 = 10."
+    }
+  ],
+  "keys": [
+    "Write each conversion as a fraction equal to 1 so units cancel.",
+    "Area units square the factor; volume units cube it.",
+    "Check that the units you're left with are the ones the question asks for."
+  ],
+  "recall": [
+    {
+      "type": "fill",
+      "prompt": "Convert 2 hours to minutes.",
+      "lines": [
+        "2 × 60 = ___"
+      ],
+      "accept": [
+        "120"
+      ],
+      "why": "60 minutes per hour."
+    },
+    {
+      "type": "predict",
+      "prompt": "1 m² equals how many cm²?",
+      "choices": [
+        "10,000",
+        "100",
+        "1,000"
+      ],
+      "answer": 0,
+      "why": "100²."
+    },
+    {
+      "type": "predict",
+      "prompt": "36 km/h in m/s is:",
+      "choices": [
+        "10",
+        "3.6",
+        "36,000"
+      ],
+      "answer": 0,
+      "why": "36,000 m ÷ 3,600 s."
+    }
+  ],
+  "format": "lives"
 }

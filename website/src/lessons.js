@@ -1,25 +1,42 @@
 /* Graphite lessons: active recall instead of reading. Every step asks for an answer before it explains.
-   Step types (backend/app/services/lessons.py): recall, predict, fill, order, spot.
+   Step types (backend/app/services/lessons.py): recall, predict, fill, order, spot, and the hands-on ones:
+   slider, plot, graph, sort, match, line, build, grid, flash (drawn with lesson-kit.js).
+   Each lesson has a format that changes how it plays (hearts, a clock, a cold open, a story, a case file,
+   a shortcut, checking a student's work, a race, an experiment, or the classic flow).
+   Desmos hacks opens first for everyone; the rest of the list opens after it.
    Live: /api/lessons. Preview: the same requests go to play-local.js. */
 (function () {
   "use strict";
   if (!document.querySelector(".lessons-page")) return;
   var R = window.GraphiteRewards, call = R && R.call(), esc = R.esc;
+  var K = window.GraphiteLessonKit;
   var API = window.GraphiteAPI, LIVE = !!(API && API.live);
   var params = new URLSearchParams(location.search);
-  var lesson = null, steps = [], kind = "lesson", at = 0, score = 0, answered = false, answers = [], pending = null;
+  var START = "desmos-hacks";
+  var lesson = null, steps = [], kind = "lesson", at = 0, answered = false, answers = [], pending = null, firstTime = false;
+  var play = null;  // per-run format state: hearts, clock, lanes, shortcut
   function $(id) { return document.getElementById(id); }
   function signIn() { location.href = "/signin.html?next=" + encodeURIComponent("/lessons.html" + location.search); }
   function showError(m) { $("ls-error").textContent = m || ""; $("ls-error").hidden = !m; }
   function failed(err, fallback) { if (err && err.status === 401) { signIn(); return; } showError(err && err.status ? err.message : fallback); }
+  function startFirst(err) { return err && err.status === 409 && err.data && err.data.code === "start_first"; }
   if (!LIVE) $("ls-preview-note").hidden = false;
   // Calculator and tutor (qtools.js), on math and Desmos lessons.
   var tools = window.GraphiteTools && window.GraphiteTools.mount({});
   if (tools) tools.available(false);
-  if (!call) { $("ls-loading").textContent = "Lessons aren't available in this preview."; return; }
+  if (!call || !K) { $("ls-loading").textContent = "Lessons aren't available in this preview."; return; }
 
   function day(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); }
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function mixed(n) { var o = shuffle(Array.from({ length: n }, function (_, i) { return i; })); if (n > 1 && o.every(function (v, i) { return v === i; })) o.push(o.shift()); return o; }
+  function each(list, fn) { Array.prototype.forEach.call(list, fn); }
+  function pretty(expr) { return String(expr).replace(/\*/g, "").replace(/\^2/g, "²").replace(/\^3/g, "³").replace(/-/g, " − ").replace(/\+/g, " + ").replace(/\( − /g, "(−").replace(/^ − /, "−").replace(/\s+/g, " ").trim(); }
+
+  var FORMAT = {
+    classic: "Classic", lives: "Three hearts", timed: "Beat the clock", "cold-open": "Cold open", story: "Story",
+    "case": "Case file", path: "Shortcut", teach: "Check the work", race: "Race", lab: "Experiment"
+  };
+  var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3.1 1.7-1.9 3.2-3.1 5.3-3.1 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>';
 
   /* ---------- the list ---------- */
   function stateText(p, days) {
@@ -35,6 +52,8 @@
   }
   function renderList(o) {
     $("ls-loading").hidden = true;
+    var locked = !!o.start_with;
+    $("ls-start").hidden = !locked;
     var due = o.lessons.filter(function (l) { return l.progress.due; });
     $("ls-due").hidden = !due.length;
     $("ls-due-count").textContent = due.length + " due";
@@ -44,8 +63,8 @@
     }).join("");
     var groups = {}, order = [];
     o.lessons.forEach(function (l) { if (!groups[l.domain]) { groups[l.domain] = []; order.push(l.domain); } groups[l.domain].push(l); });
-    var ABOUT = { memory: "Start here. How to make anything you study stick, and how these lessons use it.",
-                  desmos: "The calculator you get on test day. Thirteen moves, when to use each, and when doing it by hand is faster." };
+    var ABOUT = { memory: "How to make anything you study stick, and how these lessons use it.",
+                  desmos: "The calculator you get on test day. Start with Desmos hacks, then the moves one at a time, and when doing it by hand is faster." };
     $("ls-jump").innerHTML = order.map(function (d) {
       var done = groups[d].filter(function (l) { return l.progress.done; }).length;
       return '<li><a href="#ls-sec-' + esc(d) + '">' + esc(groups[d][0].domain_name) + ' <span class="fine">' + done + "/" + groups[d].length + "</span></a></li>";
@@ -56,45 +75,128 @@
       return '<section class="panel ls-group" id="ls-sec-' + esc(d) + '" aria-labelledby="ls-g-' + esc(d) + '"><div class="panel-head"><h2 id="ls-g-' + esc(d) + '">' + esc(groups[d][0].domain_name) + '</h2><span class="label">' + done + " of " + groups[d].length + " done</span></div>" +
         (ABOUT[d] ? '<p class="panel-lede">' + ABOUT[d] + "</p>" : "") +
         '<ul class="ls-list">' + groups[d].map(function (l) {
-          var st = stateText(l.progress, o.recall_days);
-          return '<li class="ls-item"><div class="ls-item-copy"><h3><a href="lessons.html?lesson=' + encodeURIComponent(l.id) + '">' + esc(l.title) + "</a></h3>" +
+          var st = stateText(l.progress, o.recall_days), shut = locked && l.id !== o.start_with;
+          var href = "lessons.html?lesson=" + encodeURIComponent(l.id);
+          return '<li class="ls-item' + (shut ? " is-locked" : "") + (l.id === START ? " is-start" : "") + '"><div class="ls-item-copy"><h3>' + (shut ? esc(l.title) : '<a href="' + href + '">' + esc(l.title) + "</a>") + "</h3>" +
             '<p class="fine">' + esc(l.hook) + "</p>" +
-            '<p class="ls-meta"><span class="chip ' + st.cls + '">' + st.chip + "</span><span>" + l.minutes + " min · " + l.steps + " steps · " + esc(l.skill_name) + "</span>" +
+            '<p class="ls-meta"><span class="chip ' + st.cls + '">' + st.chip + '</span><span class="ls-format-chip ls-f-' + esc(l.format || "classic") + '">' + esc(FORMAT[l.format] || "Classic") + "</span><span>" + l.minutes + " min · " + l.steps + " steps · " + esc(l.skill_name) + "</span>" +
             (l.progress.done ? stageDots(l.progress, o.recall_days) : "") + "</p>" + (st.line ? '<p class="fine">' + st.line + "</p>" : "") + "</div>" +
-            '<a class="btn ' + (l.progress.done ? "btn-quiet" : "btn-secondary") + '" href="lessons.html?lesson=' + encodeURIComponent(l.id) + '">' + (l.progress.done ? "Do it again" : "Start") + "</a></li>";
+            (shut ? '<span class="ls-lock fine">Opens after Desmos hacks</span>'
+                  : '<a class="btn ' + (l.progress.done ? "btn-quiet" : "btn-secondary") + '" href="' + href + '">' + (l.progress.done ? "Do it again" : "Start") + "</a>") + "</li>";
         }).join("") + "</ul></section>";
     }).join("");
   }
 
   /* ---------- one lesson ---------- */
-  function open(id, mode) {
+  function open(id, mode, note) {
     $("ls-list-view").hidden = true;
     call("/api/lessons/" + encodeURIComponent(id)).then(function (r) {
       lesson = r.lesson;
+      firstTime = lesson.id === START && !lesson.progress.done;
       kind = mode === "recall" && lesson.progress.done ? "recall" : "lesson";
       steps = kind === "recall" ? lesson.recall : lesson.steps;
-      at = 0; score = 0; answers = [];
       $("ls-kicker").textContent = (kind === "recall" ? "Recall check · " : "Lesson · ") + lesson.skill_name;
       $("ls-title").textContent = lesson.title;
       document.title = lesson.title + " | Graphite SAT Tutoring";
-      if (window.GraphiteCrumb) window.GraphiteCrumb(lesson.title, "lessons.html");
+      if (window.GraphiteCrumb) window.GraphiteCrumb(lesson.title, "lessons.html?list=1");
       if (tools) { tools.available(lesson.domain !== "memory"); tools.context({ title: lesson.title, detail: lesson.skill_name }); }
       $("ls-player").hidden = false;
       $("ls-progress").setAttribute("aria-valuemax", String(steps.length));
-      renderStep();
+      $("ls-firsttime").hidden = !(firstTime || note);
+      if (note || firstTime) $("ls-firsttime").textContent = note || "Everyone starts here. Every other lesson opens when you finish this one.";
+      begin();
       $("ls-title").focus();
     }).catch(function (err) {
+      if (startFirst(err) && id !== START) { open(START, null, "Start with Desmos hacks. Every other lesson opens after it, including that one."); return; }
       $("ls-list-view").hidden = false;
       failed(err, "We couldn't open that lesson.");
       loadList();
     });
   }
-  function progress() {
+  function fmt() { return kind === "recall" ? "classic" : (lesson.format || "classic"); }
+  function begin() {
+    at = 0; answers = []; answered = false;
+    play = { hearts: 3, noHearts: false, beat: 0, timed: 0, lanes: { hand: [], desmos: [] }, skipped: 0, coldRight: null, rematchRight: null, clock: null, watch: null, started: 0 };
+    hud();
+    var f = fmt();
+    if (kind === "recall" || f === "classic") { renderStep(); return; }
+    // How this one works
+    $("ls-next").hidden = true;
+    progress(true);
+    if ($("ls-clock")) $("ls-clock").hidden = true;  // the clock starts with the first step
+    var box = $("ls-step"); box.className = "panel ls-step ls-intro ls-f-" + f;
+    var extra = "";
+    if (f === "lives") extra = '<p class="ls-hearts-demo">' + HEART + HEART + HEART + "</p><p>Run out and you can start over or keep going without them.</p>";
+    if (f === "timed") extra = "<p>" + (lesson.seconds || 45) + " seconds a step. Run over and you can still finish it: the clock is just to push you.</p>";
+    if (f === "cold-open") extra = "<p>The first question is the hard one, before any teaching. Miss it? Good. You'll get a twin of it at the end.</p>";
+    if (f === "path") extra = "<p>Already know this? The first question is a shortcut. Get it right and you skip the warm-up.</p>";
+    if (f === "race") extra = "<p>Steps marked <strong>By hand</strong> and <strong>In Desmos</strong> are timed, so you'll see which way is faster for you.</p>";
+    if (f === "lab") extra = "<p>Play with the graph or the numbers first. Then put into words what you found.</p>";
+    box.innerHTML = '<p class="label">How this one works</p><h2 class="ls-format-name">' + esc(FORMAT[f]) + "</h2>" +
+      '<p class="ls-format-rule">' + esc(lesson.format_rule || "") + "</p>" + (lesson.intro ? '<p class="ls-story-intro">' + esc(lesson.intro) + "</p>" : "") + extra +
+      '<button class="btn btn-primary" type="button" id="ls-go">Start</button>';
+    $("ls-go").addEventListener("click", function () { renderStep(); focusStep(); });
+  }
+  function progress(intro) {
     $("ls-progress").firstElementChild.style.width = Math.round(at / steps.length * 100) + "%";
     $("ls-progress").setAttribute("aria-valuenow", String(at));
-    $("ls-step-count").textContent = "Step " + (at + 1) + " of " + steps.length + (kind === "recall" ? " · from memory, no notes" : "");
+    $("ls-step-count").textContent = intro ? steps.length + " steps" : "Step " + (at + 1) + " of " + steps.length + (kind === "recall" ? " · from memory, no notes" : "");
   }
-  var KICK = { recall: "From memory", predict: "Predict first", fill: "Fill in the step", order: "Put it in order", spot: "Find the mistake" };
+  function hud() {
+    var f = fmt(), h = $("ls-hud"), out = "";
+    if (f === "lives" && !play.noHearts) {
+      out += '<span class="ls-hearts" aria-label="' + play.hearts + ' hearts left">';
+      for (var i = 0; i < 3; i++) out += '<span class="' + (i < play.hearts ? "is-full" : "is-lost") + '">' + HEART + "</span>";
+      out += "</span>";
+    }
+    if (f === "timed") out += '<span class="ls-clock" id="ls-clock"><span class="ls-clock-bar"><i id="ls-clock-fill"></i></span><span id="ls-clock-n" aria-live="off"></span></span>';
+    if (f === "race") out += '<span class="ls-watch" id="ls-watch" hidden></span>';
+    h.innerHTML = out; h.hidden = !out;
+  }
+  function stopClocks() { if (play.clock) clearInterval(play.clock); if (play.watch) clearInterval(play.watch); play.clock = play.watch = null; }
+  function startClocks(s) {
+    stopClocks();
+    var f = fmt();
+    play.started = Date.now();
+    if (f === "timed") {
+      var total = s.seconds || lesson.seconds || 45;
+      $("ls-clock").hidden = false;
+      play.timed++;
+      var tick = function () {
+        var left = Math.max(0, total - (Date.now() - play.started) / 1000);
+        var fill = $("ls-clock-fill"), n = $("ls-clock-n"); if (!fill) return;
+        fill.style.width = (left / total * 100) + "%";
+        n.textContent = left > 0 ? Math.ceil(left) + "s" : "Time's up";
+        $("ls-clock").classList.toggle("is-low", left < total * 0.25);
+        if (left <= 0) clearInterval(play.clock);
+      };
+      tick(); play.clock = setInterval(tick, 250);
+    }
+    if (f === "race" && s.lane) {
+      var w = $("ls-watch"); w.hidden = false;
+      var t = function () { w.textContent = (s.lane === "hand" ? "By hand " : "In Desmos ") + Math.floor((Date.now() - play.started) / 1000) + "s"; };
+      t(); play.watch = setInterval(t, 500);
+    } else if (f === "race") $("ls-watch").hidden = true;
+  }
+
+  var KICK = { recall: "From memory", predict: "Predict first", fill: "Fill in the step", order: "Put it in order", spot: "Find the mistake",
+               slider: "Drag to explore", plot: "Tap the graph", graph: "Type it, see it", sort: "Sort the cards", match: "Match them up",
+               line: "Mark the number line", build: "Build it", grid: "Fill in the table", flash: "Quick look" };
+  var HANDS_ON = { slider: 1, plot: 1, graph: 1, sort: 1, match: 1, line: 1, build: 1, grid: 1, flash: 1 };
+  function kicker(s) {
+    var f = fmt(), k = KICK[s.type];
+    if (s.cold) return "Cold open · before the lesson";
+    if (s.rematch) return "Rematch";
+    if (s.gate) return "Shortcut question · get it right to skip the warm-up";
+    if (f === "case") return (at === steps.length - 1 ? "Close the case" : "Clue " + (at + 1)) + " · " + k;
+    if (f === "teach" && s.type === "spot") return "Check " + (lesson.student || "Sam") + "'s work";
+    if (f === "lab") {
+      var firstRecall = steps.findIndex(function (x) { return x.type === "recall"; });
+      if (HANDS_ON[s.type] && (firstRecall < 0 || at < firstRecall)) return "Experiment · " + k;
+      if (at === firstRecall) return "Name the rule";
+    }
+    return k;
+  }
   function table(t) {
     if (!t) return "";
     return '<div class="ls-table-wrap"><table class="ls-table">' + (t.caption ? "<caption>" + esc(t.caption) + "</caption>" : "") +
@@ -108,35 +210,79 @@
     return '<div class="ls-desmos"><p class="label">Type in Desmos</p><ol>' + lines.map(function (l) { return "<li><code>" + esc(l) + "</code></li>"; }).join("") + "</ol>" +
       '<a href="https://www.desmos.com/testing/collegeboard/graphing" target="_blank" rel="noopener">Try it in the College Board Desmos<span class="visually-hidden"> (opens in a new tab)</span></a></div>';
   }
+  var PRAISE = ["Right.", "Yes.", "Exactly.", "Got it.", "Nice.", "That's it."];
   function feedback(right, why, extra) {
-    var f = document.createElement("div");
-    f.className = "ls-fb " + (right ? "ok" : "no"); f.tabIndex = -1;
-    f.innerHTML = "<strong>" + (right ? ["Right.", "Yes.", "Exactly.", "Got it."][at % 4] : "Not quite.") + "</strong> " + (extra || "") + (why ? "<span>" + esc(why) + "</span>" : "");
-    $("ls-step").appendChild(f);
+    var s = steps[at], f = fmt();
+    stopClocks();
+    var notes = "";
+    if (f === "timed" && play.started) {
+      var used = (Date.now() - play.started) / 1000, limit = s.seconds || lesson.seconds || 45;
+      if (used <= limit) { play.beat++; notes += '<span class="chip ls-chip-win">Beat the clock · ' + Math.round(used) + "s</span>"; }
+      else notes += '<span class="chip chip-quiet">Over time · ' + Math.round(used) + "s</span>";
+    }
+    if (f === "race" && s.lane) { var secs = Math.round((Date.now() - play.started) / 1000); play.lanes[s.lane].push(secs); notes += '<span class="chip chip-quiet">' + (s.lane === "hand" ? "By hand: " : "In Desmos: ") + secs + "s</span>"; }
+    if (s.cold) play.coldRight = right;
+    if (s.rematch) play.rematchRight = right;
+    var fb = document.createElement("div");
+    fb.className = "ls-fb " + (right ? "ok" : "no"); fb.tabIndex = -1;
+    fb.innerHTML = '<strong class="ls-fb-head">' + (right ? PRAISE[at % PRAISE.length] : s.cold ? "Not yet, and that's fine." : "Not quite.") + "</strong>" + (extra ? '<span class="ls-fb-extra">' + extra + "</span>" : "") + (why ? "<span>" + esc(why) + "</span>" : "") + (notes ? '<span class="ls-fb-notes">' + notes + "</span>" : "");
+    $("ls-step").appendChild(fb);
+    if (s.gate && right) {
+      var skip = steps.filter(function (x) { return x.skip_if === 0; }).length;
+      if (skip) { var n = document.createElement("p"); n.className = "ls-shortcut"; n.textContent = "Shortcut! You skip " + skip + " warm-up step" + (skip === 1 ? "" : "s") + "."; fb.appendChild(n); }
+    }
     if (tools && lesson.domain !== "memory") {
       var ask = document.createElement("button"); ask.type = "button"; ask.className = "btn btn-quiet ask-tutor";
       ask.textContent = right ? "Ask the tutor to go deeper" : "Ask the tutor why";
       var step = at + 1;
       ask.addEventListener("click", function () { tools.context({ title: lesson.title, detail: "Step " + step + " of " + steps.length }); tools.open("tutor"); });
-      f.appendChild(ask);
+      fb.appendChild(ask);
     }
-    if (right) score++;
     answers[at] = pending;  // the first try, sent to the server, which does the grading
     answered = true;
+    if (f === "lives" && !right && !play.noHearts && !s.cold) {
+      play.hearts--; hud();
+      if (play.hearts <= 0) { outOfHearts(); return; }
+    }
     $("ls-next").hidden = false;
-    $("ls-next").textContent = at + 1 < steps.length ? "Next" : "Finish";
+    $("ls-next").textContent = nextIndex() < steps.length ? "Next" : "Finish";
     $("ls-next").focus();
+  }
+  function outOfHearts() {
+    var p = document.createElement("div"); p.className = "ls-out"; p.setAttribute("role", "alert");
+    p.innerHTML = '<p class="ls-hearts is-empty">' + HEART + HEART + HEART + '</p><p><strong>Out of hearts.</strong> Start over for a clean run, or keep going without hearts.</p>' +
+      '<div class="pd-row"><button class="btn btn-primary" type="button" data-out="restart">Start over</button><button class="btn btn-secondary" type="button" data-out="go">Keep going</button></div>';
+    $("ls-step").appendChild(p);
+    p.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-out]"); if (!b) return;
+      if (b.getAttribute("data-out") === "restart") { begin(); if (!$("ls-go")) renderStep(); focusStep(); return; }
+      play.noHearts = true; hud(); p.remove();
+      $("ls-next").hidden = false; $("ls-next").textContent = nextIndex() < steps.length ? "Next" : "Finish"; $("ls-next").focus();
+    });
+    p.querySelector("button").focus();
+  }
+  // After the shortcut question, warm-up steps are passed over when it was right.
+  function nextIndex() {
+    var i = at + 1;
+    var gate = steps[0] && steps[0].gate ? 0 : -1;
+    while (i < steps.length && gate === 0 && steps[i].skip_if === 0 && K.right(steps[0], answers[0])) i++;
+    return i;
   }
 
   function renderStep() {
     var s = steps[at], box = $("ls-step");
     answered = false; $("ls-next").hidden = true;
     progress();
-    box.className = "panel ls-step is-" + s.type;
-    box.innerHTML = '<p class="label">' + KICK[s.type] + "</p>" + table(s.table) + '<p class="ls-prompt">' + esc(s.prompt) + "</p>" + desmos(s.desmos);
-    ({ recall: stepRecall, predict: stepPredict, fill: stepFill, order: stepOrder, spot: stepSpot })[s.type](s, box);
+    box.className = "panel ls-step is-" + s.type + (s.cold ? " is-cold" : "") + (s.rematch ? " is-rematch" : "") + (s.gate ? " is-gate" : "");
+    box.innerHTML = '<p class="label">' + esc(kicker(s)) + (s.lane ? ' <span class="ls-lane ls-lane-' + s.lane + '">' + (s.lane === "hand" ? "By hand" : "In Desmos") + "</span>" : "") + "</p>" +
+      (s.scene ? '<p class="ls-scene">' + esc(s.scene) + "</p>" : "") +
+      table(s.table) + '<p class="ls-prompt">' + esc(s.prompt) + "</p>" + desmos(s.desmos);
+    STEP[s.type](s, box);
+    startClocks(s);
   }
+  function focusStep() { var p = $("ls-step").querySelector("input, button, textarea, select"); if (p) p.focus({ preventScroll: true }); }
 
+  /* ---------- the classic steps ---------- */
   function stepRecall(s, box) {
     var area = document.createElement("div"); area.className = "ls-recall";
     area.innerHTML = '<label class="fine" for="ls-recall-text">Type it, or just say it in your head:</label><textarea id="ls-recall-text" rows="3"></textarea>' +
@@ -150,21 +296,21 @@
       box.appendChild(rev);
       rev.querySelector(".ls-rate").addEventListener("click", function (e) {
         var b = e.target.closest("button"); if (!b || answered) return;
-        Array.prototype.forEach.call(this.querySelectorAll("button"), function (x) { x.disabled = true; x.classList.toggle("is-picked", x === b); });
+        each(this.querySelectorAll("button"), function (x) { x.disabled = true; x.classList.toggle("is-picked", x === b); });
         pending = b.getAttribute("data-r") === "1";
         feedback(pending, pending ? "" : "That's what the rest of this lesson is for.");
       });
       rev.querySelector(".ls-rate button").focus();
     });
   }
-  function stepPredict(s, box) {
+  function choices(s, box) {
     var list = document.createElement("div"); list.className = "ls-choices"; list.setAttribute("role", "group"); list.setAttribute("aria-label", "Choices");
     s.choices.forEach(function (c, k) {
       var b = document.createElement("button"); b.type = "button"; b.className = "sp-choice";
       b.innerHTML = '<span class="mc-letter">' + "ABCD"[k] + '</span><span class="mc-text">' + esc(c) + "</span>";
       b.addEventListener("click", function () {
         if (answered) return;
-        Array.prototype.forEach.call(list.children, function (x, i) { x.disabled = true; if (i === s.answer) x.classList.add("is-key"); });
+        each(list.children, function (x, i) { x.disabled = true; if (i === s.answer) x.classList.add("is-key"); });
         if (k !== s.answer) b.classList.add("is-wrong");
         pending = k;
         feedback(k === s.answer, s.why);
@@ -172,16 +318,6 @@
       list.appendChild(b);
     });
     box.appendChild(list);
-  }
-  function norm(v) { return String(v || "").replace(/[\s,]/g, "").replace(/[−–]/g, "-").replace(/%$/, "").toLowerCase(); }
-  function value(v) {
-    v = norm(v);
-    var m = /^(-?\d+)\/(\d+)$/.exec(v); if (m) return Number(m[1]) / Number(m[2]);
-    return /^-?(\d+\.?\d*|\.\d+)$/.test(v) ? Number(v) : NaN;
-  }
-  function matches(input, accept) {
-    var n = value(input);
-    return accept.some(function (a) { var x = value(a); return !isNaN(n) && !isNaN(x) ? Math.abs(n - x) < 1e-9 : norm(a) === norm(input); });
   }
   function stepFill(s, box) {
     var work = document.createElement("form"); work.className = "ls-work"; work.setAttribute("novalidate", "");
@@ -191,20 +327,19 @@
       return '<p class="ls-line">' + esc(parts[0]) + '<label class="visually-hidden" for="ls-blank">Missing value</label><input id="ls-blank" class="ls-blank" data-no-filter autocomplete="off" inputmode="decimal" spellcheck="false" maxlength="12">' + esc(parts[1] || "") + "</p>";
     }).join("") + '<button class="btn btn-secondary" type="submit">Check</button>';
     box.appendChild(work);
-    var input = work.querySelector("input"); input.focus();
+    var input = work.querySelector("input");
     work.addEventListener("submit", function (e) {
       e.preventDefault();
       if (answered || !input.value.trim()) { input.focus(); return; }
-      var right = matches(input.value, s.accept);
       pending = input.value.trim();
+      var right = K.right(s, pending);
       input.readOnly = true; input.classList.add(right ? "is-right" : "is-wrong");
       work.querySelector("button").remove();
       feedback(right, s.why, right ? "" : "It's <strong>" + esc(s.accept[0]) + "</strong>. ");
     });
   }
   function stepOrder(s, box) {
-    var placed = [], pool = shuffle(s.items.map(function (t, i) { return i; }));
-    if (pool.every(function (v, i) { return v === i; }) && pool.length > 1) pool.push(pool.shift());  // never start already in order
+    var placed = [], pool = mixed(s.items.length);
     var wrap = document.createElement("div"); wrap.className = "ls-order";
     wrap.innerHTML = '<div><p class="fine">Tap the steps in order.</p><ol class="ls-pool" id="ls-pool"></ol></div><div><p class="fine">Your order (tap one to take it back):</p><ol class="ls-placed" id="ls-placed"></ol></div>' +
       '<button class="btn btn-secondary" type="button" id="ls-order-check" disabled>Check</button>';
@@ -223,10 +358,10 @@
     });
     $("ls-order-check").addEventListener("click", function () {
       if (answered) return;
-      var right = placed.every(function (v, n) { return v === n; });
       pending = placed.slice();
+      var right = K.right(s, pending);
       this.remove();
-      Array.prototype.forEach.call($("ls-placed").querySelectorAll(".ls-tile"), function (b, n) { b.disabled = true; b.classList.add(placed[n] === n ? "is-right" : "is-wrong"); });
+      each($("ls-placed").querySelectorAll(".ls-tile"), function (b, n) { b.disabled = true; b.classList.add(placed[n] === n ? "is-right" : "is-wrong"); });
       var correct = right ? "" : "<ol class=\"ls-correct\">" + s.items.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ol>";
       feedback(right, s.why, right ? "" : "Here's the order:" + correct);
     });
@@ -239,7 +374,7 @@
       b.type = "button"; b.className = "ls-tile"; b.textContent = line;
       b.addEventListener("click", function () {
         if (answered) return;
-        Array.prototype.forEach.call(list.querySelectorAll("button"), function (x, i) { x.disabled = true; if (i === s.wrong) x.classList.add("is-key-wrong"); });
+        each(list.querySelectorAll("button"), function (x, i) { x.disabled = true; if (i === s.wrong) x.classList.add("is-key-wrong"); });
         if (k !== s.wrong) b.classList.add("is-picked");
         pending = k;
         feedback(k === s.wrong, s.why, k === s.wrong ? "" : "The mistake is in line " + (s.wrong + 1) + ". ");
@@ -249,13 +384,351 @@
     box.appendChild(list);
   }
 
+  /* ---------- hands-on steps ---------- */
+  function checkButton(label) { var b = document.createElement("button"); b.type = "button"; b.className = "btn btn-secondary ls-check"; b.textContent = label || "Check"; return b; }
+  function snapOf(s) { var sn = s.snap == null ? 1 : s.snap; return Array.isArray(sn) ? sn : [sn, sn]; }
+  function round(v, step) { return Math.round(Math.round(v / step) * step * 1e6) / 1e6; }
+
+  // Drag a constant and watch a graph, a dot plot or a circle respond.
+  function stepSlider(s, box) {
+    var p = s.param, name = p.name, v = p.start, env = {};
+    var fns = (s.curves || []).map(function (c) { return K.compile(c, (env[name] = 0, env)); });
+    var fixed = (s.fixed || []).map(function (c) { return K.compile(c); });
+    var graph = s.curves ? K.Graph(s.window) : null;
+    var wrap = document.createElement("div"); wrap.className = "lk-wrap";
+    wrap.innerHTML = '<div class="lk-visual" id="lk-visual"></div><div class="lk-controls">' +
+      '<label class="lk-range-label" for="lk-range"><span class="lk-name">' + esc(name) + '</span> = <output id="lk-out" for="lk-range"></output></label>' +
+      '<div class="lk-range-row"><button type="button" class="lk-nudge" data-d="-1" aria-label="Decrease ' + esc(name) + '">−</button>' +
+      '<input type="range" id="lk-range" min="' + p.min + '" max="' + p.max + '" step="' + p.step + '" value="' + p.start + '">' +
+      '<button type="button" class="lk-nudge" data-d="1" aria-label="Increase ' + esc(name) + '">+</button></div>' +
+      '<p class="lk-readout" id="lk-readout" aria-live="polite"></p></div>';
+    box.appendChild(wrap);
+    var chk = checkButton(); box.appendChild(chk);
+    function readout(val) {
+      if (!s.readout) return "";
+      return s.readout.replace(/\{=([^}]+)\}/g, function (_, ex) { var o = {}; o[name] = val; var r = K.value(ex, 0, o); return r === null ? "?" : K.fmt(Math.round(r * 100) / 100); })
+                      .replace(new RegExp("\\{" + name + "\\}", "g"), K.fmt(val));
+    }
+    function draw(val, state) {
+      var e = {}; e[name] = val;
+      if (graph) {
+        $("lk-visual").innerHTML = graph.svg({ label: "Graph with " + name + " = " + val,
+          curves: fixed.map(function (f) { return { f: f, cls: "lk-fixed" }; }).concat(fns.map(function (f, i) { return { f: function (x) { return f(x, e); }, cls: "lk-c" + i + (state ? " " + state : "") }; })),
+          rings: s.points || [] });
+      } else if (s.dots) {
+        var vals = s.dots.values.map(function (x) { return K.value(x, 0, e); });
+        $("lk-visual").innerHTML = K.dotPlot(vals, s.dots.min, s.dots.max, K.value(s.dots.mark, 0, e), "Mean");
+      } else if (s.pie) {
+        $("lk-visual").innerHTML = K.pie(K.value(s.pie.angle, 0, e), "Sector of " + val + " degrees");
+      }
+      $("lk-out").textContent = K.fmt(val);
+      $("lk-readout").textContent = readout(val);
+    }
+    var range = $("lk-range");
+    range.addEventListener("input", function () { if (answered) return; v = Number(this.value); draw(v); });
+    wrap.addEventListener("click", function (e) {
+      var b = e.target.closest(".lk-nudge"); if (!b || answered) return;
+      v = Math.min(p.max, Math.max(p.min, round(v + Number(b.getAttribute("data-d")) * p.step, p.step))); range.value = v; draw(v);
+    });
+    chk.addEventListener("click", function () {
+      if (answered) return;
+      pending = round(v, p.step);
+      var right = K.right(s, pending);
+      chk.remove(); range.disabled = true; each(wrap.querySelectorAll(".lk-nudge"), function (b) { b.disabled = true; });
+      if (!right) { v = s.answer; range.value = v; draw(v, "is-answer"); }
+      feedback(right, s.why, right ? "" : "It's " + esc(name) + " = <strong>" + K.fmt(s.answer) + "</strong>. The graph shows it now. ");
+    });
+    draw(v);
+  }
+
+  // Tap a point on a graph (or type its coordinates).
+  function stepPlot(s, box) {
+    var g = K.Graph(s.window), sn = snapOf(s), pick = null;
+    var curves = s.curves.map(function (c, i) { var f = K.compile(c); return { f: f, cls: "lk-c" + (i % 3) }; });
+    var wrap = document.createElement("div"); wrap.className = "lk-wrap";
+    wrap.innerHTML = '<div class="lk-visual lk-tap" id="lk-visual"></div><div class="lk-controls lk-xy"><p class="fine">Tap the graph, or type the point:</p>' +
+      '<label>x <input type="number" id="lk-x" step="' + sn[0] + '" inputmode="decimal"></label><label>y <input type="number" id="lk-y" step="' + sn[1] + '" inputmode="decimal"></label></div>';
+    box.appendChild(wrap);
+    var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
+    function draw(extra) { $("lk-visual").innerHTML = g.svg({ curves: curves, dots: s.points || [], mark: pick, label: "Graph. " + (pick ? "Your point is (" + pick[0] + ", " + pick[1] + ")." : "No point yet."), markCls: extra && extra.cls }) + (extra && extra.svg || ""); }
+    function set(x, y) { pick = [round(x, sn[0]), round(y, sn[1])]; $("lk-x").value = pick[0]; $("lk-y").value = pick[1]; chk.disabled = false; draw(); }
+    $("lk-visual").addEventListener("click", function (e) {
+      if (answered) return;
+      var svg = this.querySelector("svg"), r = svg.getBoundingClientRect();
+      var pt = g.fromPx((e.clientX - r.left) * 480 / r.width, (e.clientY - r.top) * 340 / r.height);
+      set(pt[0], pt[1]);
+    });
+    function typed() { var x = parseFloat($("lk-x").value), y = parseFloat($("lk-y").value); if (isFinite(x) && isFinite(y)) set(x, y); }
+    $("lk-x").addEventListener("change", typed); $("lk-y").addEventListener("change", typed);
+    chk.addEventListener("click", function () {
+      if (answered || !pick) return;
+      pending = pick.slice();
+      var right = K.right(s, pending);
+      chk.remove(); $("lk-x").disabled = $("lk-y").disabled = true;
+      var ans = s.answer;
+      $("lk-visual").innerHTML = g.svg({ curves: curves, dots: s.points || [], mark: right ? pick : ans, markCls: "is-answer", rings: right ? [] : [pick], label: "The answer is (" + ans[0] + ", " + ans[1] + ")." });
+      feedback(right, s.why, right ? "" : "The point is <strong>(" + K.fmt(ans[0]) + ", " + K.fmt(ans[1]) + ")</strong>. ");
+    });
+    draw();
+  }
+
+  // Type an equation; it's drawn as you type, the way Desmos does.
+  function stepGraph(s, box) {
+    var g = K.Graph(s.window), fixed = (s.fixed || []).map(function (c) { return K.compile(c); }), mine = null;
+    var wrap = document.createElement("div"); wrap.className = "lk-wrap";
+    wrap.innerHTML = '<div class="lk-visual" id="lk-visual"></div><div class="lk-controls"><label class="lk-type" for="lk-expr"><span>y =</span>' +
+      '<input id="lk-expr" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-no-filter maxlength="' + K.MAX_LEN + '" placeholder="like 2x + 1 or x^2 - 4"></label>' +
+      '<p class="fine lk-hint" id="lk-hint" aria-live="polite">Use ^ for powers, like x^2.' + (s.forbid ? " No brackets this time." : "") + "</p></div>";
+    box.appendChild(wrap);
+    var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
+    function draw(extra) {
+      var cs = fixed.map(function (f) { return { f: f, cls: "lk-fixed" }; });
+      if (mine) cs.push({ f: mine, cls: "lk-c0" });
+      if (extra) cs.push(extra);
+      $("lk-visual").innerHTML = g.svg({ curves: cs, dots: s.points || [], label: mine ? "Your graph" : "Graph" });
+    }
+    $("lk-expr").addEventListener("input", function () {
+      if (answered) return;
+      var t = this.value.trim(), msg = t ? K.check(t) : "";
+      mine = null;
+      if (t && !msg) { try { mine = K.compile(t); } catch (e) { mine = null; } }
+      $("lk-hint").textContent = msg || (t ? "Drawn." : "Use ^ for powers, like x^2.");
+      chk.disabled = !mine;
+      draw();
+    });
+    $("lk-expr").addEventListener("keydown", function (e) { if (e.key === "Enter" && !chk.disabled) { e.preventDefault(); chk.click(); } });
+    chk.addEventListener("click", function () {
+      if (answered) return;
+      pending = $("lk-expr").value.trim();
+      var right = K.right(s, pending);
+      chk.remove(); $("lk-expr").readOnly = true;
+      if (!right) draw({ f: K.compile(s.accept[0]), cls: "lk-c1 is-answer" });
+      feedback(right, s.why, right ? "" : "One answer: <strong>y = " + esc(pretty(s.accept[0])) + "</strong>" + (s.forbid && (s.forbid.some(function (f) { return pending.indexOf(f) >= 0; })) ? ", written without brackets" : "") + ". ");
+    });
+    draw();
+  }
+
+  // Put each card in a bucket.
+  function stepSort(s, box) {
+    var order = mixed(s.cards.length), picks = s.cards.map(function () { return null; });
+    var list = document.createElement("ul"); list.className = "lk-sort";
+    list.innerHTML = order.map(function (ci) {
+      return '<li class="lk-card" data-c="' + ci + '"><span class="lk-card-text" id="lk-card-' + ci + '">' + esc(s.cards[ci].text) + '</span><span class="lk-buckets" role="group" aria-labelledby="lk-card-' + ci + '">' +
+        s.buckets.map(function (b, bi) { return '<button type="button" class="lk-bucket" data-b="' + bi + '" aria-pressed="false">' + esc(b) + "</button>"; }).join("") + "</span></li>";
+    }).join("");
+    box.appendChild(list);
+    var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
+    list.addEventListener("click", function (e) {
+      var b = e.target.closest(".lk-bucket"); if (!b || answered) return;
+      var card = b.closest(".lk-card"), ci = Number(card.getAttribute("data-c"));
+      picks[ci] = Number(b.getAttribute("data-b"));
+      each(card.querySelectorAll(".lk-bucket"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      card.classList.add("is-set");
+      chk.disabled = picks.some(function (x) { return x === null; });
+    });
+    chk.addEventListener("click", function () {
+      if (answered) return;
+      pending = picks.slice();
+      var right = K.right(s, pending), wrong = 0;
+      chk.remove();
+      each(list.querySelectorAll(".lk-card"), function (card) {
+        var ci = Number(card.getAttribute("data-c")), ok = picks[ci] === s.cards[ci].bucket;
+        if (!ok) wrong++;
+        card.classList.add(ok ? "is-right" : "is-wrong");
+        each(card.querySelectorAll(".lk-bucket"), function (x) { x.disabled = true; if (Number(x.getAttribute("data-b")) === s.cards[ci].bucket) x.classList.add("is-key"); });
+      });
+      feedback(right, s.why, right ? "" : wrong + " of " + s.cards.length + " in the wrong group. The right group is outlined. ");
+    });
+  }
+
+  // Pair each item on the left with one on the right.
+  function stepMatch(s, box) {
+    var n = s.left.length, rightOrder = mixed(n), pairOf = s.left.map(function () { return null; }), active = null;
+    var wrap = document.createElement("div"); wrap.className = "lk-match";
+    wrap.innerHTML = '<p class="fine">Tap one on the left, then its partner on the right. Tap a pair again to undo it.</p><div class="lk-match-cols"><ul class="lk-left">' +
+      s.left.map(function (t, i) { return '<li><button type="button" class="lk-m" data-l="' + i + '" aria-pressed="false"><span class="lk-pair-n" aria-hidden="true"></span>' + esc(t) + "</button></li>"; }).join("") +
+      '</ul><ul class="lk-right">' + rightOrder.map(function (ri) { return '<li><button type="button" class="lk-m" data-r="' + ri + '"><span class="lk-pair-n" aria-hidden="true"></span>' + esc(s.right[ri]) + "</button></li>"; }).join("") + "</ul></div>";
+    box.appendChild(wrap);
+    var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
+    function draw() {
+      each(wrap.querySelectorAll("[data-l]"), function (b) {
+        var i = Number(b.getAttribute("data-l")), p = pairOf[i];
+        b.setAttribute("aria-pressed", String(active === i)); b.classList.toggle("is-active", active === i);
+        b.className = b.className.replace(/\blk-p\d\b/g, "").trim(); if (p !== null) b.classList.add("lk-p" + (i % 6));
+        b.querySelector(".lk-pair-n").textContent = p !== null ? String(i + 1) : "";
+        b.setAttribute("aria-label", b.textContent.replace(/^\d/, "") + (p !== null ? ", paired with " + s.right[p] : ""));
+      });
+      each(wrap.querySelectorAll("[data-r]"), function (b) {
+        var ri = Number(b.getAttribute("data-r")), li = pairOf.indexOf(ri);
+        b.className = b.className.replace(/\blk-p\d\b/g, "").trim(); if (li >= 0) b.classList.add("lk-p" + (li % 6));
+        b.querySelector(".lk-pair-n").textContent = li >= 0 ? String(li + 1) : "";
+      });
+      chk.disabled = pairOf.some(function (p) { return p === null; });
+    }
+    wrap.addEventListener("click", function (e) {
+      var b = e.target.closest(".lk-m"); if (!b || answered) return;
+      if (b.hasAttribute("data-l")) {
+        var i = Number(b.getAttribute("data-l"));
+        if (pairOf[i] !== null) pairOf[i] = null;
+        active = i;
+      } else {
+        var ri = Number(b.getAttribute("data-r")), had = pairOf.indexOf(ri);
+        if (had >= 0) { pairOf[had] = null; if (active === null) { draw(); return; } }
+        if (active === null) { var free = pairOf.indexOf(null); if (free < 0) return; active = free; }
+        pairOf[active] = ri; active = null;
+        var nextFree = pairOf.indexOf(null); if (nextFree >= 0) active = nextFree;
+      }
+      draw();
+    });
+    chk.addEventListener("click", function () {
+      if (answered) return;
+      pending = pairOf.slice();
+      var right = K.right(s, pending);
+      chk.remove(); active = null; draw();
+      each(wrap.querySelectorAll("[data-l]"), function (b) { var i = Number(b.getAttribute("data-l")); b.disabled = true; b.classList.add(pairOf[i] === i ? "is-right" : "is-wrong"); });
+      each(wrap.querySelectorAll("[data-r]"), function (b) { b.disabled = true; });
+      var fix = right ? "" : '<ul class="ls-correct">' + s.left.map(function (l, i) { return "<li>" + esc(l) + " → " + esc(s.right[i]) + "</li>"; }).join("") + "</ul>";
+      feedback(right, s.why, right ? "" : "The pairs:" + fix);
+    });
+    active = 0; draw();
+  }
+
+  // Mark an inequality on a number line.
+  function stepLine(s, box) {
+    var nl = K.NumberLine(s.min, s.max), st = { at: null, closed: null, dir: null };
+    var wrap = document.createElement("div"); wrap.className = "lk-wrap lk-nl";
+    wrap.innerHTML = '<div class="lk-visual lk-tap" id="lk-visual"></div><div class="lk-controls lk-nl-controls">' +
+      '<label>Endpoint <input type="number" id="lk-at" step="1" min="' + s.min + '" max="' + s.max + '" inputmode="numeric"></label>' +
+      '<div class="seg" role="radiogroup" aria-label="Endpoint"><span><input type="radio" name="lk-c" id="lk-open" value="open"><label for="lk-open">Open circle</label></span><span><input type="radio" name="lk-c" id="lk-closed" value="closed"><label for="lk-closed">Closed dot</label></span></div>' +
+      '<div class="seg" role="radiogroup" aria-label="Direction"><span><input type="radio" name="lk-d" id="lk-left" value="left"><label for="lk-left">← Left</label></span><span><input type="radio" name="lk-d" id="lk-right" value="right"><label for="lk-right">Right →</label></span></div></div>';
+    box.appendChild(wrap);
+    var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
+    function draw() { $("lk-visual").innerHTML = nl.svg(st, "Number line" + (st.at !== null ? ", endpoint " + st.at : "")); chk.disabled = st.at === null || st.closed === null || !st.dir; }
+    $("lk-visual").addEventListener("click", function (e) {
+      if (answered) return;
+      var r = this.querySelector("svg").getBoundingClientRect();
+      st.at = Math.max(s.min, Math.min(s.max, Math.round(nl.fromPx((e.clientX - r.left) * 480 / r.width))));
+      $("lk-at").value = st.at; draw();
+    });
+    $("lk-at").addEventListener("input", function () { var v = parseFloat(this.value); if (isFinite(v)) { st.at = Math.max(s.min, Math.min(s.max, v)); draw(); } });
+    wrap.addEventListener("change", function (e) {
+      if (e.target.name === "lk-c") st.closed = e.target.value === "closed";
+      if (e.target.name === "lk-d") st.dir = e.target.value;
+      draw();
+    });
+    chk.addEventListener("click", function () {
+      if (answered) return;
+      pending = { at: st.at, closed: st.closed, dir: st.dir };
+      var right = K.right(s, pending);
+      chk.remove(); each(wrap.querySelectorAll("input"), function (x) { x.disabled = true; });
+      if (!right) $("lk-visual").innerHTML = nl.svg(st) + '<p class="fine lk-key-label">The answer:</p>' + nl.svg(s.answer, "The answer");
+      var a = s.answer;
+      feedback(right, s.why, right ? "" : "It's " + (a.closed ? "a closed dot" : "an open circle") + " at <strong>" + K.fmt(a.at) + "</strong>, pointing " + a.dir + ". ");
+    });
+    draw();
+  }
+
+  // Tap tiles to build an equation or a chain.
+  function stepBuild(s, box) {
+    var pool = mixed(s.tiles.length), placed = [];
+    var wrap = document.createElement("div"); wrap.className = "lk-build";
+    wrap.innerHTML = '<p class="fine">Tap tiles to build it. Tap a placed tile to take it back.</p><div class="lk-bar" id="lk-bar" aria-live="polite"></div><div class="lk-tiles" id="lk-tiles"></div>';
+    box.appendChild(wrap);
+    var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
+    function draw() {
+      $("lk-bar").innerHTML = placed.length ? placed.map(function (i) { return '<button type="button" class="lk-tile is-placed" data-i="' + i + '">' + esc(s.tiles[i]) + "</button>"; }).join("") : '<span class="fine">Your answer goes here</span>';
+      $("lk-tiles").innerHTML = pool.map(function (i) { return '<button type="button" class="lk-tile" data-i="' + i + '">' + esc(s.tiles[i]) + "</button>"; }).join("");
+      chk.disabled = !placed.length;
+    }
+    wrap.addEventListener("click", function (e) {
+      var b = e.target.closest(".lk-tile"); if (!b || answered) return;
+      var i = Number(b.getAttribute("data-i"));
+      if (b.classList.contains("is-placed")) { placed.splice(placed.indexOf(i), 1); pool.push(i); } else { pool.splice(pool.indexOf(i), 1); placed.push(i); }
+      draw();
+      var next = $("lk-tiles").querySelector("button") || chk; if (next && !next.disabled) next.focus();
+    });
+    chk.addEventListener("click", function () {
+      if (answered) return;
+      pending = placed.slice();
+      var right = K.right(s, pending);
+      chk.remove(); $("lk-bar").classList.add(right ? "is-right" : "is-wrong");
+      each(wrap.querySelectorAll(".lk-tile"), function (b) { b.disabled = true; });
+      feedback(right, s.why, right ? "" : "It's <strong>" + esc(s.answers[0].map(function (i) { return s.tiles[i]; }).join(" ")) + "</strong>. ");
+    });
+    draw();
+  }
+
+  // Fill in the blanks of a table.
+  function stepGrid(s, box) {
+    var n = 0;
+    var wrap = document.createElement("form"); wrap.className = "lk-grid"; wrap.setAttribute("novalidate", "");
+    wrap.innerHTML = '<div class="ls-table-wrap"><table class="ls-table"><thead><tr>' + s.head.map(function (h) { return '<th scope="col">' + esc(h) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      s.rows.map(function (r) {
+        return "<tr>" + r.map(function (c, ci) {
+          var cell = c.indexOf("___") < 0 ? esc(c) : c.split("___").map(esc).join('<input class="ls-blank lk-cell" data-k="' + (n++) + '" aria-label="' + esc(s.head[ci] + ", " + r[0]) + '" data-no-filter autocomplete="off" spellcheck="false" maxlength="10">');
+          return ci ? "<td>" + cell + "</td>" : '<th scope="row">' + cell + "</th>";
+        }).join("") + "</tr>";
+      }).join("") + "</tbody></table></div>";
+    box.appendChild(wrap);
+    var chk = checkButton(); chk.disabled = true; chk.type = "submit"; wrap.appendChild(chk);
+    var cells = wrap.querySelectorAll(".lk-cell");
+    wrap.addEventListener("input", function () { chk.disabled = Array.prototype.some.call(cells, function (c) { return !c.value.trim(); }); });
+    wrap.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (answered || chk.disabled) return;
+      pending = Array.prototype.map.call(cells, function (c) { return c.value.trim(); });
+      var right = K.right(s, pending);
+      chk.remove();
+      each(cells, function (c, i) { c.readOnly = true; var ok = K.right({ type: "fill", accept: s.accept[i] }, pending[i]); c.classList.add(ok ? "is-right" : "is-wrong"); if (!ok) c.title = "It's " + s.accept[i][0]; });
+      var fix = right ? "" : "The blanks are " + s.accept.map(function (a) { return "<strong>" + esc(a[0]) + "</strong>"; }).join(", ") + ". ";
+      feedback(right, s.why, fix);
+    });
+  }
+
+  // A list shows for a few seconds, hides, then you're asked about it.
+  function stepFlash(s, box) {
+    var prompt = box.querySelector(".ls-prompt"); prompt.textContent = "Look closely. This disappears in " + s.seconds + " seconds.";
+    var card = document.createElement("div"); card.className = "lk-flash";
+    card.innerHTML = '<div class="lk-flash-bar"><i id="lk-flash-fill"></i></div><ul>' + s.show.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" +
+      '<button type="button" class="btn btn-quiet" id="lk-ready">I\'m ready</button>';
+    box.appendChild(card);
+    var t0 = Date.now(), timer = setInterval(tick, 100);
+    function tick() { var left = Math.max(0, 1 - (Date.now() - t0) / (s.seconds * 1000)); var f = $("lk-flash-fill"); if (f) f.style.width = left * 100 + "%"; if (left <= 0) hide(); }
+    function hide() {
+      clearInterval(timer); if (!card.parentNode) return;
+      card.remove(); prompt.textContent = s.prompt;
+      choices(s, box); var b = box.querySelector(".sp-choice"); if (b) b.focus();
+    }
+    $("lk-ready").addEventListener("click", hide);
+  }
+
+  var STEP = { recall: stepRecall, predict: choices, fill: stepFill, order: stepOrder, spot: stepSpot, slider: stepSlider, plot: stepPlot, graph: stepGraph,
+               sort: stepSort, match: stepMatch, line: stepLine, build: stepBuild, grid: stepGrid, flash: stepFlash };
+
   $("ls-next").addEventListener("click", function () {
     if (!answered) return;
-    at++;
-    if (at < steps.length) { renderStep(); var p = $("ls-step").querySelector("button, input, textarea"); if (p) p.focus({ preventScroll: true }); $("ls-step").scrollIntoView({ block: "nearest" }); return; }
+    var to = nextIndex();
+    for (var i = at + 1; i < to; i++) { answers[i] = "skip"; play.skipped++; }
+    at = to;
+    if (at < steps.length) { renderStep(); focusStep(); $("ls-step").scrollIntoView({ block: "nearest" }); return; }
     finishLesson();
   });
+  function formatLine() {
+    var f = fmt(), out = [];
+    if (f === "cold-open" && play.coldRight !== null) out.push("Cold open: " + (play.coldRight ? "right" : "missed") + ". Rematch: " + (play.rematchRight ? "right." : "missed, so it's worth another look."));
+    if (f === "timed" && play.timed) out.push("You beat the clock on " + play.beat + " of " + play.timed + " steps.");
+    if (f === "lives") out.push(play.noHearts ? "You ran out of hearts and kept going. That counts." : play.hearts + " of 3 hearts left.");
+    if (f === "path" && play.skipped) out.push("You took the shortcut and skipped " + play.skipped + " warm-up step" + (play.skipped === 1 ? "." : "s."));
+    if (f === "race") {
+      var avg = function (a) { return a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length) : null; };
+      var h = avg(play.lanes.hand), d = avg(play.lanes.desmos);
+      if (h !== null && d !== null) out.push("By hand: about " + h + "s a step. In Desmos: about " + d + "s. " + (h < d ? "By hand was faster for you here." : h > d ? "Desmos was faster for you here." : "A tie."));
+    }
+    if (f === "case") out.push("Case closed.");
+    return out.join(" ");
+  }
   function finishLesson() {
+    stopClocks();
     var b = $("ls-next"); b.disabled = true; b.textContent = "Saving…";
     call("/api/lessons/" + encodeURIComponent(lesson.id) + "/complete", { kind: kind, answers: answers }).then(function (r) {
       b.disabled = false;
@@ -264,6 +737,8 @@
       $("ls-end-title").textContent = kind === "recall" ? (r.passed ? "It stuck." : "Almost there.") : r.score === steps.length ? "Every step right the first time." : "Lesson done.";
       $("ls-end-score").textContent = r.score + " of " + steps.length + " right the first time." +
         (kind === "recall" && !r.passed ? " This one comes back tomorrow for another try." : "");
+      var fl = formatLine(); $("ls-end-format").textContent = fl; $("ls-end-format").hidden = !fl;
+      $("ls-unlocked").hidden = !(lesson.id === START && firstTime);
       $("ls-keys").innerHTML = lesson.keys.map(function (k) { return "<li>" + esc(k) + "</li>"; }).join("");
       var p = r.progress;
       $("ls-next-recall").innerHTML = p.mastered ? "<strong>Mastered.</strong> You've passed every recall check for this lesson."
@@ -286,11 +761,14 @@
     }).catch(function () { location.href = "practice.html"; });
   });
 
-  function loadList() {
-    return call("/api/lessons").then(renderList).catch(function (err) {
+  function loadList(auto) {
+    return call("/api/lessons").then(function (o) {
+      if (auto && o.start_with) { open(o.start_with); return; }  // first visit: Desmos hacks, straight away
+      renderList(o);
+    }).catch(function (err) {
       if (err && err.status === 401) { signIn(); return; }
       $("ls-loading").textContent = err && err.status === 403 ? "Lessons are for student accounts." : "We couldn't load lessons. Check your connection and refresh the page.";
     });
   }
-  if (params.get("lesson")) open(params.get("lesson"), params.get("mode")); else loadList();
+  if (params.get("lesson")) open(params.get("lesson"), params.get("mode")); else loadList(!params.get("list"));
 })();
