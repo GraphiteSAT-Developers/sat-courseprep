@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=3f41b155dc">
-<script src="/js/site.js?v=87152444fc" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=48f680d87c">
+<script src="/js/site.js?v=f066ab8928" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -77,7 +77,7 @@
       <h2 id="types">1. Types of cookies</h2>
       <ul>
         <li><strong>Essential</strong> cookies keep you signed in, protect forms from abuse and remember your cookie choice. The site doesn't work without them, so they're always on.</li>
-        <li><strong>Analytics</strong> cookies count page views and button clicks so we can see which pages help students. They're off until you accept them.</li>
+        <li><strong>Analytics</strong> cookies let us see how the site is used: the pages opened, where visitors came from, how long pages stay open, how far they're scrolled and which main buttons are clicked. The data goes to our own server, not to an advertising company. They're off until you accept them, and if your browser sends a Global Privacy Control signal, the analytics box starts unchecked.</li>
       </ul>
       <p>We don't use advertising or cross-site tracking cookies.</p>
 
@@ -89,7 +89,8 @@
             <tr><td class="mono">graphite_session</td><td>Essential</td><td>Keeps you signed in</td><td>Until you sign out, or 30 days with "Keep me signed in"</td></tr>
             <tr><td class="mono">graphite_csrf</td><td>Essential</td><td>Protects forms from forged requests</td><td>Session</td></tr>
             <tr><td class="mono">graphite_consent</td><td>Essential</td><td>Remembers your cookie choice</td><td>12 months</td></tr>
-            <tr><td class="mono">_ga, _ga_*</td><td>Analytics</td><td>Counts visits and page views, with IP addresses anonymized</td><td>13 months</td></tr>
+            <tr><td class="mono">gs_consent</td><td>Essential</td><td>Tells our server which cookies you allowed, so nothing is collected without your OK</td><td>13 months</td></tr>
+            <tr><td class="mono">gs_vid</td><td>Analytics</td><td>A random visitor id that ties your page views together. Deleted when you turn analytics off</td><td>13 months</td></tr>
           </tbody>
         </table>
       </div>
@@ -162,7 +163,7 @@
     </div>
     <div class="cookie-prefs" id="cookie-prefs" hidden>
       <label class="check"><input type="checkbox" checked disabled id="consent-essential"><span>Essential<small>Sign in, security and saving this choice. Always on.</small></span></label>
-      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Page views and button clicks, with IP addresses anonymized.</small></span></label>
+      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Pages opened, where you came from, time on page, scrolling and main-button clicks. Kept on our own server, never sold.</small></span></label>
       <div><button class="btn btn-primary" type="button" id="cookie-save">Save choices</button></div>
     </div>
   </div>

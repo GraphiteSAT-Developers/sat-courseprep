@@ -17,6 +17,7 @@
   function showError(msg) { $("pl-error").textContent = msg || ""; $("pl-error").hidden = !msg; }
   function failed(err, fallback) {
     if (err && err.status === 401) { location.href = "/signin.html?next=/plan.html"; return; }
+    if (window.GraphiteLock && GraphiteLock.handle(err)) return;
     showError(err && err.status ? err.message : fallback);
   }
   function view(name) {
@@ -147,6 +148,7 @@
         state = state || {};
         state.diagnostic = { id: diag.id, submitted: true, questions: diag.questions, results: r.results };
         state.plan = r.plan;
+        if (r.access) state.access = r.access;
         renderDone(state); $("pl-resume").hidden = true; view("done"); window.scrollTo(0, 0);
       })
       .catch(function (err) { busy = false; renderQ(); failed(err, "We couldn't send your answers. Check your connection and press See my results again."); });
@@ -159,6 +161,8 @@
     if (!res && r.plan && r.plan.results) res = r.plan.results;
     if (res) renderResults(res);
     renderPlan(r.plan);
+    // The diagnostic is free; the week-by-week plan comes with No. 2 and up.
+    if (r.access && !r.access.ok && window.GraphiteLock) GraphiteLock.panel($("pl-plan-title").closest(".panel"), r.access);
   }
   function renderResults(res) {
     $("pl-score").textContent = res.correct + " of " + res.total + " right";

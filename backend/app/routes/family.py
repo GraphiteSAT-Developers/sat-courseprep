@@ -6,7 +6,7 @@ from flask import Blueprint, current_app, jsonify
 from ..db import execute, query, set_clause
 from ..security import (ApiError, body, clean_date, clean_target, current_user, login_required, rate_limited,
                         record_event)
-from ..services import billing, family, mailer, parent as service, stripe_api
+from ..services import access, billing, family, mailer, parent as service, stripe_api
 
 # ---------- the student's side: make a code, see and remove parents ----------
 
@@ -95,7 +95,7 @@ def unlink_student(student_id):
 @login_required
 def student_summary(student_id):
     student, link = _student_or_404(student_id)
-    return jsonify(service.summary(student, link))
+    return jsonify(service.locked_summary(student, link))
 
 
 @bp.patch("/students/<int:student_id>/settings")
@@ -129,7 +129,7 @@ def update_settings(student_id):
     if link_fields:
         execute(f"UPDATE family_links SET {set_clause(link_fields)} WHERE id = ?", (*link_fields.values(), link["id"]))
     student, link = _student_or_404(student_id)
-    return jsonify(service.summary(student, link))
+    return jsonify(service.locked_summary(student, link))
 
 
 @bp.post("/students/<int:student_id>/plan")
@@ -202,6 +202,7 @@ def send_report(student_id):
     if rate_limited(bucket, 5, 60):
         raise ApiError(429, "Reports are limited to five an hour.")
     record_event(bucket)
+    access.require(student, "parent_dashboard")
     s = service.summary(student, link)
     mailer.send(me["email"], f"{s['student']['first_name']}'s week on Graphite SAT", service.report_text(me, s))
     return jsonify({"ok": True, "to": me["email"]})
@@ -213,6 +214,8 @@ def send_weekly_reports():
     for link in query("SELECT * FROM family_links WHERE weekly_report = 1"):
         p = query("SELECT * FROM users WHERE id = ?", (link["parent_id"],), one=True)
         st = query("SELECT * FROM users WHERE id = ?", (link["student_id"],), one=True)
+        if not access.allowed(st["id"], "parent_dashboard"):
+            continue  # weekly progress emails come with the plans that include the parent dashboard
         s = service.summary(st, link, date.today())
         mailer.send(p["email"], f"{s['student']['first_name']}'s week on Graphite SAT", service.report_text(p, s))
         sent += 1

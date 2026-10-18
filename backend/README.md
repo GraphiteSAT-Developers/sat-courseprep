@@ -180,7 +180,25 @@ Every plan, price and feature list lives in `app/services/plans.py`. The home pa
 | Sharpened | $9.99 ($43.29/month) | $39 | $348 ($29/month, 26% off) |
 | Masterstroke | $34.99 ($151.62/month) | $129 | $1,188 ($99/month, 23% off) |
 
-Prices are always shown per month. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, but limits aren't enforced yet: every account can use everything. Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
+Prices are always shown per month. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, and `app/services/access.py` enforces it:
+
+- Free: the diagnostic, 1 practice set a week, answers without step-by-step explanations. No mock tests, study plan, review queue, Level up, score history or parent progress.
+- No. 2: unlimited practice sets, explanations, the study plan and review queue, 2 mock tests a month.
+- Sharpened and Masterstroke: everything, including unlimited mock tests, Level up, score history and the parent dashboard with weekly emails.
+- A plan that isn't paid counts as free: a failed payment (Stripe marks it `past_due`) or a pause locks the paid features until it's paid or resumed. A canceled plan keeps working until the end of the time paid for.
+
+Locked features show what unlocks them, and requests for them answer `402` with `code: "plan_required"`. Students manage their own plan in **Settings > Subscription** (switch, pause, cancel, undo, fix a failed payment); parents can do the same on the parent dashboard, and either can pay at checkout. Set `PLAN_LIMITS=false` in `backend/.env` to turn every lock off. The test account starts on the free plan; switch it to any plan in Settings > Subscription (no card is charged while Stripe isn't connected). Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
+
+## Mock tests
+
+The Mock tests page (`practice.html`) runs a full Math section like the digital SAT (`app/services/mock.py`): Module 1 (22 questions, 35 minutes, a mix of difficulties), then a harder Module 2 after 14 or more right, or an easier one otherwise. Questions are never ones the student has seen, and Module 2 never repeats Module 1. A test can start with the 10-minute break, which on test day comes between Reading and Writing and Math. The tutor is hidden until the test is submitted. The end shows an estimated Math score (200 to 800) from our own questions, not an official score. Reading and Writing mock tests are listed as coming soon.
+
+## Copy warnings, analytics and consent
+
+- Copying text from a question, or pasting into an answer, warns the student the first time; after that it's recorded and every linked parent gets an email (at most one per 30 minutes). Parents see it as an alert. (`app/services/integrity.py`, `website/src/integrity.js`)
+- With the visitor's OK in the cookie banner, each page sends first-party analytics to `/api/analytics`: page, title, referring site, campaign tags, device, browser, OS, screen and window size, language, time zone, time on page, scroll depth and main-button clicks. Nothing goes to an ad network. Rows are deleted after `ANALYTICS_DAYS` (395). Run `flask --app wsgi analytics-report` for a 30-day summary. Set `ANALYTICS=false` to turn it off.
+- Every cookie choice is logged in `consent_log` (including Global Privacy Control), as the record of consent.
+- Not collected, on purpose: activity on other websites, precise location, IP addresses with usage data, or device fingerprints. Most users are minors; COPPA and state student-privacy laws (such as California's SOPIPA) limit what an education site may collect from them and what it can do with it. Check with a lawyer before collecting more.
 
 ## Rewards, speed rounds, focus and lessons
 

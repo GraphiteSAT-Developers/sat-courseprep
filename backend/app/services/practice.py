@@ -244,6 +244,9 @@ def public(session):
     }
     if session["results"]:
         out["result"] = json.loads(session["results"])
+    if (session.get("plan_task") or "").startswith("mock:"):
+        from . import mock
+        out["mock"] = mock.for_session(session["user_id"], session)
     if (session.get("plan_task") or "").startswith("ladder:"):
         from . import levels
         tag = levels.parse_tag(session["plan_task"])
@@ -318,8 +321,9 @@ def submit(user_id, session, answers, seconds):
     else:
         add_to_review(user_id, unchecked)
 
-    if session["mode"] == "test":
+    if session["mode"] == "test" and not task.startswith("mock:"):
         # Practice tests count toward the dashboard's score history, like the fixed tests.
+        # (A mock test's two modules count once, together: services/mock.py saves that.)
         row = execute(
             "INSERT INTO test_attempts (user_id, test_id, seconds_used, correct, total, answers, results, submitted_at) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",

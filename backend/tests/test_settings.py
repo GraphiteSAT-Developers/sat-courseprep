@@ -26,7 +26,7 @@ class SettingsTest(unittest.TestCase):
         self.dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.dir, True)
         self.db = f"sqlite:///{self.dir}/test.db"
-        self.app = create_app({"DATABASE_URL": self.db, "TESTING": True, "FORCE_HTTPS": False,
+        self.app = create_app({"DATABASE_URL": self.db, "TESTING": True, "PLAN_LIMITS": False, "FORCE_HTTPS": False,
                                "SESSION_COOKIE_SECURE": False, "BASE_URL": "http://localhost"})
         self.c = self.app.test_client()
         r = self.post("/api/auth/register", {"name": "Sam Lee", "email": "sam@school.org", "password": "password123",

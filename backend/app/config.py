@@ -77,3 +77,8 @@ class Config:
     # A test account, username "beta" and password "beta", for trying the site locally.
     # Never on in production, whatever the environment says: anyone could sign in with it.
     TEST_ACCOUNT = _bool("TEST_ACCOUNT", True) and not IS_PRODUCTION
+    # Plan limits (services/access.py): what each plan includes, and paid features locked when a plan isn't paid.
+    PLAN_LIMITS = _bool("PLAN_LIMITS", True)
+    # First-party analytics (services/analytics.py), only for visitors who accept analytics cookies.
+    ANALYTICS = _bool("ANALYTICS", True)
+    ANALYTICS_DAYS = int(os.environ.get("ANALYTICS_DAYS", "395"))  # about 13 months, then rows are deleted

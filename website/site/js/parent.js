@@ -93,12 +93,38 @@
   });
 
   /* ---------- render ---------- */
+  // The student's progress comes with Sharpened and up. Without it (or while a plan isn't paid), the parent still
+  // sees alerts, settings, and the plan and billing, so they can pay or upgrade.
+  function lockedView(s) {
+    var locked = !!(s.access && !s.access.ok);
+    $("overview").querySelector(".pd-kpis").hidden = locked;
+    $("progress").hidden = locked; $("activity").hidden = locked;
+    var old = document.getElementById("pd-lock"); if (old) old.remove();
+    if (locked && window.GraphiteLock) {
+      var card = GraphiteLock.card(s.access);
+      card.id = "pd-lock";
+      card.querySelector("strong").textContent = s.access.reason ? s.access.reason : "Progress reports come with " + s.access.need_name;
+      card.querySelector("p").textContent = s.access.reason ? s.student.first_name + "'s progress is locked until the plan is paid. Update the card under Plan and billing."
+        : "Scores, skills, study time and weekly emails are part of " + s.access.need_name + " and up. Copy alerts and billing always show here.";
+      card.querySelector("a").setAttribute("href", "#billing");
+      $("overview").insertAdjacentElement("afterend", card);
+    }
+    return locked;
+  }
   function render(s) {
     S = s;
     var st = s.student, o = s.overview;
     $("pd-name").textContent = st.name;
     $("pd-student-meta").textContent = [st.grade ? st.grade + "th grade" : null, st.target_score ? "Target " + st.target_score : null,
       st.test_date ? "SAT on " + day(st.test_date) : "No SAT date yet"].filter(Boolean).join(" · ");
+    if (lockedView(s)) {
+      $("pd-countdown").hidden = true;
+      $("pd-alerts").innerHTML = s.alerts.map(function (a) {
+        return '<li class="pd-alert ' + a.level + '"><span class="pd-alert-dot" aria-hidden="true"></span>' + esc(a.text) + "</li>";
+      }).join("");
+      renderBilling(); renderSettings(); renderFamily();
+      return;
+    }
     var cd = $("pd-countdown");
     cd.hidden = o.days_to_test == null;
     if (o.days_to_test != null) cd.textContent = o.days_to_test === 0 ? "SAT today" : plural(o.days_to_test, "day", "days") + " to the SAT";
@@ -164,7 +190,7 @@
       : sub.status === "canceled" ? "Canceled. Stays on until " + day(sub.renews_on) + ", then switches to the free plan."
       : sub.plan === "free" ? "The free plan. Upgrade any time." : "Renews " + day(sub.renews_on) + ".";
     $("pd-current").innerHTML = '<div><p class="label">Current plan</p><p class="pd-plan-name">' + esc(sub.plan_name) + ' <span class="pd-price">' + esc(sub.price_label) + "</span></p>" +
-      '<p class="fine">' + esc(state) + "</p></div>" + '<span class="chip pd-status-' + sub.status + '">' + (sub.status === "active" ? "Active" : sub.status === "paused" ? "Paused" : "Canceled") + "</span>";
+      '<p class="fine">' + esc(state) + "</p></div>" + '<span class="chip pd-status-' + sub.status + '">' + (sub.status === "active" ? "Active" : sub.status === "paused" ? "Paused" : sub.status === "past_due" ? "Payment failed" : "Canceled") + "</span>";
     if (sub.interval && $("pd-int-" + sub.interval)) $("pd-int-" + sub.interval).checked = true;
     closeConfirm();
     drawPlans();
@@ -172,7 +198,8 @@
     if (sub.status === "active" && sub.plan !== "free") acts.push(["pause", "btn-secondary", "Pause for 30 days"], ["cancel", "btn-quiet", "Cancel plan"]);
     if (sub.status === "paused") acts.push(["resume", "btn-primary", "Resume now"], ["cancel", "btn-quiet", "Cancel plan"]);
     if (sub.status === "canceled") acts.push(["resume", "btn-primary", "Keep " + sub.plan_name]);
-    if (home.payments_live && sub.plan !== "free") acts.push(["portal", "btn-quiet", "Card and receipts"]);
+    if (sub.status === "past_due") acts.push(["portal", "btn-primary", "Update card and pay"], ["cancel", "btn-quiet", "Cancel plan"]);
+    else if (home.payments_live && sub.plan !== "free") acts.push(["portal", "btn-quiet", "Card and receipts"]);
     $("pd-plan-actions").innerHTML = acts.map(function (a) { return '<button class="btn ' + a[1] + '" type="button" data-act="' + a[0] + '">' + a[2] + "</button>"; }).join("");
     $("pd-history").innerHTML = S.billing.length ? S.billing.map(function (b) {
       return '<li><span class="pd-act-day">' + day(b.at) + "</span><span>" + esc(b.detail) + "</span></li>";

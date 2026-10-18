@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request
 
 from ..db import execute, now_iso, query
 from ..security import ApiError, body, current_user, login_required, rate_limited, record_event
-from ..services import bank, practice, review, today as today_service
+from ..services import access, bank, practice, review, today as today_service
 from ..services import dashboard as dashboard_service
 
 bp = Blueprint("dashboard", __name__, url_prefix="/api")
@@ -18,6 +18,14 @@ ACTIVITY_PER_HOUR = 30
 def dashboard():
     user = current_user()
     data = dashboard_service.build(user, _local_today())
+    # What the plan includes: locked panels show what unlocks them instead of their contents.
+    data["access"] = access.summary(user["id"])
+    feats = data["access"]["features"]
+    if not feats["review_queue"]["ok"]:
+        data["review"] = []
+    if not feats["score_history"]["ok"]:
+        # The latest score stays on the dashboard; the history and skill breakdown are part of the paid plans.
+        data["history"] = data["history"][-1:]
     # The first visit after a student's first sign-in goes to the diagnostic, once. Skipping it is fine:
     # they aren't sent back, and Today's set offers it until they take it.
     data["start_with_diagnostic"] = False
@@ -46,10 +54,14 @@ def _local_today():
 @login_required
 def start_today():
     """Today's set: the next task in this week of the study plan, or the weakest domain, or the diagnostic."""
-    session = today_service.start(current_user(), _local_today())
+    user = current_user()
+    access.require(user, "study_plan" if today_service.latest_plan(user["id"])[0] else "practice_set")
+    session = today_service.start(user, _local_today())
     if not session:
         return jsonify({"redirect": "plan.html"})
-    return jsonify({"session": practice.public(session)}), 201
+    out = practice.public(session)
+    access.redact(user["id"], list(out["checked"].values()))
+    return jsonify({"session": out}), 201
 
 
 @bp.post("/review/<int:item_id>/practice")
@@ -57,6 +69,7 @@ def start_today():
 def review_practice(item_id):
     """Opens a missed question from the question bank again, as a one-question set."""
     user = current_user()
+    access.require(user, "review_queue")
     item = query("SELECT * FROM review_items WHERE id = ? AND user_id = ? AND cleared_at IS NULL", (item_id, user["id"]), one=True)
     if not item:
         raise ApiError(404, "That review question is already cleared.")
@@ -70,6 +83,7 @@ def review_practice(item_id):
 @bp.post("/review/<int:item_id>/right")
 @login_required
 def review_right(item_id):
+    access.require(current_user(), "review_queue")
     state = review.mark_right(current_user()["id"], item_id)
     if not state:
         raise ApiError(404, "That review question is already cleared.")

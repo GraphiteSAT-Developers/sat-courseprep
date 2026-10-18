@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=3f41b155dc">
-<script src="/js/site.js?v=87152444fc" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=48f680d87c">
+<script src="/js/site.js?v=f066ab8928" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -87,8 +87,11 @@
         <li><strong>Parent details:</strong> a parent or guardian's name and email when a student adds them for progress emails.</li>
         <li><strong>Billing details:</strong> handled by our payment processor. We see the card brand, last four digits and expiry date, never the full card number.</li>
         <li><strong>Account history:</strong> while you're signed in, we save what you do on Graphite SAT to your account: every question you answer and whether it was right, changes to your profile and settings, rewards, market trades, and the pages you open. It's encrypted, it never includes passwords, you can read it in Settings &gt; History or download it, and it's deleted with your account.</li>
-        <li><strong>Usage data:</strong> pages visited and buttons clicked, collected only if you accept analytics cookies. See the <a href="/cookies.html">cookie policy</a>.</li>
+        <li><strong>Copy and paste on questions:</strong> when a student copies text from a question or pastes into an answer, we record when it happened and on which page (not what was copied). The first time, the page shows a warning. After that, each time is recorded and a connected parent gets an email.</li>
+        <li><strong>Usage data (only if you accept analytics cookies):</strong> the pages you open on Graphite SAT and their titles, the website or campaign link that brought you here, the kind of device, browser and operating system, screen and window size, language and time zone, how long each page was open, how far you scrolled, and clicks on the site's main buttons. A random visitor id in a cookie ties your visits together, and when you're signed in, this is tied to your account. See the <a href="/cookies.html">cookie policy</a>.</li>
+        <li><strong>Your cookie choices:</strong> whether you accepted analytics, when, the policy version, and whether your browser sent a Global Privacy Control signal. We keep this as the record of your consent.</li>
       </ul>
+      <p>We don't collect what you do on other websites, your precise location, or a device fingerprint, and we don't store IP addresses with usage data.</p>
 
       <h2 id="use">2. How we use it</h2>
       <p>We use this information to run your account, choose your daily practice, explain mistakes, send progress emails you've asked for, process payments, answer support requests, and keep the service secure. We don't sell personal information and we don't show advertising.</p>
@@ -108,7 +111,7 @@
       <p>We don't share data with colleges, the College Board or advertisers.</p>
 
       <h2 id="keep">6. How long we keep it</h2>
-      <p>We keep account and practice data while your account is open. If you close your account, we delete it within 30 days, except billing records we must keep for tax purposes.</p>
+      <p>Usage data is deleted after 13 months. Turning analytics off in cookie settings deletes the usage data from that browser that isn't tied to an account. We keep account and practice data while your account is open. If you close your account, we delete it within 30 days, except billing records we must keep for tax purposes.</p>
 
       <h2 id="rights">7. Your rights</h2>
       <p>You can ask to access, correct, download or delete your data. Depending on where you live, including California and other US states, you may have additional rights under state law. We won't treat you differently for using them. Email <a href="mailto:privacy@graphiteprep.com">privacy@graphiteprep.com</a> and we'll respond within 30 days.</p>
@@ -184,7 +187,7 @@
     </div>
     <div class="cookie-prefs" id="cookie-prefs" hidden>
       <label class="check"><input type="checkbox" checked disabled id="consent-essential"><span>Essential<small>Sign in, security and saving this choice. Always on.</small></span></label>
-      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Page views and button clicks, with IP addresses anonymized.</small></span></label>
+      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Pages opened, where you came from, time on page, scrolling and main-button clicks. Kept on our own server, never sold.</small></span></label>
       <div><button class="btn btn-primary" type="button" id="cookie-save">Save choices</button></div>
     </div>
   </div>

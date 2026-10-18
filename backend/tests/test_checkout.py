@@ -50,7 +50,7 @@ class CheckoutTest(unittest.TestCase):
 
     def setUp(self):
         self.dir = tempfile.mkdtemp()
-        cfg = {"DATABASE_URL": f"sqlite:///{self.dir}/test.db", "TESTING": True, "FORCE_HTTPS": False,
+        cfg = {"DATABASE_URL": f"sqlite:///{self.dir}/test.db", "TESTING": True, "PLAN_LIMITS": False, "FORCE_HTTPS": False,
                "SESSION_COOKIE_SECURE": False, "BASE_URL": "http://localhost"}
         if self.live:
             cfg.update(STRIPE_SECRET_KEY="sk_test_fake", STRIPE_WEBHOOK_SECRET="whsec_fake")
@@ -91,7 +91,8 @@ class WithoutStripe(CheckoutTest):
         self.assertEqual(self.student.get("/api/checkout").json["account"]["role"], "student")
 
     def test_checks_before_buying(self):
-        self.assertEqual(self.post(self.student, "/api/checkout", {"plan": "sharpened", "interval": "year", "student_id": self.student_id, "agree": True}).status_code, 403)
+        # A student can buy a plan for themselves, but not for another student.
+        self.assertEqual(self.post(self.student, "/api/checkout", {"plan": "sharpened", "interval": "year", "student_id": self.student_id + 999, "agree": True}).status_code, 404)
         self.assertEqual(self.buy(agree=False).status_code, 400)
         self.assertEqual(self.buy(plan="free").status_code, 400)
         self.assertEqual(self.buy(interval="decade").status_code, 400)

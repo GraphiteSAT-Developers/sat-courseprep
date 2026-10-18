@@ -13,7 +13,7 @@ class TestAccountTest(unittest.TestCase):
     def make(self, **extra):
         self.dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.dir, True)
-        cfg = {"DATABASE_URL": f"sqlite:///{self.dir}/test.db", "TESTING": True, "FORCE_HTTPS": False,
+        cfg = {"DATABASE_URL": f"sqlite:///{self.dir}/test.db", "TESTING": True, "PLAN_LIMITS": False, "FORCE_HTTPS": False,
                "SESSION_COOKIE_SECURE": False, "BASE_URL": "http://localhost"}
         cfg.update(extra)
         return create_app(cfg).test_client()

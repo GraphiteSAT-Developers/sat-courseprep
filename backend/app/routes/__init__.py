@@ -2,7 +2,8 @@
 
 The pages blueprint stays last: it catches every path that isn't an API route.
 """
-from . import account, auth, checkout, dashboard, family, history, leads, pages, plan, play, practice, settings, tests
+from . import (account, auth, checkout, dashboard, family, history, integrity, leads, mocktests, pages, plan, play, practice,
+               settings, subscription, tests)
 
 BLUEPRINTS = [
     auth.bp,        # /api/auth/...  create account, sign in and out, password reset
@@ -10,12 +11,14 @@ BLUEPRINTS = [
     leads.bp,       # /api/leads     the home page signup form
     tests.bp,       # /api/tests     practice tests and grading
     practice.bp,    # /api/practice  random practice tests and topic practice from the question bank
+    mocktests.bp,   # /api/mock-tests  full adaptive sections: Module 1, then a harder or easier Module 2, and the break
     plan.bp,        # /api/plan      the diagnostic and the study plan
     practice.sample_bp,  # /api/sample  the home page's sample question
     practice.levels_bp,  # /api/levels  Level up: sets that get harder level by level
     dashboard.bp,   # /api/dashboard, /api/review, /api/activity
     family.student_bp,  # /api/family  a student's Parent access: link codes and connected parents
     family.bp,      # /api/parent  the parent dashboard
+    subscription.bp,  # /api/me/subscription  a student's own plan: change, pause, cancel, resume, card
     settings.bp,    # /api/me/...    the settings page: appearance, photo, email, password, data, delete
     checkout.bp,    # /api/checkout  the checkout page: buy a plan (Stripe, once connected)
     checkout.webhook_bp,  # /api/stripe/webhook  payments, renewals and cancellations from Stripe
@@ -26,6 +29,7 @@ BLUEPRINTS = [
     play.market_bp,   # /api/market   the collectibles market
     play.pet_bp,      # /api/pet      hatch and raise a pet
     history.bp,       # /api/me/history  everything done on the site, and every answered question
+    integrity.bp,     # /api/integrity/copy, /api/analytics, /api/consent
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health
 ]

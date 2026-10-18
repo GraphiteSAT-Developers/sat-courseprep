@@ -23,6 +23,7 @@ PUBLIC = {
     "/api/auth/form-token",            # bot protection token for the public forms
     "/api/leads",                      # the home page form
     "/api/checkout",                   # plan list on the checkout page (account details only when signed in)
+    "/api/analytics", "/api/consent",  # cookie choices and consented analytics, from any visitor
     "/api/speed/states",               # the list of US states
     "/api/stripe/webhook",             # Stripe's servers, checked by signature instead
 }
@@ -104,7 +105,7 @@ class SecurityTest(PracticeTest):
         cookie = r.headers.get("Set-Cookie", "")
         self.assertIn("HttpOnly", cookie)
         self.assertIn("SameSite=Lax", cookie)
-        prod = create_app({"DATABASE_URL": f"sqlite:///{self.dir}/p.db", "TESTING": True, "FORCE_HTTPS": True,
+        prod = create_app({"DATABASE_URL": f"sqlite:///{self.dir}/p.db", "TESTING": True, "PLAN_LIMITS": False, "FORCE_HTTPS": True,
                            "SESSION_COOKIE_SECURE": True, "SESSION_COOKIE_NAME": "__Host-graphite_session"})
         c = prod.test_client()
         c.post("/api/auth/register", json={"name": "Pat Kim", "email": "pat@school.org", "password": "password123", "grade": 10},
@@ -125,7 +126,7 @@ class SecurityTest(PracticeTest):
 
     # ---------- bot protection ----------
     def test_forms_need_a_fresh_token_and_a_human_pace(self):
-        app = create_app({"DATABASE_URL": f"sqlite:///{self.dir}/b.db", "TESTING": True, "FORCE_HTTPS": False,
+        app = create_app({"DATABASE_URL": f"sqlite:///{self.dir}/b.db", "TESTING": True, "PLAN_LIMITS": False, "FORCE_HTTPS": False,
                           "SESSION_COOKIE_SECURE": False, "BOT_CHECK_IN_TESTS": True})
         c = app.test_client()
         form = {"name": "Ana Cruz", "email": "ana@school.org", "password": "password123", "grade": 11}
@@ -211,7 +212,7 @@ class SecurityTest(PracticeTest):
         self.assertIn("frame-ancestors 'self'", h["Content-Security-Policy"])
         self.assertIn("object-src 'none'", h["Content-Security-Policy"])
         self.assertEqual(self.client.get("/api/me").headers["Cache-Control"], "no-store")
-        prod = create_app({"DATABASE_URL": f"sqlite:///{self.dir}/h.db", "TESTING": True, "FORCE_HTTPS": True})
+        prod = create_app({"DATABASE_URL": f"sqlite:///{self.dir}/h.db", "TESTING": True, "PLAN_LIMITS": False, "FORCE_HTTPS": True})
         r = prod.test_client().get("/pricing", base_url="http://graphiteprep.com")
         self.assertEqual(r.status_code, 301)
         self.assertTrue(r.headers["Location"].startswith("https://"))

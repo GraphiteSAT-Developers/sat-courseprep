@@ -70,6 +70,13 @@ def create_app(overrides=None):
             if user and user["role"] != "parent" and request.path.startswith("/api/parent"):
                 raise ApiError(403, "The parent dashboard is for parent accounts.", code="student_account")
 
+    @app.cli.command("analytics-report")
+    def analytics_report():
+        """The last 30 days of site analytics: flask --app wsgi analytics-report"""
+        import json as _json
+        from .services import analytics
+        print(_json.dumps(analytics.report(), indent=2))
+
     @app.cli.command("send-weekly-reports")
     def weekly_reports():
         """Email each parent their student's week. Schedule it weekly (for example Sunday evening)."""

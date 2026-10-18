@@ -1,15 +1,15 @@
-<!--{"file": "practice.html", "path": "/practice.html", "title": "Practice | Graphite SAT", "description": "Choose an SAT section, then take a timed practice test or practice one topic at a time, with a full explanation for every question.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "practice.js", "effects.js"]}-->
+<!--{"file": "practice.html", "path": "/practice.html", "title": "Mock Tests | Graphite SAT", "description": "Full-length SAT mock tests in the real format: two adaptive modules, the 10-minute break and an estimated score, plus untimed topic practice.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "practice.js", "effects.js"]}-->
 <main id="main" class="practice">
   <div class="wrap dash-stack">
     <p class="sample-note" id="pr-preview-note" hidden><span class="label">Preview</span> This preview saves your answers in this browser only. On the live site they stay with your account.</p>
 
     <div class="dash-top">
       <div>
-        <p class="label">Practice</p>
-        <h1>Practice the SAT your way</h1>
+        <p class="label">Mock tests</p>
+        <h1>Take the SAT before test day</h1>
       </div>
     </div>
-    <p class="lede pr-lede">Pick a section, then a timed test or a topic. Every question comes with a step-by-step explanation, and you won't see repeats.</p>
+    <p class="lede pr-lede">Each section works like the real digital SAT: two timed modules, where Module 2 gets harder or easier depending on how Module 1 went, and the 10-minute break. Every question is one you haven't seen.</p>
 
     <div class="pr-sections" role="tablist" aria-label="SAT section">
       <button class="pr-section" type="button" role="tab" id="tab-math" aria-controls="pr-math" aria-selected="true" data-section="math">
@@ -29,23 +29,43 @@
     </section>
 
     <div class="pr-modes" id="pr-math" role="tabpanel" aria-labelledby="tab-math">
-      <section class="panel pr-card pr-test" id="pr-test" aria-labelledby="pr-test-title">
-        <p class="label">Timed · like test day</p>
-        <h2 id="pr-test-title">Take a Math practice test</h2>
-        <p class="panel-lede">Feel the real thing: a full module of fresh questions with the clock running.</p>
+      <section class="panel pr-card pr-test pr-mock" id="pr-mock" aria-labelledby="pr-mock-title">
+        <p class="label">Adaptive · like test day</p>
+        <h2 id="pr-mock-title">Full Math section</h2>
+        <p class="panel-lede">Module 1 has a mix of easy, medium and hard questions. How it goes decides Module 2: harder after a strong start, easier otherwise, just like Bluebook. You get an estimated Math score at the end.</p>
+        <ul class="pr-facts">
+          <li><strong>2</strong> modules, <strong>22</strong> questions each</li>
+          <li><strong>35</strong> minutes per module, timed</li>
+          <li>Graphing calculator and reference sheet; the tutor opens after you finish</li>
+          <li>Full explanations and an estimated score out of 800</li>
+        </ul>
+        <label class="check pr-break-opt"><input type="checkbox" id="pr-mock-break" checked> <span>Start with the 10-minute break. On test day it comes between Reading and Writing and Math, so this puts Math right where it falls.</span></label>
+        <p class="fine pr-allowance" id="pr-mock-left"></p>
+        <div class="pr-lock" id="pr-mock-lock"></div>
+        <button class="btn btn-primary" type="button" id="pr-mock-start" data-track="mock_start">Start the Math section</button>
+      </section>
+
+      <section class="panel pr-card" id="pr-test" aria-labelledby="pr-test-title">
+        <p class="label">Shorter · one module</p>
+        <h2 id="pr-test-title">One Math module</h2>
+        <p class="panel-lede">Just Module 1: fresh questions in the real mix with the clock running. Counts as one of your mock tests.</p>
         <ul class="pr-facts">
           <li><strong id="pr-test-q">22</strong> questions</li>
           <li><strong id="pr-test-min">35</strong> minutes, timed</li>
-          <li>Algebra, Advanced Math, Data Analysis, Geometry</li>
-          <li>Full explanations after you submit</li>
         </ul>
-        <button class="btn btn-primary" type="button" id="pr-test-start" data-track="practice_test_start">Start a practice test</button>
+        <button class="btn btn-secondary" type="button" id="pr-test-start" data-track="practice_test_start">Start one module</button>
+      </section>
+
+      <section class="panel pr-card pr-recent" id="pr-recent" aria-labelledby="pr-recent-title" hidden>
+        <div class="panel-head"><h2 id="pr-recent-title">Your mock tests</h2></div>
+        <ul class="queue" id="pr-recent-list"></ul>
       </section>
 
       <section class="panel pr-card" id="pr-topic" aria-labelledby="pr-topic-title">
         <p class="label">Untimed · at your pace</p>
         <h2 id="pr-topic-title">Practice a Math topic</h2>
         <p class="panel-lede">Pick a topic and check each answer as you go. You'll see how to solve it right away, plus the Desmos shortcut when there is one.</p>
+        <p class="fine pr-allowance" id="pr-topic-left"></p>
         <fieldset class="pr-count">
           <legend class="label">Questions per set</legend>
           <div class="seg" id="pr-count"></div>
@@ -57,22 +77,32 @@
     </div>
 
     <div class="pr-modes is-soon" id="pr-rw" role="tabpanel" aria-labelledby="tab-rw" hidden>
-      <p class="sample-note pr-soon-note"><span class="label">Coming soon</span> Reading and Writing practice is on the way. Until then, the Math section is ready to go.</p>
-      <section class="panel pr-card pr-test" aria-labelledby="pr-rw-test-title">
-        <p class="label">Option 1</p>
-        <h2 id="pr-rw-test-title">Take a Reading and Writing practice test</h2>
-        <p class="panel-lede">A full Reading and Writing module with short passages, in the same mix as the real test.</p>
+      <p class="sample-note pr-soon-note"><span class="label">Coming soon</span> Reading and Writing mock tests are on the way. Until then, the Math section is ready to go.</p>
+      <section class="panel pr-card pr-test pr-mock" aria-labelledby="pr-rw-test-title">
+        <p class="label">Adaptive · like test day</p>
+        <h2 id="pr-rw-test-title">Full Reading and Writing section</h2>
+        <p class="panel-lede">Two adaptive modules of short passages, in the same mix as the real test, with an estimated Reading and Writing score at the end.</p>
         <ul class="pr-facts">
-          <li><strong>27</strong> questions</li>
-          <li><strong>32</strong> minutes, timed</li>
+          <li><strong>2</strong> modules, <strong>27</strong> questions each</li>
+          <li><strong>32</strong> minutes per module, timed</li>
           <li>Information and Ideas, Craft and Structure, Expression of Ideas, Conventions</li>
-          <li>Full explanations after you submit</li>
+          <li>Then the 10-minute break before Math, like test day</li>
         </ul>
         <button class="btn btn-primary" type="button" disabled>Coming soon</button>
       </section>
 
+      <section class="panel pr-card" aria-labelledby="pr-rw-module-title">
+        <p class="label">Shorter · one module</p>
+        <h2 id="pr-rw-module-title">One Reading and Writing module</h2>
+        <ul class="pr-facts">
+          <li><strong>27</strong> questions</li>
+          <li><strong>32</strong> minutes, timed</li>
+        </ul>
+        <button class="btn btn-secondary" type="button" disabled>Coming soon</button>
+      </section>
+
       <section class="panel pr-card" aria-labelledby="pr-rw-topic-title">
-        <p class="label">Option 2</p>
+        <p class="label">Untimed · at your pace</p>
         <h2 id="pr-rw-topic-title">Practice a Reading and Writing topic</h2>
         <p class="panel-lede">Untimed. Check each answer as you go and see the full explanation right away.</p>
         <div class="pr-domains">

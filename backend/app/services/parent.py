@@ -179,6 +179,12 @@ def _alerts(student, link, s, scores, diagnostic, today):
         out.append({"level": "info", "text": f"{s['minutes_week']} of {goal} minutes studied this week so far."})
     if s["streak_days"] >= 5:
         out.append({"level": "good", "text": f"{first} has practiced {s['streak_days']} days in a row."})
+    from . import integrity
+    copies = integrity.recent(student["id"])
+    if copies:
+        last = copies[0]["at"]
+        out.insert(0, {"level": "warn", "text": f"{first} copied question text {len(copies)} {'time' if len(copies) == 1 else 'times'} this week "
+                                                f"(last on {nice_date(last[:10])}). The first time, the page gave a warning."})
     return out
 
 
@@ -242,6 +248,27 @@ def summary(student, link, today=None):
         "subscription": subscription(student["id"], today),
         "billing": billing_history(student["id"]),
     }
+
+
+LOCKED_KEYS = ("overview", "scores", "domains", "diagnostic", "plan", "levels", "review", "activity")
+
+
+def locked_summary(student, link, today=None):
+    """The parent dashboard as a parent sees it: progress only when the student's plan includes it.
+
+    Without it, the parent still sees alerts, settings, the plan and billing (so they can pay or upgrade)."""
+    from . import access
+    out = summary(student, link, today)
+    st = access.state(student["id"], "parent_dashboard")
+    out["access"] = access.public_state(st)
+    if not st["ok"]:
+        for k in LOCKED_KEYS:
+            out[k] = None
+        out["alerts"] = [a for a in out["alerts"] if "copied" in a["text"]]
+        sub = out["subscription"]
+        if sub["status"] == "past_due":
+            out["alerts"].insert(0, {"level": "warn", "text": "A payment didn't go through, so paid features are locked. Update the card under Manage billing."})
+    return out
 
 
 # ---------- the weekly email ----------

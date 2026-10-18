@@ -134,12 +134,13 @@ def sync_action(student_id, action, paused_until=None):
         stripe_api.request("POST", f"/subscriptions/{sid}", {"pause_collection": {"behavior": "void", "resumes_at": int(until.timestamp())}})
 
 
-def portal_url(payer):
-    """Stripe's billing page, where a parent updates their card and downloads receipts."""
+def portal_url(payer, return_path=None):
+    """Stripe's billing page, where the payer updates their card, pays a failed bill and downloads receipts."""
     if not stripe_api.is_live() or not payer["stripe_customer_id"]:
         return None
+    back = return_path or ("/parent.html" if payer["role"] == "parent" else "/settings.html#subscription")
     s = stripe_api.request("POST", "/billing_portal/sessions", {"customer": payer["stripe_customer_id"],
-                                                                "return_url": current_app.config["BASE_URL"] + "/parent.html"})
+                                                                "return_url": current_app.config["BASE_URL"] + back})
     return s["url"]
 
 
@@ -163,7 +164,8 @@ def handle_event(event):
                 execute("UPDATE subscriptions SET stripe_subscription_id = NULL WHERE student_id = ?", (row["student_id"],))
                 parent_svc._event(row["student_id"], None, "change", f"The paid plan ended. Back on the free {PLANS['free']['name']} plan.")
             else:
-                status = ("paused" if obj.get("pause_collection") else "canceled" if obj.get("cancel_at_period_end") else "active")
+                status = ("past_due" if obj.get("status") in ("past_due", "unpaid", "incomplete")
+                          else "paused" if obj.get("pause_collection") else "canceled" if obj.get("cancel_at_period_end") else "active")
                 row.update(status=status, renews_on=_period_end(obj) or row["renews_on"])
                 if status != "paused":
                     row["paused_until"] = None
@@ -171,9 +173,22 @@ def handle_event(event):
     elif kind in ("invoice.paid", "invoice.payment_failed") and obj.get("subscription"):
         row = query("SELECT * FROM subscriptions WHERE stripe_subscription_id = ?", (obj["subscription"],), one=True)
         if row and kind == "invoice.payment_failed":
+            # Paid features lock until the bill is paid (services/access.py).
+            row = dict(row)
+            if row["status"] != "past_due":
+                row["status"] = "past_due"
+                parent_svc._save(row["student_id"], row, row["updated_by"])
             parent_svc._event(row["student_id"], None, "payment_failed",
-                              "A payment didn't go through. Stripe will try again; update the card under Manage billing.")
-        elif row and obj.get("billing_reason") == "subscription_cycle":
-            parent_svc._event(row["student_id"], None, "renewal", f"Renewed. Paid {money(obj.get('amount_paid') or 0)}.", obj.get("amount_paid") or 0)
+                              "A payment didn't go through, so paid features are locked until it's paid. Stripe will try again; "
+                              "update the card under Manage billing.")
+        elif row:
+            row = dict(row)
+            if row["status"] == "past_due":
+                row["status"] = "active"
+                parent_svc._save(row["student_id"], row, row["updated_by"])
+                parent_svc._event(row["student_id"], None, "renewal", f"Paid {money(obj.get('amount_paid') or 0)}. Everything is unlocked again.",
+                                  obj.get("amount_paid") or 0)
+            elif obj.get("billing_reason") == "subscription_cycle":
+                parent_svc._event(row["student_id"], None, "renewal", f"Renewed. Paid {money(obj.get('amount_paid') or 0)}.", obj.get("amount_paid") or 0)
     execute("INSERT INTO stripe_events (id, kind, received_at) VALUES (?, ?, ?)", (event["id"], kind, now_iso()))
     return "ok"

@@ -196,7 +196,7 @@ class LatexTest(unittest.TestCase):
 class StartFirstTest(unittest.TestCase):
     def setUp(self):
         self.dir = tempfile.mkdtemp()
-        self.app = create_app({"DATABASE_URL": f"sqlite:///{self.dir}/test.db", "TESTING": True, "FORCE_HTTPS": False,
+        self.app = create_app({"DATABASE_URL": f"sqlite:///{self.dir}/test.db", "TESTING": True, "PLAN_LIMITS": False, "FORCE_HTTPS": False,
                                "SESSION_COOKIE_SECURE": False, "BASE_URL": "http://localhost"})
         self.client = self.app.test_client()
         self.post("/api/auth/register", {"name": "Sam Lee", "email": "sam@school.org", "password": "password123", "grade": 11})

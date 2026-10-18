@@ -1,5 +1,6 @@
-/* Graphite SAT practice hub: start a random practice test or practice one topic.
-   Live: talks to /api/practice. Preview: the same requests go to GraphitePracticeLocal (practice-local.js). */
+/* Graphite SAT mock tests (practice.html): a full adaptive Math section with the test-day break, one module, or
+   untimed topic practice. Live: /api/mock-tests and /api/practice. Preview: the same requests go to
+   GraphitePracticeLocal (practice-local.js). Locked by plan: see GraphiteLock in site.js. */
 (function () {
   "use strict";
   var root = document.getElementById("pr-domains");
@@ -24,6 +25,7 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function showError(msg) { var e = $("pr-error"); e.textContent = msg; e.hidden = !msg; }
   function signIn() { location.href = "/signin.html?next=/practice.html"; }
+  function locked(err) { return window.GraphiteLock && window.GraphiteLock.handle(err); }
 
   if (!LIVE) $("pr-preview-note").hidden = false;
 
@@ -67,9 +69,58 @@
     }).catch(function (err) {
       if (err && err.status === 401) { signIn(); return; }
       busy = false; btn.disabled = false; btn.textContent = label;
+      if (locked(err)) { loadMocks(); return; }
       showError(err && err.status ? err.message : "We couldn't start that set. Check your connection and try again.");
     });
   }
+
+  /* ---------- mock tests ---------- */
+  function day(iso) { var d = new Date(iso); return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); }
+  function allowance(el, lock, noun) {
+    if (!lock) { el.textContent = ""; return; }
+    if (!lock.ok) { el.textContent = ""; return; }
+    el.textContent = lock.limit == null ? "" : lock.left + " of " + lock.limit + " " + noun + " left this " + lock.period + ".";
+  }
+  function renderMocks(d) {
+    var lock = d.access, box = $("pr-mock-lock");
+    box.innerHTML = "";
+    allowance($("pr-mock-left"), lock, lock && lock.limit === 1 ? "mock test" : "mock tests");
+    var off = lock && !lock.ok;
+    if (off && window.GraphiteLock) box.appendChild(GraphiteLock.card(lock, true));
+    $("pr-mock-start").hidden = off; $("pr-test-start").hidden = off;
+    $("pr-mock-break").closest(".check").hidden = off;
+    $("pr-mock-break").checked = d.break_minutes ? $("pr-mock-break").checked : false;
+    var list = $("pr-recent-list"); list.innerHTML = "";
+    d.recent.forEach(function (m) {
+      var li = document.createElement("li"), href;
+      if (m.status === "done") href = "practice-test.html?session=" + m.m2_session;
+      else href = "practice-test.html?session=" + (m.status === "module2" ? m.m2_session : m.m1_session);
+      var what = m.status === "done" ? "<strong>" + m.score + "</strong> estimated Math · " + m.correct + " of 44 right" +
+        (m.route ? " · Module 2 " + m.route : "") : (m.status === "break" ? "On the break" : "In progress: Module " + (m.status === "module2" ? 2 : 1));
+      li.innerHTML = '<div><strong></strong><p class="fine">' + what + '</p></div><a class="btn btn-quiet" href="' + href + '">' + (m.status === "done" ? "Review" : "Resume") + "</a>";
+      li.querySelector("strong").textContent = m.section_name + " · " + day(m.created_at);
+      list.appendChild(li);
+    });
+    $("pr-recent").hidden = !d.recent.length;
+  }
+  function loadMocks() {
+    return call("/api/mock-tests").then(renderMocks).catch(function (err) { if (err && err.status === 401) signIn(); });
+  }
+  $("pr-mock-start").addEventListener("click", function () {
+    var btn = $("pr-mock-start");
+    if (busy) return;
+    busy = true; showError("");
+    var label = btn.textContent; btn.disabled = true; btn.textContent = "Building your test…";
+    call("/api/mock-tests", { section: "math", with_break: $("pr-mock-break").checked }).then(function (r) {
+      location.href = "practice-test.html?session=" + r.mock.m1_session;
+    }).catch(function (err) {
+      if (err && err.status === 401) { signIn(); return; }
+      busy = false; btn.disabled = false; btn.textContent = label;
+      if (locked(err)) { loadMocks(); return; }
+      showError(err && err.status ? err.message : "We couldn't start the test. Check your connection and try again.");
+    });
+  });
+  loadMocks();
 
   function renderCounts(counts) {
     var box = $("pr-count"); box.innerHTML = "";
@@ -89,11 +140,14 @@
     $("pr-test-q").textContent = String(d.test.questions);
     $("pr-test-min").textContent = String(d.test.minutes);
     renderCounts(d.topic_counts);
+    allowance($("pr-topic-left"), d.access, d.access && d.access.limit === 1 ? "practice set" : "practice sets");
+    var tl = document.querySelector("#pr-topic > .lock-card"); if (tl) tl.remove();
+    if (d.access && !d.access.ok && window.GraphiteLock) $("pr-topic-left").insertAdjacentElement("afterend", GraphiteLock.card(d.access, true));
 
     var list = $("pr-unfinished-list"); list.innerHTML = "";
     d.unfinished.forEach(function (s) {
       var li = document.createElement("li");
-      var kind = s.mode === "test" ? "Practice test" : "Topic practice";
+      var kind = s.mode === "test" ? (/^Math: Module/.test(s.title) ? "Mock test" : "One module") : "Topic practice";
       var detail = s.mode === "topic" && s.checked ? s.checked + " of " + s.questions + " checked" : s.questions + " questions";
       li.innerHTML = '<div><strong>' + esc(s.title) + '</strong><p class="fine">' + kind + " · " + detail + "</p></div>" +
         '<a class="btn btn-quiet" href="practice-test.html?session=' + s.id + '">Resume</a>';

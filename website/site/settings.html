@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=3f41b155dc">
-<script src="/js/site.js?v=87152444fc" defer></script><script src="/js/game-ui.js?v=b90aeb122d" defer></script><script src="/js/settings.js?v=603ed9f88d" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=48f680d87c">
+<script src="/js/site.js?v=f066ab8928" defer></script><script src="/js/game-ui.js?v=b90aeb122d" defer></script><script src="/js/settings.js?v=603ed9f88d" defer></script><script src="/js/subscription.js?v=69f67c2ba1" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -67,6 +67,7 @@
           <li data-student-only><a href="#defaults">Practice defaults</a></li>
           <li data-student-only><a href="#layout">Dashboard layout</a></li>
           <li data-student-only><a href="#leaderboard">Leaderboard</a></li>
+          <li data-student-only><a href="#subscription">Subscription</a></li>
           <li><a href="#security">Sign-in and security</a></li>
           <li><a href="#history">History</a></li>
           <li><a href="#data">Your data</a></li>
@@ -482,6 +483,48 @@
           </form>
         </section>
 
+        <!-- Subscription: the student's own plan (subscription.js) -->
+        <section class="panel st-panel" id="subscription" aria-labelledby="st-sub-title" data-student-only>
+          <div class="panel-head"><h2 id="st-sub-title">Subscription</h2></div>
+          <p class="sample-note" id="sub-preview-note" hidden><span class="label">Preview</span> Plan changes here are saved in this browser, and no card is charged.</p>
+          <div class="status" id="sub-status" role="status" aria-live="polite" tabindex="-1"></div>
+          <div class="sub-now" id="sub-now"><p class="fine">Loading your plan…</p></div>
+
+          <div class="st-form">
+            <h3 class="pd-h3">What your plan includes right now</h3>
+            <ul class="sub-includes" id="sub-includes"></ul>
+          </div>
+
+          <form class="form st-form" id="sub-change" novalidate>
+            <h3 class="pd-h3">Change plan</h3>
+            <fieldset class="sub-interval">
+              <legend class="label">Billing</legend>
+              <div class="seg" id="sub-interval">
+                <span><input type="radio" name="sub-iv" id="sub-iv-month" value="month" checked><label for="sub-iv-month">Monthly</label></span>
+                <span><input type="radio" name="sub-iv" id="sub-iv-year" value="year"><label for="sub-iv-year">Yearly</label></span>
+                <span><input type="radio" name="sub-iv" id="sub-iv-week" value="week"><label for="sub-iv-week">Weekly</label></span>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend class="visually-hidden">Plan</legend>
+              <div class="sub-plans" id="sub-plans"></div>
+            </fieldset>
+            <label class="check sub-agree"><input type="checkbox" id="sub-agree"> <span>I agree to the <a href="/terms.html">terms</a>, and that a paid plan renews automatically until it's canceled.</span></label>
+            <div class="pd-row"><button class="btn btn-primary" type="submit" id="sub-change-go">Switch plan</button></div>
+          </form>
+
+          <div class="st-form" id="sub-manage">
+            <h3 class="pd-h3">Manage</h3>
+            <p class="fine" id="sub-manage-note"></p>
+            <div class="pd-row sub-actions" id="sub-actions"></div>
+          </div>
+
+          <div class="st-form">
+            <h3 class="pd-h3">Billing history</h3>
+            <ul class="queue sub-billing" id="sub-billing"></ul>
+          </div>
+        </section>
+
         <!-- Sign-in and security -->
         <section class="panel st-panel" id="security" aria-labelledby="st-security-title">
           <div class="panel-head"><h2 id="st-security-title">Sign-in and security</h2></div>
@@ -608,7 +651,7 @@
     </div>
     <div class="cookie-prefs" id="cookie-prefs" hidden>
       <label class="check"><input type="checkbox" checked disabled id="consent-essential"><span>Essential<small>Sign in, security and saving this choice. Always on.</small></span></label>
-      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Page views and button clicks, with IP addresses anonymized.</small></span></label>
+      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Pages opened, where you came from, time on page, scrolling and main-button clicks. Kept on our own server, never sold.</small></span></label>
       <div><button class="btn btn-primary" type="button" id="cookie-save">Save choices</button></div>
     </div>
   </div>

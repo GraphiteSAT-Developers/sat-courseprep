@@ -79,7 +79,7 @@
     b.textContent = !canPay() ? "Continue" : state.info && state.info.payments_live ? "Continue to secure payment" : "Start " + p.name;
     b.disabled = !canPay();
   }
-  function canPay() { return !!(state.info && state.info.account && state.info.account.role === "parent" && state.student); }
+  function canPay() { var a = state.info && state.info.account; return !!(a && (a.role === "parent" || (a.students && a.students.length)) && state.student); }
   form.addEventListener("change", function (e) {
     var t = e.target;
     if (t.name === "co-plan") { state.plan = t.value; drawChoices(); $("co-plan-" + state.plan).focus(); }
@@ -99,9 +99,13 @@
         '<a class="btn btn-secondary" href="signin.html?as=parent&amp;next=' + nextHere() + '">Sign in</a></div>' +
         '<p class="fine">Student? Send this page to a parent. Your choices stay in the link.</p>';
     } else if (a.role !== "parent") {
-      el.innerHTML = "<p>You're signed in as " + esc(a.name) + ", a student account. Plans are bought by a parent, who then follows your progress on the parent dashboard.</p>" +
-        '<div class="pd-row"><button class="btn btn-primary" type="button" id="co-copy">Copy a link for a parent</button></div>' +
-        '<p class="fine">Your parent connects to you with a code from Account, then Parent access, on your dashboard.</p>';
+      // A student can pay for their own plan, or send the page to a parent.
+      var me = (a.students || [])[0], cur = me && me.subscription;
+      state.student = me ? me.id : null;
+      var nowLine = cur && cur.plan !== "free" ? "Right now: " + cur.plan_name + (cur.status === "canceled" ? " (canceled)" : "") + ", " + cur.price_label + "."
+        : "Right now: the free " + FREE_NAME + " plan.";
+      el.innerHTML = '<p class="co-for"><strong>' + esc(a.name) + "</strong> (you)</p><p class=\"fine\">" + esc(nowLine) + " You can manage or cancel it any time in Settings, then Subscription.</p>" +
+        '<div class="pd-row"><button class="btn btn-quiet" type="button" id="co-copy">Have a parent pay instead: copy a link</button></div>';
       $("co-copy").addEventListener("click", copyLink);
     } else if (!a.students.length) {
       el.innerHTML = "<p>Connect your student first. They open <strong>Account</strong>, then <strong>Parent access</strong>, on their dashboard and give you a code.</p>" +
@@ -161,8 +165,9 @@
     $("co-lede").textContent = paid ? "Your payment went through." : "Your plan is ready.";
     $("co-done").hidden = false;
     $("co-done-text").textContent = sub.plan_name + " is on for " + name + ": " + sub.price_label + ". " + (sub.renews_on ? "Renews " + niceDay(new Date(sub.renews_on + "T12:00:00")) + "." : "");
-    $("co-done-fine").textContent = paid ? "A receipt is on its way to your email. Manage or cancel the plan anytime from the parent dashboard."
-      : "Payments aren't connected yet, so no card was charged. Manage or cancel the plan anytime from the parent dashboard.";
+    var where = state.info && state.info.account && state.info.account.role !== "parent" ? "Settings, then Subscription" : "the parent dashboard";
+    $("co-done-fine").textContent = paid ? "A receipt is on its way to your email. Manage or cancel the plan anytime from " + where + "."
+      : "Payments aren't connected yet, so no card was charged. Manage or cancel the plan anytime from " + where + ".";
     $("co-done-title").focus();
   }
 
@@ -190,6 +195,10 @@
       var w = Preview.who(), f = Preview.fam(), account = null;
       if (w.email) {
         account = { name: w.email, role: w.role === "parent" ? "parent" : "student" };
+        if (account.role !== "parent") {
+          var ms = f.sub && f.sub.plan !== "free" ? f.sub : null, mp = ms && PLANS.filter(function (x) { return x.key === ms.plan; })[0];
+          account.students = [{ id: 1, name: w.email, self: true, subscription: mp ? { plan: mp.key, plan_name: mp.name, interval: ms.interval, status: ms.status, price_label: label(mp, ms.interval) } : { plan: "free" } }];
+        }
         if (account.role === "parent") {
           var sub = f.sub && f.sub.plan !== "free" ? f.sub : null, p = sub && PLANS.filter(function (x) { return x.key === sub.plan; })[0];
           account.students = f.parents.length || w.email === "beta2" ? [{ id: 1, name: "Maya Rivera", subscription: p ? { plan: p.key, plan_name: p.name, interval: sub.interval, status: sub.status,

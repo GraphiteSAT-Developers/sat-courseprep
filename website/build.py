@@ -242,7 +242,13 @@ def bank_js():
                    "rungs": [{"n": n, "tier": levels.tier(n), "mix": levels.mix(n), "mix_label": studyplan.mix_label(levels.mix(n))}
                              for n in range(1, levels.LEVELS + 1)]},
         "parent": {"plans": plans.public_plans(),
-                   "alert_days": list(plans.ALERT_DAYS), "pause_days": plans.PAUSE_DAYS},
+                   "alert_days": list(plans.ALERT_DAYS), "pause_days": plans.PAUSE_DAYS,
+                   # Plan locks and mock tests: the same rules as services/access.py and services/mock.py.
+                   "limits": plans.LIMITS, "order": list(plans.ORDER),
+                   "features": {k: {"limit": v[0], "name": v[1], "period": v[2]} for k, v in service("access").FEATURES.items()},
+                   "unpaid": service("access").UNPAID, "locked_explanation": service("access").LOCKED_EXPLANATION},
+        "mock": {"sections": service("mock").SECTIONS, "break_seconds": service("mock").BREAK_SECONDS,
+                 "route_at": service("mock").ROUTE_AT, "mix": service("mock").MIX},
         # Rewards, speed rounds, focus and lessons: the same numbers and content as the server (play-local.js).
         "play": {"rules": game.rules(), "lessons": lessons.all_lessons(), "recall_days": list(lessons.RECALL_DAYS),
                  "recall_pass": lessons.RECALL_PASS, "lesson_formats": lessons.FORMATS, "start_lesson": lessons.START_LESSON,
@@ -477,7 +483,7 @@ def build():
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
     for n in ("effects.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
-              "lessons.js", "lesson-kit.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js"):
+              "lessons.js", "lesson-kit.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js", "integrity.js", "subscription.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     if (DIST / "vendor" / "katex").exists():

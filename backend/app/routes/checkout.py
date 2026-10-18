@@ -26,6 +26,9 @@ def overview():
         if me["role"] == "parent":
             account["students"] = [{"id": s["id"], "name": s["name"], "subscription": parent_svc.subscription(s["id"])}
                                    for s in family.students_of(me["id"])]
+        else:
+            # A student can buy a plan for themselves.
+            account["students"] = [{"id": me["id"], "name": me["name"], "self": True, "subscription": parent_svc.subscription(me["id"])}]
     return jsonify({"plans": public_plans(), "today": date.today().isoformat(),
                     "payments_live": stripe_api.is_live(), "account": account})
 
@@ -34,8 +37,6 @@ def overview():
 @login_required
 def start():
     me = current_user()
-    if me["role"] != "parent":
-        raise ApiError(403, "Plans are bought from a parent account. Send this page to a parent.", code="student_account")
     data = body()
     plan, interval = data.get("plan"), data.get("interval")
     if plan not in PLANS or plan == "free":
@@ -48,7 +49,8 @@ def start():
         student_id = int(data.get("student_id"))
     except (TypeError, ValueError):
         raise ApiError(400, "Pick which student the plan is for.", "student_id") from None
-    student = next((s for s in family.students_of(me["id"]) if s["id"] == student_id), None)
+    students = family.students_of(me["id"]) if me["role"] == "parent" else [me]
+    student = next((s for s in students if s["id"] == student_id), None)
     if not student:
         raise ApiError(404, "That student isn't connected to your account.", "student_id")
     bucket = f"checkout:{me['id']}"
@@ -76,7 +78,9 @@ def session_status(session_id):
         raise ApiError(502, "We couldn't check the payment just now. Refresh in a minute.") from None
     if not out:
         raise ApiError(404, "That checkout wasn't found.")
-    student = next((s for s in family.students_of(current_user()["id"]) if s["id"] == out["student_id"]), None)
+    me = current_user()
+    students = family.students_of(me["id"]) if me["role"] == "parent" else [me]
+    student = next((s for s in students if s["id"] == out["student_id"]), None)
     out["student"] = {"id": out["student_id"], "name": student["name"] if student else ""}
     return jsonify(out)
 

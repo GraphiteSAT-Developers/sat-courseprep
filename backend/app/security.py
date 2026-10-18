@@ -15,9 +15,10 @@ EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$")
 class ApiError(Exception):
     """Raise anywhere in a route to send a JSON error: raise ApiError(400, "Message", field="email")."""
 
-    def __init__(self, status, message, field=None, code=None):
+    def __init__(self, status, message, field=None, code=None, extra=None):
         super().__init__(message)
         self.status, self.message, self.field, self.code = status, message, field, code
+        self.extra = extra or {}
 
 
 def error_response(err):
@@ -26,6 +27,8 @@ def error_response(err):
         body["field"] = err.field
     if err.code:
         body["code"] = err.code
+    for k, v in getattr(err, "extra", {}).items():
+        body.setdefault(k, v)
     return jsonify(body), err.status
 
 

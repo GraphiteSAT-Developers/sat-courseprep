@@ -48,7 +48,9 @@
   var TOPIC = T.mode === "topic" || T.mode === "quiz" || T.mode === "review", UNTIMED = !T.minutes;
   var REVIEW = T.mode === "review";
   var LEVEL = (T.session && T.session.level) || null; // a Level up set
-  var FROM_PLAN = !!(T.session && T.session.plan_task) && !REVIEW && !LEVEL;
+  var MOCK = (T.session && T.session.mock) || null; // a module of an adaptive mock test (services/mock.py)
+  var FROM_PLAN = !!(T.session && T.session.plan_task) && !REVIEW && !LEVEL && !MOCK;
+  if (MOCK) { BACK_URL = "practice.html"; document.documentElement.setAttribute("data-mock", "1"); }
   if (FROM_PLAN) BACK_URL = "plan.html";
   if (LEVEL) BACK_URL = "levels.html#track=" + LEVEL.track;
   if (REVIEW) BACK_URL = "dashboard.html#review";
@@ -368,6 +370,7 @@
     var finish = function (result) {
       S.submitted = true; S.result = result; save();
       tutorRules();
+      if (MOCK && MOCK.module === 1) { showNext((result.mock && result.mock.next_session) || MOCK.m2_session, auto); return; }
       if (auto) toast("Time's up. Your module was submitted.");
       renderResults(result); showPage("results");
       closePopup();
@@ -440,6 +443,7 @@
     if (fin.length) $("res-finished").innerHTML = "<strong>Congratulations! You have finished " + (fin.length > 1 || fin[0].kind === "domain" ? "a whole domain" : "this topic") + "!</strong> <span></span>";
     if (fin.length) $("res-finished").querySelector("span").textContent = finishedText(fin);
     renderLevel(r.level, r.game);
+    renderMockScore(r);
     for (var m = 0; m < N; m++) if (S.marked[m]) marked++;
     var pct = r.total ? r.correct / r.total : 0;
     var cheer = pct >= 0.9 ? "Outstanding!" : pct >= 0.7 ? "Solid work!" : pct >= 0.5 ? "Good effort." : "Every miss shows you what to practice.";
@@ -468,7 +472,7 @@
         '<div class="res-body"><div class="res-stem">' + q.stem + "</div>" +
         (q.type === "mc" ? '<ol class="res-choices" type="A">' + q.choices.map(function (c, k) { return '<li class="' + (k === q.answer_index ? "is-key" : "") + '">' + c + "</li>"; }).join("") + "</ol>" : "") +
         '<div class="res-explain"></div>' + (q.calc ? '<p class="res-calc"><strong>With the calculator:</strong> <span></span></p>' : "") + "</div>";
-      d.querySelector(".res-dom").textContent = q.skill && T.session ? q.skill : q.domain;
+      d.querySelector(".res-dom").textContent = (q.module ? "Module " + q.module + " · " : "") + (q.skill && T.session ? q.skill : q.domain);
       if (q.explain_html) d.querySelector(".res-explain").innerHTML = q.explain_html;
       else d.querySelector(".res-explain").textContent = q.explain || "";
       if (q.calc) d.querySelector(".res-calc span").textContent = q.calc;
@@ -488,8 +492,12 @@
   function themeCalc() { if (tools) tools.theme(); }
   // Timed tests keep the tutor closed until you submit, so the score stays your own work.
   function tutorRules() {
+    // Timed tests have no tutor at all until the whole test is over (a mock test: after Module 2).
+    var off = !TOPIC && (!S.submitted || (MOCK && MOCK.module === 1));
+    document.documentElement.classList.toggle("no-tutor", !!off);
     if (!tools) return;
-    tools.tutorAllowed(!(!TOPIC && !S.submitted), "This is a timed test, so your score stays your own work. Every question is waiting for you in the review.");
+    tools.tutorAllowed(!off, "The tutor isn't available during a timed test, so your score stays your own work. Every question is waiting for you in the review.");
+    if (off && tools.tab && tools.tab() === "tutor") tools.close();
   }
   function tutorContext() {
     if (!tools) return;
@@ -499,6 +507,50 @@
   }
   function setCalc(open) { if (tools) { if (open) tools.open("calc"); else tools.close(); } }
   function closePopup() { /* the calculator never leaves the page anymore */ }
+
+  /* ---------- mock tests: the break before Math, and the step to Module 2 ---------- */
+  var breakTimer = null;
+  function breakCall(action) { return practiceCall("/api/mock-tests/" + MOCK.id + "/break", { action: action }); }
+  function showBreak() {
+    $("start-overlay").hidden = true; $("break-overlay").hidden = false;
+    var left = MOCK.break_left, until = Date.now() + left * 1000;
+    function tick() {
+      left = Math.max(0, Math.round((until - Date.now()) / 1000));
+      $("break-clock").textContent = fmt(left);
+      if (!left) endBreak(true);
+    }
+    tick();
+    clearInterval(breakTimer); breakTimer = setInterval(tick, 1000);
+    if (!MOCK.break_started) breakCall("start").then(function (r) { MOCK = Object.assign(MOCK, r.mock); }).catch(function () { /* the clock still runs here */ });
+    $("break-resume").focus();
+  }
+  function endBreak(auto) {
+    clearInterval(breakTimer);
+    breakCall("end").catch(function () { /* the server ends it on its own clock too */ });
+    MOCK.status = "module1";
+    $("break-overlay").hidden = true; $("start-overlay").hidden = false;
+    if (auto) toast("The break is over. Math starts when you begin.");
+    $("start-btn").focus();
+  }
+  function showNext(sessionId, auto) {
+    $("start-overlay").hidden = true;
+    $("next-go").setAttribute("href", "practice-test.html?session=" + sessionId);
+    $("next-title").textContent = auto ? "Time's up for Module 1" : "Module 1 is done";
+    $("next-overlay").hidden = false;
+    $("next-go").focus();
+  }
+  function renderMockScore(r) {
+    var box = $("res-mock");
+    box.hidden = r.score == null;
+    if (r.score == null) return;
+    var m = r.modules || [];
+    box.innerHTML = '<p class="label">Estimated Math score</p><p class="res-score"><strong></strong><span>out of 800</span></p><p class="res-modules"></p>' +
+      '<p class="fine">An estimate from how many you got right in each module, using our own questions. It isn\'t an official College Board score.</p>';
+    box.querySelector("strong").textContent = String(r.score);
+    box.querySelector(".res-modules").textContent = m.map(function (x) {
+      return "Module " + x.n + (x.route ? " (" + x.route + ")" : "") + ": " + x.correct + " of " + x.total;
+    }).join(" · ");
+  }
 
   /* ---------- dialogs ---------- */
   var lastFocus = null;
@@ -521,6 +573,7 @@
   });
 
   /* ---------- wire controls ---------- */
+  $("break-resume").addEventListener("click", function () { endBreak(false); });
   $("start-btn").addEventListener("click", function () {
     S.started = true; save();
     $("start-overlay").hidden = true; startClock(); renderTimer();
@@ -570,13 +623,15 @@
     var s = T.session, b = $("retake");
     var data = s.mode === "test" ? { mode: "test" } : { mode: "topic", domain: s.domain, skill: s.skill, count: N };
     var url = "/api/practice/sessions";
+    if (MOCK) { url = "/api/mock-tests"; data = { section: MOCK.section, with_break: MOCK.with_break }; }
     if (LEVEL) { url = "/api/levels/start"; data = { track: LEVEL.track, level: Number(b.getAttribute("data-level")) || LEVEL.n }; }
     var label = b.textContent;
     b.disabled = true; b.textContent = "Building your set…";
     practiceCall(url, data).then(function (r) {
-      location.href = "practice-test.html?session=" + r.session.id;
+      location.href = "practice-test.html?session=" + (r.mock ? r.mock.m1_session : r.session.id);
     }).catch(function (err) {
       b.disabled = false; b.textContent = label;
+      if (window.GraphiteLock && GraphiteLock.handle(err)) return;
       toast(err && err.status ? err.message : "We couldn't start a new set. Check your connection and try again.");
     });
   });
@@ -594,9 +649,9 @@
   /* ---------- labels for practice sets ---------- */
   function applyLabels() {
     if (!T.session) return;
-    var heading = T.mode === "test" ? "Math practice test" : T.title;
-    var kind = REVIEW ? "Review queue · one question" : LEVEL ? "Level up · " + LEVEL.tier : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
-      : (T.mode === "test" ? "Practice test · Math" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
+    var heading = MOCK ? "Math: Module " + MOCK.module : T.mode === "test" ? "Math module" : T.title;
+    var kind = MOCK ? "Mock test · Math · Module " + MOCK.module + " of 2" : REVIEW ? "Review queue · one question" : LEVEL ? "Level up · " + LEVEL.tier : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
+      : (T.mode === "test" ? "Mock test · one Math module" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
     $("exam-title").textContent = heading;
     $("start-title").textContent = heading;
     document.querySelector("#start-overlay .label").textContent = kind;
@@ -605,23 +660,29 @@
     document.querySelector("#nav-pop .review-card-head strong").textContent = heading + " questions";
     var facts = '<li><strong>' + N + "</strong> questions</li>" +
       (UNTIMED ? "<li>Untimed. The clock counts up so you can see your pace</li><li>Check each answer as you go</li>"
-               : "<li><strong>" + T.minutes + "</strong> minutes</li><li>Graphing calculator on every question</li>");
+               : "<li><strong>" + T.minutes + "</strong> minutes</li><li>Graphing calculator on every question</li>" +
+                 (MOCK ? "<li>" + (MOCK.module === 1 ? "Module 2 adapts to how this one goes" : "The last module: your score comes next") + "</li>" : "") +
+                 "<li>No tutor until the test is over</li>");
     document.querySelector("#start-overlay .start-facts").innerHTML = facts;
     var intro = document.querySelector("#start-overlay .dialog > p:not(.label)");
-    if (intro) intro.textContent = LEVEL
+    if (intro) intro.textContent = MOCK
+      ? (MOCK.module === 1 ? "This module mixes easy, medium and hard questions. How it goes decides Module 2: harder after a strong start, easier otherwise, like the real test. The timer starts when you begin, and the module submits itself when time runs out."
+        : "Module 2 is " + "built from how Module 1 went. You can't go back to Module 1. When you submit, you'll see your estimated Math score and every explanation.")
+      : LEVEL
       ? "Get " + LEVEL.pass + " of " + N + " right to pass" + (LEVEL.n < LEVEL.top ? " and unlock level " + (LEVEL.n + 1) : " the top level") + ". Check each answer as you go and read the full explanation right away."
       : UNTIMED
       ? "Answer a question, then press Check answer to see if you got it and read the full explanation, with the Desmos shortcut when one helps. Your progress saves as you go."
       : "New questions you haven't answered before, in the same mix as the real test. The timer starts when you begin. Your answers save as you go, and the module submits itself when time runs out.";
-    $("start-btn").textContent = UNTIMED ? "Start practicing" : "Begin module";
+    $("start-btn").textContent = UNTIMED ? "Start practicing" : MOCK ? "Begin Module " + MOCK.module : "Begin module";
     $("submit-open").textContent = TOPIC ? "Finish set" : "Submit module";
     $("confirm-title").textContent = TOPIC ? "Finish this set?" : "Submit this module?";
     if (TOPIC) $("confirm-desc").textContent = "Questions you haven't answered go back into the pool for next time.";
-    $("retake").textContent = FROM_PLAN ? "Back to your plan" : LEVEL ? "Try this level again" : (TOPIC ? "New set, same topic" : "Take another practice test");
+    $("retake").textContent = FROM_PLAN ? "Back to your plan" : LEVEL ? "Try this level again" : MOCK ? "Take another mock test" : (TOPIC ? "New set, same topic" : "Take another module");
+    if (MOCK && MOCK.module === 2) document.querySelector("#results-view > .label").textContent = "Mock test · Math · both modules";
     Array.prototype.forEach.call(document.querySelectorAll('a[href$="dashboard.html"]'), function (a) {
       if (a.id === "save-exit" || a.closest(".dialog-actions")) a.setAttribute("href", BACK_URL);
     });
-    var backText = FROM_PLAN ? "Back to your plan" : LEVEL ? "Back to Level up" : "Back to practice";
+    var backText = FROM_PLAN ? "Back to your plan" : LEVEL ? "Back to Level up" : "Back to mock tests";
     var back = document.querySelector(".res-actions a"); if (back) { back.setAttribute("href", BACK_URL); back.textContent = backText; }
     if (FROM_PLAN || REVIEW) { var r2 = $("retake"); r2.hidden = true; }
     if (REVIEW && back) back.textContent = "Back to your dashboard";
@@ -633,7 +694,9 @@
   /* ---------- boot ---------- */
   applyView(); renderTimer();
   if (S.submitted && !S.result) { S = fresh(); save(); }
-  if (S.submitted) { renderResults(S.result); showPage("results"); $("start-overlay").hidden = true; }
+  if (S.submitted && MOCK && MOCK.module === 1) { tutorRules(); showNext(MOCK.m2_session || (S.result && S.result.mock && S.result.mock.next_session), false); }
+  else if (S.submitted) { renderResults(S.result); showPage("results"); $("start-overlay").hidden = true; }
+  else if (MOCK && MOCK.module === 1 && MOCK.status === "break" && !S.started) { showPage("q"); renderNav(); tutorRules(); showBreak(); }
   else {
     showPage(S.page === "review" ? "review" : "q"); renderNav();
     if (S.started) { $("start-overlay").hidden = true; startClock(); if (resumed) toast(UNTIMED ? "Picked up where you left off." : "Picked up where you left off. " + fmt(S.remaining) + " left."); }

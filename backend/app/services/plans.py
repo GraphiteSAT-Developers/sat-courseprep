@@ -4,9 +4,9 @@ the parent dashboard's billing, and the site build (so the preview shows the sam
 Prices are in cents, for each way of paying. Everything shown to people is the price per month:
 weekly and yearly billing show what they work out to each month, plus what's actually billed.
 
-Each plan's features, COMPARE (the home page's feature table) and LIMITS describe what it includes. LIMITS aren't enforced yet: every account can use every
-feature until real payments are connected. To enforce them, check plan_limits(user["plan"]) in the
-routes that start practice sets, practice tests and Level up.
+Each plan's features, COMPARE (the home page's feature table) and LIMITS describe what it includes.
+services/access.py enforces LIMITS (turn it off with PLAN_LIMITS=false), and locks the paid features
+while a plan isn't paid: a failed payment (past_due) or a pause.
 """
 from datetime import timedelta
 
@@ -112,13 +112,17 @@ COMPARE = [
 # What each plan allows, for when limits are switched on (None means unlimited).
 LIMITS = {
     "free": {"practice_sets_per_week": 1, "practice_tests_per_month": 0, "ai_tutor_per_day": 5, "video_explanations": False,
-             "level_up": False, "study_plan": False, "parent_dashboard": False},
+             "level_up": False, "study_plan": False, "parent_dashboard": False, "review_queue": False,
+             "explanations": False, "score_history": False},
     "no2": {"practice_sets_per_week": None, "practice_tests_per_month": 2, "ai_tutor_per_day": 50, "video_explanations": False,
-            "level_up": False, "study_plan": True, "parent_dashboard": False},
+            "level_up": False, "study_plan": True, "parent_dashboard": False, "review_queue": True,
+            "explanations": True, "score_history": False},
     "sharpened": {"practice_sets_per_week": None, "practice_tests_per_month": None, "ai_tutor_per_day": None, "video_explanations": True,
-                  "level_up": True, "study_plan": True, "parent_dashboard": True},
+                  "level_up": True, "study_plan": True, "parent_dashboard": True, "review_queue": True,
+                  "explanations": True, "score_history": True},
     "masterstroke": {"practice_sets_per_week": None, "practice_tests_per_month": None, "ai_tutor_per_day": None, "video_explanations": True,
-                     "level_up": True, "study_plan": True, "parent_dashboard": True},
+                     "level_up": True, "study_plan": True, "parent_dashboard": True, "review_queue": True,
+                     "explanations": True, "score_history": True},
 }
 
 # Plan names used before October 2026, mapped to the plan that replaced them.

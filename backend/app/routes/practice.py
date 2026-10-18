@@ -5,7 +5,7 @@ import random
 from flask import Blueprint, jsonify
 
 from ..security import ApiError, body, current_user, login_required
-from ..services import bank, levels
+from ..services import access, bank, levels
 from ..services import practice as service
 
 bp = Blueprint("practice", __name__, url_prefix="/api/practice")
@@ -24,7 +24,9 @@ def _session_or_404(session_id):
 @bp.get("")
 @login_required
 def overview():
-    return jsonify(service.overview(current_user()["id"]))
+    out = service.overview(current_user()["id"])
+    out["access"] = access.public_state(access.state(current_user()["id"], "practice_set"))
+    return jsonify(out)
 
 
 @bp.post("/sessions")
@@ -34,6 +36,7 @@ def create():
     mode = data.get("mode")
     user_id = current_user()["id"]
     if mode == "test":
+        access.require(current_user(), "mock_test")
         session = service.create(user_id, "test")
     elif mode == "topic":
         domain, skill = data.get("domain"), data.get("skill") or None
@@ -42,16 +45,27 @@ def create():
         count = data.get("count", 10)
         if count not in service.TOPIC_COUNTS:
             raise ApiError(400, "Pick how many questions you want.", "count")
+        access.require(current_user(), "practice_set")
         session = service.create(user_id, "topic", domain, skill, count)
     else:
         raise ApiError(400, "Choose a practice test or a topic.", "mode")
-    return jsonify({"session": service.public(session)}), 201
+    return jsonify({"session": public(session)}), 201
+
+
+def public(session):
+    """The set for the browser, with explanations swapped for a note when the plan doesn't include them."""
+    out = service.public(session)
+    uid = current_user()["id"]
+    access.redact(uid, list(out["checked"].values()))
+    if out.get("result"):
+        access.redact(uid, out["result"].get("questions", []))
+    return out
 
 
 @bp.get("/sessions/<int:session_id>")
 @login_required
 def get_one(session_id):
-    return jsonify({"session": service.public(_session_or_404(session_id))})
+    return jsonify({"session": public(_session_or_404(session_id))})
 
 
 def _index(session, value):
@@ -79,6 +93,7 @@ def check(session_id):
     if answer is None:
         raise ApiError(400, "Choose or type an answer first.", "answer")
     graded, finished = service.check(current_user()["id"], session, i, answer)
+    access.redact(current_user()["id"], [graded])
     return jsonify({"question": graded, "finished": finished})
 
 
@@ -87,7 +102,9 @@ def check(session_id):
 def submit(session_id):
     session = _session_or_404(session_id)
     if session["submitted_at"]:
-        return jsonify({"result": json.loads(session["results"])})
+        done = json.loads(session["results"])
+        access.redact(current_user()["id"], done.get("questions", []))
+        return jsonify({"result": done})
     data = body()
     ids = json.loads(session["item_ids"])
     items = bank.all_items()
@@ -110,6 +127,9 @@ def submit(session_id):
     limit = session["minutes"] * 60 + MAX_SECONDS_SLACK if session["minutes"] else len(ids) * TOPIC_SECONDS_PER_QUESTION
     seconds = max(0, min(seconds, limit))
     result = service.submit(current_user()["id"], session, answers, seconds)
+    from ..services import mock
+    result = mock.after_module(current_user()["id"], session, result)
+    access.redact(current_user()["id"], result.get("questions", []))
     return jsonify({"result": result}), 201
 
 
@@ -147,7 +167,9 @@ levels_bp = Blueprint("levels", __name__, url_prefix="/api/levels")
 @levels_bp.get("")
 @login_required
 def levels_overview():
-    return jsonify(levels.overview(current_user()["id"]))
+    out = levels.overview(current_user()["id"])
+    out["access"] = access.public_state(access.state(current_user()["id"], "level_up"))
+    return jsonify(out)
 
 
 @levels_bp.post("/start")
@@ -160,7 +182,8 @@ def levels_start():
         raise ApiError(400, "Pick a track to practice.", "track")
     if not isinstance(level, int) or isinstance(level, bool) or not 1 <= level <= levels.LEVELS:
         raise ApiError(400, "Pick a level.", "level")
+    access.require(current_user(), "level_up")
     session = levels.start(current_user()["id"], track, level)
     if not session:
         raise ApiError(403, f"Pass level {level - 1} first to unlock level {level}.", "level")
-    return jsonify({"session": service.public(session)}), 201
+    return jsonify({"session": public(session)}), 201

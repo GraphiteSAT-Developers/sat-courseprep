@@ -41,6 +41,7 @@
     }).catch(function (err) {
       if (err && err.status === 401) { signIn(); return; }
       busy = false; btn.disabled = false; btn.textContent = label;
+      if (window.GraphiteLock && GraphiteLock.handle(err)) return;
       showError(err && err.status ? err.message : "We couldn't start that level. Check your connection and try again.");
     });
   }
@@ -118,6 +119,11 @@
     if (!d.tracks.some(function (t) { return t.key === current; })) current = d.tracks[0].key;
     $("lv-loading").hidden = true;
     render();
+    // Level up comes with the Sharpened plan and up.
+    if (d.access && !d.access.ok && window.GraphiteLock && !document.querySelector(".lv-plan-lock")) {
+      var card = GraphiteLock.card(d.access); card.classList.add("lv-plan-lock");
+      $("lv-loading").insertAdjacentElement("afterend", card);
+    }
   }).catch(function (err) {
     if (err && err.status === 401) { signIn(); return; }
     $("lv-loading").textContent = "We couldn't load your levels. Check your connection and refresh the page.";

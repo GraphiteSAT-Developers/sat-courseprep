@@ -107,7 +107,8 @@
     dashboardUrl: "dashboard.html",
     // Analytics loads only after the visitor accepts analytics cookies.
     // provider: "plausible" (set domain) or "ga4" (set measurementId), or null for none.
-    analytics: { provider: null, domain: "", measurementId: "", endpoint: null },
+    // endpoint: our own first-party analytics (backend services/analytics.py), only after the visitor accepts it.
+    analytics: { provider: null, domain: "", measurementId: "", endpoint: LIVE ? "/api/analytics" : null },
     consentKey: "graphite_consent",
     consentVersion: 1
   };
@@ -180,12 +181,32 @@
     window.matchMedia("(min-width: 901px)").addEventListener("change", function (m) { if (m.matches) closeMenu(); });
   }
 
-  /* 4. Analytics (consent-gated) */
+  /* 4. Analytics (consent-gated)
+     With the visitor's OK, each page sends: the page and title, the site they came from, campaign tags, screen and
+     window size, language, time zone, how long the page was open and how far it was scrolled, and clicks on buttons
+     marked data-track. A random visitor id (cookie gs_vid) ties one browser's pages together. Nothing is sent before
+     consent, and turning analytics off deletes the visitor cookie. See the Privacy and Cookie policies. */
+  var YEAR = 60 * 60 * 24 * 395;
+  function setCookie(name, value, maxAge) {
+    document.cookie = name + "=" + value + "; Path=/; Max-Age=" + maxAge + "; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : "");
+  }
+  function getCookie(name) {
+    var m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+    return m ? m[1] : null;
+  }
+  function randomId() {
+    var a = new Uint8Array(16);
+    (window.crypto || window.msCrypto).getRandomValues(a);
+    return Array.prototype.map.call(a, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+  }
   var Analytics = {
-    on: false,
+    on: false, queue: [], started: Date.now(), maxScroll: 0, session: null,
     enable: function () {
       if (this.on) return;
       this.on = true;
+      if (!getCookie("gs_vid")) setCookie("gs_vid", randomId(), YEAR);
+      setCookie("gs_consent", "analytics", YEAR);
+      try { this.session = sessionStorage.getItem("gs_sid") || randomId(); sessionStorage.setItem("gs_sid", this.session); } catch (e) { this.session = randomId(); }
       var a = CONFIG.analytics, s;
       if (a.provider === "plausible" && a.domain) {
         s = document.createElement("script");
@@ -200,30 +221,71 @@
         window.gtag("js", new Date());
         window.gtag("config", a.measurementId, { anonymize_ip: true });
       }
-      this.track("pageview", { path: location.pathname });
+      var q = new URLSearchParams(location.search);
+      this.track("pageview", {
+        title: document.title, referrer: document.referrer || null,
+        utm_source: q.get("utm_source"), utm_medium: q.get("utm_medium"), utm_campaign: q.get("utm_campaign"),
+        screen: screen.width + "x" + screen.height, viewport: innerWidth + "x" + innerHeight,
+        lang: navigator.language, tz: (Intl.DateTimeFormat().resolvedOptions() || {}).timeZone
+      });
+      var self = this;
+      addEventListener("scroll", function () {
+        var h = document.documentElement.scrollHeight - innerHeight;
+        var pct = h > 0 ? Math.round(scrollY / h * 100) : 100;
+        if (pct > self.maxScroll) self.maxScroll = Math.min(100, pct);
+      }, { passive: true });
+      // When the page is hidden or closed: how long it was open and how far down it went.
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState !== "hidden") return;
+        self.track("engage", { duration_ms: Date.now() - self.started, scroll_pct: self.maxScroll });
+        self.flush();
+      });
+      setTimeout(function () { self.flush(); }, 1500);
+    },
+    disable: function () {
+      this.on = false; this.queue = [];
+      setCookie("gs_vid", "", 0);
+      setCookie("gs_consent", "essential", YEAR);
     },
     track: function (name, props) {
       if (!this.on) return;
       props = props || {};
       if (window.plausible) window.plausible(name, { props: props });
       if (window.gtag) window.gtag("event", name, props);
-      if (CONFIG.analytics.endpoint && navigator.sendBeacon) {
-        navigator.sendBeacon(CONFIG.analytics.endpoint, JSON.stringify({ event: name, props: props, t: Date.now() }));
-      }
+      if (!CONFIG.analytics.endpoint) return;
+      var kind = name === "pageview" || name === "engage" ? name : "click";
+      var e = Object.assign({ kind: kind, path: location.pathname, session: this.session }, props);
+      if (kind === "click") e.label = name;
+      this.queue.push(e);
+      if (kind === "click" && this.queue.length >= 5) this.flush();
+    },
+    flush: function () {
+      if (!this.queue.length || !CONFIG.analytics.endpoint) return;
+      var batch = this.queue.splice(0, 20);
+      try {
+        fetch(CONFIG.analytics.endpoint, { method: "POST", keepalive: true, credentials: "same-origin",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify({ events: batch }) })
+          .catch(function () { /* analytics never gets in the way */ });
+      } catch (e) { /* old browser */ }
     }
   };
+  window.GraphiteAnalytics = Analytics;
   document.addEventListener("click", function (e) {
     var t = e.target.closest && e.target.closest("[data-track]");
-    if (t) Analytics.track(t.getAttribute("data-track"), { label: (t.textContent || "").trim().slice(0, 60) });
+    if (t) Analytics.track(t.getAttribute("data-track"), { title: (t.textContent || "").trim().slice(0, 60) });
   });
 
   /* 5. Cookie consent banner */
   var banner = $("#cookie-banner");
   function applyConsent(c) { if (c && c.analytics) Analytics.enable(); }
+  var GPC = !!navigator.globalPrivacyControl;
   function saveConsent(analytics) {
     var c = { v: CONFIG.consentVersion, analytics: !!analytics, at: new Date().toISOString() };
     store.set(CONFIG.consentKey, c);
-    applyConsent(c);
+    if (analytics) applyConsent(c); else Analytics.disable();
+    // The choice itself is kept on the server too, as the record that consent was asked and given.
+    if (LIVE) api("/api/consent", { analytics: !!analytics, version: CONFIG.consentVersion, gpc: GPC, path: location.pathname })
+      .catch(function () { /* the choice still applies in this browser */ });
     if (banner) banner.hidden = true;
     var live = $("#cookie-live");
     if (live) live.textContent = analytics ? "Saved. Analytics cookies are on." : "Saved. Only essential cookies are on.";
@@ -352,6 +414,73 @@
     });
   }
   window.GraphiteAPI = { live: LIVE, call: api };
+
+  /* Locks: what a plan doesn't include, or everything paid while a plan isn't paid (services/access.py).
+     GraphiteLock.card(lock) makes the box that replaces a locked panel; GraphiteLock.handle(err) shows it as a
+     dialog when a request comes back 402 plan_required, and returns true when it did. */
+  var LOCK_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/>' +
+    '<path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  function lockText(lock) {
+    if (lock.reason) return { title: lock.reason, text: lock.name + " " + (/s$/.test(lock.name) ? "are" : "is") + " locked until your plan is paid. Paying unlocks everything right away.", cta: "Fix payment" };
+    if (lock.period && lock.limit) {
+      return { title: "You've used this " + lock.period + "'s " + lock.name.toLowerCase(),
+               text: "Your plan includes " + lock.limit + " a " + lock.period + ". " + lock.need_name + " includes more, or wait until next " + lock.period + ".", cta: "See plans" };
+    }
+    return { title: lock.name + " " + (/s$/.test(lock.name) ? "come" : "comes") + " with " + lock.need_name, text: "Upgrade to " + lock.need_name + " or higher to unlock it.", cta: "See plans" };
+  }
+  window.GraphiteLock = {
+    text: lockText,
+    card: function (lock, compact) {
+      var t = lockText(lock), el = document.createElement("div");
+      el.className = "lock-card" + (compact ? " is-compact" : "") + (lock.reason ? " is-unpaid" : "");
+      el.innerHTML = '<span class="lock-icon">' + LOCK_ICON + '</span><div class="lock-copy"><strong></strong><p></p></div>' +
+        '<a class="btn btn-primary" href="settings.html#subscription"></a>';
+      el.querySelector("strong").textContent = t.title;
+      el.querySelector("p").textContent = t.text;
+      el.querySelector("a").textContent = t.cta;
+      return el;
+    },
+    // Replaces a panel's contents (everything but its heading) with the lock box.
+    panel: function (panel, lock) {
+      if (!panel || !lock || lock.ok) return;
+      Array.prototype.forEach.call(panel.children, function (c) { if (!c.classList.contains("panel-head")) c.hidden = true; });
+      var old = panel.querySelector(":scope > .lock-card"); if (old) old.remove();
+      panel.appendChild(window.GraphiteLock.card(lock));
+      panel.classList.add("is-locked");
+    },
+    handle: function (err) {
+      var lock = err && err.data && err.data.code === "plan_required" && err.data.lock;
+      if (!lock) return false;
+      var wrap = document.createElement("div");
+      wrap.className = "overlay lock-overlay";
+      wrap.innerHTML = '<div class="dialog" role="dialog" aria-modal="true" aria-label="Locked"></div>';
+      var card = window.GraphiteLock.card(lock);
+      var close = document.createElement("button");
+      close.type = "button"; close.className = "btn btn-quiet"; close.textContent = "Not now";
+      card.appendChild(close);
+      wrap.firstChild.appendChild(card);
+      var last = document.activeElement;
+      function done() { wrap.remove(); if (last && last.focus) last.focus(); }
+      close.addEventListener("click", done);
+      wrap.addEventListener("click", function (e) { if (e.target === wrap) done(); });
+      wrap.addEventListener("keydown", function (e) { if (e.key === "Escape") done(); });
+      document.body.appendChild(wrap);
+      card.querySelector("a").focus();
+      return true;
+    }
+  };
+  // Signed-in pages: a banner while a paid plan isn't paid, so the student knows why things are locked.
+  if (LIVE && document.querySelector('.site-nav[aria-label="Dashboard"]') && !/settings\.html$/.test(location.pathname)) {
+    api("/api/me/subscription").then(function (r) {
+      if (!r.access || !r.access.unpaid) return;
+      var bar = document.createElement("div");
+      bar.className = "unpaid-bar"; bar.setAttribute("role", "status");
+      bar.innerHTML = '<div class="wrap"><strong></strong> <span>Paid features are locked until it\'s paid.</span> <a href="settings.html#subscription">Fix it</a></div>';
+      bar.querySelector("strong").textContent = r.access.unpaid + ".";
+      var header = document.querySelector(".site-header");
+      if (header) header.insertAdjacentElement("afterend", bar);
+    }).catch(function () { /* signed out or offline */ });
+  }
   // Signed-in pages note that they were opened, for the student's own history (Settings > History).
   if (LIVE && document.querySelector('.site-nav[aria-label="Dashboard"]')) {
     api("/api/me/history/view", { page: location.pathname }).catch(function () { /* not signed in, or offline: nothing to save */ });
@@ -1006,6 +1135,7 @@
           location.href = r.redirect ? r.redirect : "practice-test.html?session=" + r.session.id;
         }).catch(function (err) {
           startBtn.disabled = false; startBtn.textContent = "Start today's set";
+          if (window.GraphiteLock && GraphiteLock.handle(err)) return;
           prog.textContent = networkMessage(err);
         });
         return;
@@ -1137,7 +1267,7 @@
       } else {
         $("#kpi-latest-label").textContent = "Latest practice test";
         $("#kpi-latest").textContent = "None yet";
-        $("#kpi-latest-sub").textContent = "Take a practice test from Practice";
+        $("#kpi-latest-sub").textContent = "Take one from Mock tests";
       }
       $("#kpi-target").textContent = s.target_score || "Not set";
       $("#kpi-target-sub").textContent = s.target_score ? "Your goal score" : "Add one in Account";
@@ -1224,12 +1354,19 @@
       $("#account-list").innerHTML =
         "<div><dt>Student</dt><dd>" + esc(u.name) + (u.grade ? ", " + u.grade + "th grade" : "") + "</dd></div>" +
         "<div><dt>Email</dt><dd>" + esc(u.email) + "</dd></div>" +
-        "<div><dt>Plan</dt><dd>" + esc(u.plan.charAt(0).toUpperCase() + u.plan.slice(1)) + "</dd></div>" +
+        "<div><dt>Plan</dt><dd>" + esc(d.access ? d.access.plan_name : u.plan) + ' · <a href="settings.html#subscription">Manage</a></dd></div>' +
         "<div><dt>Parent email</dt><dd>" + (u.parent_email ? esc(u.parent_email) : "Not added") + "</dd></div>";
       $all(".live-only").forEach(function (f) { f.hidden = false; });
       $("#acct-test-date").value = u.test_date || "";
       $("#acct-target").value = u.target_score || "";
       $("#goal-save").textContent = "Save settings";
+      // Panels the plan doesn't include show what unlocks them.
+      if (d.access && window.GraphiteLock) {
+        var F = d.access.features;
+        GraphiteLock.panel($("#review"), F.review_queue);
+        GraphiteLock.panel($("#scores"), F.score_history);
+        GraphiteLock.panel($("#domains"), F.score_history);
+      }
       $(".dash").classList.add("is-ready");
     }
 

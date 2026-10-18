@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 
 from ..db import execute, now_iso, query, set_clause
 from ..security import ApiError, body, clean_date, current_user, login_required, public_user
-from ..services import diagnostic, practice, studyplan
+from ..services import access, diagnostic, practice, studyplan
 
 bp = Blueprint("plan", __name__, url_prefix="/api/plan")
 
@@ -70,6 +70,7 @@ def overview():
         source = query("SELECT results FROM diagnostics WHERE id = ?", (row["diagnostic_id"],), one=True)
         out["plan"] = dict(plan, id=row["id"], current_week=studyplan.current_week(plan, _today()), tasks=practice.plan_task_states(user["id"], row["id"]),
                            results=json.loads(source["results"]))
+    out["access"] = access.public_state(access.state(user["id"], "study_plan"))
     return jsonify(out)
 
 
@@ -122,13 +123,15 @@ def submit_diagnostic(diag_id):
     # Math questions answered here count as done, like any practice question.
     practice.mark_seen(user["id"], [ids[i] for i in answers if not ids[i].startswith("rw-")])
     plan_id, plan = _save_plan(user, diag_id, results, _today())
-    return jsonify({"results": results, "plan": dict(plan, id=plan_id, current_week=studyplan.current_week(plan, _today()), tasks={})}), 201
+    return jsonify({"results": results, "plan": dict(plan, id=plan_id, current_week=studyplan.current_week(plan, _today()), tasks={}),
+                    "access": access.public_state(access.state(user["id"], "study_plan"))}), 201
 
 
 @bp.post("/rebuild")
 @login_required
 def rebuild():
     """New test date or weekly hours: rebuild the plan from the latest diagnostic."""
+    access.require(current_user(), "study_plan")
     user = _update_profile(current_user(), body())
     diag = query("SELECT * FROM diagnostics WHERE user_id = ? AND submitted_at IS NOT NULL ORDER BY id DESC LIMIT 1", (user["id"],), one=True)
     if not diag:
@@ -145,6 +148,7 @@ def start_task():
     row = _latest_plan(user["id"])
     if not row:
         raise ApiError(400, "Take the diagnostic first.")
+    access.require(user, "study_plan")
     plan = json.loads(row["plan"])
     try:
         week = int(data.get("week"))
@@ -155,4 +159,6 @@ def start_task():
     session = practice.create_plan_task(user["id"], row["id"], plan, week, str(data.get("task") or ""))
     if not session:
         raise ApiError(400, "That task isn't in your plan.")
-    return jsonify({"session": practice.public(session)}), 201
+    out = practice.public(session)
+    access.redact(user["id"], list(out["checked"].values()))
+    return jsonify({"session": out}), 201
