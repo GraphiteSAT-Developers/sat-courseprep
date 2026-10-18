@@ -490,21 +490,37 @@
     var mastered = row.stage >= DAYS.length;
     return { done: true, stage: row.stage, mastered: mastered, best: row.best, total: row.total, due_on: row.due_on, due: !!row.due_on && !mastered && row.due_on <= today() };
   }
+  // The free plan opens P.free_lessons only (services/lessons.py plan_locked); the plan state is practice-local.js's.
+  function lessonLock() {
+    var a = window.GraphitePracticeLocal && window.GraphitePracticeLocal.access && window.GraphitePracticeLocal.access();
+    return a && a.features && a.features.lessons ? a.features.lessons : { ok: true };
+  }
+  function planLocked(id, lock) { return (P.free_lessons || []).indexOf(id) < 0 && !(lock || lessonLock()).ok; }
+  function failPlan(lock) {
+    var verb = lock.reason ? lock.reason + ", so every lesson is locked until it's paid. Fix it on your subscription page." : "Every lesson comes with the " + lock.need_name + " plan and up.";
+    var e = new Error(verb); e.status = 402; e.data = { error: e.message, code: "plan_required", lock: lock }; return Promise.reject(e);
+  }
   function names(l) { return { domain_name: P.topic_names[l.domain] || l.domain, skill_name: P.topic_names[l.domain + "/" + l.skill] || l.skill }; }
   function lessonsCall(path, data) {
     var s = load(), m;
     if (path === "/api/lessons") {
+      var lock = lessonLock(), free = P.free_lessons || [];
       var items = LESSONS.map(function (l) {
-        return Object.assign({ id: l.id, title: l.title, hook: l.hook, minutes: l.minutes, domain: l.domain, skill: l.skill, steps: l.steps.length, format: l.format || "classic", progress: lstatus(s.lessons[l.id]) }, names(l));
+        var it = Object.assign({ id: l.id, title: l.title, hook: l.hook, minutes: l.minutes, domain: l.domain, skill: l.skill, steps: l.steps.length, format: l.format || "classic", progress: lstatus(s.lessons[l.id]),
+                                 locked: planLocked(l.id, lock), free: free.indexOf(l.id) >= 0 }, names(l));
+        if (it.locked) it.progress.due = false;
+        return it;
       });
-      return ok({ lessons: items, recall_days: DAYS, start_with: startFirst(s, "") ? P.start_lesson : null, formats: P.lesson_formats, due: items.filter(function (i) { return i.progress.due; }).map(function (i) { return i.id; }),
+      return ok({ lessons: items, recall_days: DAYS, access: lock, free_lessons: free, start_with: startFirst(s, "") ? P.start_lesson : null, formats: P.lesson_formats, due: items.filter(function (i) { return i.progress.due; }).map(function (i) { return i.id; }),
                   done: items.filter(function (i) { return i.progress.done; }).length, mastered: items.filter(function (i) { return i.progress.mastered; }).length });
     }
     if ((m = /^\/api\/lessons\/([\w-]+)(\/complete)?$/.exec(path))) {
       var l = lessonById(m[1]);
       if (!l) return fail(404, "That lesson doesn't exist.");
       if (startFirst(s, l.id)) return failFirst();
-      if (!m[2]) return ok({ lesson: Object.assign({}, l, names(l), { progress: lstatus(s.lessons[l.id]), recall_days: DAYS, format_rule: (P.lesson_formats || {})[l.format || "classic"] }) });
+      var lk = lessonLock();
+      if (planLocked(l.id, lk)) return failPlan(lk);
+      if (!m[2]) return ok({ all_lessons: !!lk.ok, lesson: Object.assign({}, l, names(l), { progress: lstatus(s.lessons[l.id]), recall_days: DAYS, format_rule: (P.lesson_formats || {})[l.format || "classic"] }) });
       data = data || {};
       var kind = data.kind || "lesson", total = (kind === "lesson" ? l.steps : l.recall).length;
       var steps = kind === "lesson" ? l.steps : l.recall, given = Array.isArray(data.answers) ? data.answers : [];

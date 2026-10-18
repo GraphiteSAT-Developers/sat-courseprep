@@ -251,7 +251,7 @@ def bank_js():
                  "route_at": service("mock").ROUTE_AT, "mix": service("mock").MIX},
         # Rewards, speed rounds, focus and lessons: the same numbers and content as the server (play-local.js).
         "play": {"rules": game.rules(), "lessons": lessons.all_lessons(), "recall_days": list(lessons.RECALL_DAYS),
-                 "recall_pass": lessons.RECALL_PASS, "lesson_formats": lessons.FORMATS, "start_lesson": lessons.START_LESSON,
+                 "recall_pass": lessons.RECALL_PASS, "lesson_formats": lessons.FORMATS, "start_lesson": lessons.START_LESSON, "free_lessons": list(lessons.FREE_LESSONS),
                  "topic_names": lessons.topic_names(),
                  "speed": {"size": speed.SIZE, "penalty_ms": speed.PENALTY_MS, "max_ms": speed.MAX_MS,
                            "lightning_ms": speed.LIGHTNING_MS, "states": [{"code": c, "name": n} for c, n in speed.STATES],

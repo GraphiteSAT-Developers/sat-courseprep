@@ -26,6 +26,7 @@ FEATURES = {
     "explanations": ("explanations", "Step-by-step explanations", None),
     "score_history": ("score_history", "Score history and skill breakdown", None),
     "parent_dashboard": ("parent_dashboard", "The parent dashboard", None),
+    "lessons": ("all_lessons", "Every lesson", None),  # the free plan gets lessons.FREE_LESSONS only
 }
 
 

@@ -309,3 +309,38 @@ class TestAccountSwitchTest(Base):
     def test_other_accounts_cant(self):
         self.assertFalse(self.client.get("/api/me/subscription").json["test_account"])
         self.assertEqual(self.post("/api/me/subscription/test", {"plan": "sharpened"}).status_code, 403)
+
+
+class LessonLockTest(Base):
+    def finish(self, lesson_id):
+        from app.services import lessons
+        l = lessons.lesson(lesson_id)
+        return self.post(f"/api/lessons/{lesson_id}/complete", {"kind": "lesson", "answers": [lessons.key(s) for s in l["steps"]]})
+
+    def test_free_plan_gets_the_starter_lessons_only(self):
+        from app.services import lessons
+        self.assertEqual(self.finish("desmos-hacks").status_code, 200)
+        o = self.client.get("/api/lessons").json
+        self.assertFalse(o["access"]["ok"])
+        self.assertEqual(o["access"]["need"], "no2")
+        open_ = [l["id"] for l in o["lessons"] if not l["locked"]]
+        self.assertEqual(sorted(open_), sorted(lessons.FREE_LESSONS))
+        for lid in lessons.FREE_LESSONS:
+            self.assertEqual(self.client.get(f"/api/lessons/{lid}").status_code, 200)
+        r = self.client.get("/api/lessons/parabola-vertex")
+        self.assertEqual((r.status_code, r.json["code"], r.json["lock"]["feature"]), (402, "plan_required", "lessons"))
+        self.assertEqual(self.finish("parabola-vertex").status_code, 402)
+
+    def test_paid_plan_opens_every_lesson_and_unpaid_locks_them_again(self):
+        self.finish("desmos-hacks")
+        self.buy("no2")
+        o = self.client.get("/api/lessons").json
+        self.assertFalse(any(l["locked"] for l in o["lessons"]))
+        self.assertEqual(self.finish("parabola-vertex").status_code, 200)
+        self.set_status("past_due")
+        o = self.client.get("/api/lessons").json
+        pv = next(l for l in o["lessons"] if l["id"] == "parabola-vertex")
+        self.assertTrue(pv["locked"])
+        self.assertFalse(pv["progress"]["due"])
+        self.assertEqual(self.client.get("/api/lessons/parabola-vertex").status_code, 402)
+        self.assertEqual(self.client.get("/api/lessons/active-recall").status_code, 200)

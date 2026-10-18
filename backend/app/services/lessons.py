@@ -65,6 +65,8 @@ FORMATS = {
     "lab": "Experiment first, then name the rule you found.",
 }
 START_LESSON = "desmos-hacks"  # everyone does this one first; the rest of the list opens after it
+# The lessons on the free plan. Every other lesson comes with a paid plan (access.FEATURES["lessons"]).
+FREE_LESSONS = (START_LESSON, "active-recall", "solve-linear-equations")
 RECALL_DAYS = (1, 3, 7)
 RECALL_PASS = 2 / 3  # share of recall questions to get right
 
@@ -126,21 +128,39 @@ def status(row, today):
             "due_on": row["due_on"], "due": bool(row["due_on"]) and not mastered and row["due_on"] <= today.isoformat()}
 
 
+def all_open(user_id):
+    """Whether the student's plan includes every lesson, or only FREE_LESSONS."""
+    from . import access
+    return access.allowed(user_id, "lessons")
+
+
+def plan_locked(user_id, lesson_id, everything=None):
+    """True when this lesson needs a paid plan the student doesn't have right now."""
+    if lesson_id in FREE_LESSONS:
+        return False
+    return not (all_open(user_id) if everything is None else everything)
+
+
 def overview(user_id, today=None):
+    from . import access
     today = today or date.today()
     rows = _rows(user_id)
+    lock = access.public_state(access.state(user_id, "lessons"))
     names = topic_names()
     items = []
     for l in all_lessons():
         items.append({"id": l["id"], "title": l["title"], "hook": l["hook"], "minutes": l["minutes"], "domain": l["domain"],
                       "domain_name": names.get(l["domain"], l["domain"]), "skill": l["skill"],
                       "skill_name": names.get(f"{l['domain']}/{l['skill']}", l["skill"]), "steps": len(l["steps"]),
-                      "progress": status(rows.get(l["id"]), today)})
+                      "progress": status(rows.get(l["id"]), today),
+                      "locked": plan_locked(user_id, l["id"], lock["ok"]), "free": l["id"] in FREE_LESSONS})
     for i in items:
         i["format"] = lesson(i["id"]).get("format", "classic")
+        if i["locked"]:
+            i["progress"]["due"] = False  # a recall check on a locked lesson waits until the plan includes it again
     started = rows.get(START_LESSON) is not None or lesson(START_LESSON) is None
     return {"lessons": items, "recall_days": list(RECALL_DAYS), "start_with": None if started else START_LESSON,
-            "formats": FORMATS,
+            "formats": FORMATS, "access": lock, "free_lessons": list(FREE_LESSONS),
             "due": [i["id"] for i in items if i["progress"]["due"]],
             "done": sum(1 for i in items if i["progress"]["done"]),
             "mastered": sum(1 for i in items if i["progress"]["mastered"])}

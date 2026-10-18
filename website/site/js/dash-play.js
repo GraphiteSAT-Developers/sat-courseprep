@@ -33,9 +33,9 @@
       // Lesson titles can hold LaTeX ($90^{\circ}$); show them as plain text here.
       var plainTitle = function (t) { return String(t).replace(/\^\{\\circ\}/g, "\u00b0").replace(/\\text\{([^}]*)\}/g, "$1").replace(/[$`\\{}]/g, ""); };
       ls.lessons.forEach(function (l) { l.title = plainTitle(l.title); });
-      var due = ls.lessons.filter(function (l) { return l.progress.due; }), fresh = ls.start_with ? ls.lessons.filter(function (l) { return l.id === ls.start_with; })[0] : ls.lessons.filter(function (l) { return !l.progress.done; })[0];
+      var due = ls.lessons.filter(function (l) { return l.progress.due && !l.locked; }), fresh = ls.start_with ? ls.lessons.filter(function (l) { return l.id === ls.start_with; })[0] : ls.lessons.filter(function (l) { return !l.progress.done && !l.locked; })[0];
       if (due.length) rows.push(["Recall check", due.length + (due.length === 1 ? " lesson is" : " lessons are") + " due: " + due[0].title + (due.length > 1 ? " and more" : "") + ".", "lessons.html?lesson=" + encodeURIComponent(due[0].id) + "&mode=recall", "Recall it"]);
-      else if (fresh) rows.push(["Lesson", fresh.title + ". " + fresh.minutes + " minutes" + (ls.start_with ? ". Every other lesson opens after it." : ", hands-on the whole way."), "lessons.html?lesson=" + encodeURIComponent(fresh.id), "Start"]);
+      else if (fresh) rows.push(["Lesson", fresh.title + ". " + fresh.minutes + " minutes" + (ls.start_with ? ". The other lessons open after it." : ", hands-on the whole way."), "lessons.html?lesson=" + encodeURIComponent(fresh.id), "Start"]);
     }
     if (lv) {
       var m = lv.tracks[0];

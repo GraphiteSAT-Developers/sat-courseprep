@@ -26,6 +26,7 @@ PLANS = {
             "The 10-question diagnostic",
             "Your strongest and weakest skill areas",
             "1 practice set a week",
+            "3 starter lessons",
             "5 tutor questions a day",
             "Built-in graphing calculator",
         ],
@@ -39,6 +40,7 @@ PLANS = {
         "intro": "Everything in Scratch Paper, plus:",
         "features": [
             "Daily practice sets picked from your weakest skills",
+            "Every lesson, including the full Desmos course",
             "Tutor: 50 questions a day",
             "2 full practice tests a month",
             "Step-by-step explanations for every answer",
@@ -90,6 +92,7 @@ COMPARE = [
         ("Full practice tests in the real test layout", [False, "2 a month", "Unlimited", "Unlimited"]),
         ("Level up: sets that get harder level by level", [False, False, True, True]),
         ("Review queue that brings back every miss", [False, True, True, True]),
+        ("Hands-on lessons, including the Desmos course", ["3 starter lessons", "All", "All", "All"]),
         ("Built-in graphing calculator", [True, True, True, True]),
     ]),
     ("Help when you're stuck", [
@@ -113,16 +116,16 @@ COMPARE = [
 LIMITS = {
     "free": {"practice_sets_per_week": 1, "practice_tests_per_month": 0, "ai_tutor_per_day": 5, "video_explanations": False,
              "level_up": False, "study_plan": False, "parent_dashboard": False, "review_queue": False,
-             "explanations": False, "score_history": False},
+             "explanations": False, "score_history": False, "all_lessons": False},
     "no2": {"practice_sets_per_week": None, "practice_tests_per_month": 2, "ai_tutor_per_day": 50, "video_explanations": False,
             "level_up": False, "study_plan": True, "parent_dashboard": False, "review_queue": True,
-            "explanations": True, "score_history": False},
+            "explanations": True, "score_history": False, "all_lessons": True},
     "sharpened": {"practice_sets_per_week": None, "practice_tests_per_month": None, "ai_tutor_per_day": None, "video_explanations": True,
                   "level_up": True, "study_plan": True, "parent_dashboard": True, "review_queue": True,
-                  "explanations": True, "score_history": True},
+                  "explanations": True, "score_history": True, "all_lessons": True},
     "masterstroke": {"practice_sets_per_week": None, "practice_tests_per_month": None, "ai_tutor_per_day": None, "video_explanations": True,
                      "level_up": True, "study_plan": True, "parent_dashboard": True, "review_queue": True,
-                     "explanations": True, "score_history": True},
+                     "explanations": True, "score_history": True, "all_lessons": True},
 }
 
 # Plan names used before October 2026, mapped to the plan that replaced them.

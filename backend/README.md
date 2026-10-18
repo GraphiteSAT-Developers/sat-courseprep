@@ -182,8 +182,8 @@ Every plan, price and feature list lives in `app/services/plans.py`. The home pa
 
 Prices are always shown per month. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, and `app/services/access.py` enforces it:
 
-- Free: the diagnostic, 1 practice set a week, answers without step-by-step explanations. No mock tests, study plan, review queue, Level up, score history or parent progress.
-- No. 2: unlimited practice sets, explanations, the study plan and review queue, 2 mock tests a month.
+- Free: the diagnostic, 1 practice set a week, answers without step-by-step explanations, and 3 starter lessons (`lessons.FREE_LESSONS`: Desmos hacks, Active recall, Solve any linear equation). No mock tests, study plan, review queue, Level up, score history or parent progress.
+- No. 2: every lesson, unlimited practice sets, explanations, the study plan and review queue, 2 mock tests a month.
 - Sharpened and Masterstroke: everything, including unlimited mock tests, Level up, score history and the parent dashboard with weekly emails.
 - A plan that isn't paid counts as free: a failed payment (Stripe marks it `past_due`) or a pause locks the paid features until it's paid or resumed. A canceled plan keeps working until the end of the time paid for.
 

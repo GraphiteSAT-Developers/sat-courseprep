@@ -2,7 +2,7 @@
 from flask import Blueprint, jsonify, request
 
 from ..security import ApiError, body, current_user, login_required
-from ..services import focus, game, lessons, market, speed
+from ..services import access, focus, game, lessons, market, speed
 
 
 def _student():
@@ -338,9 +338,11 @@ def lessons_get(lesson_id):
         raise ApiError(404, "That lesson doesn't exist.")
     if lessons.must_start_first(user["id"], lesson_id):
         raise ApiError(409, "Start with Desmos hacks. Every other lesson opens after it.", code="start_first")
+    if lessons.plan_locked(user["id"], lesson_id):
+        access.require(user, "lessons")
     from ..db import query
     row = query("SELECT * FROM lesson_progress WHERE user_id = ? AND lesson_id = ?", (user["id"], lesson_id), one=True)
-    return jsonify({"lesson": lessons.public(l, row)})
+    return jsonify({"lesson": lessons.public(l, row), "all_lessons": lessons.all_open(user["id"])})
 
 
 @lessons_bp.post("/<lesson_id>/complete")
@@ -351,6 +353,8 @@ def lessons_complete(lesson_id):
         raise ApiError(404, "That lesson doesn't exist.")
     if lessons.must_start_first(user["id"], lesson_id):
         raise ApiError(409, "Start with Desmos hacks. Every other lesson opens after it.", code="start_first")
+    if lessons.plan_locked(user["id"], lesson_id):
+        access.require(user, "lessons")
     data = body()
     kind = data.get("kind", "lesson")
     if kind not in ("lesson", "recall"):

@@ -14,6 +14,7 @@
   var params = new URLSearchParams(location.search);
   var START = "desmos-hacks";
   var lesson = null, steps = [], kind = "lesson", at = 0, answered = false, answers = [], pending = null, firstTime = false;
+  var allLessons = true;  // false on the free plan, which opens the starter lessons only
   var play = null;  // per-run format state: hearts, clock, lanes, shortcut
   function $(id) { return document.getElementById(id); }
   function signIn() { location.href = "/signin.html?next=" + encodeURIComponent("/lessons.html" + location.search); }
@@ -53,7 +54,23 @@
     $("ls-loading").hidden = true;
     var locked = !!o.start_with;
     $("ls-start").hidden = !locked;
-    var due = o.lessons.filter(function (l) { return l.progress.due; });
+    var due = o.lessons.filter(function (l) { return l.progress.due && !l.locked; });
+    // The free plan opens a few starter lessons; the rest come with a paid plan (services/access.py).
+    var lock = o.access && !o.access.ok && window.GraphiteLock ? o.access : null;
+    var plan = $("ls-plan");
+    if (plan) {
+      plan.innerHTML = "";
+      plan.hidden = !lock;
+      if (lock) {
+        var byId = {}; o.lessons.forEach(function (l) { byId[l.id] = l; });
+        var free = (o.free_lessons || []).map(function (id) { return byId[id]; }).filter(Boolean);
+        var card = window.GraphiteLock.card(lock, true);
+        card.querySelector("p").textContent = (lock.reason ? card.querySelector("p").textContent + " " : "") +
+          "Open on your plan: " + free.map(function (l) { return P(l.title).replace(/:.*$/, ""); }).join(", ") + ". " +
+          (lock.reason ? "" : lock.need_name + " and up open all " + o.lessons.length + ".");
+        plan.appendChild(card);
+      }
+    }
     $("ls-due").hidden = !due.length;
     $("ls-due-count").textContent = due.length + " due";
     $("ls-due-list").innerHTML = due.map(function (l) {
@@ -74,13 +91,15 @@
       return '<section class="panel ls-group" id="ls-sec-' + esc(d) + '" aria-labelledby="ls-g-' + esc(d) + '"><div class="panel-head"><h2 id="ls-g-' + esc(d) + '">' + esc(groups[d][0].domain_name) + '</h2><span class="label">' + done + " of " + groups[d].length + " done</span></div>" +
         (ABOUT[d] ? '<p class="panel-lede">' + ABOUT[d] + "</p>" : "") +
         '<ul class="ls-list">' + groups[d].map(function (l) {
-          var st = stateText(l.progress, o.recall_days), shut = locked && l.id !== o.start_with;
+          var st = stateText(l.progress, o.recall_days), paid = !!(lock && l.locked), shut = paid || (locked && l.id !== o.start_with);
           var href = "lessons.html?lesson=" + encodeURIComponent(l.id);
-          return '<li class="ls-item' + (shut ? " is-locked" : "") + (l.id === START ? " is-start" : "") + '"><div class="ls-item-copy"><h3>' + (shut ? T(l.title) : '<a href="' + href + '">' + T(l.title) + "</a>") + "</h3>" +
+          if (paid && l.progress.due === false && l.progress.done && !l.progress.mastered) st = { chip: "Done", cls: "chip-quiet", line: "Recall checks wait until your plan includes this lesson." };
+          return '<li class="ls-item' + (shut ? " is-locked" : "") + (paid ? " is-plan-locked" : "") + (l.id === START ? " is-start" : "") + '"><div class="ls-item-copy"><h3>' + (shut ? T(l.title) : '<a href="' + href + '">' + T(l.title) + "</a>") + "</h3>" +
             '<p class="fine">' + T(l.hook) + "</p>" +
-            '<p class="ls-meta"><span class="chip ' + st.cls + '">' + st.chip + '</span><span class="ls-format-chip ls-f-' + esc(l.format || "classic") + '">' + esc(FORMAT[l.format] || "Classic") + "</span><span>" + l.minutes + " min · " + l.steps + " steps · " + esc(l.skill_name) + "</span>" +
+            '<p class="ls-meta">' + (lock && l.free ? '<span class="chip ls-free-chip">Free</span>' : "") + '<span class="chip ' + st.cls + '">' + st.chip + '</span><span class="ls-format-chip ls-f-' + esc(l.format || "classic") + '">' + esc(FORMAT[l.format] || "Classic") + "</span><span>" + l.minutes + " min · " + l.steps + " steps · " + esc(l.skill_name) + "</span>" +
             (l.progress.done ? stageDots(l.progress, o.recall_days) : "") + "</p>" + (st.line ? '<p class="fine">' + st.line + "</p>" : "") + "</div>" +
-            (shut ? '<span class="ls-lock fine">Opens after Desmos hacks</span>'
+            (paid ? '<a class="btn btn-quiet ls-plan-btn" href="' + esc(window.GraphiteLock.url(lock)) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>' + (lock.reason ? "Fix payment" : "With " + esc(lock.need_name)) + "</a>"
+             : shut ? '<span class="ls-lock fine">Opens after Desmos hacks</span>'
                   : '<a class="btn ' + (l.progress.done ? "btn-quiet" : "btn-secondary") + '" href="' + href + '">' + (l.progress.done ? "Do it again" : "Start") + "</a>") + "</li>";
         }).join("") + "</ul></section>";
     }).join("");
@@ -91,6 +110,7 @@
     $("ls-list-view").hidden = true;
     call("/api/lessons/" + encodeURIComponent(id)).then(function (r) {
       lesson = r.lesson;
+      allLessons = r.all_lessons !== false;
       firstTime = lesson.id === START && !lesson.progress.done;
       kind = mode === "recall" && lesson.progress.done ? "recall" : "lesson";
       steps = kind === "recall" ? lesson.recall : lesson.steps;
@@ -106,6 +126,7 @@
       begin();
       $("ls-title").focus();
     }).catch(function (err) {
+      if (window.GraphiteLock && GraphiteLock.handle(err)) return;
       if (startFirst(err) && id !== START) { open(START, null, "Start with Desmos hacks. Every other lesson opens after it, including that one."); return; }
       $("ls-list-view").hidden = false;
       failed(err, "We couldn't open that lesson.");
@@ -739,6 +760,7 @@
         (kind === "recall" && !r.passed ? " This one comes back tomorrow for another try." : "");
       var fl = formatLine(); $("ls-end-format").textContent = fl; $("ls-end-format").hidden = !fl;
       $("ls-unlocked").hidden = !(lesson.id === START && firstTime);
+      $("ls-unlocked-text").textContent = allLessons ? "Every lesson is open now." : "Your starter lessons are open now.";
       $("ls-keys").innerHTML = lesson.keys.map(function (k) { return "<li>" + T(k) + "</li>"; }).join("");
       var p = r.progress;
       $("ls-next-recall").innerHTML = p.mastered ? "<strong>Mastered.</strong> You've passed every recall check for this lesson."
@@ -748,7 +770,7 @@
       if (pr) { $("ls-practice").setAttribute("data-domain", pr.domain); $("ls-practice").setAttribute("data-skill", pr.skill); }
       if (r.xp || r.coins || (r.badges && r.badges.length)) R.show(r);
       $("ls-end-title").focus();
-    }).catch(function (err) { b.disabled = false; b.textContent = "Finish"; failed(err, "We couldn't save your lesson. Check your connection and press Finish again."); });
+    }).catch(function (err) { b.disabled = false; b.textContent = "Finish"; if (window.GraphiteLock && GraphiteLock.handle(err)) return; failed(err, "We couldn't save your lesson. Check your connection and press Finish again."); });
   }
   // "Practice this skill": a 10-question topic set on the lesson's skill.
   $("ls-practice").addEventListener("click", function (e) {

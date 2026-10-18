@@ -2478,6 +2478,13 @@ html.qt-motion .qt-launch { transition: right 0.22s ease; }
 .ls-item.is-locked { opacity: 0.62; }
 .ls-item.is-start { background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 10px; padding-inline: var(--s3); }
 .ls-lock { justify-self: end; white-space: nowrap; }
+/* Lessons the free plan doesn't include: readable, with a way to the subscription page. */
+.ls-item.is-plan-locked { opacity: 1; }
+.ls-item.is-plan-locked .ls-item-copy { opacity: 0.7; }
+.ls-plan-btn { justify-self: end; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.ls-plan-btn svg { width: 16px; height: 16px; flex: none; }
+.ls-free-chip { background: color-mix(in srgb, var(--accent) 22%, var(--raised)); color: var(--text); font-weight: 700; }
+.ls-plan:empty { display: none; }
 .ls-format-chip { display: inline-flex; align-items: center; min-height: 24px; padding: 0 var(--s2); border-radius: 6px; background: var(--raised); color: var(--text); font-weight: 700; }
 .ls-firsttime { margin: 0; padding: var(--s2) var(--s3); border-radius: 8px; background: color-mix(in srgb, var(--accent) 14%, var(--raised)); font-weight: 700; font-size: var(--t-sm); }
 .ls-hud { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s4); min-height: 32px; }
