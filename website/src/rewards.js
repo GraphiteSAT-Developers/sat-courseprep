@@ -46,7 +46,6 @@
   };
 
   function day(iso) { if (!iso) return ""; var d = new Date(iso.length === 10 ? iso + "T12:00:00" : iso); return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); }
-  function showError(m) { $("rw-error").textContent = m; $("rw-error").hidden = !m; }
   function status(id, kind, title) { var el = $(id); el.className = "status is-shown " + kind; el.textContent = title; }
   function me() { return (T && T.me && T.me()) || {}; }
   function baseParts() { return (data && data.avatar && data.avatar.parts) || (T && T.prefs().avatar.parts) || {}; }
@@ -112,7 +111,7 @@
     $("rw-grid").innerHTML = list.length ? list.map(function (it) {
       var st = stateOf(it), sel = trying && trying.key === it.key;
       var tag = st === "worn" ? '<span class="rw-state is-worn">' + (it.kind === "theme" || it.kind === "accent" || it.kind === "effect" ? "In use" : "Wearing") + "</span>"
-        : st === "owned" ? '<span class="rw-state">' + (it.free ? "Free" : "Owned") + "</span>" : '<span class="rw-price">' + coin(it.price) + "</span>";
+        : st === "owned" ? '<span class="rw-state">' + (it.free ? "Free" : "Owned") + "</span>" : it.exclusive ? '<span class="rw-state">Market set</span>' : '<span class="rw-price">' + coin(it.price) + "</span>";
       return '<li><button type="button" class="rw-tile r-' + esc(it.rarity || "common") + (sel ? " is-trying" : "") + '" data-key="' + esc(it.key) + '" aria-pressed="' + sel + '">' +
         '<span class="rw-tile-art">' + preview(it) + "</span>" +
         '<span class="rw-tile-name">' + esc(it.name) + "</span>" +
@@ -127,7 +126,9 @@
     $("rw-pick-name").textContent = it.name + " · " + RARITY[it.rarity || "common"];
     $("rw-pick-about").textContent = it.about || "";
     var st = stateOf(it), html = "";
-    if (st === "shop") {
+    if (st === "shop" && it.exclusive) {
+      html = '<a class="btn btn-secondary" href="market.html">Finish its set on the market</a>';
+    } else if (st === "shop") {
       var short = it.price - data.coins;
       html = '<button class="btn btn-primary" type="button" data-act="buy"' + (short > 0 ? " disabled" : "") + ">Buy and wear for " + coin(it.price) + "</button>" +
         (short > 0 ? '<span class="fine">You need ' + num(short) + " more coins.</span>" : "");

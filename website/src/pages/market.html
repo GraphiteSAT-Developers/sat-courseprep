@@ -10,7 +10,7 @@
       </div>
       <a class="btn btn-secondary" href="rewards.html">Rewards</a>
     </div>
-    <p class="lede pr-lede">Collect math symbols, pencils and famous numbers with the coins you earn. When students buy something, its price goes up for everyone. When they sell, it goes down. If nobody trades it, the price drifts back to normal.</p>
+    <p class="lede pr-lede">Spend the coins you earn on collectibles from five sets. When students buy something, its price goes up for everyone. When they sell, it goes down. If nobody trades it for a while, the price drifts back to normal.</p>
 
     <p class="field-error pr-error" id="mk-error" role="alert" hidden></p>
     <p class="fine" id="mk-loading">Loading the market…</p>
@@ -48,6 +48,7 @@
               <h2 id="mk-d-name"></h2>
               <p class="mk-rarity" id="mk-d-rarity"></p>
             </div>
+            <button class="btn btn-quiet mk-watch" type="button" id="mk-watch" aria-pressed="false">☆ Watch</button>
           </div>
           <p class="fine" id="mk-d-about"></p>
           <div class="mk-d-price">
@@ -70,9 +71,14 @@
           <div class="status" id="mk-status" role="status" aria-live="polite" tabindex="-1"></div>
         </section>
 
+        <section class="panel" aria-labelledby="mk-movers-title">
+          <div class="panel-head"><h2 id="mk-movers-title">Biggest moves today</h2></div>
+          <ul class="mk-movers" id="mk-movers"></ul>
+        </section>
+
         <section class="panel" aria-labelledby="mk-sets-title">
           <div class="panel-head"><h2 id="mk-sets-title">Your sets</h2></div>
-          <p class="panel-lede">Own one of everything in a set to earn the Collector badge.</p>
+          <p class="panel-lede">Own one of everything in a set to earn the Collector badge and that set's title.</p>
           <ul class="mk-sets" id="mk-sets"></ul>
         </section>
 
@@ -80,6 +86,11 @@
           <div class="panel-head"><h2 id="mk-feed-title">Market activity</h2></div>
           <p class="panel-lede">The latest trades by students. Names are never shown.</p>
           <ul class="mk-feed" id="mk-feed"></ul>
+        </section>
+
+        <section class="panel" aria-labelledby="mk-mine-title">
+          <div class="panel-head"><h2 id="mk-mine-title">Your trades</h2></div>
+          <ul class="mk-feed" id="mk-mine"></ul>
         </section>
       </div>
     </div>

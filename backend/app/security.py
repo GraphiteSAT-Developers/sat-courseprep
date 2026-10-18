@@ -135,7 +135,6 @@ _writes = {}
 
 def write_flood():
     import time
-    from flask import current_app
     if current_app.config.get("TESTING") and not current_app.config.get("TEST_WRITE_LIMIT"):
         return False
     uid = session.get("uid")

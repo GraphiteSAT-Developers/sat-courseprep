@@ -35,7 +35,8 @@ class MarketTest(PlayTest):
             self.assertEqual(i["sell_price"], market.sell_price(i["base"]))
             self.assertEqual(i["owned"], 0)
         self.assertEqual(o["trades_left"], market.TRADES_PER_DAY)
-        self.assertEqual([s["have"] for s in o["sets"]], [0, 0, 0])
+        self.assertEqual([s["have"] for s in o["sets"]], [0] * len(market.SETS))
+        self.assertEqual(o["mine"], [])
 
     def test_buying_raises_the_price_for_everyone_and_selling_lowers_it(self):
         self.give_coins(5000)
@@ -126,6 +127,13 @@ class MarketTest(PlayTest):
             if i["set"] == "symbols":
                 r = self.trade(i["key"], "buy")
         self.assertIn("collector", [b["key"] for b in r.json["reward"]["badges"]])
+        self.assertEqual(r.json["unlocked_title"], "Symbol Collector")
+        prof = self.client.get("/api/game").json
+        title = next(i for i in prof["shop"] if i["key"] == "title:set-symbols")
+        self.assertTrue(title["owned"])
+        self.assertEqual(self.post("/api/game/buy", {"item": "title:set-pencils"}).status_code, 400)  # earned, never sold
+        self.assertEqual(self.post("/api/game/equip", {"kind": "title", "value": "Symbol Collector"}).status_code, 200)
+        self.assertEqual(len(self.client.get("/api/market").json["mine"]), 6)
         self.assertEqual(next(s for s in self.client.get("/api/market").json["sets"] if s["key"] == "symbols")["have"], 6)
         other = self.second_student()
         for _ in range(8):

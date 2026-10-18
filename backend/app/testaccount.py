@@ -1,8 +1,8 @@
 """The local test accounts: student "beta" / "beta", and its parent "beta2" / "beta2".
 
 It exists only when the app isn't running in production (Config.TEST_ACCOUNT). On every start
-its password is set back to "beta", so it always works. Every sign-in wipes its practice
-history, so it starts fresh with the diagnostic each time, like a brand-new student.
+its password is set back to "beta", so it always works. Its progress is kept between sign-ins
+like any account; Settings > Your data > "Start the test account over" (reset below) clears it.
 """
 from datetime import datetime, timezone
 

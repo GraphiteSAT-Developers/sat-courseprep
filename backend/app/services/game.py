@@ -103,6 +103,11 @@ SHOP = [
 # Avatar items by slot, more frames and titles, page background effects and pet gear (services/cosmetics.py).
 from . import cosmetics  # noqa: E402  (the catalog lives in its own file)
 SHOP += cosmetics.shop_items()
+# Titles earned by finishing a market set: in the locker once earned, never for sale.
+SHOP += [{"key": f"title:set-{k}", "kind": "title", "value": v, "name": v, "price": 0, "rarity": "epic", "exclusive": True,
+          "about": "Earned by finishing a set on the market."}
+         for k, v in (("symbols", "Symbol Collector"), ("pencils", "Pencil Pusher"), ("numbers", "Number Theorist"),
+                      ("shapes", "Shape Shifter"), ("tools", "Calculator Crew"))]
 for _item in SHOP:
     _item.setdefault("rarity", cosmetics.rarity_for(_item["price"]))
 SHOP_BY_KEY = {s["key"]: s for s in SHOP}
@@ -271,6 +276,8 @@ def buy(user_id, key):
     item = SHOP_BY_KEY.get(key)
     if not item:
         raise ValueError("That item isn't in the shop.")
+    if item.get("exclusive"):
+        raise ValueError("That one can't be bought. Finish its market set to earn it.")
     if key in owned(user_id):
         raise ValueError("You already have that.")
     xp, coins = totals(user_id)

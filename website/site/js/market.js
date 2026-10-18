@@ -6,7 +6,9 @@
   var R = window.GraphiteRewards, call = R && R.call();
   var API = window.GraphiteAPI, LIVE = !!(API && API.live);
   var data = null, current = null, hours = 24, filter = "all", sort = "set", busy = false;
-  var SAVED = "graphite_market_view";
+  var SAVED = "graphite_market_view", WATCH = "graphite_market_watch", watch = {};
+  try { watch = JSON.parse(localStorage.getItem(WATCH)) || {}; } catch (e) { /* storage blocked */ }
+  function saveWatch() { try { localStorage.setItem(WATCH, JSON.stringify(watch)); } catch (e) { /* storage blocked */ } }
   function $(id) { return document.getElementById(id); }
   function esc(s) { return R.esc(s); }
   function num(n) { return R.num(n); }
@@ -29,7 +31,24 @@
       '<rect x="8" y="26" width="6" height="12" fill="#b9bec6"/><rect x="2" y="26" width="6" height="12" rx="2" fill="#f09ab0"/>' +
       '<path d="M44 26 L56 32 L44 38 Z" fill="#e8c9a0"/><path d="M52 30 L56 32 L52 34 Z" fill="#2b2f36"/></g></svg>';
   }
+  var SHAPE = {
+    triangle: '<path d="M32 10L56 52H8Z" fill="#4f9be0" stroke="#2b6cb0" stroke-width="2" stroke-linejoin="round"/>',
+    circle: '<circle cx="32" cy="32" r="22" fill="#3fb87f" stroke="#2a8a5c" stroke-width="2"/><circle cx="32" cy="32" r="2" fill="#1d1a19"/><path d="M32 32h22" stroke="#1d1a19" stroke-width="1.6" stroke-dasharray="3 2"/>',
+    hexagon: '<path d="M32 8l21 12v24L32 56 11 44V20Z" fill="#f2c14e" stroke="#c99a2a" stroke-width="2" stroke-linejoin="round"/>',
+    star: '<path d="M32 7l7.6 15.4 17 2.5-12.3 12 2.9 16.9L32 46l-15.2 7.8 2.9-16.9-12.3-12 17-2.5Z" fill="#ec6f58" stroke="#b84a36" stroke-width="2" stroke-linejoin="round"/>',
+    cube: '<path d="M32 8l22 12v24L32 56 10 44V20Z" fill="#9b7be6"/><path d="M32 32L10 20 32 8 54 20Z" fill="#c4a8ff"/><path d="M32 32v24L54 44V20Z" fill="#7a5cc6"/>',
+    spiral: '<path d="M33 33a2 2 0 0 1-2-2 3 3 0 0 1 3-3 5 5 0 0 1 5 5 8 8 0 0 1-8 8 13 13 0 0 1-13-13 21 21 0 0 1 21-21" fill="none" stroke="#e3a92b" stroke-width="3" stroke-linecap="round"/>'
+  };
+  var TOOL = {
+    abacus: '<rect x="10" y="12" width="44" height="40" rx="3" fill="none" stroke="#8a5636" stroke-width="3"/><g stroke="#8a5636" stroke-width="1.4"><path d="M12 22h40M12 32h40M12 42h40"/></g><g fill="#ec6f58"><circle cx="18" cy="22" r="3"/><circle cx="25" cy="22" r="3"/><circle cx="42" cy="32" r="3"/><circle cx="35" cy="32" r="3"/><circle cx="20" cy="42" r="3"/></g><g fill="#4f9be0"><circle cx="46" cy="22" r="3"/><circle cx="28" cy="42" r="3"/><circle cx="46" cy="42" r="3"/></g>',
+    protractor: '<path d="M8 46a24 24 0 0 1 48 0Z" fill="#9cc9f5" fill-opacity=".55" stroke="#2b6cb0" stroke-width="2"/><g stroke="#2b6cb0" stroke-width="1.2"><path d="M32 46V26M32 46l14-14M32 46l-14-14M32 46h20M32 46H12"/></g><circle cx="32" cy="46" r="2" fill="#2b6cb0"/>',
+    sliderule: '<rect x="6" y="22" width="52" height="20" rx="2" fill="#efe6d2" stroke="#8a7a5a" stroke-width="1.6"/><rect x="6" y="29" width="52" height="6" fill="#e2d6b8"/><g stroke="#6b5c3e" stroke-width="1"><path d="M12 22v4M18 22v3M24 22v4M30 22v3M36 22v4M42 22v3M48 22v4M54 22v3M12 42v-4M20 42v-3M28 42v-4M36 42v-3M44 42v-4M52 42v-3"/></g><rect x="26" y="18" width="10" height="28" rx="2" fill="none" stroke="#c94f4f" stroke-width="1.6"/>',
+    calculator: '<rect x="14" y="6" width="36" height="52" rx="5" fill="#e3a92b" stroke="#a8760f" stroke-width="2"/><rect x="19" y="11" width="26" height="12" rx="2" fill="#2f3237"/><path d="M21 20l5-5 4 3 6-5 6 4" fill="none" stroke="#9fe3c1" stroke-width="1.4"/><g fill="#a8760f"><rect x="19" y="28" width="7" height="6" rx="1.5"/><rect x="28.5" y="28" width="7" height="6" rx="1.5"/><rect x="38" y="28" width="7" height="6" rx="1.5"/><rect x="19" y="37" width="7" height="6" rx="1.5"/><rect x="28.5" y="37" width="7" height="6" rx="1.5"/><rect x="38" y="37" width="7" height="15" rx="1.5"/><rect x="19" y="46" width="16.5" height="6" rx="1.5"/></g>'
+  };
   function art(it, big) {
+    if (it.art === "shape" || it.art === "tool") {
+      return '<span class="mk-art r-' + esc(it.rarity) + (big ? " is-big" : "") + '" aria-hidden="true"><svg viewBox="0 0 64 64">' + ((it.art === "shape" ? SHAPE[it.shape] : TOOL[it.tool]) || "") + "</svg></span>";
+    }
     var inner = it.art === "pencil" ? pencil(it.color)
       : '<span class="mk-glyph' + (String(it.glyph).length > 2 ? " is-long" : "") + '">' + esc(it.glyph) + "</span>";
     return '<span class="mk-art r-' + esc(it.rarity) + (big ? " is-big" : "") + '" aria-hidden="true">' + inner + "</span>";
@@ -51,7 +70,7 @@
 
   /* ---------- list ---------- */
   function renderFilter() {
-    var opts = [["all", "All"]].concat(data.sets.map(function (s) { return [s.key, s.name]; })).concat([["mine", "Mine"]]);
+    var opts = [["all", "All"]].concat(data.sets.map(function (s) { return [s.key, s.name]; })).concat([["mine", "Mine"], ["watch", "Watching"]]);
     $("mk-filter").innerHTML = opts.map(function (o) {
       return '<span><input type="radio" name="mk-filter" id="mk-f-' + o[0] + '" value="' + o[0] + '"' + (filter === o[0] ? " checked" : "") +
         '><label for="mk-f-' + o[0] + '">' + esc(o[1]) + "</label></span>";
@@ -59,7 +78,7 @@
     $("mk-sort").value = sort;
   }
   function sorted() {
-    var list = data.items.filter(function (i) { return filter === "all" ? true : filter === "mine" ? i.owned > 0 : i.set === filter; });
+    var list = data.items.filter(function (i) { return filter === "all" ? true : filter === "mine" ? i.owned > 0 : filter === "watch" ? watch[i.key] : i.set === filter; });
     var order = data.items.map(function (i) { return i.key; });
     var by = {
       set: function (a, b) { return order.indexOf(a.key) - order.indexOf(b.key); },
@@ -73,10 +92,10 @@
     $("mk-items").innerHTML = list.length ? list.map(function (it) {
       return '<li><button type="button" class="mk-item' + (current && current.key === it.key ? " is-current" : "") + '" data-item="' + esc(it.key) + '"' +
         (current && current.key === it.key ? ' aria-current="true"' : "") + ">" + art(it) +
-        '<span class="mk-item-name"><strong>' + esc(it.name) + '</strong><span class="mk-rarity r-' + esc(it.rarity) + '">' + esc(it.rarity_name) + "</span>" +
+        '<span class="mk-item-name"><strong>' + esc(it.name) + (watch[it.key] ? ' <span class="mk-star" aria-label="Watching">★</span>' : "") + '</strong><span class="mk-rarity r-' + esc(it.rarity) + '">' + esc(it.rarity_name) + "</span>" +
         (it.owned ? '<span class="fine">You own ' + it.owned + "</span>" : "") + "</span>" +
         '<span class="mk-item-price"><strong>' + coins(it.price) + "</strong>" + change(it.change_24h) + "</span></button></li>";
-    }).join("") : '<li class="fine mk-empty">Nothing here yet. Buy something and it shows up under Mine.</li>';
+    }).join("") : '<li class="fine mk-empty">' + (filter === "watch" ? "Nothing on your watchlist. Open a collectible and press Watch." : "Nothing here yet. Buy something and it shows up under Mine.") + "</li>";
   }
 
   /* ---------- detail ---------- */
@@ -115,6 +134,8 @@
     $("mk-d-art").innerHTML = art(it, true);
     $("mk-d-set").textContent = setName(it.set);
     $("mk-d-name").textContent = it.name;
+    $("mk-watch").textContent = watch[it.key] ? "★ Watching" : "☆ Watch";
+    $("mk-watch").setAttribute("aria-pressed", String(!!watch[it.key]));
     $("mk-d-rarity").className = "mk-rarity r-" + it.rarity;
     $("mk-d-rarity").textContent = it.rarity_name;
     $("mk-d-about").textContent = it.about;
@@ -156,7 +177,9 @@
   function renderSets() {
     $("mk-sets").innerHTML = data.sets.map(function (s) {
       var pct = Math.round(s.have / s.of * 100);
+      var t = (data.set_titles || []).filter(function (x) { return x.set === s.key; })[0];
       return '<li><div class="mk-set-top"><strong>' + esc(s.name) + '</strong><span class="fine">' + s.have + " of " + s.of + (s.have === s.of ? ", complete" : "") + "</span></div>" +
+        (t ? '<p class="fine mk-set-reward">' + (t.owned ? "Earned the " + esc(t.title) + ' title. <a href="rewards.html">Wear it</a>' : "Finish it to earn the " + esc(t.title) + " title.") + "</p>" : "") +
         '<div class="hud-bar" role="progressbar" aria-label="' + esc(s.name) + ' collected" aria-valuemin="0" aria-valuemax="' + s.of + '" aria-valuenow="' + s.have + '"><span style="width:' + pct + '%"></span></div></li>';
     }).join("");
   }
@@ -165,6 +188,17 @@
       return '<li><span class="mk-side-tag is-' + esc(a.side) + '">' + (a.side === "buy" ? "Bought" : "Sold") + "</span><span>" + esc(a.name) + "</span>" +
         "<strong>" + coins(a.price) + '</strong><span class="fine">' + ago(a.at_ms) + "</span></li>";
     }).join("") : '<li class="fine">No trades yet. Yours could be the first.</li>';
+  }
+  function renderMovers() {
+    var moved = data.items.filter(function (i) { return i.change_24h; }).slice().sort(function (a, b) { return Math.abs(b.change_24h) - Math.abs(a.change_24h); }).slice(0, 5);
+    $("mk-movers").innerHTML = moved.length ? moved.map(function (i) {
+      return '<li><button type="button" data-item="' + esc(i.key) + '">' + art(i) + "<span><strong>" + esc(i.name) + "</strong>" + change(i.change_24h) + "</span><strong>" + coins(i.price) + "</strong></button></li>";
+    }).join("") : '<li class="fine">Quiet day. Nothing has moved yet.</li>';
+    var mine = data.mine || [];
+    $("mk-mine").innerHTML = mine.length ? mine.map(function (a) {
+      return '<li><span class="mk-side-tag is-' + esc(a.side) + '">' + (a.side === "buy" ? "Bought" : "Sold") + "</span><span>" + esc(a.name) + "</span>" +
+        "<strong>" + coins(a.price) + '</strong><span class="fine">' + ago(a.at_ms) + "</span></li>";
+    }).join("") : '<li class="fine">Your trades show up here.</li>';
   }
   function renderHow() {
     var r = data.rules;
@@ -179,7 +213,7 @@
     $("mk-how").hidden = false;
   }
   function render() {
-    renderStrip(); renderFilter(); renderSets(); renderFeed(); renderHow();
+    renderStrip(); renderFilter(); renderSets(); renderFeed(); renderMovers(); renderHow();
     $("mk-loading").hidden = true; $("mk-body").hidden = false;
     var key = current ? current.key : (location.hash.slice(1) || null);
     pick(key);
@@ -203,7 +237,8 @@
       // Trades don't earn XP, so only badges pop up (the coins are in the strip and the status line).
       if (res.reward && res.reward.badges && res.reward.badges.length) R.show({ badges: res.reward.badges });
       status("ok", (side === "buy" ? "Bought " : "Sold ") + it.name + " for " + num(res.price) + " coins.");
-      return call("/api/market").then(function (o) { data = o; current = o.items.filter(function (i) { return i.key === it.key; })[0]; renderStrip(); renderList(); renderSets(); renderFeed(); renderDetail(true); loadChart(); });
+      if (res.unlocked_title) status("ok", "Set complete! You earned the " + res.unlocked_title + " title. Wear it from your locker.");
+      return call("/api/market").then(function (o) { data = o; current = o.items.filter(function (i) { return i.key === it.key; })[0]; renderStrip(); renderList(); renderSets(); renderFeed(); renderMovers(); renderDetail(true); loadChart(); });
     }).catch(function (err) {
       busy = false;
       if (err && err.status === 401) { failed(err); return; }
@@ -228,6 +263,12 @@
   $("mk-sort").addEventListener("change", function (e) { sort = e.target.value; remember(); renderList(); });
   document.querySelectorAll('input[name="mk-range"]').forEach(function (r) { r.addEventListener("change", function () { hours = +r.value; loadChart(); }); });
   $("mk-buy").addEventListener("click", function () { trade("buy"); });
+  $("mk-watch").addEventListener("click", function () {
+    if (!current) return;
+    if (watch[current.key]) delete watch[current.key]; else watch[current.key] = 1;
+    saveWatch(); renderDetail(true); renderList();
+  });
+  $("mk-movers").addEventListener("click", function (e) { var b = e.target.closest("[data-item]"); if (b) pick(b.getAttribute("data-item"), true); });
   $("mk-sell").addEventListener("click", function () { trade("sell"); });
   load();
   // Prices move while the page is open: refresh every minute when the tab is visible.

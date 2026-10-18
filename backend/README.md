@@ -28,7 +28,7 @@ That means no server is running at that address.
 
 ### Test account
 
-When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"), and every sign-in wipes its practice history, so it always starts fresh with the diagnostic. It also starts with 100,000 coins (and no XP, badges or items) so you can try everything in the shop. To give coins to a real account, run `python give_coins.py EMAIL AMOUNT` in the backend folder on the server. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
+When the site runs on your computer, you can sign in with username **beta** and password **beta**. It's created on every start (and its password reset to "beta"). Its progress is kept between sign-ins; to start it over as a brand-new student, use **Settings > Your data > Start the test account over**. It also starts with 100,000 coins (and no XP, badges or items) so you can try everything in the shop. To give coins to a real account, run `python give_coins.py EMAIL AMOUNT` in the backend folder on the server. It never exists on the hosted site: `APP_ENV=production` turns it off, whatever else is set. To turn it off locally too, set `TEST_ACCOUNT=false` in `backend/.env`.
 
 There's also a test **parent** account: username **beta2**, password **beta2**, already connected to the beta student as its parent. Choose "I'm a parent" on the sign-in page first, then sign in; it opens the parent dashboard. (Before October 2026 this account was called "parent"; it's renamed to beta2 the next time the site starts, keeping its link.) It follows the same rules: local only, never on the hosted site.
 
@@ -186,12 +186,17 @@ Prices are always shown per month. The feature lists and the "Compare every feat
 
 | Feature | Where the rules live | What it does |
 | --- | --- | --- |
-| Rewards | `app/services/game.py` | XP, 9 ranks, coins, a daily streak (any day with XP), 18 badges and a shop (profile frames, leaderboard titles, 3 extra accent colors). Every reward is a row in `xp_events`, so totals are sums. |
+| Rewards | `app/services/game.py` | XP, 9 ranks, coins, a daily streak (any day with XP), badges and the locker. Every reward is a row in `xp_events`, so totals are sums. |
+| Locker (cosmetics) | `app/services/cosmetics.py` | Avatar hats, glasses, outfits and backdrops, profile frames, titles, moving backgrounds, themes, accent colors and pet gear. Students try things on before buying. Prices set the rarity. |
+| Pets | `app/services/pet.py` | Every student gets an egg that hatches after 150 XP. The active pet levels up with every XP the student earns, grows through 5 stages, and can wear gear. Treats (coins, 5 a day) add pet XP. More eggs cost coins; 6 species, some rarer. |
+| Market | `app/services/market.py` | Collectibles in 5 sets whose prices move with what students buy and sell (supply and demand), then drift back to normal. Completing a set earns its title. |
+| Calculator and tutor panel | `website/src/qtools.js` | A side panel on every Math question (practice sets, practice tests, Level up, lessons, the diagnostic, speed-round reviews). On a computer the question slides over to make room; on a phone it's a bottom sheet. The tutor tab is closed during timed tests until they're submitted. The tutor itself is a placeholder until it's connected. |
+| History | `app/services/history.py` | Every answered question, profile and settings change, and page view, shown in Settings > History and included in the data download. |
 | Level up game layer | `game.level_check`, `game.level_finish` | Each checked answer earns XP; right answers in a row build a combo; the last question of every level is the hardest one (the boss) and pays bonus XP and coins. Finishing, passing, a first clear and a perfect set pay out at the end. |
 | Speed round | `app/services/speed.py` | The same 10 quick questions for everyone each day, timed by the server. Each miss adds 15 seconds. The first round of the day is ranked; later ones are practice. Leaderboards for the student's state and nationwide, today and this week. |
 | Leaderboard privacy | `speed.py`, Settings > Leaderboard | Off until the student turns it on. Students appear only by a nickname (their own, checked for curse words, their real name and duplicates, or a suggested one), their state and their time. Never a name, email, school or photo. |
 | Focus timer | `app/services/focus.py` | 15, 25 or 50-minute sessions with a break after. The server keeps the clock and credits only real time. Focus time counts toward the weekly goal, except sessions labeled practice or review, whose time already counts from the sets. |
-| Lessons | `app/services/lessons.py`, `app/content/lessons/` | 8 active recall lessons. Every step asks first: answer from memory, predict, fill in a step, put steps in order, or find the mistake. Recall checks come back after 1, 3 and 7 days; passing all three masters the lesson. |
+| Lessons | `app/services/lessons.py`, `app/content/lessons/` | 63 active recall lessons: every SAT Math skill, a 14-lesson Desmos course, and lessons on memory (active recall, memory palace, storytelling). Every step asks first: answer from memory, predict, fill in a step, put steps in order, or find the mistake. Recall checks come back after 1, 3 and 7 days; passing all three masters the lesson. |
 
 To change a number (XP, prices, ranks, badges), edit `game.py` and rebuild the site (`python website/build.py`) so the preview matches. To add a lesson, add a JSON file to `app/content/lessons/` shaped like the others; the tests check its answers line up.
 
@@ -203,11 +208,11 @@ Students set these in Settings. They're saved to the account (`users.prefs`, che
 
 | Area | Options | Cost |
 | --- | --- | --- |
-| Look and reading | Themes: dark, light, match my device, paper, midnight, high contrast. Text size (4 steps), an easy-read font (Atkinson Hyperlegible), less or full motion, roomy or compact spacing | Free |
-| Shop looks | Chalkboard and Night Owl themes, "Any color" accent picker, 3 extra accent colors, profile frames | Coins |
+| Look and reading | Themes: dark, light, match my device, paper, midnight, high contrast. Text size (4 steps), fonts (standard, easy-read Atkinson Hyperlegible, rounded, typewriter), corners, less or full motion, roomy or compact spacing, and a background (none, ripples or still dots) | Free |
+| Locker looks | More themes, "Any color" accent picker, extra accent colors, profile frames, titles and moving backgrounds (snowfall, constellation, floating symbols, sine waves, fireflies, star warp) | Coins |
 | Dashboard layout | Show or hide each section, reorder them, pin up to 4 shortcuts to the top | Free |
 | Practice defaults | Topic set size, timer shown or hidden, calculator open at start, test-day colors, sounds, daily reminder email | Free |
-| Drawn avatar | Background, skin, hair, hair color, eyes, mouth, extras and shirt. Shown instead of a photo, and on leaderboards (photos never are) | Free, with 5 extras for coins |
+| Drawn avatar | Background, skin, hair, hair color, eyes, mouth and shirt, plus a hat, glasses, outfit and backdrop from the locker. Shown instead of a photo, and on leaderboards (photos never are) | Free, with locker items for coins |
 | Leaderboard nickname | Any nickname 3 to 20 characters, or a suggested one. It can't be the student's real name, last name or email, can't contain a curse word, and can't already be taken | Free |
 
 ### Daily reminder emails
@@ -243,4 +248,5 @@ On your own computer, Stripe can't reach `127.0.0.1` for webhooks. Checkout stil
 - Email verification for new accounts
 - Sending the weekly progress email to parents
 - An admin page to see leads and students (for now, query the `leads` and `users` tables)
-- Reading and Writing practice tests, and the tutor's AI explanations
+- Reading and Writing practice tests, lessons, levels and speed rounds (each page has a "coming soon" preview under its Reading and Writing switch)
+- The tutor's answers: the tutor page and the Tutor tab show a placeholder where the message box goes. Before launch, every claim about the tutor on the home page (it's on every question, it knows what you missed this week, hints before answers) has to be true

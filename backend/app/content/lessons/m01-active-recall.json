@@ -3,7 +3,7 @@
  "order": 1,
  "domain": "memory",
  "skill": "active-recall",
- "title": "Active recall: test yourself, don't reread",
+ "title": "Active recall: pull it out of your head",
  "minutes": 5,
  "hook": "Why pulling an answer out of memory beats reading it again, and how every lesson here uses it.",
  "steps": [

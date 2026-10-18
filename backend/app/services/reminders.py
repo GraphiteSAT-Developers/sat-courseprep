@@ -3,7 +3,7 @@
 Run send_due() once an hour (backend/remind.py does, from a cron job on the host). A student gets at most one
 reminder a day, and none on a day they've already studied.
 """
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 from flask import current_app

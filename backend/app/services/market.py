@@ -43,7 +43,12 @@ SETS = [
     {"key": "symbols", "name": "Math Symbols", "about": "The symbols you'll see all over the Math section."},
     {"key": "pencils", "name": "Pencil Case", "about": "Every great test starts with a sharp pencil."},
     {"key": "numbers", "name": "Famous Numbers", "about": "Numbers with a story behind them."},
+    {"key": "shapes", "name": "Shape Shifters", "about": "The shapes behind every geometry question."},
+    {"key": "tools", "name": "Calculator Crew", "about": "Every tool that ever crunched a number."},
 ]
+# Finishing a set earns its title (an exclusive one; it can't be bought).
+SET_TITLES = {"symbols": "Symbol Collector", "pencils": "Pencil Pusher", "numbers": "Number Theorist",
+              "shapes": "Shape Shifter", "tools": "Calculator Crew"}
 
 # art: "glyph" draws the text on a tile; "pencil" draws a pencil in that color.
 ITEMS = [
@@ -75,6 +80,26 @@ ITEMS = [
      "about": "About 1.618. Only 250 exist."},
     {"key": "taxicab", "set": "numbers", "name": "1729", "rarity": "legendary", "base": 700, "art": "glyph", "glyph": "1729",
      "about": "The smallest number that's a sum of two cubes in two ways. Only 250 exist."},
+    {"key": "triangle", "set": "shapes", "name": "Triangle", "rarity": "common", "base": 20, "art": "shape", "shape": "triangle",
+     "about": "Three sides, 180 degrees, endless SAT questions."},
+    {"key": "circle", "set": "shapes", "name": "Circle", "rarity": "common", "base": 22, "art": "shape", "shape": "circle",
+     "about": "Every point the same distance from the center."},
+    {"key": "hexagon", "set": "shapes", "name": "Hexagon", "rarity": "uncommon", "base": 55, "art": "shape", "shape": "hexagon",
+     "about": "Bees figured out this one first."},
+    {"key": "star", "set": "shapes", "name": "Star", "rarity": "uncommon", "base": 60, "art": "shape", "shape": "star",
+     "about": "Five points, and every angle at a tip is 36 degrees."},
+    {"key": "cube", "set": "shapes", "name": "Cube", "rarity": "rare", "base": 170, "art": "shape", "shape": "cube",
+     "about": "Six faces. Double the side and the volume grows eight times."},
+    {"key": "spiral", "set": "shapes", "name": "Golden Spiral", "rarity": "legendary", "base": 680, "art": "shape", "shape": "spiral",
+     "about": "Grows by the golden ratio every quarter turn. Only 250 exist."},
+    {"key": "abacus", "set": "tools", "name": "Abacus", "rarity": "uncommon", "base": 65, "art": "tool", "tool": "abacus",
+     "about": "The calculator before batteries."},
+    {"key": "protractor", "set": "tools", "name": "Protractor", "rarity": "common", "base": 25, "art": "tool", "tool": "protractor",
+     "about": "Measures angles from 0 to 180."},
+    {"key": "sliderule", "set": "tools", "name": "Slide Rule", "rarity": "rare", "base": 190, "art": "tool", "tool": "sliderule",
+     "about": "Took people to the moon."},
+    {"key": "goldcalc", "set": "tools", "name": "Golden Calculator", "rarity": "legendary", "base": 720, "art": "tool", "tool": "calculator",
+     "about": "Graphs in pure gold. Only 250 exist."},
 ]
 BY_KEY = {i["key"]: i for i in ITEMS}
 
@@ -181,7 +206,7 @@ def _public_item(item, row, mine, circ, at_ms):
     return {
         "key": item["key"], "set": item["set"], "name": item["name"], "about": item["about"],
         "rarity": item["rarity"], "rarity_name": r["name"], "art": item["art"],
-        "glyph": item.get("glyph"), "color": item.get("color"), "base": item["base"],
+        "glyph": item.get("glyph"), "color": item.get("color"), "shape": item.get("shape"), "tool": item.get("tool"), "base": item["base"],
         "price": buy, "sell_price": sell_price(buy), "change_24h": change_24h(item["key"], buy, at_ms),
         "supply": supply, "left": None if supply is None else max(0, supply - circ.get(item["key"], 0)),
         "max_hold": r["max_hold"], "owned": int(h["qty"]) if h else 0,
@@ -203,7 +228,8 @@ def overview(user):
     return {
         "items": items, "sets": sets, "coins": coins, "value": value, "paid": paid,
         "trades_left": max(0, TRADES_PER_DAY - trades_today(uid)), "trades_per_day": TRADES_PER_DAY,
-        "activity": activity(), "rules": rules(),
+        "activity": activity(), "rules": rules(), "mine": my_trades(uid),
+        "set_titles": [{"set": k, "title": v, "owned": f"title:set-{k}" in game.owned(uid)} for k, v in SET_TITLES.items()],
     }
 
 
@@ -216,7 +242,7 @@ def activity(limit=12):
 
 def rules():
     return {"half_life_hours": HALF_LIFE_HOURS, "spread": SPREAD, "trades_per_day": TRADES_PER_DAY,
-            "floor": FLOOR, "ceiling": CEILING, "rarities": RARITIES, "sets": SETS, "items": ITEMS,
+            "floor": FLOOR, "ceiling": CEILING, "rarities": RARITIES, "sets": SETS, "items": ITEMS, "set_titles": SET_TITLES,
             "history_points": HISTORY_POINTS}
 
 
@@ -264,6 +290,7 @@ def trade(user_id, key, side, expected_price=None):
     cost = int(h["cost"]) if h else 0
     xp_before, coins = game.totals(user_id)
     badges = []
+    unlocked = None
     if side == "buy":
         _quote_check(expected_price, buy)
         if qty >= r["max_hold"]:
@@ -301,12 +328,33 @@ def trade(user_id, key, side, expected_price=None):
     badges.append(game.earn_badge(user_id, "market_debut"))
     if side == "buy":
         mine = {k for k, v in holdings(user_id).items() if int(v["qty"]) > 0}
-        if any(all(i["key"] in mine for i in ITEMS if i["set"] == s["key"]) for s in SETS):
-            badges.append(game.earn_badge(user_id, "collector"))
+        for s in SETS:
+            if all(i["key"] in mine for i in ITEMS if i["set"] == s["key"]):
+                badges.append(game.earn_badge(user_id, "collector"))
+                if s["key"] == item["set"]:
+                    title = _grant_set_title(user_id, s["key"])
+                    if title:
+                        unlocked = title
     rep = game.report(user_id, xp_before, 0, coins_delta, badges)
     circ, mine = circulation(), holdings(user_id)
     fresh = _public_item(item, _row(key), mine, circ, now_ms())
-    return {"reward": rep, "item": fresh, "price": price, "side": side}
+    return {"reward": rep, "item": fresh, "price": price, "side": side, "unlocked_title": unlocked}
+
+
+def _grant_set_title(user_id, set_key):
+    """Gives the set's title once. Returns its name if it's new."""
+    key = "title:set-" + set_key
+    if query("SELECT 1 FROM inventory WHERE user_id = ? AND item = ?", (user_id, key), one=True):
+        return None
+    execute("INSERT INTO inventory (user_id, item, bought_at) VALUES (?, ?, ?) ON CONFLICT (user_id, item) DO NOTHING",
+            (user_id, key, _iso(now_ms())))
+    return SET_TITLES[set_key]
+
+
+def my_trades(user_id, limit=15):
+    rows = query("SELECT item, side, price, at_ms FROM market_trades WHERE user_id = ? ORDER BY id DESC LIMIT ?", (user_id, limit))
+    return [{"item": r["item"], "name": BY_KEY[r["item"]]["name"] if r["item"] in BY_KEY else r["item"], "side": r["side"],
+             "price": int(r["price"]), "at_ms": int(r["at_ms"])} for r in rows]
 
 
 def _iso(at_ms):

@@ -3,7 +3,6 @@ import re
 import shutil
 import tempfile
 import unittest
-from pathlib import Path
 
 from app import create_app
 from app.services import mailer

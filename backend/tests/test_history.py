@@ -1,12 +1,11 @@
 """History: every change and every answered question is saved to the account. Run: python -m unittest discover tests"""
-import json
 
 from app import crypto
 from app.db import query
 from app.services import bank
 
 from test_play import PlayTest
-from test_practice import ORIGIN, right_answer, wrong_answer
+from test_practice import right_answer, wrong_answer
 
 
 class HistoryTest(PlayTest):

@@ -1,6 +1,5 @@
 """Customization: look, dashboard layout, study defaults, drawn avatar and reminders.
 Run from the backend folder: python -m unittest discover tests"""
-import json
 import re
 from datetime import date, datetime, timezone
 from pathlib import Path

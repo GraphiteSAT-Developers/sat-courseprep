@@ -249,6 +249,7 @@
     if (path === "/api/game/buy") {
       var item = R.shop.filter(function (i) { return i.key === (data && data.item); })[0];
       if (!item) return fail(400, "That item isn't in the shop.", "item");
+      if (item.exclusive) return fail(400, "That one can't be bought. Finish its market set to earn it.", "item");
       if (s.inventory[item.key]) return fail(400, "You already have that.", "item");
       var t = totals(s);
       if (t.coins < item.price) return fail(400, "You need " + (item.price - t.coins) + " more coins for that.", "item");
@@ -608,7 +609,7 @@
     var cur = m.demand[it.key], buy = mkPrice(it, mkDecay(cur.d, cur.ms, at)), r = MK.rarities[it.rarity], h = m.holdings[it.key];
     var then = mkHistory(m, it.key, 24, at)[0].price, owned = h ? h.qty : 0;
     return { key: it.key, set: it.set, name: it.name, about: it.about, rarity: it.rarity, rarity_name: r.name, art: it.art,
-             glyph: it.glyph || null, color: it.color || null, base: it.base, price: buy, sell_price: mkSell(buy),
+             glyph: it.glyph || null, color: it.color || null, shape: it.shape || null, tool: it.tool || null, base: it.base, price: buy, sell_price: mkSell(buy),
              change_24h: then ? Math.round((buy - then) / then * 1000) / 10 : 0, supply: r.supply,
              left: r.supply == null ? null : Math.max(0, r.supply - m.others[it.key] - owned), max_hold: r.max_hold,
              owned: owned, avg_cost: owned ? Math.round(h.cost / owned) : null };
@@ -626,6 +627,8 @@
       coins: totals(s).coins, value: items.reduce(function (a, i) { return a + i.owned * i.sell_price; }, 0), paid: paid,
       trades_left: Math.max(0, MK.trades_per_day - mkTradesToday(m)), trades_per_day: MK.trades_per_day,
       activity: m.trades.slice(-12).reverse().map(function (t) { return { item: t.item, name: MK_BY[t.item].name, side: t.side, price: t.price, at_ms: t.at_ms }; }),
+      mine: m.trades.filter(function (t) { return t.mine; }).slice(-15).reverse().map(function (t) { return { item: t.item, name: MK_BY[t.item].name, side: t.side, price: t.price, at_ms: t.at_ms }; }),
+      set_titles: Object.keys(MK.set_titles || {}).map(function (k) { return { set: k, title: MK.set_titles[k], owned: !!s.inventory["title:set-" + k] }; }),
       rules: MK,
     };
   }
@@ -662,10 +665,14 @@
       mkRecord(m, it, side, price, at, true);
       s.events.push({ kind: "market_" + side, xp: 0, coins: side === "buy" ? -price : price, detail: it.key, day: today(), at: now() });
       badges.push(earnBadge(s, "market_debut"));
-      if (side === "buy" && MK.sets.some(function (st) { return MK_ITEMS.filter(function (i) { return i.set === st.key; }).every(function (i) { return mkMine(m, i.key) > 0; }); }))
+      var unlocked = null;
+      if (side === "buy") MK.sets.forEach(function (st) {
+        if (!MK_ITEMS.filter(function (i) { return i.set === st.key; }).every(function (i) { return mkMine(m, i.key) > 0; })) return;
         badges.push(earnBadge(s, "collector"));
+        if (st.key === it.set && !s.inventory["title:set-" + st.key]) { s.inventory["title:set-" + st.key] = now(); unlocked = MK.set_titles[st.key]; }
+      });
       var rep = report(s, t0.xp, 0, side === "buy" ? -price : price, badges);
-      var out = { reward: rep, item: mkItem(m, it, ms()), price: price, side: side };
+      var out = { reward: rep, item: mkItem(m, it, ms()), price: price, side: side, unlocked_title: unlocked };
       save(s); return ok(out);
     }
     return fail(404, "Not found.");

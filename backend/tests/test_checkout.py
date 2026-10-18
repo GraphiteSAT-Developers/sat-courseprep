@@ -7,7 +7,6 @@ import shutil
 import tempfile
 import time
 import unittest
-from datetime import date, timedelta
 
 from app import create_app
 from app.services import billing, stripe_api

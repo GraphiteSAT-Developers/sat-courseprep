@@ -1,7 +1,7 @@
 """Pets and the locker (wearing every kind of item). Run: python -m unittest discover tests"""
 from datetime import date
 
-from app.db import execute, query
+from app.db import execute
 from app.services import cosmetics, pet
 
 from test_play import PlayTest

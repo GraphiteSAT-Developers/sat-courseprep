@@ -5,16 +5,14 @@ fields that can't be set from the browser, bot protection, upload limits, encryp
 cookies, write limits, and that no secrets ship with the website."""
 import base64
 import io
-import json
 import re
-import time
 from pathlib import Path
 
 from app import create_app, crypto
 from app.db import query, set_clause
 from app.services import bank
 
-from test_practice import ORIGIN, PracticeTest, right_answer
+from test_practice import ORIGIN, PracticeTest
 
 REPO = Path(__file__).resolve().parents[2]
 # API routes anyone may call without signing in, and why.
