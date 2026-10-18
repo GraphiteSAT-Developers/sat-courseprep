@@ -1,4 +1,5 @@
-/* Settings > Subscription: the student's own plan. See what's included and what's locked, switch plans,
+/* subscription.html: the student's own plan, on its own page. Every locked feature on the site sends students here
+   (subscription.html?feature=mock_test&from=practice.html), with the plan that unlocks it already picked. See what's included and what's locked, switch plans,
    pause, cancel or undo a cancellation, fix a failed payment and see the billing history.
    Live: /api/me/subscription (backend routes/subscription.py). Preview: practice-local.js answers the same
    requests in this browser, sharing the plan with the parent dashboard preview. */
@@ -22,6 +23,35 @@
   }
   var D = null, pick = null;
   $("sub-preview-note").hidden = LIVE;
+  var Q = new URLSearchParams(location.search);
+  var FEATURE = Q.get("feature"), FROM = safeFrom(Q.get("from")), preset = false;
+  // Only pages on this site, like practice.html?session=4, so the link can't send anyone elsewhere.
+  function safeFrom(f) { return f && /^[a-z0-9-]+\.html([?#][A-Za-z0-9=&#%._-]*)?$/.test(f) ? f : null; }
+  function backLink(text) {
+    if (!FROM) return null;
+    var a = document.createElement("a"); a.className = "btn btn-secondary"; a.href = FROM; a.textContent = text || "Go back to what you were doing";
+    return a;
+  }
+  function context(d) {
+    var box = $("sub-context"), f = FEATURE && d.access.features[FEATURE];
+    box.hidden = !f;
+    if (!f) return;
+    box.innerHTML = "";
+    box.className = "sub-context" + (f.ok ? " is-open" : f.reason ? " is-unpaid" : "");
+    var head = document.createElement("strong"), p = document.createElement("p");
+    if (f.ok) {
+      head.textContent = f.name + " " + (/s$/.test(f.name) ? "are" : "is") + " unlocked.";
+      p.textContent = "Your plan includes it now.";
+    } else {
+      var t = window.GraphiteLock ? GraphiteLock.text(f) : { title: f.name + " is locked", text: "" };
+      head.textContent = t.title;
+      p.textContent = f.reason ? t.text : t.text + " " + f.need_name + " is picked for you below.";
+      $("sub-h1").textContent = f.reason ? "Fix your payment" : "Unlock " + f.name.toLowerCase();
+    }
+    box.appendChild(head); box.appendChild(p);
+    var back = backLink(f.ok ? "Go back to " + f.name.toLowerCase() : "Not now, go back");
+    if (back) { var row = document.createElement("div"); row.className = "pd-row"; row.appendChild(back); box.appendChild(row); }
+  }
 
   var STATUS = {
     active: function (s) { return s.plan === "free" ? "Free plan" : "Active · renews " + day(s.renews_on); },
@@ -38,8 +68,9 @@
       var li = document.createElement("li");
       li.className = f.ok ? "is-on" : "is-off";
       var detail = "";
-      if (f.period && f.limit != null) detail = (f.left || 0) + " of " + f.limit + " left this " + f.period;
-      else if (f.period && f.limit == null && f.ok) detail = "Unlimited";
+      if (f.limit === 0 || (!f.ok && !f.period)) detail = f.reason ? "Locked until paid" : "With " + f.need_name;
+      else if (f.period && f.limit != null) detail = (f.left || 0) + " of " + f.limit + " left this " + f.period;
+      else if (f.period && f.ok) detail = "Unlimited";
       else if (!f.ok) detail = f.reason ? "Locked until paid" : "With " + f.need_name;
       li.innerHTML = '<span class="sub-mark" aria-hidden="true">' + (f.ok ? "✓" : "–") + '</span><span class="sub-feat"></span><span class="sub-detail"></span>';
       li.querySelector(".sub-feat").textContent = f.name;
@@ -141,12 +172,49 @@
     });
   }
 
+  // The test account (beta) switches plans and payment states with one click.
+  function testBox(d) {
+    var box = $("sub-test");
+    box.hidden = !d.test_account;
+    if (!d.test_account) return;
+    var s = d.subscription;
+    function button(text, on, fn) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "btn " + (on ? "btn-primary" : "btn-secondary");
+      b.textContent = text; b.setAttribute("aria-pressed", String(!!on));
+      b.addEventListener("click", function () { if (!on) fn(b); });
+      return b;
+    }
+    var plansRow = $("sub-test-plans"); plansRow.innerHTML = "";
+    d.plans.forEach(function (p) {
+      plansRow.appendChild(button(p.name, p.key === s.plan, function (b) { testSwitch(p.key, "active", b); }));
+    });
+    var states = $("sub-test-states"); states.innerHTML = "";
+    if (s.plan !== "free") {
+      [["active", "Paid"], ["past_due", "Payment failed"], ["paused", "Paused"], ["canceled", "Canceled"]].forEach(function (x) {
+        states.appendChild(button(x[1], s.status === x[0], function (b) { testSwitch(s.plan, x[0], b); }));
+      });
+    }
+    states.hidden = s.plan === "free";
+  }
+  function testSwitch(plan, state, b) {
+    b.disabled = true;
+    call("/api/me/subscription/test", { plan: plan, status: state }).then(function (d) {
+      pick = null; render(d);
+      status("success", "Test account: now " + d.subscription.plan_name + (state === "active" ? "" : " (" + state.replace("_", " ") + ")") + ". Every page uses it right away.");
+    }).catch(function (err) { b.disabled = false; fail(err); });
+  }
+
   function render(d) {
     D = d;
-    now(d); includes(d.access); plans(d); manage(d); billing(d);
+    testBox(d);
+    var f = FEATURE && d.access.features[FEATURE];
+    if (f && !f.ok && f.need && !preset) { pick = f.need; preset = true; }
+    now(d); includes(d.access); plans(d); manage(d); billing(d); context(d);
   }
   function fail(err) {
-    if (err && err.status === 401) { location.href = "signin.html?next=" + encodeURIComponent("/settings.html#subscription"); return; }
+    if (err && err.status === 401) { location.href = "signin.html?next=" + encodeURIComponent("/subscription.html" + location.search); return; }
+    if (err && err.data && err.data.code === "parent_account") { location.href = "parent.html#billing"; return; }
     status("error", err && err.status ? err.message : "We couldn't reach Graphite SAT. Check your connection and try again.");
   }
   function load() { return call("/api/me/subscription").then(render).catch(fail); }
@@ -179,6 +247,7 @@
       pick = null; $("sub-agree").checked = false;
       render(d);
       status("success", d.subscription.status === "canceled" ? "Your plan stays on until " + day(d.subscription.renews_on) + ", then you're on the free plan."
+        : d.subscription.plan === "free" ? "You're on the free plan now. The list shows what's included and what's locked."
         : "You're on " + d.subscription.plan_name + ". Everything it includes is unlocked.");
     }).catch(function (err) { label(); fail(err); });
   });

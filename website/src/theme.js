@@ -15,15 +15,15 @@
   var ACCENTS = ["pencil", "sky", "mint", "coral", "lilac", "rose", "blueprint", "ember", "custom"];  // rose onward come from the shop
   var LOOK = { text: ["s", "m", "l", "xl"], font: ["default", "readable", "rounded", "mono"], motion: ["system", "reduce", "full"], density: ["comfortable", "compact"],
                corners: ["round", "soft", "sharp"], effect: ["none", "ripple", "dots", "snow", "constellation", "symbols", "waves", "fireflies", "warp", "springy", "pencil", "magnet", "graphpaper", "bubbles", "gravity"] };
-  var FREE_EFFECTS = ["none", "ripple", "dots"];
+  var FREE_EFFECTS = ["none", "dots"];  // Ripples is bought in the shop
   var DEFAULTS = {
     dashboard: { order: ["kpis", "play", "today", "scores", "domains", "review", "plan", "account"], hidden: [], pins: [] },
     study: { set_size: 10, timer: "show", calculator: "closed", colors: "graphite", sounds: true, reminder: false, reminder_hour: 16, tz: "America/New_York" },
     avatar: { mode: "photo", parts: { bg: "sky", skin: "s3", hair: "short", hair_color: "brown", eyes: "dots", mouth: "smile", acc: "none", shirt: "pencil", hat: "none", face: "none", outfit: "tee", backdrop: "solid" } }
   };
   var root = document.documentElement;
-  var state = { theme: "dark", accent: "pencil", ripple: true, text: "m", font: "default", motion: "system", density: "comfortable", custom_accent: "#f2c14e",
-                corners: "round", effect: "ripple" };
+  var state = { theme: "dark", accent: "pencil", ripple: false, text: "m", font: "default", motion: "system", density: "comfortable", custom_accent: "#f2c14e",
+                corners: "round", effect: "none" };
   var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
   var mqMotion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
   var me = null, prefsCache = null;
@@ -87,6 +87,13 @@
   }
 
   try { merge(JSON.parse(localStorage.getItem(KEY) || "null")); } catch (e) { /* storage blocked */ }
+  // A background bought in the shop shows only while it's owned. The live site's saved look already says so;
+  // the preview checks its own shop (play-local.js) here, since Ripples used to be free.
+  if (FREE_EFFECTS.indexOf(state.effect) < 0 && !document.querySelector('meta[name="graphite-mode"][content="live"]')) {
+    var inv = {};
+    try { inv = (JSON.parse(localStorage.getItem("graphite_play_v1") || "{}") || {}).inventory || {}; } catch (e) { /* storage blocked */ }
+    if (!inv["effect:" + state.effect]) { state.effect = "none"; state.ripple = false; }
+  }
   apply();
   [mq, mqMotion].forEach(function (m) {
     if (!m) return;

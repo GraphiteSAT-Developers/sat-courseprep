@@ -143,7 +143,9 @@ def change_plan(student_id):
         raise ApiError(400, "Pick a plan.", "plan")
     if plan == "free":
         sub = service.subscription(student_id)
-        if sub["plan"] != "free" and sub["status"] != "canceled":
+        if sub["plan"] != "free" and not service.payments_live():
+            service.change_plan(current_user()["id"], student_id, "free", None)  # nothing was charged: free starts now
+        elif sub["plan"] != "free" and sub["status"] != "canceled":
             _stripe(student_id, "cancel")
             service.cancel(current_user()["id"], student_id)
         return jsonify({"subscription": service.subscription(student_id), "billing": service.billing_history(student_id)})

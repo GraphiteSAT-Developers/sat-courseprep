@@ -266,3 +266,46 @@ class AnalyticsTest(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BackgroundTest(Base):
+    def test_plain_background_by_default_and_ripples_are_bought(self):
+        look = self.client.get("/api/me").json["user"]["appearance"]
+        self.assertEqual((look["effect"], look["ripple"]), ("none", False))
+        r = self.client.patch("/api/me/appearance", json={"effect": "ripple"}, headers=ORIGIN)
+        self.assertEqual(r.status_code, 403, r.json)
+        with self.app.app_context():
+            execute("INSERT INTO xp_events (user_id, kind, xp, coins, detail, day, at) VALUES (?, 'gift', 0, 500, 'test', '2026-10-18', '2026-10-18T00:00:00Z')", (self.uid,))
+        self.assertEqual(self.post("/api/game/buy", {"item": "effect:ripple"}).status_code, 200)
+        r = self.client.patch("/api/me/appearance", json={"effect": "ripple"}, headers=ORIGIN)
+        self.assertEqual(r.status_code, 200, r.json)
+        look = self.client.get("/api/me").json["user"]["appearance"]
+        self.assertEqual((look["effect"], look["ripple"]), ("ripple", True))
+        shop = {i["key"]: i for i in self.client.get("/api/game").json["shop"]}
+        self.assertEqual(shop["effect:ripple"]["price"], 120)
+
+    def test_a_saved_ripple_background_needs_the_purchase(self):
+        with self.app.app_context():
+            execute("UPDATE users SET prefs = ? WHERE id = ?", (json.dumps({"look": {"effect": "ripple"}}), self.uid))
+        self.assertEqual(self.client.get("/api/me").json["user"]["appearance"]["effect"], "none")
+
+
+class TestAccountSwitchTest(Base):
+    def test_beta_switches_plans_and_states_instantly(self):
+        beta = self.app.test_client()
+        self.post("/api/auth/login", {"email": "beta", "password": "beta"}, beta)
+        r = beta.get("/api/me/subscription").json
+        self.assertTrue(r["test_account"])
+        out = self.post("/api/me/subscription/test", {"plan": "sharpened"}, beta).json
+        self.assertEqual((out["subscription"]["plan"], out["subscription"]["status"]), ("sharpened", "active"))
+        self.assertTrue(out["access"]["features"]["level_up"]["ok"])
+        out = self.post("/api/me/subscription/test", {"plan": "sharpened", "status": "past_due"}, beta).json
+        self.assertEqual(out["access"]["unpaid"], "A payment didn't go through")
+        self.assertFalse(out["access"]["features"]["level_up"]["ok"])
+        out = self.post("/api/me/subscription/test", {"plan": "free"}, beta).json
+        self.assertEqual(out["subscription"]["plan"], "free")
+        self.assertEqual(self.post("/api/me/subscription/test", {"plan": "free", "status": "paused"}, beta).status_code, 400)
+
+    def test_other_accounts_cant(self):
+        self.assertFalse(self.client.get("/api/me/subscription").json["test_account"])
+        self.assertEqual(self.post("/api/me/subscription/test", {"plan": "sharpened"}).status_code, 403)

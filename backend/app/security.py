@@ -96,7 +96,8 @@ def public_user(user):
         "appearance": dict({
             "theme": user["theme"] if "theme" in user.keys() else "dark",
             "accent": user["accent"] if "accent" in user.keys() else "pencil",
-            "ripple": bool(user["ripple"]) if "ripple" in user.keys() else True,
+            # the old on/off switch: on only when a moving background is actually showing
+            "ripple": _prefs(user)["look"]["effect"] != "none",
         }, **_prefs(user)["look"]),
         "prefs": {k: v for k, v in _prefs(user).items() if k != "look"},
         "avatar_drawn": _drawn(user),

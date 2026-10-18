@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en" class="live">
+<head>
+<meta charset="utf-8">
+<meta name="graphite-mode" content="live">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="/js/theme.js?v=926d7b5b33"></script>
+<title>Subscription | Graphite SAT</title>
+<meta name="description" content="Your Graphite SAT plan: what it includes, switching plans, pausing or canceling, fixing a payment and your billing history.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1c1e21">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Graphite SAT">
+<meta property="og:title" content="Subscription | Graphite SAT">
+<meta property="og:description" content="Your Graphite SAT plan: what it includes, switching plans, pausing or canceling, fixing a payment and your billing history.">
+<meta property="og:url" content="https://www.graphiteprep.com/subscription.html">
+<meta property="og:image" content="https://www.graphiteprep.com/og-image.png">
+<meta property="og:image:alt" content="Graphite SAT: a yellow pencil end beside the line SAT prep that starts with the questions you miss.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/css/site.css?v=c0111e2be8">
+<script src="/js/site.js?v=74a7d8e2a8" defer></script><script src="/js/subscription.js?v=b2d60a61ed" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="logo" href="/" aria-label="Graphite SAT home">
+      <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="#f2c14e"/><path d="M32 32L57 17.5V46.5ZM32 32V61L7 46.5ZM32 32L7 17.5L32 3Z" fill="#000" fill-opacity=".12"/><circle cx="32" cy="32" r="16" fill="#e9c79a"/><circle cx="32" cy="32" r="7" fill="#2d3136"/></svg>
+      <span>Graphite SAT</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="menu-bars" aria-hidden="true"><span></span></span><span class="menu-label">Menu</span>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="Dashboard">
+      <ul>
+        <li><a href="/dashboard.html#today">Today</a></li>
+        <li><a href="/practice.html">Mock tests</a></li>
+        <li><a href="/levels.html">Level up</a></li>
+        <li><a href="/lessons.html">Lessons</a></li>
+        <li><a href="/speed.html">Speed round</a></li>
+        <li><a href="/focus.html">Focus</a></li>
+        <li><a href="/rewards.html">Rewards</a></li>
+        <li><a href="/market.html">Market</a></li>
+        <li><a href="/tutor.html">Tutor</a></li>
+      </ul>
+      <div class="nav-actions">
+        <span class="account-email" id="account-email"></span>
+        <button class="btn btn-secondary" type="button" data-sign-out data-track="sign_out">Sign out</button>
+      </div>
+    </nav>
+  </div>
+</header>
+<main id="main" class="sub-page">
+  <div class="wrap sub-wrap" id="subscription">
+    <div class="dash-top">
+      <div>
+        <p class="label">Subscription</p>
+        <h1 id="sub-h1">Your plan</h1>
+      </div>
+    </div>
+    <p class="sample-note" id="sub-preview-note" hidden><span class="label">Preview</span> Plan changes here are saved in this browser, and no card is charged.</p>
+
+    <!-- Shown when a locked feature sent the student here -->
+    <section class="sub-context" id="sub-context" aria-live="polite" hidden></section>
+
+    <div class="status" id="sub-status" role="status" aria-live="polite" tabindex="-1"></div>
+
+    <!-- Test account only: switch plans instantly, no checkout or card -->
+    <section class="panel sub-test" id="sub-test" aria-labelledby="sub-test-title" hidden>
+      <div class="panel-head"><h2 id="sub-test-title">Test account: switch instantly</h2><span class="chip chip-quiet">Test only</span></div>
+      <p class="fine">Pick any plan and it takes effect right away, with no checkout, card or agreement. Try the states too: a failed payment or a pause locks the paid features.</p>
+      <div class="sub-test-row" id="sub-test-plans" role="group" aria-label="Plan"></div>
+      <div class="sub-test-row" id="sub-test-states" role="group" aria-label="Payment state"></div>
+    </section>
+
+    <div class="sub-layout">
+      <div class="sub-main">
+        <section class="panel" aria-labelledby="sub-now-title">
+          <div class="panel-head"><h2 id="sub-now-title">Current plan</h2></div>
+          <div class="sub-now" id="sub-now"><p class="fine">Loading your plan…</p></div>
+        </section>
+
+        <section class="panel" aria-labelledby="sub-change-title">
+          <div class="panel-head"><h2 id="sub-change-title">Change plan</h2></div>
+          <form class="form sub-change" id="sub-change" novalidate>
+            <fieldset class="sub-interval">
+              <legend class="label">Billing</legend>
+              <div class="seg" id="sub-interval">
+                <span><input type="radio" name="sub-iv" id="sub-iv-month" value="month" checked><label for="sub-iv-month">Monthly</label></span>
+                <span><input type="radio" name="sub-iv" id="sub-iv-year" value="year"><label for="sub-iv-year">Yearly</label></span>
+                <span><input type="radio" name="sub-iv" id="sub-iv-week" value="week"><label for="sub-iv-week">Weekly</label></span>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend class="visually-hidden">Plan</legend>
+              <div class="sub-plans" id="sub-plans"></div>
+            </fieldset>
+            <label class="check sub-agree"><input type="checkbox" id="sub-agree"> <span>I agree to the <a href="/terms.html">terms</a>, and that a paid plan renews automatically until it's canceled.</span></label>
+            <div class="pd-row"><button class="btn btn-primary" type="submit" id="sub-change-go">Switch plan</button></div>
+          </form>
+        </section>
+
+        <section class="panel" id="sub-manage" aria-labelledby="sub-manage-title">
+          <div class="panel-head"><h2 id="sub-manage-title">Manage</h2></div>
+          <p class="fine" id="sub-manage-note"></p>
+          <div class="pd-row sub-actions" id="sub-actions"></div>
+        </section>
+      </div>
+
+      <aside class="sub-side">
+        <section class="panel" aria-labelledby="sub-inc-title">
+          <div class="panel-head"><h2 id="sub-inc-title">Included right now</h2></div>
+          <ul class="sub-includes" id="sub-includes"></ul>
+        </section>
+        <section class="panel" aria-labelledby="sub-bill-title">
+          <div class="panel-head"><h2 id="sub-bill-title">Billing history</h2></div>
+          <ul class="queue sub-billing" id="sub-billing"></ul>
+        </section>
+      </aside>
+    </div>
+  </div>
+</main>
+<footer class="app-footer">
+  <div class="wrap app-footer-row">
+    <p>&copy; <span data-year>2026</span> Graphite Learning, Inc.</p>
+    <ul>
+      <li><a href="/#contact">Help</a></li>
+      <li><a href="/privacy.html">Privacy</a></li>
+      <li><a href="/terms.html">Terms</a></li>
+      <li><button class="linkish" type="button" data-cookie-settings>Cookie settings</button></li>
+    </ul>
+  </div>
+</footer>
+<section class="cookie-banner" id="cookie-banner" aria-labelledby="cookie-title" hidden>
+  <div class="cookie-inner">
+    <div>
+      <h2 id="cookie-title">Cookies on Graphite SAT</h2>
+      <p>Essential cookies keep you signed in and protect forms. With your OK, analytics cookies show us which pages help students. Read the <a href="/cookies.html">cookie policy</a>.</p>
+    </div>
+    <div class="cookie-actions">
+      <button class="btn btn-quiet" type="button" id="cookie-choose" aria-expanded="false" aria-controls="cookie-prefs">Choose</button>
+      <button class="btn btn-secondary" type="button" id="cookie-reject">Essential only</button>
+      <button class="btn btn-primary" type="button" id="cookie-accept">Accept analytics</button>
+    </div>
+    <div class="cookie-prefs" id="cookie-prefs" hidden>
+      <label class="check"><input type="checkbox" checked disabled id="consent-essential"><span>Essential<small>Sign in, security and saving this choice. Always on.</small></span></label>
+      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Pages opened, where you came from, time on page, scrolling and main-button clicks. Kept on our own server, never sold.</small></span></label>
+      <div><button class="btn btn-primary" type="button" id="cookie-save">Save choices</button></div>
+    </div>
+  </div>
+</section>
+<p class="visually-hidden" id="cookie-live" role="status" aria-live="polite"></p>
+
+</body>
+</html>

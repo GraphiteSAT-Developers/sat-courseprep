@@ -43,7 +43,7 @@ class SettingsTest(unittest.TestCase):
     def test_appearance_defaults_and_saves(self):
         basics = lambda a: {k: a[k] for k in ("theme", "accent", "ripple")}
         me = self.c.get("/api/me").json["user"]
-        self.assertEqual(basics(me["appearance"]), {"theme": "dark", "accent": "pencil", "ripple": True})
+        self.assertEqual(basics(me["appearance"]), {"theme": "dark", "accent": "pencil", "ripple": False})
         self.assertEqual((me["appearance"]["text"], me["appearance"]["font"]), ("m", "default"))  # reading options, see test_prefs
         r = self.patch("/api/me/appearance", {"theme": "light", "accent": "mint", "ripple": False})
         self.assertEqual(r.status_code, 200, r.json)

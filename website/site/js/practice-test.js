@@ -529,7 +529,7 @@
     breakCall("end").catch(function () { /* the server ends it on its own clock too */ });
     MOCK.status = "module1";
     $("break-overlay").hidden = true; $("start-overlay").hidden = false;
-    if (auto) toast("The break is over. Math starts when you begin.");
+    if (auto) toast("The break is over. Section 2 starts when you begin.");
     $("start-btn").focus();
   }
   function showNext(sessionId, auto) {
@@ -649,7 +649,8 @@
   /* ---------- labels for practice sets ---------- */
   function applyLabels() {
     if (!T.session) return;
-    var heading = MOCK ? "Math: Module " + MOCK.module : T.mode === "test" ? "Math module" : T.title;
+    // Like Bluebook: Reading and Writing is Section 1, Math is Section 2.
+    var heading = MOCK ? "Section 2, Module " + MOCK.module + ": Math" : T.mode === "test" ? "Math module" : T.title;
     var kind = MOCK ? "Mock test · Math · Module " + MOCK.module + " of 2" : REVIEW ? "Review queue · one question" : LEVEL ? "Level up · " + LEVEL.tier : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
       : (T.mode === "test" ? "Mock test · one Math module" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
     $("exam-title").textContent = heading;

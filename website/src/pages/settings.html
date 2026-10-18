@@ -1,4 +1,4 @@
-<!--{"file": "settings.html", "path": "/settings.html", "title": "Settings | Graphite SAT", "description": "Your Graphite SAT settings: profile picture, name, theme and accent color, study goals, email, password and your data.", "robots": "noindex, nofollow", "settings": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "settings.js", "subscription.js"]}-->
+<!--{"file": "settings.html", "path": "/settings.html", "title": "Settings | Graphite SAT", "description": "Your Graphite SAT settings: profile picture, name, theme and accent color, study goals, email, password and your data.", "robots": "noindex, nofollow", "settings": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "settings.js"]}-->
 <main id="main" class="settings-page">
   <div class="wrap">
     <div class="st-head">
@@ -222,9 +222,9 @@
                 <input type="radio" name="look-effect" id="st-fx-none" value="none">
                 <span class="st-fx-name">None</span><small class="fine">Free</small>
               </label>
-              <label class="st-fx" for="st-fx-ripple">
-                <input type="radio" name="look-effect" id="st-fx-ripple" value="ripple">
-                <span class="st-fx-name">Ripples</span><small class="fine">Free</small>
+              <label class="st-fx is-locked" for="st-fx-ripple" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-ripple" value="ripple" disabled data-shop="effect:ripple">
+                <span class="st-fx-name">Ripples</span><small class="st-lock">120 coins</small>
               </label>
               <label class="st-fx" for="st-fx-dots">
                 <input type="radio" name="look-effect" id="st-fx-dots" value="dots">
@@ -432,46 +432,11 @@
           </form>
         </section>
 
-        <!-- Subscription: the student's own plan (subscription.js) -->
+        <!-- Subscription: managed on its own page (subscription.html) -->
         <section class="panel st-panel" id="subscription" aria-labelledby="st-sub-title" data-student-only>
           <div class="panel-head"><h2 id="st-sub-title">Subscription</h2></div>
-          <p class="sample-note" id="sub-preview-note" hidden><span class="label">Preview</span> Plan changes here are saved in this browser, and no card is charged.</p>
-          <div class="status" id="sub-status" role="status" aria-live="polite" tabindex="-1"></div>
-          <div class="sub-now" id="sub-now"><p class="fine">Loading your plan…</p></div>
-
-          <div class="st-form">
-            <h3 class="pd-h3">What your plan includes right now</h3>
-            <ul class="sub-includes" id="sub-includes"></ul>
-          </div>
-
-          <form class="form st-form" id="sub-change" novalidate>
-            <h3 class="pd-h3">Change plan</h3>
-            <fieldset class="sub-interval">
-              <legend class="label">Billing</legend>
-              <div class="seg" id="sub-interval">
-                <span><input type="radio" name="sub-iv" id="sub-iv-month" value="month" checked><label for="sub-iv-month">Monthly</label></span>
-                <span><input type="radio" name="sub-iv" id="sub-iv-year" value="year"><label for="sub-iv-year">Yearly</label></span>
-                <span><input type="radio" name="sub-iv" id="sub-iv-week" value="week"><label for="sub-iv-week">Weekly</label></span>
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend class="visually-hidden">Plan</legend>
-              <div class="sub-plans" id="sub-plans"></div>
-            </fieldset>
-            <label class="check sub-agree"><input type="checkbox" id="sub-agree"> <span>I agree to the <a href="terms.html">terms</a>, and that a paid plan renews automatically until it's canceled.</span></label>
-            <div class="pd-row"><button class="btn btn-primary" type="submit" id="sub-change-go">Switch plan</button></div>
-          </form>
-
-          <div class="st-form" id="sub-manage">
-            <h3 class="pd-h3">Manage</h3>
-            <p class="fine" id="sub-manage-note"></p>
-            <div class="pd-row sub-actions" id="sub-actions"></div>
-          </div>
-
-          <div class="st-form">
-            <h3 class="pd-h3">Billing history</h3>
-            <ul class="queue sub-billing" id="sub-billing"></ul>
-          </div>
+          <p class="panel-lede">See your plan and what it includes, switch plans, pause or cancel, fix a payment and see your billing history.</p>
+          <div class="pd-row"><a class="btn btn-primary" href="subscription.html">Manage subscription</a></div>
         </section>
 
         <!-- Sign-in and security -->

@@ -104,7 +104,7 @@
       state.student = me ? me.id : null;
       var nowLine = cur && cur.plan !== "free" ? "Right now: " + cur.plan_name + (cur.status === "canceled" ? " (canceled)" : "") + ", " + cur.price_label + "."
         : "Right now: the free " + FREE_NAME + " plan.";
-      el.innerHTML = '<p class="co-for"><strong>' + esc(a.name) + "</strong> (you)</p><p class=\"fine\">" + esc(nowLine) + " You can manage or cancel it any time in Settings, then Subscription.</p>" +
+      el.innerHTML = '<p class="co-for"><strong>' + esc(a.name) + "</strong> (you)</p><p class=\"fine\">" + esc(nowLine) + " You can manage or cancel it any time on your subscription page.</p>" +
         '<div class="pd-row"><button class="btn btn-quiet" type="button" id="co-copy">Have a parent pay instead: copy a link</button></div>';
       $("co-copy").addEventListener("click", copyLink);
     } else if (!a.students.length) {
@@ -165,7 +165,7 @@
     $("co-lede").textContent = paid ? "Your payment went through." : "Your plan is ready.";
     $("co-done").hidden = false;
     $("co-done-text").textContent = sub.plan_name + " is on for " + name + ": " + sub.price_label + ". " + (sub.renews_on ? "Renews " + niceDay(new Date(sub.renews_on + "T12:00:00")) + "." : "");
-    var where = state.info && state.info.account && state.info.account.role !== "parent" ? "Settings, then Subscription" : "the parent dashboard";
+    var where = state.info && state.info.account && state.info.account.role !== "parent" ? "your subscription page" : "the parent dashboard";
     $("co-done-fine").textContent = paid ? "A receipt is on its way to your email. Manage or cancel the plan anytime from " + where + "."
       : "Payments aren't connected yet, so no card was charged. Manage or cancel the plan anytime from " + where + ".";
     $("co-done-title").focus();

@@ -31,7 +31,7 @@
   function which() {
     var e = root.getAttribute("data-effect");
     if (!e && window.GraphiteTheme && GraphiteTheme.get().ripple === false) e = "none";
-    return EFFECTS[e] ? e : "ripple";
+    return EFFECTS[e] ? e : "none";
   }
   function still() { return window.GraphiteTheme && GraphiteTheme.reduceMotion ? GraphiteTheme.reduceMotion() : mq.matches; }
   function rgb(token, fallback) {

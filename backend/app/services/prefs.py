@@ -57,7 +57,7 @@ AVATAR_MODES = ("photo", "drawn")
 
 DEFAULTS = {
     "look": {"text": "m", "font": "default", "motion": "system", "density": "comfortable", "custom_accent": "#f2c14e",
-             "effect": "ripple", "corners": "round"},
+             "effect": "none", "corners": "round"},  # a plain background until one is bought in the shop
     "dashboard": {"order": list(SECTIONS), "hidden": [], "pins": []},
     "study": {"set_size": 10, "timer": "show", "calculator": "closed", "colors": "graphite", "sounds": True,
               "reminder": False, "reminder_hour": 16, "tz": "America/New_York"},
@@ -96,8 +96,12 @@ def load(user):
             parts[slot] = parts["acc"]
         parts["acc"] = "none"
     out["avatar"]["parts"] = parts
-    if "effect" not in ((raw.get("look") or {})) and "ripple" in user.keys() and user["ripple"] is not None and not user["ripple"]:
-        out["look"]["effect"] = "none"  # the old on/off ripple switch
+    # A background that has to be bought shows only once it's owned (Ripples used to be free).
+    eff = out["look"]["effect"]
+    if eff not in cosmetics.FREE_EFFECTS and "id" in user.keys():
+        from ..db import query
+        if not query("SELECT 1 FROM inventory WHERE user_id = ? AND item = ?", (user["id"], f"effect:{eff}"), one=True):
+            out["look"]["effect"] = "none"
     return out
 
 

@@ -28,7 +28,7 @@ The pages run in two modes:
   - `theme.js` also keeps the student's other preferences (`GraphiteTheme.prefs()`) and draws the drawn avatar (`GraphiteTheme.drawAvatar(parts)`).
   - `wordfilter.js`: the curse-word check on every text box. `build.py` fills in the list from the backend and puts it at the start of `site.js`.
   - `play-local.js`: preview only. Runs rewards, speed rounds, focus and lessons in the browser when there's no server, with sample players on the leaderboards.
-  - `ripple.js`: the dashboard's ripple background.
+  - `effects.js`: the page backgrounds. Plain by default; Ripples and the others are bought in the shop.
   - `practice-local.js`: preview only. Runs the practice requests in the browser when there's no server.
   - `htaccess`, `netlify.toml`: server settings for HTTPS, the 404 page, compression and caching.
 - `build.py`: rebuilds `site/` from `src/`. Run `python3 build.py` after any edit. Needs Python 3 and Pillow (`pip install pillow`).

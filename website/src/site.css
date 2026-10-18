@@ -2701,7 +2701,7 @@ html.qt-motion .qt-launch { transition: right 0.22s ease; }
 .xp-locked { padding: var(--s3) var(--s4); border-radius: 10px; background: var(--x-bar, var(--raised)); border: 1px dashed var(--x-line, var(--line)); }
 .xp-locked p { margin: 0; }
 
-/* ---------- Settings > Subscription ---------- */
+/* ---------- Subscription page (subscription.html) ---------- */
 .sub-now { display: grid; gap: var(--s3); }
 .sub-card { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s4); flex-wrap: wrap; padding: var(--s4) var(--s5);
   border-radius: 14px; background: var(--raised); }
@@ -2772,3 +2772,18 @@ html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-laun
   .account-panel > .pa { grid-area: pa; padding-top: 0; border-top: 0; padding-left: var(--s6); border-left: 1px solid var(--line); }
   .account-panel > .account-actions { grid-area: actions; align-self: end; }
 }
+.sub-page { padding-block: var(--s6) var(--s9); }
+.sub-wrap { display: grid; gap: var(--s5); }
+.sub-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--s5); align-items: start; }
+.sub-main, .sub-side { display: grid; gap: var(--s5); min-width: 0; }
+@media (max-width: 900px) { .sub-layout { grid-template-columns: minmax(0, 1fr); } }
+.sub-context { display: grid; gap: var(--s2); padding: var(--s5); border-radius: 14px; border: 1.5px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.sub-context strong { font-size: var(--t-lg); }
+.sub-context p { margin: 0; color: var(--muted); }
+.sub-context.is-unpaid { border-color: var(--err); background: color-mix(in srgb, var(--err) 9%, var(--surface)); }
+.sub-context.is-open { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 10%, var(--surface)); }
+.sub-page .status:not(.is-shown) { display: none; }
+.sub-test { border-style: dashed; }
+.sub-test-row { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.sub-test-row:empty { display: none; }

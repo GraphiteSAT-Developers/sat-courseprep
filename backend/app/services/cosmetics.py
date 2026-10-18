@@ -81,7 +81,7 @@ TITLES = [
 # Page background effects (Settings > Appearance > Background). Free ones need no purchase.
 EFFECTS = [
     ("none", "None", 0, "common", "A plain background."),
-    ("ripple", "Ripples", 0, "common", "Dots that ripple out wherever you click."),
+    ("ripple", "Ripples", 120, "common", "Interactive. Dots that ripple out wherever you click."),
     ("dots", "Still dots", 0, "common", "A quiet dot grid that doesn't move."),
     ("snow", "Snowfall", 200, "rare", "Slow, gentle snow."),
     ("constellation", "Constellation", 260, "rare", "Drifting stars that link up near your cursor."),

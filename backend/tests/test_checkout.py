@@ -108,14 +108,19 @@ class WithoutStripe(CheckoutTest):
         hist = self.parent.get(f"/api/parent/students/{self.student_id}").json["billing"]
         self.assertIn("No card was charged", hist[0]["detail"])
 
-    def test_switching_to_free_waits_for_the_paid_time_to_run_out(self):
+    def test_switching_to_free_without_payments_is_immediate(self):
+        # Payments aren't connected, so nothing was charged and there's no paid time to wait out.
         self.buy("sharpened", "month")
         url = f"/api/parent/students/{self.student_id}/plan"
         r = self.post(self.parent, url, {"plan": "free"}).json
-        self.assertEqual((r["subscription"]["plan"], r["subscription"]["status"]), ("sharpened", "canceled"))
+        self.assertEqual((r["subscription"]["plan"], r["subscription"]["status"]), ("free", "active"))
         again = self.post(self.parent, url, {"plan": "free"})  # pressing twice changes nothing
         self.assertEqual(again.status_code, 200)
-        self.assertEqual(len([b for b in again.json["billing"] if b["kind"] == "cancel"]), 1)
+        self.assertEqual(len([b for b in again.json["billing"] if "free" in b["detail"].lower() and b["kind"] == "change"]), 1)
+        # Canceling a paid plan still keeps it to the end of the period.
+        self.buy("sharpened", "month")
+        r = self.post(self.parent, url + "/cancel").json
+        self.assertEqual((r["subscription"]["plan"], r["subscription"]["status"]), ("sharpened", "canceled"))
 
 
 class WithStripe(CheckoutTest):

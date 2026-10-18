@@ -138,7 +138,7 @@ def portal_url(payer, return_path=None):
     """Stripe's billing page, where the payer updates their card, pays a failed bill and downloads receipts."""
     if not stripe_api.is_live() or not payer["stripe_customer_id"]:
         return None
-    back = return_path or ("/parent.html" if payer["role"] == "parent" else "/settings.html#subscription")
+    back = return_path or ("/parent.html" if payer["role"] == "parent" else "/subscription.html")
     s = stripe_api.request("POST", "/billing_portal/sessions", {"customer": payer["stripe_customer_id"],
                                                                 "return_url": current_app.config["BASE_URL"] + back})
     return s["url"]

@@ -93,7 +93,7 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `GET /api/dashboard` | Everything the dashboard shows | Yes |
 | `POST /api/review/<id>/right` | Mark a review question right | Yes |
 | `POST /api/activity` | Log practice time | Yes |
-| `PATCH /api/me/appearance` | Theme (dark, light, system), accent color, ripple on or off | Yes |
+| `PATCH /api/me/appearance` | Theme (dark, light, system), accent color, background (shop backgrounds once bought) | Yes |
 | `POST /api/me/avatar`, `GET`, `DELETE` | Upload (as a data URL), view or remove the profile picture. Uploads are checked, cropped to a 256px square and re-encoded. | Yes |
 | `POST /api/me/email` | Change email (needs the current password; both addresses are emailed) | Yes |
 | `POST /api/me/password` | Change password (needs the current one; signs out other devices) | Yes |
@@ -187,7 +187,7 @@ Prices are always shown per month. The feature lists and the "Compare every feat
 - Sharpened and Masterstroke: everything, including unlimited mock tests, Level up, score history and the parent dashboard with weekly emails.
 - A plan that isn't paid counts as free: a failed payment (Stripe marks it `past_due`) or a pause locks the paid features until it's paid or resumed. A canceled plan keeps working until the end of the time paid for.
 
-Locked features show what unlocks them, and requests for them answer `402` with `code: "plan_required"`. Students manage their own plan in **Settings > Subscription** (switch, pause, cancel, undo, fix a failed payment); parents can do the same on the parent dashboard, and either can pay at checkout. Set `PLAN_LIMITS=false` in `backend/.env` to turn every lock off. The test account starts on the free plan; switch it to any plan in Settings > Subscription (no card is charged while Stripe isn't connected). Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
+Locked features show what unlocks them, and requests for them answer `402` with `code: "plan_required"`. Students manage their own plan on the standalone **Subscription** page (`subscription.html`), and anything locked sends them there with the plan that unlocks it already picked (switch, pause, cancel, undo, fix a failed payment); parents can do the same on the parent dashboard, and either can pay at checkout. Set `PLAN_LIMITS=false` in `backend/.env` to turn every lock off. The test account starts on the free plan; switch it to any plan on the Subscription page (no card is charged while Stripe isn't connected). Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
 
 ## Mock tests
 
@@ -226,7 +226,7 @@ Students set these in Settings. They're saved to the account (`users.prefs`, che
 
 | Area | Options | Cost |
 | --- | --- | --- |
-| Look and reading | Themes: dark, light, match my device, paper, midnight, high contrast. Text size (4 steps), fonts (standard, easy-read Atkinson Hyperlegible, rounded, typewriter), corners, less or full motion, roomy or compact spacing, and a background (none, ripples or still dots) | Free |
+| Look and reading | Themes: dark, light, match my device, paper, midnight, high contrast. Text size (4 steps), fonts (standard, easy-read Atkinson Hyperlegible, rounded, typewriter), corners, less or full motion, roomy or compact spacing, and a plain or still-dots background (plain is the default; Ripples is 120 coins in the shop, like the other moving backgrounds) | Free |
 | Locker looks | More themes, "Any color" accent picker, extra accent colors, profile frames, titles and moving backgrounds (snowfall, constellation, floating symbols, sine waves, fireflies, star warp) | Coins |
 | Dashboard layout | Show or hide each section, reorder them, pin up to 4 shortcuts to the top | Free |
 | Practice defaults | Topic set size, timer shown or hidden, calculator open at start, test-day colors, sounds, daily reminder email | Free |

@@ -428,16 +428,23 @@
     }
     return { title: lock.name + " " + (/s$/.test(lock.name) ? "come" : "comes") + " with " + lock.need_name, text: "Upgrade to " + lock.need_name + " or higher to unlock it.", cta: "See plans" };
   }
+  // Every lock leads to the subscription page, which knows what was locked and where to come back to.
+  function lockUrl(lock) {
+    var here = (location.pathname.split("/").pop() || "dashboard.html") + location.search + location.hash;
+    return "subscription.html?feature=" + encodeURIComponent(lock.feature || "") + "&from=" + encodeURIComponent(here);
+  }
   window.GraphiteLock = {
     text: lockText,
+    url: lockUrl,
     card: function (lock, compact) {
       var t = lockText(lock), el = document.createElement("div");
       el.className = "lock-card" + (compact ? " is-compact" : "") + (lock.reason ? " is-unpaid" : "");
       el.innerHTML = '<span class="lock-icon">' + LOCK_ICON + '</span><div class="lock-copy"><strong></strong><p></p></div>' +
-        '<a class="btn btn-primary" href="settings.html#subscription"></a>';
+        '<a class="btn btn-primary"></a>';
       el.querySelector("strong").textContent = t.title;
       el.querySelector("p").textContent = t.text;
       el.querySelector("a").textContent = t.cta;
+      el.querySelector("a").setAttribute("href", lockUrl(lock));
       return el;
     },
     // Replaces a panel's contents (everything but its heading) with the lock box.
@@ -448,9 +455,15 @@
       panel.appendChild(window.GraphiteLock.card(lock));
       panel.classList.add("is-locked");
     },
+    // A request that came back locked (402 plan_required) goes straight to the subscription page.
     handle: function (err) {
       var lock = err && err.data && err.data.code === "plan_required" && err.data.lock;
       if (!lock) return false;
+      location.href = lockUrl(lock);
+      return true;
+    },
+    // The same box as a dialog, for pages that want to stay put.
+    dialog: function (lock) {
       var wrap = document.createElement("div");
       wrap.className = "overlay lock-overlay";
       wrap.innerHTML = '<div class="dialog" role="dialog" aria-modal="true" aria-label="Locked"></div>';
@@ -470,12 +483,12 @@
     }
   };
   // Signed-in pages: a banner while a paid plan isn't paid, so the student knows why things are locked.
-  if (LIVE && document.querySelector('.site-nav[aria-label="Dashboard"]') && !/settings\.html$/.test(location.pathname)) {
+  if (LIVE && document.querySelector('.site-nav[aria-label="Dashboard"]') && !/(settings|subscription)\.html$/.test(location.pathname)) {
     api("/api/me/subscription").then(function (r) {
       if (!r.access || !r.access.unpaid) return;
       var bar = document.createElement("div");
       bar.className = "unpaid-bar"; bar.setAttribute("role", "status");
-      bar.innerHTML = '<div class="wrap"><strong></strong> <span>Paid features are locked until it\'s paid.</span> <a href="settings.html#subscription">Fix it</a></div>';
+      bar.innerHTML = '<div class="wrap"><strong></strong> <span>Paid features are locked until it\'s paid.</span> <a href="subscription.html">Fix it</a></div>';
       bar.querySelector("strong").textContent = r.access.unpaid + ".";
       var header = document.querySelector(".site-header");
       if (header) header.insertAdjacentElement("afterend", bar);
@@ -1354,7 +1367,7 @@
       $("#account-list").innerHTML =
         "<div><dt>Student</dt><dd>" + esc(u.name) + (u.grade ? ", " + u.grade + "th grade" : "") + "</dd></div>" +
         "<div><dt>Email</dt><dd>" + esc(u.email) + "</dd></div>" +
-        "<div><dt>Plan</dt><dd>" + esc(d.access ? d.access.plan_name : u.plan) + ' · <a href="settings.html#subscription">Manage</a></dd></div>' +
+        "<div><dt>Plan</dt><dd>" + esc(d.access ? d.access.plan_name : u.plan) +  ' · <a href="subscription.html">Manage</a></dd></div>' +
         "<div><dt>Parent email</dt><dd>" + (u.parent_email ? esc(u.parent_email) : "Not added") + "</dd></div>";
       $all(".live-only").forEach(function (f) { f.hidden = false; });
       $("#acct-test-date").value = u.test_date || "";
@@ -1396,6 +1409,18 @@
       var savedGoal = store.get("graphite_goal");
       if (savedGoal) applyGoal(savedGoal);
       bindChart();
+      // The preview's plan (kept in this browser) locks the same panels the live dashboard does.
+      // practice-local.js loads after this script, so wait for the page to finish loading its scripts.
+      var previewLocks = function () {
+        if (!(window.GraphitePracticeLocal && GraphitePracticeLocal.access && window.GraphiteLock)) return;
+        var acc = GraphitePracticeLocal.access(), F = acc.features;
+        GraphiteLock.panel($("#review"), F.review_queue);
+        GraphiteLock.panel($("#scores"), F.score_history);
+        GraphiteLock.panel($("#domains"), F.score_history);
+        var planRow = $("#account-list");
+        if (planRow && planRow.children[1]) planRow.children[1].querySelector("dd").innerHTML = esc(acc.plan_name) + ' · <a href="subscription.html">Manage</a>';
+      };
+      if (document.readyState === "complete") previewLocks(); else window.addEventListener("load", previewLocks);
     }
   }
 })();

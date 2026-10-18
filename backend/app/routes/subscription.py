@@ -1,18 +1,20 @@
-"""A student's own subscription, on Settings > Subscription.
+"""A student's own subscription, on its own page, subscription.html. Every locked feature links there.
 
 GET  /api/me/subscription              the plan, its status, what's locked, billing history and the plans
 POST /api/me/subscription/plan         switch plans: {plan, interval}. Paid plans go through checkout once payments are live.
 POST /api/me/subscription/<action>     pause, cancel or resume
 POST /api/me/subscription/portal       Stripe's page for the card on file, receipts and paying a failed bill
+POST /api/me/subscription/test         test account only: {plan, status} takes effect at once, no checkout or card
 
 A parent can manage the same subscription from the parent dashboard. Whoever paid last is the payer on file.
 """
 from datetime import date, timedelta
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, current_app, jsonify
 
 from ..db import query
 from ..security import ApiError, body, current_user, login_required
+from .. import testaccount
 from ..services import access, billing, parent as service, stripe_api
 from ..services.plans import INTERVALS, PLANS, public_plans
 
@@ -51,7 +53,37 @@ def _out(me):
         "payer": None if not payer else {"you": payer["id"] == me["id"], "role": payer["role"],
                                           "name": payer["name"] if payer["id"] != me["id"] else "You"},
         "has_card": bool(payer and payer["stripe_customer_id"]),
+        "test_account": _is_test(me),
     }
+
+
+def _is_test(me):
+    return bool(current_app.config.get("TEST_ACCOUNT")) and me["email"] == testaccount.USERNAME
+
+
+TEST_STATUSES = ("active", "past_due", "paused", "canceled")
+
+
+@bp.post("/test")
+@login_required
+def test_switch():
+    """The test account switches plans instantly, to try every plan and lock without checkout or a card."""
+    me = _student()
+    if not _is_test(me):
+        raise ApiError(403, "Only the test account can switch plans instantly.", code="not_test_account")
+    data = body()
+    plan, status = data.get("plan"), data.get("status", "active")
+    if plan not in PLANS:
+        raise ApiError(400, "Pick a plan.", "plan")
+    if status not in TEST_STATUSES or (plan == "free" and status != "active"):
+        raise ApiError(400, "Pick active, past due, paused or canceled for a paid plan.", "status")
+    sub = service.subscription(me["id"])
+    interval = None if plan == "free" else (sub["interval"] or "month")
+    renews = None if plan == "free" else service.next_renewal(date.today(), interval, service.add_months).isoformat()
+    paused = (date.today() + timedelta(days=service.PAUSE_DAYS)).isoformat() if status == "paused" else None
+    service._save(me["id"], {"plan": plan, "billing_interval": interval, "status": status, "renews_on": renews, "paused_until": paused}, me["id"])
+    service._event(me["id"], me["id"], "test", f"Test account: switched to {PLANS[plan]['name']}" + ("" if status == "active" else f" ({status.replace('_', ' ')})") + ".")
+    return jsonify(_out(me))
 
 
 @bp.get("")
@@ -70,7 +102,11 @@ def change_plan():
         raise ApiError(400, "Pick a plan.", "plan")
     if plan == "free":
         sub = service.subscription(me["id"])
-        if sub["plan"] != "free" and sub["status"] != "canceled":
+        if sub["plan"] != "free" and not stripe_api.is_live():
+            # Nothing was charged, so there's no paid time to run out: the free plan starts now.
+            service.change_plan(me["id"], me["id"], "free", None)
+        elif sub["plan"] != "free" and sub["status"] != "canceled":
+            # A paid plan runs to the end of the time paid for, then switches to free.
             _stripe(me["id"], "cancel")
             service.cancel(me["id"], me["id"])
         return jsonify(_out(me))

@@ -692,10 +692,10 @@
       if (!planInfo(plan)) return fail(400, "Pick a plan.");
       if (plan !== "free" && !WORDS[iv]) return fail(400, "Pick weekly, monthly or yearly billing.");
       if (plan === "free") {
-        // Same as canceling: the paid plan runs to the end of the time paid for, then the free plan starts.
-        if (sub.plan !== "free" && sub.status !== "canceled") {
-          f.sub.status = "canceled"; f.sub.paused_until = null;
-          billEvent(f, "cancel", "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free " + planInfo("free").name + " plan.");
+        // Payments aren't connected in the preview, so nothing was charged: the free plan starts now.
+        if (sub.plan !== "free") {
+          f.sub = { plan: "free", interval: null, status: "active", renews_on: null, paused_until: null };
+          billEvent(f, "change", "Switched from " + sub.plan_name + " to the free " + planInfo("free").name + " plan.");
         }
       }
       else {
@@ -763,7 +763,7 @@
   }
   function lockMessage(x) {
     var verb = /s$/.test(x.name) ? "are" : "is";
-    if (x.reason) return x.reason + ", so " + x.name.toLowerCase() + " " + verb + " locked until it's paid. Open Settings, then Subscription.";
+    if (x.reason) return x.reason + ", so " + x.name.toLowerCase() + " " + verb + " locked until it's paid. Fix it on your subscription page.";
     if (x.period && x.limit) return "You've used all " + x.limit + " of your " + x.name.toLowerCase() + " this " + x.period + ". " + x.need_name + " includes more.";
     return x.name + " " + (/s$/.test(x.name) ? "come" : "comes") + " with the " + x.need_name + " plan and up.";
   }
@@ -790,7 +790,19 @@
     function out() {
       var x = subOut(f, today); saveFam(f);
       return { subscription: x, billing: f.billing || [], access: accessSummary(), plans: PB.plans, payments_live: false, pause_days: PB.pause_days,
-        payer: x.plan === "free" ? null : { you: true, role: "student", name: "You" }, has_card: false };
+        payer: x.plan === "free" ? null : { you: true, role: "student", name: "You" }, has_card: false, test_account: true };
+    }
+    if (act === "test") {
+      // Same as the test account on the live site: any plan and payment state, right away.
+      var tp = data.plan, ts = data.status || "active";
+      if (!planInfo(tp)) return fail(400, "Pick a plan.");
+      if (["active", "past_due", "paused", "canceled"].indexOf(ts) < 0 || (tp === "free" && ts !== "active")) return fail(400, "Pick a payment state.");
+      var tiv = tp === "free" ? null : (sub.interval || "month");
+      var tnext = tiv === "week" ? new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7) : addMonths(today, tiv === "year" ? 12 : 1);
+      var tpause = new Date(today); tpause.setDate(tpause.getDate() + PB.pause_days);
+      f.sub = { plan: tp, interval: tiv, status: ts, renews_on: tp === "free" ? null : iso10(tnext), paused_until: ts === "paused" ? iso10(tpause) : null };
+      billEvent(f, "test", "Test account: switched to " + planInfo(tp).name + (ts === "active" ? "" : " (" + ts.replace("_", " ") + ")") + ".");
+      return Promise.resolve(out());
     }
     if (path === "/api/me/subscription" && !data) return Promise.resolve(out());
     if (act === "portal") return fail(409, "Payments aren't connected on this site yet, so there's no card to manage.");
@@ -798,9 +810,9 @@
       var plan = data.plan, iv = data.interval;
       if (!planInfo(plan)) return fail(400, "Pick a plan.");
       if (plan === "free") {
-        if (sub.plan !== "free" && sub.status !== "canceled") {
-          f.sub.status = "canceled"; f.sub.paused_until = null;
-          billEvent(f, "cancel", "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free " + planInfo("free").name + " plan.");
+        if (sub.plan !== "free") {
+          f.sub = { plan: "free", interval: null, status: "active", renews_on: null, paused_until: null };
+          billEvent(f, "change", "Switched from " + sub.plan_name + " to the free " + planInfo("free").name + " plan.");
         }
         return Promise.resolve(out());
       }

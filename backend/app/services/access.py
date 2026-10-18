@@ -108,7 +108,7 @@ def state(student_id, feature, today=None):
 
 def message(st):
     if st["reason"]:
-        return f"{st['reason']}, so {st['name'].lower()} {'are' if st['name'].endswith('s') else 'is'} locked until it's paid. Open Settings, then Subscription."
+        return f"{st['reason']}, so {st['name'].lower()} {'are' if st['name'].endswith('s') else 'is'} locked until it's paid. Fix it on your subscription page."
     if st["period"] and st["limit"]:
         each = "this week" if st["period"] == "week" else "this month"
         return (f"You've used all {st['limit']} of your {st['name'].lower()} {each}. "
@@ -143,7 +143,7 @@ def summary(student_id, today=None):
 
 LOCKED_EXPLANATION = (
     '<div class="xp-locked"><p><strong>Step-by-step explanations come with the No. 2 plan and up.</strong> '
-    'You can see the right answer here. <a href="settings.html#subscription">See plans</a></p></div>')
+    'You can see the right answer here. <a href="subscription.html?feature=explanations">See plans</a></p></div>')
 
 
 def redact(user_id, questions):
