@@ -1351,3 +1351,35 @@ window.GraphiteFloat = function (win, o) {
   if (phone.addEventListener) phone.addEventListener("change", function () { restore = null; if (!win.hidden) { place(); syncExpand(); } });
   return { place: function () { place(); syncExpand(); } };
 };
+
+/* Math | Reading and Writing. Every math feature has a Reading and Writing side on the same page.
+   Markup: <div class="subject-switch" data-subject-for="ID"> with buttons data-subject="math|rw"; inside #ID,
+   blocks marked data-subject-show="math" or "rw". Reading and Writing is coming soon, so its blocks hold a preview. */
+(function () {
+  "use strict";
+  var KEY = "graphite_subject";
+  function get() { try { return localStorage.getItem(KEY) || "math"; } catch (e) { return "math"; } }
+  function set(v) { try { localStorage.setItem(KEY, v); } catch (e) { /* storage blocked */ } }
+  function apply(sw, v) {
+    var box = document.getElementById(sw.getAttribute("data-subject-for")) || document;
+    sw.querySelectorAll("[data-subject]").forEach(function (b) {
+      var on = b.getAttribute("data-subject") === v;
+      b.setAttribute("aria-pressed", String(on)); b.classList.toggle("on", on);
+    });
+    box.querySelectorAll("[data-subject-show]").forEach(function (n) { n.hidden = n.getAttribute("data-subject-show") !== v; });
+    document.documentElement.setAttribute("data-subject", v);
+    document.dispatchEvent(new CustomEvent("graphite:subject", { detail: v }));
+  }
+  function init() {
+    var v = get();
+    document.querySelectorAll(".subject-switch").forEach(function (sw) {
+      apply(sw, v);
+      sw.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-subject]"); if (!b) return;
+        var nv = b.getAttribute("data-subject"); set(nv);
+        document.querySelectorAll(".subject-switch").forEach(function (s2) { apply(s2, nv); });
+      });
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+})();

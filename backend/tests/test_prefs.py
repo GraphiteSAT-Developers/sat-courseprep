@@ -77,19 +77,20 @@ class PrefsTest(PracticeTest):
         parts = {"bg": "mint", "skin": "s6", "hair": "curly", "hair_color": "blue", "eyes": "happy", "mouth": "grin", "acc": "glasses", "shirt": "coral"}
         r = self.patch("/api/me/prefs", {"avatar": {"mode": "drawn", "parts": parts}})
         self.assertEqual(r.status_code, 200, r.json)
-        self.assertEqual(r.json["user"]["avatar_drawn"], parts)
+        drawn = r.json["user"]["avatar_drawn"]
+        self.assertEqual({k: drawn[k] for k in parts}, parts)
         self.assertEqual(self.patch("/api/me/prefs", {"avatar": {"parts": {"acc": "crown"}}}).status_code, 403)
         self.assertEqual(self.patch("/api/me/prefs", {"avatar": {"parts": {"hair": "mohawk9"}}}).status_code, 400)
-        self.coins(300)
+        self.coins(2000)
         self.post("/api/game/buy", {"item": "avatar:crown"})
-        self.assertEqual(self.patch("/api/me/prefs", {"avatar": {"parts": {"acc": "crown"}}}).status_code, 200)
+        self.assertEqual(self.patch("/api/me/prefs", {"avatar": {"parts": {"hat": "crown"}}}).status_code, 200)
         # The drawn avatar (never a photo) shows on the leaderboard.
         nick = self.client.get("/api/speed/nicknames").json["nicknames"][0]
         self.patch("/api/speed/profile", {"nickname": nick, "opt_in": True})
         run = self.post("/api/speed/start").json["run"]
         self.post(f"/api/speed/runs/{run['id']}/finish")
         rows = self.client.get("/api/speed/board?scope=nation&period=today").json["rows"]
-        self.assertEqual(rows[0]["avatar"]["acc"], "crown")
+        self.assertEqual(rows[0]["avatar"]["hat"], "crown")
         self.patch("/api/me/prefs", {"avatar": {"mode": "photo"}})
         self.assertIsNone(self.client.get("/api/speed/board?scope=nation&period=today").json["rows"][0]["avatar"])
 
@@ -116,7 +117,7 @@ class PrefsTest(PracticeTest):
         js = THEME_JS.read_text()
         for part, values in prefs.AVATAR.items():
             for v in values:
-                if v != "none":
+                if v not in ("none", "tee", "solid"):  # the defaults draw nothing extra
                     self.assertRegex(js, r"\b" + re.escape(v) + r"\s*:", f"theme.js can't draw {part} {v}")
 
     def test_reminders_go_out_once_at_the_chosen_hour(self):

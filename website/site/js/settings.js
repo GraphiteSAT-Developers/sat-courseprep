@@ -61,8 +61,8 @@
     var a = Object.assign({}, T.get(), u.appearance || {});
     var th = $("st-theme-" + a.theme); if (th) th.checked = true;
     var ac = $("st-accent-" + a.accent); if (ac) ac.checked = true;
-    $("st-ripple").checked = a.ripple !== false;
-    ["text", "font", "motion", "density"].forEach(function (k) { var r = $("st-" + k + "-" + a[k]); if (r) r.checked = true; });
+    var fx = $("st-fx-" + (a.effect || (a.ripple === false ? "none" : "ripple"))); if (fx) fx.checked = true;
+    ["text", "font", "motion", "density", "corners"].forEach(function (k) { var r = $("st-" + k + "-" + a[k]); if (r) r.checked = true; });
     if (a.custom_accent) { $("st-custom-color").value = a.custom_accent; $("st-custom-dot").style.background = a.custom_accent; customNote(a.custom_accent); }
     if (!parent) renderPrefs(u.prefs || T.prefs());
     if (!parent) {
@@ -181,8 +181,7 @@
   }
   all('input[name="theme"]').forEach(function (r) { r.addEventListener("change", function () { if (r.checked) changeLook({ theme: r.value }); }); });
   all('input[name="accent"]').forEach(function (r) { r.addEventListener("change", function () { if (r.checked) changeLook({ accent: r.value }); }); });
-  $("st-ripple").addEventListener("change", function () { changeLook({ ripple: this.checked }); });
-  ["text", "font", "motion", "density"].forEach(function (k) {
+  ["text", "font", "motion", "density", "corners", "effect"].forEach(function (k) {
     all('input[name="look-' + k + '"]').forEach(function (r) { r.addEventListener("change", function () { if (r.checked) { var c = {}; c[k] = r.value; changeLook(c); } }); });
   });
   // Any color (from the shop): the page changes as you drag, and saves when you stop.
@@ -226,7 +225,7 @@
       owned = {};
       g.shop.forEach(function (it) { if (it.owned) owned[it.key] = true; });
       all("[data-shop]").forEach(function (input) {
-        var has = !!owned[input.getAttribute("data-shop")], box = input.closest(".st-accent, .st-theme");
+        var has = !!owned[input.getAttribute("data-shop")], box = input.closest(".st-accent, .st-theme, .st-fx");
         input.disabled = !has;
         box.classList.toggle("is-locked", !has);
         var lock = box.querySelector(".st-lock"); if (lock) lock.hidden = has;
@@ -313,7 +312,7 @@
   var AV_OPTIONS = { bg: ["sky", "mint", "sun", "rose", "lilac", "slate", "peach", "teal"], skin: ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"],
     hair: ["none", "short", "curly", "long", "bun", "buzz", "waves", "ponytail"], hair_color: ["black", "brown", "auburn", "blonde", "gray", "blue", "pink", "green"],
     eyes: ["dots", "happy", "wide", "sleepy"], mouth: ["smile", "grin", "flat", "open"],
-    acc: ["none", "glasses", "beanie", "pencil", "sunglasses", "headphones", "gradcap", "crown"], shirt: ["pencil", "sky", "mint", "coral", "lilac", "slate", "white", "black"] };
+    shirt: ["pencil", "sky", "mint", "coral", "lilac", "slate", "white", "black"] };
   var AV_SHOP = { pencil: ["avatar:pencil", 60], sunglasses: ["avatar:sunglasses", 80], headphones: ["avatar:headphones", 100], gradcap: ["avatar:gradcap", 150], crown: ["avatar:crown", 250] };
   var COLOR_PART = { bg: "bg", skin: "skin", hair_color: "hair_color", shirt: "shirt" };
   var av = { mode: "photo", parts: {} };
@@ -643,7 +642,7 @@
     var a = e.detail || {};
     var th = $("st-theme-" + a.theme); if (th && !th.checked) th.checked = true;
     var ac = $("st-accent-" + a.accent); if (ac && !ac.checked) ac.checked = true;
-    if (typeof a.ripple === "boolean") $("st-ripple").checked = a.ripple;
+    var fx = $("st-fx-" + a.effect); if (fx && !fx.checked) fx.checked = true;
   });
 
   /* ---------- start ---------- */

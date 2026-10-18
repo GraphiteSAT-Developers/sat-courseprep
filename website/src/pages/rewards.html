@@ -1,52 +1,98 @@
-<!--{"file": "rewards.html", "path": "/rewards.html", "title": "Rewards | Graphite SAT Tutoring", "description": "Your Graphite rank, XP, streak, badges and the shop where coins buy colors, profile frames and titles.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "rewards.js", "ripple.js"]}-->
+<!--{"file": "rewards.html", "path": "/rewards.html", "title": "Rewards | Graphite SAT Tutoring", "description": "Your Graphite locker, pet, rank, XP, streak and badges. Coins buy avatar items, frames, backgrounds, themes and pet gear.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "pets.js", "rewards.js", "effects.js"]}-->
 <main id="main" class="practice rewards-page">
   <div class="wrap dash-stack">
-    <p class="sample-note" id="rw-preview-note" hidden><span class="label">Preview</span> Rewards here are saved in this browser only, and you start with 100,000 coins to try the shop. On the live site they stay with your account.</p>
+    <p class="sample-note" id="rw-preview-note" hidden><span class="label">Preview</span> Everything here is saved in this browser only, and you start with 100,000 coins to try things on. On the live site it stays with your account.</p>
 
     <div class="dash-top">
       <div>
         <p class="label">Rewards</p>
-        <h1>Rank, badges and the shop</h1>
+        <h1>Your locker</h1>
       </div>
+      <span class="rw-wallet" id="rw-wallet" aria-live="polite"></span>
     </div>
-    <p class="lede pr-lede">Level up, speed rounds, focus sessions and lessons all earn XP. XP raises your rank, coins buy things in the shop, and earning XP every day builds your streak.</p>
 
     <p class="field-error pr-error" id="rw-error" role="alert" hidden></p>
     <p class="fine" id="rw-loading">Loading your rewards…</p>
 
+    <section class="rw-hero" id="rw-hero" aria-label="Your look and your pet" hidden>
+      <div class="rw-me">
+        <span class="avatar avatar-xl" id="rw-me-avatar" aria-hidden="true"></span>
+        <div class="rw-me-copy">
+          <p class="label" id="rw-me-rank"></p>
+          <h2 id="rw-me-name"></h2>
+          <p class="rw-me-title" id="rw-me-title"></p>
+          <p class="fine" id="rw-me-trying" aria-live="polite"></p>
+        </div>
+      </div>
+      <a class="rw-pet-mini" id="rw-pet-mini" href="#pet"></a>
+    </section>
+
     <section class="hud" id="rw-hud" aria-label="Your rank, XP, streak and coins" hidden></section>
 
-    <div class="rw-cols" id="rw-body" hidden>
-      <section class="panel" aria-labelledby="rw-earn-title">
-        <div class="panel-head"><h2 id="rw-earn-title">How to earn</h2></div>
-        <table class="rw-table">
-          <thead><tr><th scope="col">What you do</th><th scope="col">XP</th><th scope="col">Coins</th></tr></thead>
-          <tbody id="rw-earn"></tbody>
-        </table>
-        <p class="fine" id="rw-streak-coins"></p>
-      </section>
-
-      <section class="panel" aria-labelledby="rw-ranks-title">
-        <div class="panel-head"><h2 id="rw-ranks-title">Ranks</h2></div>
-        <ol class="rw-ranks" id="rw-ranks"></ol>
-      </section>
+    <div class="rw-tabs" role="tablist" aria-label="Rewards" id="rw-tabs" hidden>
+      <button type="button" role="tab" id="tab-locker" aria-controls="locker" data-tab="locker">Locker</button>
+      <button type="button" role="tab" id="tab-pet" aria-controls="pet" data-tab="pet">Pet</button>
+      <button type="button" role="tab" id="tab-progress" aria-controls="progress" data-tab="progress">Badges and ranks</button>
     </div>
 
-    <section class="panel" aria-labelledby="rw-badges-title" id="rw-badges-panel" hidden>
-      <div class="panel-head"><h2 id="rw-badges-title">Badges</h2><span class="label" id="rw-badge-count"></span></div>
-      <ul class="rw-badges" id="rw-badges"></ul>
-    </section>
-
-    <section class="panel" aria-labelledby="rw-shop-title" id="shop" hidden>
-      <div class="panel-head"><h2 id="rw-shop-title">Shop</h2><span class="rw-wallet" id="rw-wallet"></span></div>
-      <p class="panel-lede">Buy once, keep forever. Frames go around your profile picture, titles show under your nickname on the leaderboard, and colors change your accent everywhere you're signed in.</p>
+    <!-- Locker: try things on, buy them, wear them -->
+    <section class="panel rw-locker" id="locker" role="tabpanel" aria-labelledby="tab-locker" hidden>
+      <div class="rw-cats" role="group" aria-label="Category" id="rw-cats"></div>
+      <div class="rw-locker-bar">
+        <div class="seg rw-show" role="radiogroup" aria-label="Show">
+          <span><input type="radio" name="rw-show" id="rw-show-all" value="all" checked><label for="rw-show-all">Everything</label></span>
+          <span><input type="radio" name="rw-show" id="rw-show-mine" value="mine"><label for="rw-show-mine">Mine</label></span>
+        </div>
+        <p class="fine" id="rw-cat-note"></p>
+      </div>
+      <ul class="rw-grid" id="rw-grid"></ul>
+      <div class="rw-pick" id="rw-pick" hidden>
+        <div class="rw-pick-copy"><strong id="rw-pick-name"></strong><span class="fine" id="rw-pick-about"></span></div>
+        <div class="rw-pick-actions" id="rw-pick-actions"></div>
+      </div>
       <div class="status" id="rw-shop-status" role="status" aria-live="polite" tabindex="-1"></div>
-      <div class="rw-shop" id="rw-shop"></div>
     </section>
 
-    <section class="panel" aria-labelledby="rw-recent-title" id="rw-recent-panel" hidden>
-      <div class="panel-head"><h2 id="rw-recent-title">Recent</h2></div>
-      <ul class="rw-recent" id="rw-recent"></ul>
+    <!-- Pet -->
+    <section class="panel rw-pet" id="pet" role="tabpanel" aria-labelledby="tab-pet" hidden>
+      <div class="rw-pet-main" id="rw-pet-main"></div>
+      <div class="status" id="rw-pet-status" role="status" aria-live="polite" tabindex="-1"></div>
+      <div class="rw-pet-cols">
+        <section aria-labelledby="rw-pets-title">
+          <h3 id="rw-pets-title">Your pets</h3>
+          <ul class="rw-pets" id="rw-pets"></ul>
+        </section>
+        <section aria-labelledby="rw-hatch-title">
+          <h3 id="rw-hatch-title">How pets grow</h3>
+          <ul class="rw-pet-rules" id="rw-pet-rules"></ul>
+        </section>
+      </div>
     </section>
+
+    <!-- Badges, ranks and how to earn -->
+    <div class="dash-stack" id="progress" role="tabpanel" aria-labelledby="tab-progress" hidden>
+      <section class="panel" aria-labelledby="rw-badges-title">
+        <div class="panel-head"><h2 id="rw-badges-title">Badges</h2><span class="label" id="rw-badge-count"></span></div>
+        <ul class="rw-badges" id="rw-badges"></ul>
+      </section>
+      <div class="rw-cols">
+        <section class="panel" aria-labelledby="rw-earn-title">
+          <div class="panel-head"><h2 id="rw-earn-title">How to earn</h2></div>
+          <table class="rw-table">
+            <thead><tr><th scope="col">What you do</th><th scope="col">XP</th><th scope="col">Coins</th></tr></thead>
+            <tbody id="rw-earn"></tbody>
+          </table>
+          <p class="fine" id="rw-streak-coins"></p>
+        </section>
+        <section class="panel" aria-labelledby="rw-ranks-title">
+          <div class="panel-head"><h2 id="rw-ranks-title">Ranks</h2></div>
+          <ol class="rw-ranks" id="rw-ranks"></ol>
+        </section>
+      </div>
+      <section class="panel" aria-labelledby="rw-recent-title">
+        <div class="panel-head"><h2 id="rw-recent-title">Recent</h2><a class="fine" href="market.html">Visit the market</a></div>
+        <ul class="rw-recent" id="rw-recent"></ul>
+      </section>
+    </div>
   </div>
 </main>

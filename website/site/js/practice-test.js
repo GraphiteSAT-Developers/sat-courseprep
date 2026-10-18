@@ -257,6 +257,12 @@
       (g.correct ? "" : ' <span>The answer is <strong>' + (g.type === "mc" ? g.answer : previewHTML(g.answer.split(" or ")[0])) + "</strong>. Here's how to get there.</span>") + "</p>" +
       '<div class="fb-explain"></div></div>';
     area.querySelector(".fb-explain").innerHTML = g.explain_html || "";
+    if (tools) {
+      var ask = document.createElement("button"); ask.type = "button"; ask.className = "btn btn-quiet ask-tutor";
+      ask.textContent = g.correct ? "Ask the tutor about this one" : "Ask the tutor where it went wrong";
+      ask.addEventListener("click", function () { tools.context({ title: "Question " + (i + 1), detail: Q[i].skill || Q[i].domain || "" }); tools.open("tutor"); });
+      area.querySelector(".fb").appendChild(ask);
+    }
     if (g.game) {
       var line = document.createElement("p"); line.className = "fb-reward";
       line.textContent = "+" + g.game.xp + " XP" + (g.game.combo > 1 ? " · combo ×" + g.game.combo : "") +
@@ -350,6 +356,7 @@
     if (p === "review") { renderReview(); $("nav-label").textContent = "Review page"; }
     if (p === "q") renderQuestion();
     $("q-area").scrollTop = 0;
+    tutorRules(); tutorContext();
   }
   function goTo(i) { S.cur = Math.max(0, Math.min(N - 1, i)); showPage("q"); renderNav(); $("q-area").focus({ preventScroll: true }); }
 
@@ -360,6 +367,7 @@
     var seconds = UNTIMED ? (S.elapsed || 0) : T.minutes * 60 - S.remaining;
     var finish = function (result) {
       S.submitted = true; S.result = result; save();
+      tutorRules();
       if (auto) toast("Time's up. Your module was submitted.");
       renderResults(result); showPage("results");
       closePopup();
@@ -464,91 +472,33 @@
       if (q.explain_html) d.querySelector(".res-explain").innerHTML = q.explain_html;
       else d.querySelector(".res-explain").textContent = q.explain || "";
       if (q.calc) d.querySelector(".res-calc span").textContent = q.calc;
+      if (tools) {
+        var ask = document.createElement("button"); ask.type = "button"; ask.className = "btn btn-quiet ask-tutor";
+        ask.textContent = q.correct ? "Ask the tutor about it" : "Ask the tutor where it went wrong";
+        ask.addEventListener("click", function () { tools.context({ title: "Question " + (q.index + 1), detail: q.skill || q.domain || "" }); tools.open("tutor"); });
+        d.querySelector(".res-body").appendChild(ask);
+      }
       list.appendChild(d);
     });
   }
 
-  /* ---------- calculator panel ---------- */
-  var calcBuilt = false;
-  function themeCalc() {
-    var f = $("calc-frame").querySelector("iframe");
-    [f && f.contentDocument, popup && !popup.closed && popup.document].forEach(function (doc) {
-      try {
-        var btn = doc && doc.getElementById(S.view === "light" ? "thLight" : "thDark");
-        if (btn) btn.click();
-      } catch (e) { /* calculator served from another origin */ }
-    });
+  /* ---------- calculator and tutor (qtools.js): a panel on the right; the question slides left ---------- */
+  var tools = window.GraphiteTools && window.GraphiteTools.mount({ shift: ".exam-body", top: ".exam-top", bottom: ".exam-bottom", launcher: false,
+    light: function () { return S.view === "light"; } });
+  function themeCalc() { if (tools) tools.theme(); }
+  // Timed tests keep the tutor closed until you submit, so the score stays your own work.
+  function tutorRules() {
+    if (!tools) return;
+    tools.tutorAllowed(!(!TOPIC && !S.submitted), "This is a timed test, so your score stays your own work. Every question is waiting for you in the review.");
   }
-  function calcSource() {
-    var bin = atob(window.TOPLINE_SRC_B64), bytes = new Uint8Array(bin.length);
-    for (var k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
-    return new TextDecoder().decode(bytes);
+  function tutorContext() {
+    if (!tools) return;
+    var q = Q[S.cur];
+    if (S.page === "results") tools.context({ title: "Your results", detail: "Ask about any question you missed." });
+    else if (q) tools.context({ title: "Question " + (S.cur + 1), detail: q.skill || q.domain || "" });
   }
-  function buildCalc() {
-    if (calcBuilt) return; calcBuilt = true;
-    var f = document.createElement("iframe");
-    f.title = "Graphing calculator";
-    f.addEventListener("load", function () { var l = $("calc-frame").querySelector(".calc-loading"); if (l) l.remove(); themeCalc(); });
-    if (window.TOPLINE_SRC_B64) {
-      f.srcdoc = calcSource();
-    } else {
-      f.src = "calculator.html";
-    }
-    $("calc-frame").appendChild(f);
-  }
-  function markCalc(open) {
-    $("calc-toggle").setAttribute("aria-pressed", String(open));
-    $("calc-toggle").classList.toggle("on", open);
-    root.classList.toggle("calc-open", open);
-  }
-  // In-page floating window: the fallback when the browser blocks pop-up windows.
-  function setCalc(open) {
-    $("calc-panel").hidden = !open;
-    markCalc(open);
-    if (open) { calcWin.place(); buildCalc(); }
-  }
-
-  /* The calculator opens in its own browser window beside the test. Its work saves in this browser,
-     so closing and reopening it (or changing questions) keeps the graphs. */
-  var popup = null, popupWatch = null;
-  function popupOpen() { return !!(popup && !popup.closed); }
-  function openPopup() {
-    if (popupOpen()) { popup.focus(); return true; }
-    var w = 480, h = Math.min(820, (window.screen && screen.availHeight || 900) - 60);
-    var left = Math.max(0, (window.screenX || 0) + (window.outerWidth || 1200) - w - 24), top = Math.max(0, (window.screenY || 0) + 60);
-    var feats = "popup=yes,width=" + w + ",height=" + h + ",left=" + left + ",top=" + top;
-    var embedded = !!window.TOPLINE_SRC_B64;
-    try { popup = window.open(embedded ? "" : "calculator.html", "graphite_calculator", feats); } catch (e) { popup = null; }
-    if (!popup) return false;
-    if (embedded) {
-      // Preview: the calculator is built into this page, so write it into the new window.
-      try { var d = popup.document; d.open(); d.write(calcSource()); d.close(); d.title = "Graphing calculator | Graphite"; }
-      catch (e) { try { popup.close(); } catch (e2) { /* already gone */ } popup = null; return false; }
-      themeCalc();
-    } else {
-      popup.addEventListener("load", function () { try { popup.document.title = "Graphing calculator | Graphite"; } catch (e) { /* cross-origin */ } themeCalc(); });
-    }
-    markCalc(true);
-    clearInterval(popupWatch);
-    popupWatch = setInterval(function () { if (!popupOpen()) { clearInterval(popupWatch); markCalc(!$("calc-panel").hidden); } }, 500);
-    return true;
-  }
-  function closePopup() { if (popupOpen()) popup.close(); popup = null; clearInterval(popupWatch); markCalc(!$("calc-panel").hidden); }
-  function toggleCalc() {
-    if (popupOpen()) { closePopup(); return; }
-    if (!$("calc-panel").hidden) { setCalc(false); return; }
-    // Phones and tablets open pop-ups as a whole new tab, so the calculator stays on the page there.
-    if (window.matchMedia("(max-width: 860px), (pointer: coarse)").matches) { setCalc(true); return; }
-    if (!openPopup()) {
-      setCalc(true);
-      toast("Your browser blocked the calculator window, so it opened here. Allow pop-ups for this site to get it in its own window.");
-    }
-  }
-  // The calculator window closes with the test.
-  window.addEventListener("pagehide", function () { if (popupOpen()) popup.close(); });
-  // The calculator floats over the test in its own window.
-  var calcWin = window.GraphiteFloat($("calc-panel"), { key: "graphite_calc_window", handle: $("calc-head"), grip: $("calc-grip"), expand: $("calc-expand"),
-    bottomEl: document.querySelector(".exam-bottom") });
+  function setCalc(open) { if (tools) { if (open) tools.open("calc"); else tools.close(); } }
+  function closePopup() { /* the calculator never leaves the page anymore */ }
 
   /* ---------- dialogs ---------- */
   var lastFocus = null;
@@ -578,8 +528,6 @@
     if (window.GraphiteTheme && GraphiteTheme.prefs().study.calculator === "open") setCalc(true);  // Settings > Practice defaults
   });
   $("timer-toggle").addEventListener("click", function () { S.timerHidden = !S.timerHidden; save(); renderTimer(); });
-  $("calc-toggle").addEventListener("click", toggleCalc);
-  $("calc-close").addEventListener("click", function () { setCalc(false); $("calc-toggle").focus(); });
   $("ref-open").addEventListener("click", function () { openDialog("ref-dialog"); });
   $("open-directions").addEventListener("click", function () { openDialog("dir-dialog"); });
   $("more-toggle").addEventListener("click", function () {

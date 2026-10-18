@@ -92,6 +92,7 @@
     $("pl-q-meta").textContent = "Question " + (pos + 1) + " of " + N + " · " + q.section + " · " + q.domain;
     $("pl-calc").hidden = q.section !== "Math";
     if (q.section !== "Math") setCalc(false);
+    if (tools) tools.context({ title: "Diagnostic question " + (pos + 1), detail: q.domain });
     $("pl-steps").innerHTML = diag.questions.map(function (_, i) {
       return '<span class="' + (i === pos ? "is-now" : (answered(i) || saved.answers[i] === null ? "is-done" : "")) + '"></span>';
     }).join("");
@@ -118,37 +119,10 @@
     $("pl-next").textContent = pos === N - 1 ? "See my results" : "Next";
     syncNext();
   }
-  /* ---------- graphing calculator: the same one as the practice test, in a panel beside the question ---------- */
-  var calcBuilt = false;
-  function buildCalc() {
-    if (calcBuilt) return; calcBuilt = true;
-    var f = document.createElement("iframe");
-    f.title = "Graphing calculator";
-    f.addEventListener("load", function () {
-      var l = $("pl-calc-frame").querySelector(".calc-loading"); if (l) l.remove();
-      try { var dark = f.contentDocument.getElementById("thDark"); if (dark) dark.click(); } catch (e) { /* other origin */ }
-    });
-    if (window.TOPLINE_SRC_B64) {  // preview: the calculator is built into the page
-      var bin = atob(window.TOPLINE_SRC_B64), bytes = new Uint8Array(bin.length);
-      for (var k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
-      f.srcdoc = new TextDecoder().decode(bytes);
-    } else {
-      f.src = "calculator.html";
-    }
-    $("pl-calc-frame").appendChild(f);
-  }
-  // The calculator floats over the page in its own window, like on the practice test.
-  var calcWin = window.GraphiteFloat ? window.GraphiteFloat($("pl-calc-panel"), { key: "graphite_calc_window", handle: $("pl-calc-head"), grip: $("pl-calc-grip"), expand: $("pl-calc-expand") }) : null;
-  function setCalc(open) {
-    if (open && calcWin) calcWin.place();
-    $("pl-calc-panel").hidden = !open;
-    $("pl-calc").setAttribute("aria-expanded", String(open));
-    $("pl-calc").classList.toggle("on", open);
-    $("pl-quiz-wrap").classList.toggle("calc-open", open);
-    if (open) buildCalc();
-  }
-  $("pl-calc").addEventListener("click", function () { setCalc($("pl-calc-panel").hidden); });
-  $("pl-calc-close").addEventListener("click", function () { setCalc(false); $("pl-calc").focus(); });
+  /* ---------- calculator (qtools.js): a panel on the right, and the question slides left ---------- */
+  var tools = window.GraphiteTools && window.GraphiteTools.mount({ launcher: false });
+  if (tools) tools.tutorAllowed(false, "The diagnostic measures where you are right now, so it's just you. The tutor is ready once your plan is built.");
+  function setCalc(open) { if (!tools) return; if (open) tools.open("calc"); else tools.close(); }
 
   function syncNext() { $("pl-next").disabled = !(answered(pos) && typeof saved.sure[pos] === "boolean") || busy; }
   function save() { saved.pos = pos; store(key(), saved); }

@@ -68,6 +68,9 @@ BADGES = [
     {"key": "market_debut", "name": "Market Debut", "how": "Buy or sell a collectible on the market."},
     {"key": "buy_low", "name": "Buy Low, Sell High", "how": "Sell a collectible for more than you paid."},
     {"key": "collector", "name": "Collector", "how": "Own every collectible in a set."},
+    {"key": "first_hatch", "name": "First Hatch", "how": "Hatch your first pet."},
+    {"key": "best_friends", "name": "Best Friends", "how": "Raise a pet to level 10."},
+    {"key": "pet_parent", "name": "Pet Parent", "how": "Raise three pets."},
 ]
 BADGE_KEYS = {b["key"] for b in BADGES}
 
@@ -96,12 +99,12 @@ SHOP = [
     {"key": "theme:deepsea", "kind": "theme", "value": "deepsea", "name": "Deep Sea", "price": 250, "about": "Dark teal, like the bottom of the ocean."},
     {"key": "theme:espresso", "kind": "theme", "value": "espresso", "name": "Espresso", "price": 250, "about": "Warm dark brown, easy on late-night eyes."},
     {"key": "theme:plum", "kind": "theme", "value": "plum", "name": "Plum", "price": 300, "about": "A rich dark plum."},
-    {"key": "avatar:pencil", "kind": "avatar", "value": "pencil", "name": "Pencil behind the ear", "price": 60, "about": "For your drawn avatar."},
-    {"key": "avatar:sunglasses", "kind": "avatar", "value": "sunglasses", "name": "Sunglasses", "price": 80, "about": "For your drawn avatar."},
-    {"key": "avatar:headphones", "kind": "avatar", "value": "headphones", "name": "Headphones", "price": 100, "about": "For your drawn avatar."},
-    {"key": "avatar:gradcap", "kind": "avatar", "value": "gradcap", "name": "Graduation cap", "price": 150, "about": "For your drawn avatar."},
-    {"key": "avatar:crown", "kind": "avatar", "value": "crown", "name": "Crown", "price": 250, "about": "For your drawn avatar."},
 ]
+# Avatar items by slot, more frames and titles, page background effects and pet gear (services/cosmetics.py).
+from . import cosmetics  # noqa: E402  (the catalog lives in its own file)
+SHOP += cosmetics.shop_items()
+for _item in SHOP:
+    _item.setdefault("rarity", cosmetics.rarity_for(_item["price"]))
 SHOP_BY_KEY = {s["key"]: s for s in SHOP}
 FRAMES = {s["value"] for s in SHOP if s["kind"] == "frame"}
 TITLES = {s["value"] for s in SHOP if s["kind"] == "title"}
@@ -280,15 +283,68 @@ def buy(user_id, key):
     return report(user_id, xp, 0, -item["price"], [badge])
 
 
-def equip(user_id, kind, value):
-    """Wears a frame or title (None takes it off). Raises ValueError if it isn't owned."""
-    if kind not in ("frame", "title"):
-        raise ValueError("You can only wear frames and titles.")
-    if value is not None:
-        item = next((s for s in SHOP if s["kind"] == kind and s["value"] == value), None)
-        if not item or item["key"] not in owned(user_id):
+EQUIP_KINDS = ("frame", "title", "avatar", "effect", "theme", "accent", "petgear")
+
+
+def equip(user_id, kind, value, slot=None):
+    """Wears or uses an item from the locker (None takes it off). Raises ValueError if it isn't owned.
+    frame and title: on the profile. avatar: one slot of the drawn avatar (and switches to the drawn avatar).
+    effect: the page background. theme and accent: the site's look. petgear: on the active pet."""
+    from . import cosmetics, pet, prefs as prefs_svc
+    if kind not in EQUIP_KINDS:
+        raise ValueError("That can't be worn.")
+    mine = owned(user_id)
+    def need(v):
+        item = next((s for s in SHOP if s["kind"] == kind and s["value"] == v), None)
+        if item and item["key"] not in mine:
             raise ValueError("Buy that in the shop first.")
-    execute(f"UPDATE users SET {kind} = ? WHERE id = ?", (value, user_id))  # kind is one of two fixed names
+        return item
+    if kind in ("frame", "title"):
+        if value is not None and not need(value):
+            raise ValueError("That isn't in the shop.")
+        execute(f"UPDATE users SET {kind} = ? WHERE id = ?", (value, user_id))  # kind is one of two fixed names
+    elif kind == "avatar":
+        slot = slot or cosmetics.slot_of(value)
+        if slot not in cosmetics.AVATAR:
+            raise ValueError("Pick something to wear.")
+        if value is None:
+            value = cosmetics.DEFAULT_AVATAR[slot]
+        if value not in prefs_svc.AVATAR[slot]:
+            raise ValueError("Pick something to wear.")
+        need(value)
+        user = query("SELECT * FROM users WHERE id = ?", (user_id,), one=True)
+        p = prefs_svc.load(user)
+        p["avatar"]["parts"][slot] = value
+        p["avatar"]["mode"] = "drawn"
+        prefs_svc.save(user_id, p)
+    elif kind == "effect":
+        value = value or "none"
+        if value not in cosmetics.FREE_EFFECTS:
+            if not need(value):
+                raise ValueError("Pick a background.")
+        user = query("SELECT * FROM users WHERE id = ?", (user_id,), one=True)
+        p = prefs_svc.load(user)
+        p["look"]["effect"] = value
+        prefs_svc.save(user_id, p)
+        execute("UPDATE users SET ripple = ? WHERE id = ?", (0 if value == "none" else 1, user_id))
+    elif kind == "theme":
+        if value not in prefs_svc.THEMES:
+            raise ValueError("Pick a theme.")
+        key = prefs_svc.SHOP_THEMES.get(value)
+        if key and key not in mine:
+            raise ValueError("Buy that in the shop first.")
+        execute("UPDATE users SET theme = ? WHERE id = ?", (value, user_id))
+    elif kind == "accent":
+        if value not in prefs_svc.BASE_ACCENTS and value not in SHOP_ACCENTS and value != "custom":
+            raise ValueError("Pick a color.")
+        if (value == "custom" and "accent:custom" not in mine) or not accent_allowed(user_id, value):
+            raise ValueError("Buy that in the shop first.")
+        execute("UPDATE users SET accent = ? WHERE id = ?", (value, user_id))
+    else:
+        try:
+            pet.wear(user_id, value)
+        except pet.PetError as err:
+            raise ValueError(str(err))
 
 
 def accent_allowed(user_id, accent):
@@ -311,11 +367,31 @@ def profile(user):
     keys = user.keys()
     from . import prefs as prefs_svc
     p = prefs_svc.load(user)
+    from . import cosmetics
+    parts = p["avatar"]["parts"]
+    drawn = p["avatar"]["mode"] == "drawn"
+    pet_row = query("SELECT gear FROM pets WHERE user_id = ? AND active = 1 AND hatched_at IS NOT NULL", (uid,), one=True)
     worn = {"frame": user["frame"] if "frame" in keys else None, "title": user["title"] if "title" in keys else None,
             "accent": user["accent"] if "accent" in keys else None, "theme": user["theme"] if "theme" in keys else None,
-            "avatar": p["avatar"]["parts"]["acc"] if p["avatar"]["mode"] == "drawn" else None}
+            "effect": p["look"]["effect"], "petgear": pet_row["gear"] if pet_row else None}
+    def is_worn(s):
+        if s["kind"] == "avatar":
+            return drawn and parts.get(s.get("slot") or cosmetics.slot_of(s["value"])) == s["value"]
+        return worn.get(s["kind"]) == s["value"]
     out["badges"] = [dict(b, earned_at=earned.get(b["key"])) for b in BADGES]
-    out["shop"] = [dict(s, owned=s["key"] in mine, worn=worn.get(s["kind"]) == s["value"]) for s in SHOP]
+    out["shop"] = [dict(s, owned=s["key"] in mine, worn=is_worn(s)) for s in SHOP]
+    # Free items live in the locker too, so they can be worn and taken off the same way.
+    for slot, items in cosmetics.AVATAR.items():
+        for v, name, price, rarity, about in items:
+            if not price:
+                item = {"key": f"avatar:{v}", "kind": "avatar", "slot": slot, "value": v, "name": name, "price": 0,
+                        "rarity": rarity, "about": about, "free": True}
+                out["shop"].append(dict(item, owned=True, worn=is_worn(item)))
+    for v, name, price, rarity, about in cosmetics.EFFECTS:
+        if not price:
+            item = {"key": f"effect:{v}", "kind": "effect", "value": v, "name": name, "price": 0, "rarity": rarity, "about": about, "free": True}
+            out["shop"].append(dict(item, owned=True, worn=is_worn(item)))
+    out["avatar"] = {"mode": p["avatar"]["mode"], "parts": parts}
     out["frame"], out["title"] = worn["frame"], worn["title"]
     out["ranks"] = [{"at": a, "name": n} for a, n in RANKS]
     out["streak_coins"] = [{"days": d, "coins": c} for d, c in sorted(STREAK_COINS.items())]
@@ -354,4 +430,15 @@ def rules():
         "xp_recall_pass": XP_RECALL_PASS, "coins_recall_pass": COINS_RECALL_PASS, "xp_recall_try": XP_RECALL_TRY,
         "streak_coins": {str(k): v for k, v in STREAK_COINS.items()},
         "ranks": [{"at": a, "name": n} for a, n in RANKS], "badges": BADGES, "shop": SHOP, "earn": earn_table(),
+        "free": _free_items(),
     }
+
+
+def _free_items():
+    """Free locker items (not sold, but worn the same way), for the preview."""
+    from . import cosmetics
+    out = [{"key": f"avatar:{v}", "kind": "avatar", "slot": slot, "value": v, "name": n, "price": 0, "rarity": r, "about": a, "free": True}
+           for slot, items in cosmetics.AVATAR.items() for v, n, p, r, a in items if not p]
+    out += [{"key": f"effect:{v}", "kind": "effect", "value": v, "name": n, "price": 0, "rarity": r, "about": a, "free": True}
+            for v, n, p, r, a in cosmetics.EFFECTS if not p]
+    return out

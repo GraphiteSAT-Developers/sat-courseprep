@@ -75,16 +75,139 @@
   }
   function summary(s) { var t = totals(s); return { xp: t.xp, coins: t.coins, rank: rankFor(t.xp), streak: streak(s) }; }
   function accent() { try { return (JSON.parse(localStorage.getItem("graphite_appearance")) || {}).accent || "pencil"; } catch (e) { return "pencil"; } }
+  function petGear(s) { var a = (s.pets || []).filter(function (x) { return x.active && x.hatched_at; })[0]; return a ? a.gear || null : null; }
   function profile(s) {
-    var T = window.GraphiteTheme, av = T && T.prefs().avatar;
-    var out = summary(s), worn = { frame: s.frame, title: s.title, accent: accent(), theme: T ? T.get().theme : null, avatar: av && av.mode === "drawn" ? av.parts.acc : null };
+    var T = window.GraphiteTheme, av = T ? T.prefs().avatar : { mode: "photo", parts: {} }, look = T ? T.get() : {};
+    var drawn = av.mode === "drawn";
+    var worn = { frame: s.frame, title: s.title, accent: accent(), theme: look.theme || null, effect: look.effect || "ripple", petgear: petGear(s) };
+    function isWorn(i) { return i.kind === "avatar" ? drawn && av.parts[i.slot] === i.value : worn[i.kind] === i.value; }
+    var out = summary(s);
     out.badges = R.badges.map(function (b) { return Object.assign({}, b, { earned_at: s.badges[b.key] || null }); });
-    out.shop = R.shop.map(function (i) { return Object.assign({}, i, { owned: !!s.inventory[i.key], worn: worn[i.kind] === i.value }); });
+    out.shop = R.shop.map(function (i) { return Object.assign({}, i, { owned: !!s.inventory[i.key], worn: isWorn(i) }); })
+      .concat((R.free || []).map(function (i) { return Object.assign({}, i, { owned: true, worn: isWorn(i) }); }));
     out.frame = s.frame; out.title = s.title;
+    out.avatar = { mode: av.mode, parts: av.parts };
     out.ranks = R.ranks; out.streak_coins = Object.keys(R.streak_coins).map(function (d) { return { days: +d, coins: R.streak_coins[d] }; });
     out.earn = R.earn;
     out.recent = s.events.slice(-12).reverse();
     return out;
+  }
+  // What /api/me would say after a change, so the page can apply it (theme.js setMe).
+  function meNow(s) {
+    var T = window.GraphiteTheme; if (!T) return null;
+    var pr = T.prefs();
+    return Object.assign({}, T.me(), { frame: s.frame || null, game_title: s.title || null, appearance: T.get(),
+      avatar_drawn: pr.avatar.mode === "drawn" ? pr.avatar.parts : null, prefs: { dashboard: pr.dashboard, study: pr.study, avatar: pr.avatar } });
+  }
+  var DEFAULT_SLOT = { hat: "none", face: "none", outfit: "tee", backdrop: "solid" };
+  function equipLocal(s, kind, value, slot) {
+    var T = window.GraphiteTheme;
+    var item = R.shop.filter(function (i) { return i.kind === kind && i.value === value; })[0];
+    var free = (R.free || []).filter(function (i) { return i.kind === kind && i.value === value; })[0];
+    if (value != null && item && !s.inventory[item.key]) return "Buy that in the shop first.";
+    if (kind === "frame" || kind === "title") {
+      if (value != null && !item) return "That isn't in the shop.";
+      s[kind] = value; return null;
+    }
+    if (kind === "avatar") {
+      slot = slot || (item || free || {}).slot;
+      if (!DEFAULT_SLOT[slot]) return "Pick something to wear.";
+      if (value != null && !item && !free) return "Pick something to wear.";
+      var av = T.prefs().avatar, parts = Object.assign({}, av.parts); parts[slot] = value == null ? DEFAULT_SLOT[slot] : value;
+      T.setPrefs({ avatar: { mode: "drawn", parts: parts } }); return null;
+    }
+    if (kind === "effect") { value = value || "none"; if (!item && !free) return "Pick a background."; T.set({ effect: value }); return null; }
+    if (kind === "theme") {
+      if (T.themes.indexOf(value) < 0) return "Pick a theme.";
+      if (T.shopThemes.indexOf(value) > -1 && !s.inventory["theme:" + value]) return "Buy that in the shop first.";
+      T.set({ theme: value }); return null;
+    }
+    if (kind === "accent") {
+      if (T.accents.indexOf(value) < 0) return "Pick a color.";
+      if (["rose", "blueprint", "ember", "custom"].indexOf(value) > -1 && !s.inventory["accent:" + value]) return "Buy that in the shop first.";
+      T.set({ accent: value }); return null;
+    }
+    if (kind === "petgear") {
+      var act = (s.pets || []).filter(function (x) { return x.active && x.hatched_at; })[0];
+      if (!act) return "Hatch a pet first.";
+      act.gear = value; return null;
+    }
+    return "That can't be worn.";
+  }
+
+  /* ---------- pets (services/pet.py) ---------- */
+  var PR = P.pet;
+  function petLevel(xp) { var level = 1, need = 60; while (level < PR.max_level && xp >= need) { xp -= need; level++; need = 40 + 20 * level; } return [level, xp, level >= PR.max_level ? null : need]; }
+  function petStage(level) { var st = "baby"; PR.stages.forEach(function (x) { if (level >= x.at) st = x.name; }); return st; }
+  function petXp(p, total) { return p.hatched_at ? p.banked + (p.active ? total - p.xp_base : 0) : 0; }
+  function petOut(p, total) {
+    if (!p.hatched_at) { var got = Math.max(0, total - p.egg_base); return { id: p.id, egg: true, progress: Math.min(got, PR.egg_xp), need: PR.egg_xp, ready: got >= PR.egg_xp }; }
+    var sp = PR.species.filter(function (x) { return x.key === p.species; })[0] || PR.species[0], xp = petXp(p, total), lv = petLevel(xp);
+    return { id: p.id, egg: false, species: sp.key, species_name: sp.name, rarity: sp.rarity, about: sp.about, name: p.name || sp.name, xp: xp,
+             level: lv[0], into: lv[1], need: lv[2], stage: petStage(lv[0]), active: !!p.active, gear: p.gear || null, hatched_at: p.hatched_at };
+  }
+  function petOverview(s) {
+    if (!s.pets || !s.pets.length) { s.pets = [{ id: 1, egg_base: totals(s).xp, xp_base: 0, banked: 0, active: false, gear: null, hatched_at: null }]; s.nextPet = 2; }
+    var total = totals(s).xp, list = s.pets.map(function (p) { return petOut(p, total); }), d = today();
+    var treats = s.events.filter(function (e) { return e.kind === "pet_treat" && e.day === d; }).length;
+    var studied = s.events.some(function (e) { return e.day === d && e.xp > 0; });
+    return { pets: list, active: list.filter(function (p) { return !p.egg && p.active; })[0] || null, egg: list.filter(function (p) { return p.egg; })[0] || null,
+             mood: studied ? "happy" : "sleepy", treats_left: Math.max(0, PR.treats_per_day - treats), rules: PR,
+             gear: R.shop.filter(function (i) { return i.kind === "petgear"; }).map(function (i) { return Object.assign({}, i, { owned: !!s.inventory[i.key] }); }) };
+  }
+  var WEIGHTS = { sketch: 26, inky: 26, hoot: 26, foxel: 9, axel: 9, nova: 4 };
+  function petCall(path, data) {
+    var s = load(), m, o = petOverview(s), total = totals(s).xp;
+    function find(id) { return s.pets.filter(function (p) { return p.id === +id; })[0]; }
+    if (path === "/api/pet") { save(s); return ok(o); }
+    if ((m = /^\/api\/pet\/(\d+)\/hatch$/.exec(path))) {
+      var p = find(m[1]); if (!p) return fail(400, "That pet isn't yours.");
+      if (p.hatched_at) return fail(400, "That egg already hatched.");
+      if (total - p.egg_base < PR.egg_xp) return fail(400, "Earn " + (PR.egg_xp - (total - p.egg_base)) + " more XP to hatch it.");
+      var bag = []; Object.keys(WEIGHTS).forEach(function (k) { for (var i = 0; i < WEIGHTS[k]; i++) bag.push(k); });
+      p.species = bag[Math.floor(Math.random() * bag.length)];
+      p.hatched_at = now(); p.xp_base = total; p.banked = 0;
+      p.active = !s.pets.some(function (x) { return x.active && x.hatched_at && x !== p; });
+      var badges = [earnBadge(s, "first_hatch")];
+      if (s.pets.filter(function (x) { return x.hatched_at; }).length >= 3) badges.push(earnBadge(s, "pet_parent"));
+      var rep = report(s, total, 0, 0, badges), out = { pet: petOut(p, total), reward: rep, overview: petOverview(s) };
+      save(s); return ok(out);
+    }
+    if ((m = /^\/api\/pet\/(\d+)\/active$/.exec(path))) {
+      var q = find(m[1]); if (!q || !q.hatched_at) return fail(400, "Hatch it first.");
+      s.pets.forEach(function (x) { if (x.active && x !== q) { x.banked = petXp(x, total); x.active = false; } });
+      if (!q.active) { q.active = true; q.xp_base = total; }
+      save(s); return ok(petOverview(s));
+    }
+    if ((m = /^\/api\/pet\/(\d+)\/name$/.exec(path))) {
+      var r = find(m[1]), name = String((data && data.name) || "").replace(/\s+/g, " ").trim();
+      if (!r) return fail(400, "That pet isn't yours.");
+      if (!/^[A-Za-z0-9][A-Za-z0-9 '\-]{0,15}$/.test(name)) return fail(400, "Use 1 to 16 letters, numbers or spaces.");
+      if (window.GraphiteWords && !window.GraphiteWords.isClean(name)) return fail(400, "Pick a different name.");
+      r.name = name; save(s); return ok(petOverview(s));
+    }
+    if (path === "/api/pet/treat") {
+      var act = s.pets.filter(function (x) { return x.active && x.hatched_at; })[0];
+      if (!act) return fail(400, "Hatch a pet first.");
+      if (!o.treats_left) return fail(400, "That's " + PR.treats_per_day + " treats today. Your pet is full.");
+      var t = totals(s); if (t.coins < PR.treat_price) return fail(400, "You need " + (PR.treat_price - t.coins) + " more coins.");
+      var before = petLevel(petXp(act, total))[0];
+      act.banked += PR.treat_xp;
+      s.events.push({ kind: "pet_treat", xp: 0, coins: -PR.treat_price, detail: String(act.id), day: today(), at: now() });
+      var po = petOut(act, total), bs = po.level >= 10 ? [earnBadge(s, "best_friends")] : [];
+      var res = { pet: po, level_up: po.level > before, reward: report(s, t.xp, 0, -PR.treat_price, bs), overview: petOverview(s) };
+      save(s); return ok(res);
+    }
+    if (path === "/api/pet/egg") {
+      if (s.pets.some(function (x) { return !x.hatched_at; })) return fail(400, "Hatch the egg you have first.");
+      if (s.pets.length >= PR.max_pets) return fail(400, "You can have up to " + PR.max_pets + " pets.");
+      var tt = totals(s); if (tt.coins < PR.egg_price) return fail(400, "You need " + (PR.egg_price - tt.coins) + " more coins.");
+      s.pets.push({ id: s.nextPet++, egg_base: tt.xp, xp_base: 0, banked: 0, active: false, gear: null, hatched_at: null });
+      s.events.push({ kind: "shop", xp: 0, coins: -PR.egg_price, detail: "pet:egg", day: today(), at: now() });
+      var rp = report(s, tt.xp, 0, -PR.egg_price); save(s);
+      return ok({ reward: rp, overview: petOverview(s) });
+    }
+    return fail(404, "Not found.");
   }
 
   // Level up hooks, called by practice-local.js (same rules as game.level_check and game.level_finish).
@@ -135,14 +258,10 @@
       save(s); return ok({ reward: rep, profile: profile(s) });
     }
     if (path === "/api/game/equip") {
-      var kind = data && data.kind, value = data ? data.value : null;
-      if (kind !== "frame" && kind !== "title") return fail(400, "You can only wear frames and titles.");
-      if (value != null) {
-        var it = R.shop.filter(function (i) { return i.kind === kind && i.value === value; })[0];
-        if (!it || !s.inventory[it.key]) return fail(400, "Buy that in the shop first.");
-      }
-      s[kind] = value; save(s);
-      return ok({ profile: profile(s) });
+      var err = equipLocal(s, data && data.kind, data ? data.value : null, data && data.slot);
+      if (err) return fail(400, err, "value");
+      save(s);
+      return ok({ profile: profile(s), user: meNow(s) });
     }
     return fail(404, "Not found.");
   }
@@ -560,6 +679,7 @@
     if (clean.indexOf("/api/focus") === 0) return focusCall(clean, data);
     if (clean.indexOf("/api/lessons") === 0) return lessonsCall(clean, data);
     if (clean.indexOf("/api/market") === 0 && MK) return marketCall(path, data);
+    if (clean.indexOf("/api/pet") === 0 && PR) return petCall(clean, data);
     if (window.GraphitePracticeLocal) return window.GraphitePracticeLocal.call(path, data, method);
     return fail(404, "Not found.");
   }

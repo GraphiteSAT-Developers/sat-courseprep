@@ -1,4 +1,4 @@
-<!--{"file": "practice-test.html", "path": "/practice-test.html", "title": "Math Practice Test | Graphite SAT Tutoring", "description": "A timed digital SAT Math practice module with a built-in graphing calculator, reference sheet, mark for review and answer elimination.", "robots": "noindex, nofollow", "test": true, "scripts": ["questions.js", "bank.js", "practice-local.js", "play-local.js", "game-ui.js", "practice-test.js"]}-->
+<!--{"file": "practice-test.html", "path": "/practice-test.html", "title": "Math Practice Test | Graphite SAT Tutoring", "description": "A timed digital SAT Math practice module with a built-in graphing calculator, reference sheet, mark for review and answer elimination.", "robots": "noindex, nofollow", "test": true, "scripts": ["questions.js", "bank.js", "practice-local.js", "play-local.js", "game-ui.js", "qtools.js", "practice-test.js"]}-->
 <div class="exam" id="exam" data-view="graphite">
   <a class="skip" href="#q-area">Skip to question</a>
 
@@ -12,9 +12,13 @@
       <button class="exam-pill" type="button" id="timer-toggle" aria-pressed="false">Hide</button>
     </div>
     <div class="exam-tools">
-      <button class="tool" type="button" id="calc-toggle" aria-pressed="false" aria-controls="calc-panel">
+      <button class="tool" type="button" id="calc-toggle" aria-pressed="false" aria-controls="qt" data-qt-toggle="calc">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="8" y="6" width="8" height="3.5" rx=".6" fill="currentColor"/><circle cx="9" cy="13.5" r="1.1" fill="currentColor"/><circle cx="12" cy="13.5" r="1.1" fill="currentColor"/><circle cx="15" cy="13.5" r="1.1" fill="currentColor"/><circle cx="9" cy="17.3" r="1.1" fill="currentColor"/><circle cx="12" cy="17.3" r="1.1" fill="currentColor"/><circle cx="15" cy="17.3" r="1.1" fill="currentColor"/></svg>
         <span>Calculator</span>
+      </button>
+      <button class="tool" type="button" id="tutor-toggle" aria-pressed="false" aria-controls="qt" data-qt-toggle="tutor">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 4v-4h0A2.5 2.5 0 0 1 4 13.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 8.5h7M8.5 11.5h4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <span>Tutor</span>
       </button>
       <button class="tool" type="button" id="ref-open" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20 L12 6 L19 20 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 6 V20" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 2"/><text x="3" y="11" font-size="7" font-family="serif" fill="currentColor">x²</text></svg>
@@ -35,17 +39,6 @@
   </header>
 
   <div class="exam-body" id="exam-body">
-    <aside class="calc-panel calc-float" id="calc-panel" role="dialog" aria-label="Graphing calculator" hidden>
-      <div class="calc-head" id="calc-head" tabindex="0" title="Drag to move. Double-click to expand.">
-        <span class="calc-name"><svg class="calc-grab" viewBox="0 0 12 18" aria-hidden="true"><circle cx="3" cy="3" r="1.6"/><circle cx="9" cy="3" r="1.6"/><circle cx="3" cy="9" r="1.6"/><circle cx="9" cy="9" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="9" cy="15" r="1.6"/></svg>Graphing calculator</span>
-        <div class="calc-actions">
-          <button class="exam-pill" type="button" id="calc-expand" aria-pressed="false">Expand</button>
-          <button class="exam-pill" type="button" id="calc-close" aria-label="Close calculator">Close</button>
-        </div>
-      </div>
-      <div class="calc-frame" id="calc-frame"><p class="calc-loading">Loading calculator…</p></div>
-      <div class="calc-grip" id="calc-grip" tabindex="0" role="button" aria-label="Resize calculator. Use the arrow keys."></div>
-    </aside>
 
     <main class="q-area" id="q-area" tabindex="-1">
       <section class="q-wrap" id="q-view" aria-live="polite">

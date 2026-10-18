@@ -342,7 +342,23 @@ MIGRATIONS = [
         "CREATE INDEX idx_qlog_user ON question_log (user_id, id)",
         "CREATE INDEX idx_qlog_item ON question_log (user_id, item_id)",
     ]),
-    # (14, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (14, "Pets: eggs that hatch from study XP, and the pets they become", [
+        """CREATE TABLE pets (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            species TEXT,
+            name TEXT,
+            egg_base INTEGER NOT NULL DEFAULT 0,
+            xp_base INTEGER NOT NULL DEFAULT 0,
+            banked INTEGER NOT NULL DEFAULT 0,
+            active INTEGER NOT NULL DEFAULT 0,
+            gear TEXT,
+            hatched_at TEXT,
+            created_at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_pets_user ON pets (user_id)",
+    ]),
+    # (15, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

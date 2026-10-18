@@ -24,6 +24,7 @@ BLUEPRINTS = [
     play.focus_bp,    # /api/focus    the focus timer
     play.lessons_bp,  # /api/lessons  active recall lessons
     play.market_bp,   # /api/market   the collectibles market
+    play.pet_bp,      # /api/pet      hatch and raise a pet
     history.bp,       # /api/me/history  everything done on the site, and every answered question
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health

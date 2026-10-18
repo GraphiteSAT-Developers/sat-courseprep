@@ -24,8 +24,14 @@
     return tenths === false ? out : out + "." + Math.floor((ms % 1000) / 100);
   }
   function longDay(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }); }
+  // Calculator and tutor (qtools.js). The tutor waits until the round is over, since the clock is running.
+  var tools = window.GraphiteTools && window.GraphiteTools.mount({});
   function show(view) {
     ["sp-intro", "sp-play", "sp-done"].forEach(function (id) { $(id).hidden = id !== view; });
+    if (tools) {
+      tools.tutorAllowed(view !== "sp-play", "The clock is running, so the tutor waits until the round is over. Then you can ask about any question.");
+      tools.context(view === "sp-done" ? { title: "Your speed round", detail: "Ask about a question you missed." } : null);
+    }
   }
 
   /* ---------- before ---------- */

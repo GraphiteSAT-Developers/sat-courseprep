@@ -1,4 +1,4 @@
-<!--{"file": "lessons.html", "path": "/lessons.html", "title": "Lessons | Graphite SAT Tutoring", "description": "Short SAT Math lessons where you answer before you're told: predict, fill in a step, put steps in order and find the mistake. Recall checks bring each lesson back so it sticks.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "lessons.js", "ripple.js"]}-->
+<!--{"file": "lessons.html", "path": "/lessons.html", "title": "Lessons | Graphite SAT Tutoring", "description": "Short SAT Math lessons where you answer before you're told: predict, fill in a step, put steps in order and find the mistake. Recall checks bring each lesson back so it sticks.", "robots": "noindex, nofollow", "app": true, "calculator": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "qtools.js", "lessons.js", "effects.js"]}-->
 <main id="main" class="practice lessons-page">
   <div class="wrap dash-stack">
     <p class="sample-note" id="ls-preview-note" hidden><span class="label">Preview</span> Lesson progress is saved in this browser only. On the live site it stays with your account.</p>
@@ -9,6 +9,10 @@
         <div>
           <p class="label">Lessons</p>
           <h1>Learn it by doing it</h1>
+        </div>
+        <div class="subject-switch" data-subject-for="lessons-subject" role="group" aria-label="Subject">
+          <button type="button" data-subject="math">Math</button>
+          <button type="button" data-subject="rw">Reading and Writing <span class="soon">Soon</span></button>
         </div>
       </div>
       <p class="lede pr-lede">A lesson for every skill on SAT Math, a full Desmos course, and lessons on how memory works. No walls of text: every step asks you to answer first. Predict, fill in the missing step, put a solution in order, or find the mistake. Then a quick recall check brings the lesson back after 1, 3 and 7 days so it sticks.</p>
@@ -22,8 +26,18 @@
         <ul class="ls-due-list" id="ls-due-list"></ul>
       </section>
 
+      <div id="lessons-subject" class="dash-stack">
+      <div class="dash-stack" data-subject-show="math">
       <nav class="ls-jump-wrap" id="ls-jump-wrap" aria-label="Lesson groups" hidden><ul class="ls-jump" id="ls-jump"></ul></nav>
       <div id="ls-groups" class="dash-stack"></div>
+      </div>
+      <section class="rw-soon" data-subject-show="rw" hidden>
+        <h2>Reading and Writing lessons are coming soon</h2>
+        <p>Active recall lessons for every Reading and Writing skill, built the same way as the Math ones: you answer first, then it explains.</p>
+        <ul><li>Punctuation rules you can rebuild from memory</li><li>How to find the line in a passage that proves an answer</li><li>Transitions, rhetorical synthesis and words in context</li></ul>
+        <p class="fine">Math is ready now.</p>
+      </section>
+      </div>
     </div>
 
     <!-- One lesson -->

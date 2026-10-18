@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="graphite-mode" content="live">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="/js/theme.js?v=2ea93767f5"></script>
+<script src="/js/theme.js?v=cee64bfb20"></script>
 <title>Lessons | Graphite SAT Tutoring</title>
 <meta name="description" content="Short SAT Math lessons where you answer before you're told: predict, fill in a step, put steps in order and find the mistake. Recall checks bring each lesson back so it sticks.">
 <meta name="robots" content="noindex, nofollow">
@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=aac598c6e1">
-<script src="/js/site.js?v=faf29973a4" defer></script><script src="/js/game-ui.js?v=b46dc13746" defer></script><script src="/js/lessons.js?v=dfebb90857" defer></script><script src="/js/ripple.js?v=22e4833e0a" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=4b9173e025">
+<script src="/js/site.js?v=55732c65e7" defer></script><script src="/js/game-ui.js?v=b46dc13746" defer></script><script src="/js/qtools.js?v=01407ffb91" defer></script><script src="/js/lessons.js?v=98a7c05d9e" defer></script><script src="/js/effects.js?v=e171d8f500" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -48,6 +48,7 @@
         <li><a href="/focus.html">Focus</a></li>
         <li><a href="/rewards.html">Rewards</a></li>
         <li><a href="/market.html">Market</a></li>
+        <li><a href="/tutor.html">Tutor</a></li>
       </ul>
       <div class="nav-actions">
         <span class="account-email" id="account-email"></span>
@@ -68,6 +69,10 @@
           <p class="label">Lessons</p>
           <h1>Learn it by doing it</h1>
         </div>
+        <div class="subject-switch" data-subject-for="lessons-subject" role="group" aria-label="Subject">
+          <button type="button" data-subject="math">Math</button>
+          <button type="button" data-subject="rw">Reading and Writing <span class="soon">Soon</span></button>
+        </div>
       </div>
       <p class="lede pr-lede">A lesson for every skill on SAT Math, a full Desmos course, and lessons on how memory works. No walls of text: every step asks you to answer first. Predict, fill in the missing step, put a solution in order, or find the mistake. Then a quick recall check brings the lesson back after 1, 3 and 7 days so it sticks.</p>
 
@@ -80,8 +85,18 @@
         <ul class="ls-due-list" id="ls-due-list"></ul>
       </section>
 
+      <div id="lessons-subject" class="dash-stack">
+      <div class="dash-stack" data-subject-show="math">
       <nav class="ls-jump-wrap" id="ls-jump-wrap" aria-label="Lesson groups" hidden><ul class="ls-jump" id="ls-jump"></ul></nav>
       <div id="ls-groups" class="dash-stack"></div>
+      </div>
+      <section class="rw-soon" data-subject-show="rw" hidden>
+        <h2>Reading and Writing lessons are coming soon</h2>
+        <p>Active recall lessons for every Reading and Writing skill, built the same way as the Math ones: you answer first, then it explains.</p>
+        <ul><li>Punctuation rules you can rebuild from memory</li><li>How to find the line in a passage that proves an answer</li><li>Transitions, rhetorical synthesis and words in context</li></ul>
+        <p class="fine">Math is ready now.</p>
+      </section>
+      </div>
     </div>
 
     <!-- One lesson -->

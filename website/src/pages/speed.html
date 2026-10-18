@@ -1,4 +1,4 @@
-<!--{"file": "speed.html", "path": "/speed.html", "title": "Speed Round | Graphite SAT Tutoring", "description": "Ten quick SAT Math questions, the same for everyone each day. Finish fast with few misses to climb your state's leaderboard.", "robots": "noindex, nofollow", "app": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "speed.js", "ripple.js"]}-->
+<!--{"file": "speed.html", "path": "/speed.html", "title": "Speed Round | Graphite SAT Tutoring", "description": "Ten quick SAT Math questions, the same for everyone each day. Finish fast with few misses to climb your state's leaderboard.", "robots": "noindex, nofollow", "app": true, "calculator": true, "scripts": ["bank.js", "practice-local.js", "play-local.js", "game-ui.js", "qtools.js", "speed.js", "effects.js"]}-->
 <main id="main" class="practice speed-page">
   <div class="wrap dash-stack">
     <p class="sample-note" id="sp-preview-note" hidden><span class="label">Preview</span> Your rounds are saved in this browser only, and the leaderboards show sample players. On the live site you race real students.</p>
@@ -8,7 +8,13 @@
         <p class="label">Speed round</p>
         <h1>Ten questions. How fast can you go?</h1>
       </div>
+      <div class="subject-switch" data-subject-for="speed-subject" role="group" aria-label="Subject">
+        <button type="button" data-subject="math">Math</button>
+        <button type="button" data-subject="rw">Reading and Writing <span class="soon">Soon</span></button>
+      </div>
     </div>
+    <div id="speed-subject" class="dash-stack">
+    <div class="dash-stack" data-subject-show="math">
 
     <p class="field-error pr-error" id="sp-error" role="alert" hidden></p>
     <p class="fine" id="sp-loading">Loading today's round…</p>
@@ -89,5 +95,13 @@
       </div>
       <p class="sp-you" id="sp-you" hidden></p>
     </section>
+    </div>
+    <section class="rw-soon" data-subject-show="rw" hidden>
+      <h2>Reading and Writing speed rounds are coming soon</h2>
+      <p>Ten quick Reading and Writing questions a day, on their own leaderboard. Grammar and vocabulary questions are perfect for racing.</p>
+      <ul><li>A separate daily round and leaderboard</li><li>Mostly short Conventions and Words in Context questions</li><li>The same miss penalty, so accuracy still wins</li></ul>
+      <p class="fine">Math is ready now.</p>
+    </section>
+    </div>
   </div>
 </main>

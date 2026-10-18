@@ -56,14 +56,18 @@ def game_buy():
 def game_equip():
     user = _student()
     data = body()
-    kind, value = data.get("kind"), data.get("value")
+    kind, value, slot = data.get("kind"), data.get("value"), data.get("slot")
     if value is not None and not isinstance(value, str):
         raise ApiError(400, "Pick something to wear.", "value")
+    if slot is not None and not isinstance(slot, str):
+        raise ApiError(400, "Pick something to wear.", "slot")
     try:
-        game.equip(user["id"], kind, value)
+        game.equip(user["id"], kind, value, slot)
     except ValueError as err:
         raise ApiError(400, str(err), "value")
-    return jsonify({"profile": game.profile(_fresh_user())})
+    from ..security import public_user
+    fresh = _fresh_user()
+    return jsonify({"profile": game.profile(fresh), "user": public_user(fresh)})
 
 
 # ---------- speed rounds and leaderboards ----------
@@ -211,6 +215,67 @@ def focus_finish(sid):
         raise ApiError(404, "That focus session doesn't exist.")
     row, rep = focus.finish(user["id"], row, completed=bool(body().get("completed")))
     return jsonify({"session": focus.public(row), "reward": rep, "overview": focus.overview(current_user())})
+
+
+# ---------- pets ----------
+pet_bp = Blueprint("pet", __name__, url_prefix="/api/pet")
+
+
+def _pet_call(fn, *args):
+    from ..services import pet
+    try:
+        return fn(*args)
+    except pet.PetError as err:
+        raise ApiError(400, str(err))
+
+
+@pet_bp.get("")
+@login_required
+def pet_overview():
+    from ..services import pet
+    return jsonify(pet.overview(_student()))
+
+
+@pet_bp.post("/<int:pet_id>/hatch")
+@login_required
+def pet_hatch(pet_id):
+    from ..services import pet
+    out = _pet_call(pet.hatch, _student()["id"], pet_id)
+    out["overview"] = pet.overview(_fresh_user())
+    return jsonify(out)
+
+
+@pet_bp.post("/<int:pet_id>/active")
+@login_required
+def pet_active(pet_id):
+    from ..services import pet
+    _pet_call(pet.set_active, _student()["id"], pet_id)
+    return jsonify(pet.overview(_fresh_user()))
+
+
+@pet_bp.post("/<int:pet_id>/name")
+@login_required
+def pet_name(pet_id):
+    from ..services import pet
+    _pet_call(pet.rename, _student()["id"], pet_id, body().get("name"))
+    return jsonify(pet.overview(_fresh_user()))
+
+
+@pet_bp.post("/treat")
+@login_required
+def pet_treat():
+    from ..services import pet
+    out = _pet_call(pet.treat, _student()["id"])
+    out["overview"] = pet.overview(_fresh_user())
+    return jsonify(out)
+
+
+@pet_bp.post("/egg")
+@login_required
+def pet_egg():
+    from ..services import pet
+    rep = _pet_call(pet.buy_egg, _student()["id"])
+    return jsonify({"reward": rep, "overview": pet.overview(_fresh_user())})
 
 
 # ---------- market ----------

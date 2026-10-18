@@ -13,6 +13,7 @@ Disallow: /focus.html
 Disallow: /lessons.html
 Disallow: /rewards.html
 Disallow: /market.html
+Disallow: /tutor.html
 Disallow: /calculator.html
 
 Sitemap: https://www.graphiteprep.com/sitemap.xml

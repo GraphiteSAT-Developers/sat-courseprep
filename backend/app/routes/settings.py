@@ -34,7 +34,7 @@ EXPORT_TABLES = [("test_attempts", "user_id"), ("review_items", "user_id"), ("ac
                  ("billing_events", "student_id"), ("xp_events", "user_id"), ("badges", "user_id"), ("inventory", "user_id"),
                  ("speed_runs", "user_id"), ("focus_sessions", "user_id"), ("lesson_progress", "user_id"),
                  ("market_holdings", "user_id"), ("market_trades", "user_id"), ("user_events", "user_id"),
-                 ("question_log", "user_id")]
+                 ("question_log", "user_id"), ("pets", "user_id")]
 NEVER_EXPORTED = {"password_hash", "session_version", "token_hash", "code_hash"}
 
 
@@ -80,7 +80,9 @@ def appearance():
         fields["accent"] = data["accent"]
     if "ripple" in data:
         fields["ripple"] = 1 if data["ripple"] else 0
-    look = {k: data[k] for k in ("text", "font", "motion", "density", "custom_accent") if k in data}
+    look = {k: data[k] for k in ("text", "font", "motion", "density", "custom_accent", "effect", "corners") if k in data}
+    if "effect" in look:
+        fields["ripple"] = 0 if look["effect"] == "none" else 1  # the old on/off switch follows the background
     if not fields and not look:
         raise ApiError(400, "Nothing to update.")
     if look:

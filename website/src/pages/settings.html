@@ -49,6 +49,7 @@
 
           <div class="st-av-wrap" id="avatar" data-student-only hidden>
             <div class="av-parts" id="st-av-parts"></div>
+            <p class="fine">Hats, glasses, outfits and backdrops are in your <a href="rewards.html">locker</a>, where you can try them on first.</p>
             <div class="status" id="st-av-status" role="status" aria-live="polite" tabindex="-1"></div>
             <div class="pd-row"><button class="btn btn-primary" type="button" id="st-av-save">Save avatar</button><button class="btn btn-quiet" type="button" id="st-av-random">Surprise me</button></div>
           </div>
@@ -163,7 +164,7 @@
               <input type="color" id="st-custom-color" value="#f2c14e">
               <span class="fine" id="st-custom-note" aria-live="polite"></span>
             </div>
-            <p class="fine" data-student-only id="st-shop-note">Earn coins in Level up, speed rounds, focus sessions and lessons, then unlock these in the <a href="rewards.html#shop">shop</a>.</p>
+            <p class="fine" data-student-only id="st-shop-note">Earn coins in Level up, speed rounds, focus sessions and lessons, then unlock these in the <a href="rewards.html#shop">locker</a>.</p>
           </fieldset>
           <fieldset class="st-fieldset">
             <legend>Text size</legend>
@@ -181,6 +182,8 @@
               <div class="seg" role="radiogroup" aria-label="Font">
                 <span><input type="radio" name="look-font" id="st-font-default" value="default"><label for="st-font-default">Standard</label></span>
                 <span><input type="radio" name="look-font" id="st-font-readable" value="readable"><label for="st-font-readable" class="st-font-readable">Easy-read</label></span>
+                <span><input type="radio" name="look-font" id="st-font-rounded" value="rounded"><label for="st-font-rounded" class="st-font-rounded">Rounded</label></span>
+                <span><input type="radio" name="look-font" id="st-font-mono" value="mono"><label for="st-font-mono" class="st-font-mono">Typewriter</label></span>
               </div>
               <p class="fine">Easy-read uses Atkinson Hyperlegible, made so letters like I, l and 1 never look alike.</p>
             </fieldset>
@@ -201,12 +204,58 @@
               </div>
               <p class="fine">Compact fits more on the screen.</p>
             </fieldset>
+            <fieldset class="st-fieldset">
+              <legend>Corners</legend>
+              <div class="seg" role="radiogroup" aria-label="Corners">
+                <span><input type="radio" name="look-corners" id="st-corners-round" value="round"><label for="st-corners-round">Round</label></span>
+                <span><input type="radio" name="look-corners" id="st-corners-soft" value="soft"><label for="st-corners-soft">Soft</label></span>
+                <span><input type="radio" name="look-corners" id="st-corners-sharp" value="sharp"><label for="st-corners-sharp">Sharp</label></span>
+              </div>
+              <p class="fine">How rounded panels and buttons look.</p>
+            </fieldset>
           </div>
-          <label class="st-switch" for="st-ripple">
-            <input type="checkbox" id="st-ripple" role="switch">
-            <span class="st-switch-track" aria-hidden="true"></span>
-            <span><strong>Ripple background</strong><span class="fine">Dots behind the main pages ripple where you click. Never on Settings, sign-in or tests.</span></span>
-          </label>
+          <fieldset class="st-fieldset">
+            <legend>Background</legend>
+            <div class="st-fxs" role="radiogroup" aria-label="Background">
+              <label class="st-fx" for="st-fx-none">
+                <input type="radio" name="look-effect" id="st-fx-none" value="none">
+                <span class="st-fx-name">None</span><small class="fine">Free</small>
+              </label>
+              <label class="st-fx" for="st-fx-ripple">
+                <input type="radio" name="look-effect" id="st-fx-ripple" value="ripple">
+                <span class="st-fx-name">Ripples</span><small class="fine">Free</small>
+              </label>
+              <label class="st-fx" for="st-fx-dots">
+                <input type="radio" name="look-effect" id="st-fx-dots" value="dots">
+                <span class="st-fx-name">Still dots</span><small class="fine">Free</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-snow" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-snow" value="snow" disabled data-shop="effect:snow">
+                <span class="st-fx-name">Snowfall</span><small class="st-lock">200 coins</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-constellation" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-constellation" value="constellation" disabled data-shop="effect:constellation">
+                <span class="st-fx-name">Constellation</span><small class="st-lock">260 coins</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-symbols" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-symbols" value="symbols" disabled data-shop="effect:symbols">
+                <span class="st-fx-name">Floating symbols</span><small class="st-lock">320 coins</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-waves" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-waves" value="waves" disabled data-shop="effect:waves">
+                <span class="st-fx-name">Sine waves</span><small class="st-lock">450 coins</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-fireflies" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-fireflies" value="fireflies" disabled data-shop="effect:fireflies">
+                <span class="st-fx-name">Fireflies</span><small class="st-lock">520 coins</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-warp" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-warp" value="warp" disabled data-shop="effect:warp">
+                <span class="st-fx-name">Star warp</span><small class="st-lock">900 coins</small>
+              </label>
+            </div>
+            <p class="fine">Plays behind the main pages, never on Settings, sign-in or tests. Motion set to Less keeps it still. More in your <a href="rewards.html">locker</a>.</p>
+          </fieldset>
           <div class="status" id="st-look-status" role="status" aria-live="polite" tabindex="-1"></div>
         </section>
 

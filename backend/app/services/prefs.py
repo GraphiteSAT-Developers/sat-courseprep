@@ -11,13 +11,16 @@ import json
 import re
 from copy import deepcopy
 
+from . import cosmetics
+
 # ---------- look and reading ----------
 SHOP_THEME_KEYS = ("chalkboard", "nightowl", "sunrise", "sakura", "graph", "deepsea", "espresso", "plum")
 THEMES = ("dark", "light", "system", "paper", "midnight", "contrast") + SHOP_THEME_KEYS
 SHOP_THEMES = {t: f"theme:{t}" for t in SHOP_THEME_KEYS}
 BASE_ACCENTS = ("pencil", "sky", "mint", "coral", "lilac")
 TEXT_SIZES = ("s", "m", "l", "xl")
-FONTS = ("default", "readable")
+FONTS = ("default", "readable", "rounded", "mono")
+CORNERS = ("round", "soft", "sharp")
 MOTION = ("system", "reduce", "full")
 DENSITY = ("comfortable", "compact")
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
@@ -44,17 +47,23 @@ AVATAR = {
     "acc": ("none", "glasses", "beanie", "headphones", "sunglasses", "pencil", "gradcap", "crown"),
     "shirt": ("pencil", "sky", "mint", "coral", "lilac", "slate", "white", "black"),
 }
-SHOP_AVATAR = {"headphones": "avatar:headphones", "sunglasses": "avatar:sunglasses", "pencil": "avatar:pencil",
-               "gradcap": "avatar:gradcap", "crown": "avatar:crown"}
+# Item slots from the cosmetics catalog. "acc" is the old single accessory slot, kept so saved avatars still load.
+for _slot, _items in cosmetics.AVATAR.items():
+    AVATAR[_slot] = ("none",) * (_slot in ("hat", "face")) + tuple(v for v, *_ in _items)
+# value -> shop key, for each slot (free items aren't in the shop)
+SHOP_AVATAR = {v: f"avatar:{v}" for _items in cosmetics.AVATAR.values() for v, _n, price, *_ in _items if price}
+EFFECTS = tuple(v for v, *_ in cosmetics.EFFECTS)
 AVATAR_MODES = ("photo", "drawn")
 
 DEFAULTS = {
-    "look": {"text": "m", "font": "default", "motion": "system", "density": "comfortable", "custom_accent": "#f2c14e"},
+    "look": {"text": "m", "font": "default", "motion": "system", "density": "comfortable", "custom_accent": "#f2c14e",
+             "effect": "ripple", "corners": "round"},
     "dashboard": {"order": list(SECTIONS), "hidden": [], "pins": []},
     "study": {"set_size": 10, "timer": "show", "calculator": "closed", "colors": "graphite", "sounds": True,
               "reminder": False, "reminder_hour": 16, "tz": "America/New_York"},
     "avatar": {"mode": "photo", "parts": {"bg": "sky", "skin": "s3", "hair": "short", "hair_color": "brown",
-                                          "eyes": "dots", "mouth": "smile", "acc": "none", "shirt": "pencil"}},
+                                          "eyes": "dots", "mouth": "smile", "acc": "none", "shirt": "pencil",
+                                          "hat": "none", "face": "none", "outfit": "tee", "backdrop": "solid"}},
 }
 
 
@@ -78,7 +87,17 @@ def load(user):
             for k in values:
                 if k in saved:
                     values[k] = saved[k]
-    out["avatar"]["parts"] = dict(DEFAULTS["avatar"]["parts"], **(raw.get("avatar", {}).get("parts") or {}))
+    saved = (raw.get("avatar") or {}).get("parts") or {}
+    parts = dict(DEFAULTS["avatar"]["parts"], **saved)
+    # Avatars saved before slots existed had one accessory; move it to its slot.
+    if parts.get("acc", "none") != "none" and "hat" not in saved and "face" not in saved:
+        slot = cosmetics.slot_of(parts["acc"])
+        if slot in ("hat", "face"):
+            parts[slot] = parts["acc"]
+        parts["acc"] = "none"
+    out["avatar"]["parts"] = parts
+    if "effect" not in ((raw.get("look") or {})) and "ripple" in user.keys() and user["ripple"] is not None and not user["ripple"]:
+        out["look"]["effect"] = "none"  # the old on/off ripple switch
     return out
 
 
@@ -95,9 +114,14 @@ def clean(section, data, current, owned):
     out = deepcopy(current[section])
     if section == "look":
         for k, allowed, msg in (("text", TEXT_SIZES, "Pick a text size."), ("font", FONTS, "Pick a font."),
-                                ("motion", MOTION, "Pick a motion setting."), ("density", DENSITY, "Pick a spacing.")):
+                                ("motion", MOTION, "Pick a motion setting."), ("density", DENSITY, "Pick a spacing."),
+                                ("corners", CORNERS, "Pick a corner style.")):
             if k in data:
                 out[k] = _one_of(data[k], allowed, k, msg)
+        if "effect" in data:
+            out["effect"] = _one_of(data["effect"], EFFECTS, "effect", "Pick a background.")
+            if out["effect"] not in cosmetics.FREE_EFFECTS and f"effect:{out['effect']}" not in owned:
+                raise PrefsError("Buy that background in the shop first.", "effect")
         if "custom_accent" in data:
             if not isinstance(data["custom_accent"], str) or not HEX.match(data["custom_accent"]):
                 raise PrefsError("Pick a color.", "custom_accent")
@@ -153,9 +177,10 @@ def clean(section, data, current, owned):
                 if k not in AVATAR:
                     raise PrefsError("That isn't an avatar part.", "parts")
                 merged[k] = _one_of(v, AVATAR[k], "parts", "Pick one of the options.")
-            item = SHOP_AVATAR.get(merged["acc"])
-            if item and item not in owned:
-                raise PrefsError("Buy that in the shop first.", "parts")
+            for slot in ("acc", "hat", "face", "outfit", "backdrop"):
+                item = SHOP_AVATAR.get(merged[slot])
+                if item and item not in owned:
+                    raise PrefsError("Buy that in the shop first.", "parts")
             out["parts"] = merged
     else:
         raise PrefsError("That isn't a settings section.")
@@ -187,4 +212,4 @@ def options():
     return {"themes": list(THEMES), "shop_themes": SHOP_THEMES, "text_sizes": list(TEXT_SIZES), "fonts": list(FONTS),
             "motion": list(MOTION), "density": list(DENSITY), "sections": list(SECTIONS), "pins": list(PINS),
             "max_pins": MAX_PINS, "set_sizes": list(SET_SIZES), "avatar": {k: list(v) for k, v in AVATAR.items()},
-            "shop_avatar": SHOP_AVATAR, "defaults": DEFAULTS}
+            "shop_avatar": SHOP_AVATAR, "effects": list(EFFECTS), "corners": list(CORNERS), "defaults": DEFAULTS}

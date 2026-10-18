@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" class="live">
+<head>
+<meta charset="utf-8">
+<meta name="graphite-mode" content="live">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="/js/theme.js?v=cee64bfb20"></script>
+<title>Tutor | Graphite SAT Tutoring</title>
+<meta name="description" content="Ask the Graphite tutor about any question, lesson or Desmos move. Hints come one step at a time.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1c1e21">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Graphite">
+<meta property="og:title" content="Tutor | Graphite SAT Tutoring">
+<meta property="og:description" content="Ask the Graphite tutor about any question, lesson or Desmos move. Hints come one step at a time.">
+<meta property="og:url" content="https://www.graphiteprep.com/tutor.html">
+<meta property="og:image" content="https://www.graphiteprep.com/og-image.png">
+<meta property="og:image:alt" content="Graphite: AI SAT tutoring. A yellow answer bubble on a graphite gray background.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="/css/site.css?v=4b9173e025">
+<script src="/js/site.js?v=55732c65e7" defer></script><script src="/js/qtools.js?v=01407ffb91" defer></script><script src="/js/tutor.js?v=5bb8ec7d44" defer></script><script src="/js/effects.js?v=e171d8f500" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="logo" href="/" aria-label="Graphite home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7" fill="#2d3136"/><ellipse cx="16" cy="16" rx="10" ry="7" fill="#f2c14e"/></svg>
+      <span>Graphite</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="menu-bars" aria-hidden="true"><span></span></span><span class="menu-label">Menu</span>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="Dashboard">
+      <ul>
+        <li><a href="/dashboard.html#today">Today</a></li>
+        <li><a href="/practice.html">Practice</a></li>
+        <li><a href="/levels.html">Level up</a></li>
+        <li><a href="/lessons.html">Lessons</a></li>
+        <li><a href="/speed.html">Speed round</a></li>
+        <li><a href="/focus.html">Focus</a></li>
+        <li><a href="/rewards.html">Rewards</a></li>
+        <li><a href="/market.html">Market</a></li>
+        <li><a href="/tutor.html">Tutor</a></li>
+      </ul>
+      <div class="nav-actions">
+        <span class="account-email" id="account-email"></span>
+        <button class="btn btn-secondary" type="button" data-sign-out data-track="sign_out">Sign out</button>
+      </div>
+    </nav>
+  </div>
+</header>
+<div class="crumbs-bar"><nav class="wrap crumbs" aria-label="You are here"><ol id="crumbs"><li><a href="/dashboard.html" data-crumb-home>Dashboard</a></li><li><span aria-current="page" id="crumb-here">Tutor</span></li></ol></nav></div>
+<main id="main" class="practice tutor-page">
+  <div class="wrap dash-stack">
+    <div class="dash-top">
+      <div>
+        <p class="label">Tutor</p>
+        <h1>Ask about anything you're working on</h1>
+      </div>
+      <div class="subject-switch" data-subject-for="tu-body" role="group" aria-label="Subject">
+        <button type="button" data-subject="math">Math</button>
+        <button type="button" data-subject="rw">Reading and Writing <span class="soon">Soon</span></button>
+      </div>
+    </div>
+    <p class="lede pr-lede">Paste a question, pick one you missed, or ask about a lesson or a Desmos move. The tutor gives a nudge first and saves the full solution for when you need it.</p>
+
+    <div id="tu-body">
+      <div class="tu-cols" data-subject-show="math">
+        <section class="panel tu-chat-panel" aria-labelledby="tu-chat-title">
+          <div class="panel-head"><h2 id="tu-chat-title">Conversation</h2><span class="chip chip-quiet">Coming soon</span></div>
+          <div class="tu-about" id="tu-about" hidden></div>
+          <div class="tu-chat" aria-live="polite">
+            <div class="qt-msg"><p>Hi! Tell me what you're stuck on. If you've tried it already, say what you got, and I'll start from there.</p></div>
+          </div>
+          <div class="tu-starts" role="group" aria-label="Ways to start">
+            <button type="button" class="qt-ask" disabled>Explain a topic</button>
+            <button type="button" class="qt-ask" disabled>Check my work</button>
+            <button type="button" class="qt-ask" disabled>Quiz me on what I missed</button>
+            <button type="button" class="qt-ask" disabled>Show me the Desmos way</button>
+            <button type="button" class="qt-ask" disabled>Plan my week</button>
+          </div>
+          <div class="qt-input tu-input" role="note"><span>The message box goes here.</span><span class="fine">Coming soon</span></div>
+          <p class="fine qt-note">The tutor is an automated helper. It can make mistakes, so check its work. Your answers are always graded separately.</p>
+        </section>
+
+        <div class="tu-side dash-stack">
+          <section class="panel" aria-labelledby="tu-miss-title">
+            <div class="panel-head"><h2 id="tu-miss-title">Questions you missed</h2></div>
+            <p class="panel-lede">Pick one to talk it through.</p>
+            <ul class="tu-misses" id="tu-misses"><li class="fine">Loading…</li></ul>
+          </section>
+          <section class="panel" aria-labelledby="tu-how-title">
+            <div class="panel-head"><h2 id="tu-how-title">How hints work</h2></div>
+            <ol class="tu-ladder">
+              <li><strong>Nudge.</strong> <span>A question back to you, so you find the next step yourself.</span></li>
+              <li><strong>Strategy.</strong> <span>Which method fits, by hand or in Desmos.</span></li>
+              <li><strong>One step.</strong> <span>The next line of the solution, worked out.</span></li>
+              <li><strong>Full solution.</strong> <span>Only after you've tried. Then a similar question to make sure it stuck.</span></li>
+            </ol>
+          </section>
+          <section class="panel" aria-labelledby="tu-where-title">
+            <div class="panel-head"><h2 id="tu-where-title">Also on every question</h2></div>
+            <p class="panel-lede">Practice sets, Level up, lessons and speed-round reviews all have a Tutor tab next to the calculator. On timed tests it opens after you submit.</p>
+          </section>
+        </div>
+      </div>
+
+      <section class="rw-soon" data-subject-show="rw" hidden>
+        <h2>Reading and Writing is coming soon</h2>
+        <p>The tutor will help with passages the same way: point you to the line that answers the question, explain the grammar rule behind a choice, and quiz you on the words you keep missing.</p>
+        <p class="fine">Math is ready now.</p>
+      </section>
+    </div>
+  </div>
+</main>
+<footer class="app-footer">
+  <div class="wrap app-footer-row">
+    <p>&copy; <span data-year>2026</span> Graphite Learning, Inc.</p>
+    <ul>
+      <li><a href="/#contact">Help</a></li>
+      <li><a href="/privacy.html">Privacy</a></li>
+      <li><a href="/terms.html">Terms</a></li>
+      <li><button class="linkish" type="button" data-cookie-settings>Cookie settings</button></li>
+    </ul>
+  </div>
+</footer>
+<section class="cookie-banner" id="cookie-banner" aria-labelledby="cookie-title" hidden>
+  <div class="cookie-inner">
+    <div>
+      <h2 id="cookie-title">Cookies on Graphite</h2>
+      <p>Essential cookies keep you signed in and protect forms. With your OK, analytics cookies show us which pages help students. Read the <a href="/cookies.html">cookie policy</a>.</p>
+    </div>
+    <div class="cookie-actions">
+      <button class="btn btn-quiet" type="button" id="cookie-choose" aria-expanded="false" aria-controls="cookie-prefs">Choose</button>
+      <button class="btn btn-secondary" type="button" id="cookie-reject">Essential only</button>
+      <button class="btn btn-primary" type="button" id="cookie-accept">Accept analytics</button>
+    </div>
+    <div class="cookie-prefs" id="cookie-prefs" hidden>
+      <label class="check"><input type="checkbox" checked disabled id="consent-essential"><span>Essential<small>Sign in, security and saving this choice. Always on.</small></span></label>
+      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Page views and button clicks, with IP addresses anonymized.</small></span></label>
+      <div><button class="btn btn-primary" type="button" id="cookie-save">Save choices</button></div>
+    </div>
+  </div>
+</section>
+<p class="visually-hidden" id="cookie-live" role="status" aria-live="polite"></p>
+
+</body>
+</html>

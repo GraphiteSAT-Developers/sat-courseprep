@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="graphite-mode" content="live">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="/js/theme.js?v=2ea93767f5"></script>
+<script src="/js/theme.js?v=cee64bfb20"></script>
 <title>Study Plan | Graphite SAT Tutoring</title>
 <meta name="description" content="A 10-question SAT diagnostic that finds your strengths and weak spots, then builds a week-by-week study plan with quizzes that get harder as your test date gets closer.">
 <meta name="robots" content="noindex, nofollow">
@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=aac598c6e1">
-<script src="/js/site.js?v=faf29973a4" defer></script><script src="/js/plan.js?v=bda6b4f80d" defer></script><script src="/js/ripple.js?v=22e4833e0a" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=4b9173e025">
+<script src="/js/site.js?v=55732c65e7" defer></script><script src="/js/qtools.js?v=01407ffb91" defer></script><script src="/js/plan.js?v=c9b463ed41" defer></script><script src="/js/effects.js?v=e171d8f500" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -48,6 +48,7 @@
         <li><a href="/focus.html">Focus</a></li>
         <li><a href="/rewards.html">Rewards</a></li>
         <li><a href="/market.html">Market</a></li>
+        <li><a href="/tutor.html">Tutor</a></li>
       </ul>
       <div class="nav-actions">
         <span class="account-email" id="account-email"></span>
@@ -102,21 +103,10 @@
 
     <!-- 2. The diagnostic, one question at a time -->
     <div class="pl-quiz-wrap" id="pl-quiz-wrap">
-    <aside class="panel pl-calc-panel calc-float" id="pl-calc-panel" role="dialog" aria-label="Graphing calculator" hidden>
-      <div class="calc-head" id="pl-calc-head" tabindex="0" title="Drag to move. Double-click to expand.">
-        <span class="calc-name"><svg class="calc-grab" viewBox="0 0 12 18" aria-hidden="true"><circle cx="3" cy="3" r="1.6"/><circle cx="9" cy="3" r="1.6"/><circle cx="3" cy="9" r="1.6"/><circle cx="9" cy="9" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="9" cy="15" r="1.6"/></svg>Graphing calculator</span>
-        <span class="calc-actions">
-          <button class="exam-pill" type="button" id="pl-calc-expand" aria-pressed="false">Expand</button>
-          <button class="exam-pill" type="button" id="pl-calc-close" aria-label="Close calculator">Close</button>
-        </span>
-      </div>
-      <div class="calc-frame" id="pl-calc-frame"><p class="calc-loading">Loading calculator…</p></div>
-      <div class="calc-grip" id="pl-calc-grip" tabindex="0" role="button" aria-label="Resize calculator. Use the arrow keys."></div>
-    </aside>
     <section class="panel pl-quiz" id="pl-quiz" aria-labelledby="pl-q-meta" hidden>
       <div class="pl-quiz-top">
         <p class="label" id="pl-q-meta">Question 1 of 10 · Math</p>
-        <button class="btn btn-quiet pl-calc" type="button" id="pl-calc" aria-controls="pl-calc-panel" aria-expanded="false">
+        <button class="btn btn-quiet pl-calc" type="button" id="pl-calc" aria-controls="qt" aria-pressed="false" data-qt-toggle="calc">
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="8" y="6" width="8" height="3.5" rx=".6" fill="currentColor"/><circle cx="9" cy="13.5" r="1.1" fill="currentColor"/><circle cx="12" cy="13.5" r="1.1" fill="currentColor"/><circle cx="15" cy="13.5" r="1.1" fill="currentColor"/><circle cx="9" cy="17.3" r="1.1" fill="currentColor"/><circle cx="12" cy="17.3" r="1.1" fill="currentColor"/><circle cx="15" cy="17.3" r="1.1" fill="currentColor"/></svg>
           <span>Graphing calculator</span>
         </button>

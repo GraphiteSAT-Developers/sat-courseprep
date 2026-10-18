@@ -28,7 +28,7 @@
   if (!LIVE) $("pr-preview-note").hidden = false;
 
   // Section tabs: Math, or Reading and Writing (placeholder until its questions exist).
-  var SECTION_KEY = "graphite_practice_section";
+  var SECTION_KEY = "graphite_subject";  // shared with the Math | Reading and Writing switch on other pages
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".pr-section"));
   function pickSection(name, focus) {
     tabs.forEach(function (t) {

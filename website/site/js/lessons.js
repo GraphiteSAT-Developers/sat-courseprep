@@ -13,6 +13,9 @@
   function showError(m) { $("ls-error").textContent = m || ""; $("ls-error").hidden = !m; }
   function failed(err, fallback) { if (err && err.status === 401) { signIn(); return; } showError(err && err.status ? err.message : fallback); }
   if (!LIVE) $("ls-preview-note").hidden = false;
+  // Calculator and tutor (qtools.js), on math and Desmos lessons.
+  var tools = window.GraphiteTools && window.GraphiteTools.mount({});
+  if (tools) tools.available(false);
   if (!call) { $("ls-loading").textContent = "Lessons aren't available in this preview."; return; }
 
   function day(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); }
@@ -75,6 +78,7 @@
       $("ls-title").textContent = lesson.title;
       document.title = lesson.title + " | Graphite SAT Tutoring";
       if (window.GraphiteCrumb) window.GraphiteCrumb(lesson.title, "lessons.html");
+      if (tools) { tools.available(lesson.domain !== "memory"); tools.context({ title: lesson.title, detail: lesson.skill_name }); }
       $("ls-player").hidden = false;
       $("ls-progress").setAttribute("aria-valuemax", String(steps.length));
       renderStep();
@@ -109,6 +113,13 @@
     f.className = "ls-fb " + (right ? "ok" : "no"); f.tabIndex = -1;
     f.innerHTML = "<strong>" + (right ? ["Right.", "Yes.", "Exactly.", "Got it."][at % 4] : "Not quite.") + "</strong> " + (extra || "") + (why ? "<span>" + esc(why) + "</span>" : "");
     $("ls-step").appendChild(f);
+    if (tools && lesson.domain !== "memory") {
+      var ask = document.createElement("button"); ask.type = "button"; ask.className = "btn btn-quiet ask-tutor";
+      ask.textContent = right ? "Ask the tutor to go deeper" : "Ask the tutor why";
+      var step = at + 1;
+      ask.addEventListener("click", function () { tools.context({ title: lesson.title, detail: "Step " + step + " of " + steps.length }); tools.open("tutor"); });
+      f.appendChild(ask);
+    }
     if (right) score++;
     answers[at] = pending;  // the first try, sent to the server, which does the grading
     answered = true;

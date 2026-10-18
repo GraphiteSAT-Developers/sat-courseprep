@@ -1,0 +1,64 @@
+<!--{"file": "tutor.html", "path": "/tutor.html", "title": "Tutor | Graphite SAT Tutoring", "description": "Ask the Graphite tutor about any question, lesson or Desmos move. Hints come one step at a time.", "robots": "noindex, nofollow", "app": true, "calculator": true, "scripts": ["qtools.js", "tutor.js", "effects.js"]}-->
+<main id="main" class="practice tutor-page">
+  <div class="wrap dash-stack">
+    <div class="dash-top">
+      <div>
+        <p class="label">Tutor</p>
+        <h1>Ask about anything you're working on</h1>
+      </div>
+      <div class="subject-switch" data-subject-for="tu-body" role="group" aria-label="Subject">
+        <button type="button" data-subject="math">Math</button>
+        <button type="button" data-subject="rw">Reading and Writing <span class="soon">Soon</span></button>
+      </div>
+    </div>
+    <p class="lede pr-lede">Paste a question, pick one you missed, or ask about a lesson or a Desmos move. The tutor gives a nudge first and saves the full solution for when you need it.</p>
+
+    <div id="tu-body">
+      <div class="tu-cols" data-subject-show="math">
+        <section class="panel tu-chat-panel" aria-labelledby="tu-chat-title">
+          <div class="panel-head"><h2 id="tu-chat-title">Conversation</h2><span class="chip chip-quiet">Coming soon</span></div>
+          <div class="tu-about" id="tu-about" hidden></div>
+          <div class="tu-chat" aria-live="polite">
+            <div class="qt-msg"><p>Hi! Tell me what you're stuck on. If you've tried it already, say what you got, and I'll start from there.</p></div>
+          </div>
+          <div class="tu-starts" role="group" aria-label="Ways to start">
+            <button type="button" class="qt-ask" disabled>Explain a topic</button>
+            <button type="button" class="qt-ask" disabled>Check my work</button>
+            <button type="button" class="qt-ask" disabled>Quiz me on what I missed</button>
+            <button type="button" class="qt-ask" disabled>Show me the Desmos way</button>
+            <button type="button" class="qt-ask" disabled>Plan my week</button>
+          </div>
+          <div class="qt-input tu-input" role="note"><span>The message box goes here.</span><span class="fine">Coming soon</span></div>
+          <p class="fine qt-note">The tutor is an automated helper. It can make mistakes, so check its work. Your answers are always graded separately.</p>
+        </section>
+
+        <div class="tu-side dash-stack">
+          <section class="panel" aria-labelledby="tu-miss-title">
+            <div class="panel-head"><h2 id="tu-miss-title">Questions you missed</h2></div>
+            <p class="panel-lede">Pick one to talk it through.</p>
+            <ul class="tu-misses" id="tu-misses"><li class="fine">Loading…</li></ul>
+          </section>
+          <section class="panel" aria-labelledby="tu-how-title">
+            <div class="panel-head"><h2 id="tu-how-title">How hints work</h2></div>
+            <ol class="tu-ladder">
+              <li><strong>Nudge.</strong> <span>A question back to you, so you find the next step yourself.</span></li>
+              <li><strong>Strategy.</strong> <span>Which method fits, by hand or in Desmos.</span></li>
+              <li><strong>One step.</strong> <span>The next line of the solution, worked out.</span></li>
+              <li><strong>Full solution.</strong> <span>Only after you've tried. Then a similar question to make sure it stuck.</span></li>
+            </ol>
+          </section>
+          <section class="panel" aria-labelledby="tu-where-title">
+            <div class="panel-head"><h2 id="tu-where-title">Also on every question</h2></div>
+            <p class="panel-lede">Practice sets, Level up, lessons and speed-round reviews all have a Tutor tab next to the calculator. On timed tests it opens after you submit.</p>
+          </section>
+        </div>
+      </div>
+
+      <section class="rw-soon" data-subject-show="rw" hidden>
+        <h2>Reading and Writing is coming soon</h2>
+        <p>The tutor will help with passages the same way: point you to the line that answers the question, explain the grammar rule behind a choice, and quiz you on the words you keep missing.</p>
+        <p class="fine">Math is ready now.</p>
+      </section>
+    </div>
+  </div>
+</main>

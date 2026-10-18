@@ -252,7 +252,7 @@ def bank_js():
                            "labels": [{"key": k, "name": v} for k, v in focus.LABELS.items()],
                            "counted_elsewhere": sorted(focus.COUNTED_ELSEWHERE), "finish_share": focus.FINISH_SHARE,
                            "min_credit": focus.MIN_CREDIT},
-                 "market": service("market").rules()},
+                 "market": service("market").rules(), "pet": service("pet").rules()},
     }
     return "window.GRAPHITE_BANK = " + json.dumps(data, separators=(",", ":")).replace("</", "<\\/") + ";"
 
@@ -272,7 +272,7 @@ DASH = ("Dashboard", "dashboard.html")
 HOME = ("Home", "./")
 CRUMBS = {
     "dashboard.html": [], "plan.html": [DASH], "practice.html": [DASH], "levels.html": [DASH], "lessons.html": [DASH],
-    "speed.html": [DASH], "focus.html": [DASH], "rewards.html": [DASH], "market.html": [DASH], "settings.html": [DASH],
+    "speed.html": [DASH], "focus.html": [DASH], "rewards.html": [DASH], "market.html": [DASH], "tutor.html": [DASH], "settings.html": [DASH],
     "parent.html": [], "privacy.html": [HOME], "terms.html": [HOME], "cookies.html": [HOME], "checkout.html": [HOME],
     "signin.html": [HOME], "404.html": [HOME],
 }
@@ -437,8 +437,8 @@ def build():
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
-    for n in ("ripple.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
-              "lessons.js", "dash-play.js", "dash-layout.js", "market.js"):
+    for n in ("effects.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
+              "lessons.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     make_images(DIST)
@@ -452,7 +452,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /market.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /market.html\nDisallow: /tutor.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",
