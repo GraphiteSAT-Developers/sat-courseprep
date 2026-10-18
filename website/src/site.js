@@ -1203,3 +1203,39 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
+
+/* Question-bank math: the server sends <span class="tex" data-tex="LaTeX">simple HTML</span>.
+   Where the page loads KaTeX, each one is typeset as it appears, so every question, choice and
+   explanation uses the same LaTeX type as the lessons. Without KaTeX the simple HTML stays. */
+(function () {
+  "use strict";
+  function typeset(root) {
+    if (!window.katex || !root || !root.querySelectorAll) return;
+    var list = [].slice.call(root.querySelectorAll("[data-tex]"));
+    if (root.hasAttribute && root.hasAttribute("data-tex")) list.unshift(root);
+    list.forEach(function (el) {
+      var tex = el.getAttribute("data-tex");
+      el.removeAttribute("data-tex");
+      try {
+        // Fractions at full size, as on the test, rather than shrunk into the line.
+        window.katex.render((/\\frac/.test(tex) ? "\\displaystyle " : "") + tex, el, { throwOnError: false, strict: "ignore" });
+        el.classList.add("is-typeset");
+      } catch (e) { /* keep the simple HTML */ }
+    });
+  }
+  var started = false;
+  function start() {
+    if (started || !window.katex) return;
+    started = true;
+    typeset(document.body);
+    new MutationObserver(function (records) {
+      records.forEach(function (r) {
+        for (var i = 0; i < r.addedNodes.length; i++) if (r.addedNodes[i].nodeType === 1) typeset(r.addedNodes[i]);
+      });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+  window.GraphiteTypeset = typeset;
+  // KaTeX is a deferred script after this one, so wait for the document to finish parsing.
+  if (document.readyState === "complete") start();
+  else { document.addEventListener("DOMContentLoaded", start); window.addEventListener("load", start); }
+})();

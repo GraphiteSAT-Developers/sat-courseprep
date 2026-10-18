@@ -37,7 +37,8 @@ ROUTE_ADVICE = {
 SYMBOLS = {
     "le": "≤", "leq": "≤", "ge": "≥", "geq": "≥", "ne": "≠", "neq": "≠", "pi": "π", "circ": "°",
     "ell": "ℓ", "cdot": "·", "theta": "θ", "pm": "±", "times": "×", "div": "÷", "angle": "∠",
-    "alpha": "α", "beta": "β", "infty": "∞", "approx": "≈", "sim": "~", "degree": "°",
+    "alpha": "α", "beta": "β", "infty": "∞", "approx": "≈", "sim": "~", "degree": "°", "Sigma": "Σ", "ldots": "…",
+    "triangle": "△", "to": "→", "quad": "\u2003",
     "%": "%", "$": "$", ",": "\u2009", " ": " ", ";": " ", "!": "", "{": "{", "}": "}", "|": "‖",
 }
 FUNCTIONS = {"sin", "cos", "tan", "arcsin", "arccos", "arctan", "log", "ln", "sec", "csc", "cot", "min", "max"}
@@ -130,6 +131,8 @@ class _Math:
                 index = f"<sup class=\"root-index\">{html.escape(self.s[self.i + 1:end])}</sup>"
                 self.i = end + 1
             return f'<span class="sqrt">{index}√<span class="sqrt-arg">{self.group()}</span></span>'
+        if name == "bar":
+            return f'<span class="bar">{self.group()}</span>'
         if name in ("left", "right"):
             if self.peek() == "\\":
                 sym = self.command()
@@ -180,15 +183,25 @@ def math_html(src):
     return _Math(src).run()
 
 
+def tex_html(src):
+    """LaTeX math as HTML. The page typesets data-tex with KaTeX where it loads it; the
+    simple HTML inside is what shows before that, and wherever KaTeX isn't loaded."""
+    return f'<span class="tex" data-tex="{html.escape(src.strip(), quote=True)}">{math_html(src)}</span>'
+
+
 def rich_html(text):
-    """Text that mixes words with $...$ math, as HTML. Bare LaTeX and x^2 outside $...$ also render."""
+    """Text that mixes words with $...$ math and `Desmos keystrokes`, as HTML."""
     parts = re.split(r"(?<!\\)\$", text or "")
     out = []
     for k, part in enumerate(parts):
         if k % 2:
-            out.append(math_html(part))
-        else:
-            out.append(_Math(part.replace("\\$", "$"), prose=True).run().replace(" - ", " − "))
+            out.append(tex_html(part))
+            continue
+        for j, bit in enumerate(re.split(r"`([^`]*)`", part)):
+            if j % 2:
+                out.append(f'<code class="keys">{html.escape(bit)}</code>')
+            else:
+                out.append(_Math(bit.replace("\\$", "$"), prose=True).run().replace(" - ", " − "))
     return "".join(out)
 
 
@@ -355,7 +368,7 @@ def explanation_html(item, techniques):
         head = f"{title}: {html.escape(name)}" if name else title
         lines = "".join(
             f'<li>Type <code class="keys">{html.escape(keystrokes(line))}</code>'
-            f'<span class="xp-pretty" aria-hidden="true">{math_html(line)}</span></li>'
+            f'<span class="xp-pretty" aria-hidden="true">{tex_html(line)}</span></li>'
             for line in desmos["lines"])
         read = f"<li>{rich_html(_clean(desmos['read']))}</li>" if desmos.get("read") else ""
         why = f'<p class="xp-why">{rich_html(techs[0]["summary"])}</p>' if techs else ""
@@ -398,7 +411,13 @@ def answer_display_html(item):
     if item["format"] == "mc":
         k = item["answerIndex"]
         return f"{LETTERS[k]}. {rich_html(item['choices'][k])}"
-    return " or ".join(html.escape(fraction_text(Fraction(a["num"], a["den"]))) for a in item["answers"])
+    return " or ".join(tex_html(fraction_tex(Fraction(a["num"], a["den"]))) for a in item["answers"])
+
+
+def fraction_tex(fr):
+    sign = "-" if fr < 0 else ""
+    fr = abs(fr)
+    return sign + (str(fr.numerator) if fr.denominator == 1 else f"\\frac{{{fr.numerator}}}{{{fr.denominator}}}")
 
 
 # ---------- loading ----------

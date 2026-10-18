@@ -4,7 +4,7 @@
     {
       "id": "T1",
       "name": "Graph both sides, read intersection or zeros",
-      "summary": "Solve any one-variable equation by graphing each side as y = ... and clicking the intersection, or by moving everything to one side and reading the x-intercepts.",
+      "summary": "Solve any one-variable equation by graphing each side as $y =$ ... and clicking the intersection, or by moving everything to one side and reading the $x$-intercepts.",
       "domains": [
         "algebra",
         "advanced-math"
@@ -29,7 +29,7 @@
       "pitfalls": [
         "An intersection can be off-screen. Zoom out before concluding there is no solution (\"many SAT traps are just 'you didn't zoom'\").",
         "Zooming too far in loses context and can hide a second crossing.",
-        "Reading an approximate value as exact. 0.667 on screen may be 2/3.",
+        "Reading an approximate value as exact. 0.667 on screen may be $\\frac{2}{3}$.",
         "Missing parentheses or a sign error when typing a side changes the equation."
       ],
       "byHand": {
@@ -53,7 +53,7 @@
     {
       "id": "T2",
       "name": "Systems by intersection",
-      "summary": "Type both equations of a system and click the intersection point to read (x, y). Overlapping graphs mean infinitely many solutions; parallel lines that never touch mean none.",
+      "summary": "Type both equations of a system and click the intersection point to read $(x, y)$. Overlapping graphs mean infinitely many solutions; parallel lines that never touch mean none.",
       "domains": [
         "algebra",
         "advanced-math"
@@ -77,7 +77,7 @@
       "pitfalls": [
         "Intersections can be off-screen. Zoom out before counting.",
         "A line tangent to a parabola looks like a crossing at normal zoom. Zoom in to confirm one point versus two.",
-        "The question often asks for a combination (x + y, 2x) rather than x or y. Read both coordinates and compute."
+        "The question often asks for a combination ($x + y$, $2x$) rather than $x$ or $y$. Read both coordinates and compute."
       ],
       "byHand": {
         "method": "Elimination (add or subtract multiples of the equations) or substitution.",
@@ -98,7 +98,7 @@
     {
       "id": "T3",
       "name": "Sliders for unknown constants in systems",
-      "summary": "For \"for what value of k does the system have no / infinitely many / exactly one solution\", type the equations with the unknown letter, accept the slider, and drag until the graphs are parallel, coincide, or are tangent. The notes mark this move as contested; the hand method (coefficient ratios) is primary.",
+      "summary": "For \"for what value of $k$ does the system have no / infinitely many / exactly one solution\", type the equations with the unknown letter, accept the slider, and drag until the graphs are parallel, coincide, or are tangent. The notes mark this move as contested; the hand method (coefficient ratios) is primary.",
       "domains": [
         "algebra",
         "advanced-math"
@@ -121,8 +121,8 @@
       ],
       "readOff": "Click \"add slider\" for k. Drag k until the two graphs coincide (infinitely many), become parallel (none), or just touch (exactly one). Read k from the slider; narrow the slider's range or step if the value is not landing exactly.",
       "pitfalls": [
-        "Slider ranges may hide the answer (default range is -10 to 10). Edit the bounds.",
-        "Dragging gives an approximate k. Confirm by substituting or by the ratio method.",
+        "Slider ranges may hide the answer (default range is $-10$ to 10). Edit the bounds.",
+        "Dragging gives an approximate $k$. Confirm by substituting or by the ratio method.",
         "Say Hello College lists parallel-line systems among the problems to avoid doing in Desmos.",
         "Two unknown constants need two sliders and are hard to tune by dragging; use the ratio method."
       ],
@@ -152,7 +152,7 @@
     {
       "id": "T4",
       "name": "Sliders, general",
-      "summary": "Any undefined letter in an expression (y = mx + b, y = a(x - h)^2 + k) prompts Desmos to offer a slider. Drag it to explore how a parameter changes the graph or to count solutions as a parameter varies.",
+      "summary": "Any undefined letter in an expression ($y = mx + b$, $y = a(x - h)^{2} + k$) prompts Desmos to offer a slider. Drag it to explore how a parameter changes the graph or to count solutions as a parameter varies.",
       "domains": [
         "algebra",
         "advanced-math"
@@ -175,7 +175,7 @@
       "readOff": "Click \"add slider\" for each letter. Drag the slider and watch the graph; count intersections or x-intercepts for solution-count questions. Edit the slider bounds and step when the default range is too narrow.",
       "pitfalls": [
         "Slider ranges may hide the answer. The default bounds are narrow; set them to cover the plausible values.",
-        "Multi-letter names are parsed as products (ab is a times b), so use single letters or subscripts (a_1).",
+        "Multi-letter names are parsed as products (ab is a times $b$), so use single letters or subscripts $(a_1)$.",
         "Sliders give an approximate boundary value; find the exact boundary by hand (discriminant) once the picture is clear."
       ],
       "byHand": {
@@ -200,7 +200,7 @@
     {
       "id": "T5",
       "name": "Table regression (line or curve of best fit)",
-      "summary": "Put the data in a table with columns x_1 and y_1, then type a model with ~ in place of =. Desmos fits the parameters and stores them as variables.",
+      "summary": "Put the data in a table with columns $x_1$ and $y_1$, then type a model with `~` in place of $=$. Desmos fits the parameters and stores them as variables.",
       "domains": [
         "algebra",
         "psda",
@@ -228,9 +228,9 @@
       "readOff": "Read the fitted parameters (m, b, or a, b) listed under the regression line. Use the linear line for a line and the exponential line for growth or decay; delete the one you do not need.",
       "pitfalls": [
         "Regression needs at least 2 points. With one point and a slope, type the formula by hand instead.",
-        "Omitting the subscript (x instead of x_1) breaks the link to the table.",
+        "Omitting the subscript ($x$ instead of $x_1$) breaks the link to the table.",
         "The College Board version turns on Log Mode automatically for applicable exponential, logarithmic and power regressions, so the fitted parameters can differ from a least-squares fit when the data are not exact.",
-        "Don't retype the rounded decimals Desmos shows. Reference m and b directly, since Desmos stores more digits."
+        "Don't retype the rounded decimals Desmos shows. Reference $m$ and $b$ directly, since Desmos stores more digits."
       ],
       "byHand": {
         "method": "Slope formula m = (y2 - y1)/(x2 - x1), then b = y - mx with one point. For exponentials, the ratio of consecutive outputs gives the base.",
@@ -262,7 +262,7 @@
     {
       "id": "T6",
       "name": "Tilde trick: find the constants in an identity",
-      "summary": "For \"for all x, (expression) = (expression with unknown a, b, c)\", replace = with ~ and x with x_1, then supply a list of test values for x_1 with at least as many values as unknowns. Desmos solves for the constants.",
+      "summary": "For \"for all $x$, (expression) = (expression with unknown $a$, $b$, $c$)\", replace $=$ with `~` and $x$ with $x_1$, then supply a list of test values for $x_1$ with at least as many values as unknowns. Desmos solves for the constants.",
       "domains": [
         "advanced-math",
         "algebra"
@@ -285,12 +285,12 @@
       ],
       "readOff": "Read a, b, c from the parameters listed under the regression line. Worked example from the notes: (5x_1-17)(4x_1-c) ~ ax_1^2+bx_1+119 with x_1=[2,3,4] gives c = 7, a = 20, b = -103, which expands to 20x^2 - 103x + 119.",
       "pitfalls": [
-        "Leaving out the x_1 list fails silently: Desmos reports nothing useful. The setup line is required.",
+        "Leaving out the $x_1$ list fails silently: Desmos reports nothing useful. The setup line is required.",
         "Use at least as many test values as there are unknown constants.",
         "Regression returns only one solution. If the identity has two valid constant sets, Desmos shows one.",
-        "The constants must actually be constant; a letter that depends on x will not fit.",
+        "The constants must actually be constant; a letter that depends on $x$ will not fit.",
         "Don't retype the rounded decimals Desmos shows. Reference the parameter names.",
-        "Every x in the question must become x_1, including inside the right-hand side."
+        "Every $x$ in the question must become $x_1$, including inside the right-hand side."
       ],
       "byHand": {
         "method": "Expand both sides and match coefficients term by term, or substitute convenient x values (x = 0, 1, -1) to get equations in the constants. For \"which expression is equivalent\", graph both as y = ... and look for exact overlap.",
@@ -342,7 +342,7 @@
       ],
       "readOff": "Read the value shown to the right of each statistic line. For a frequency table, repeat each value as many times as its frequency in the list.",
       "pitfalls": [
-        "Curly braces mean a restriction, not a list: L = {4, 7} builds no list and the statistics come back blank. Use square brackets.",
+        "Curly braces mean a restriction, not a list: `L={4,7}` builds no list and the statistics come back blank. Use square brackets.",
         "stdev is the sample standard deviation and stdevp the population one. The SAT rarely needs the number itself, but if it does, check which one the question means.",
         "Frequency tables must be expanded (each value repeated) before the statistics are right."
       ],
@@ -395,7 +395,7 @@
       "pitfalls": [
         "Overlapping colors can mislead. Confirm with a test point rather than trusting the shade.",
         "Dashed boundary (strict) versus solid (inclusive) matters for points on the line.",
-        "Typing <= or >= auto-converts to the symbol; a stray = after < can mean something else.",
+        "$\\text{Typing} \\le$ or $\\ge$ auto-converts to the symbol; a $\\text{stray} = \\text{after} < \\text{can}$ mean something else.",
         "The overlap may be far from the origin. Zoom out."
       ],
       "byHand": {
@@ -418,7 +418,7 @@
     {
       "id": "T9",
       "name": "Define and evaluate functions",
-      "summary": "Define f(x) = ... on one line, then evaluate f(3), f(g(2)) or f(x+1) on later lines. Desmos shows the numeric value beside the line.",
+      "summary": "Define $f(x) =$ ... on one line, then evaluate $f(3)$, $f(g(2))$ or $f(x+1)$ on later lines. Desmos shows the numeric value beside the line.",
       "domains": [
         "algebra",
         "advanced-math"
@@ -441,9 +441,9 @@
       ],
       "readOff": "Read the value shown to the right of the evaluation line. For a table of inputs, type f(x_1) next to a column x_1 to fill a column of outputs.",
       "pitfalls": [
-        "Variable-name collisions: a slider named a or a list named L defined earlier changes the meaning of the function.",
-        "Desmos reserves some names (e.g. e, pi); a function named with a multi-letter name is parsed as a product.",
-        "Missing parentheses around a composite input (f(x+1) vs f(x)+1)."
+        "Variable-name collisions: a slider named $a$ or a list named $L$ defined earlier changes the meaning of the function.",
+        "Desmos reserves some names (e.g. $e$, $\\pi$); a function named with a multi-letter name is parsed as a product.",
+        "Missing parentheses around a composite input ($f(x+1)$ vs $f(x)+1$)."
       ],
       "byHand": {
         "method": "Direct substitution, then arithmetic.",
@@ -489,7 +489,7 @@
         "Desmos does not reliably mark the leftmost and rightmost points; use top and bottom.",
         "Reading the center by eye from the grid is error-prone. Use the gray points or the midpoint formula.",
         "Say Hello College lists center/radius of circles among problems to avoid in Desmos.",
-        "The radius read off the graph is approximate; the answer often needs the exact value or r^2."
+        "The radius read off the graph is approximate; the answer often needs the exact value or $r^{2}$."
       ],
       "byHand": {
         "method": "Complete the square in x and in y: (x - h)^2 + (y - k)^2 = r^2. For diameter endpoints, center = midpoint, radius = half the distance.",
@@ -519,7 +519,7 @@
     {
       "id": "T11",
       "name": "Exact vs decimal answers",
-      "summary": "Use the fraction toggle beside a numeric result to convert a decimal to an exact fraction (5.125 becomes 41/8), and store exact values in variables so later lines do not accumulate rounding error. Decide before answering whether the SPR box needs an exact value.",
+      "summary": "Use the fraction toggle beside a numeric result to convert a decimal to an exact fraction (5.125 becomes $\\frac{41}{8}$), and store exact values in variables so later lines do not accumulate rounding error. Decide before answering whether the SPR box needs an exact value.",
       "domains": [
         "algebra",
         "advanced-math",
@@ -546,7 +546,7 @@
       "pitfalls": [
         "Reading an approximate value as exact.",
         "Retyping a rounded decimal into a later line and compounding the error.",
-        "Rounding an SPR decimal too coarsely: .67 for 2/3 earns no credit; .6667 or 2/3 does.",
+        "Rounding an SPR decimal too coarsely: .67 for $\\frac{2}{3}$ earns no credit; .6667 or $\\frac{2}{3}$ does.",
         "Mixed numbers are not accepted; enter an improper fraction or a decimal."
       ],
       "byHand": {
@@ -595,7 +595,7 @@
       "pitfalls": [
         "Wrong angle mode (radians vs degrees) silently gives a wrong number.",
         "Most SAT trig questions are about ratios in a right triangle or the complementary-angle identity, where the calculator adds nothing.",
-        "A decimal like 0.866 should be recognized as sqrt(3)/2 when an exact answer is needed."
+        "A decimal like 0.866 should be recognized as $\\frac{\\sqrt{3}}{2}$ when an exact answer is needed."
       ],
       "byHand": {
         "method": "Special right triangles (30-60-90, 45-45-90), SOH-CAH-TOA, the unit circle, and sin(x) = cos(90 - x).",

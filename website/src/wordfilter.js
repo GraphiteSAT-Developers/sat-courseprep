@@ -21,7 +21,7 @@
   function squeeze(t, atLeast) { return t.replace(new RegExp("(.)\\1{" + (atLeast - 1) + ",}", "g"), "$1"); }
   function tokens(text) {
     var t = String(text || "").normalize ? String(text || "").normalize("NFKD") : String(text || "");
-    t = t.replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[013457@$!|]/g, function (c) { return LEET[c]; });
+    t = t.replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[013457@$!|]/g, function (c) { return LEET[c]; });
     var parts = t.match(/[a-z*]+/g) || [], out = [], run = [];
     parts.concat([""]).forEach(function (p) {
       if (p.length === 1) { run.push(p); return; }      // f u c k, f.u.c.k
