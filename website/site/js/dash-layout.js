@@ -4,7 +4,7 @@
   "use strict";
   var T = window.GraphiteTheme, hello = document.querySelector(".dash .hello");
   if (!T || !hello) return;
-  var FULL = { kpis: true, play: true };  // these span the page; the rest flow in two columns
+  var FULL = { kpis: true, play: true, account: true };  // these span the page; the rest flow in two columns
   var PINS = {
     levels: ["Level up", "levels.html"], speed: ["Speed round", "speed.html"], focus: ["Focus timer", "focus.html"], lessons: ["Lessons", "lessons.html"],
     practice_test: ["Practice test", "practice.html", "test"], practice: ["Topic practice", "practice.html"], review: ["Review queue", "dashboard.html#review"],

@@ -2759,3 +2759,16 @@ html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-laun
 /* Lock boxes in the narrower dashboard columns: the button goes under the words */
 .dash-side .lock-card, #review .lock-card { grid-template-columns: auto minmax(0, 1fr); }
 .dash-side .lock-card .btn, #review .lock-card .btn { grid-column: 2; justify-self: start; }
+
+/* Dashboard Account: one full-width panel under the two columns, its three parts side by side on wide screens */
+@media (min-width: 900px) {
+  .account-panel { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 1.1fr); column-gap: var(--s6); align-items: start;
+    grid-template-areas: "head head head" "list form pa" "status status pa" "actions actions pa"; }
+  .account-panel > .panel-head { grid-area: head; }
+  .account-panel > .account-list { grid-area: list; }
+  .account-panel > .goal-form { grid-area: form; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .account-panel > .goal-form .btn { grid-column: 1 / -1; justify-self: start; }
+  .account-panel > #goal-status { grid-area: status; }
+  .account-panel > .pa { grid-area: pa; padding-top: 0; border-top: 0; padding-left: var(--s6); border-left: 1px solid var(--line); }
+  .account-panel > .account-actions { grid-area: actions; align-self: end; }
+}
