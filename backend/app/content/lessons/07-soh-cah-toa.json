@@ -3,59 +3,59 @@
   "order": 406,
   "domain": "geometry-trig",
   "skill": "right-triangles-and-trigonometry",
-  "title": "SOH CAH TOA and the 90° swap",
+  "title": "SOH CAH TOA and the $90^{\\circ}$ swap",
   "minutes": 6,
   "hook": "Pick the right ratio every time, and spot the sine–cosine shortcut.",
   "steps": [
     {
       "type": "recall",
       "prompt": "What do SOH, CAH and TOA stand for?",
-      "answer": "Sine = opposite ÷ hypotenuse, cosine = adjacent ÷ hypotenuse, tangent = opposite ÷ adjacent."
+      "answer": "$\\text{Sine} = \\text{opposite} \\div \\text{hypotenuse}$, $\\text{cosine} = \\text{adjacent} \\div \\text{hypotenuse}$, $\\text{tangent} = \\text{opposite} \\div \\text{adjacent}$."
     },
     {
       "type": "predict",
-      "prompt": "Right triangle ABC has its right angle at C. AC = 8, BC = 6 and AB = 10. What is sin A?",
+      "prompt": "Right triangle ABC has its right angle at C. $AC = 8$, $BC = 6$ and $AB = 10$. What is $\\sin A$?",
       "choices": [
-        "6/8",
-        "8/10",
-        "6/10",
-        "10/6"
+        "$6/8$",
+        "$8/10$",
+        "$6/10$",
+        "$10/6$"
       ],
       "answer": 2,
-      "why": "The side opposite angle A is BC = 6, and the hypotenuse is AB = 10."
+      "why": "The side opposite angle A is $BC = 6$, and the hypotenuse is $AB = 10$."
     },
     {
       "type": "predict",
-      "prompt": "Same triangle: what is cos B?",
+      "prompt": "Same triangle: what is $\\cos B$?",
       "choices": [
-        "6/10",
-        "8/10",
-        "6/8",
-        "8/6"
+        "$6/10$",
+        "$8/10$",
+        "$6/8$",
+        "$8/6$"
       ],
       "answer": 0,
-      "why": "The side next to angle B (not the hypotenuse) is BC = 6. Notice cos B = sin A."
+      "why": "The side next to angle B (not the hypotenuse) is $BC = 6$. Notice $\\cos B = \\sin A$."
     },
     {
       "type": "match",
-      "prompt": "Right angle at C, AC = 8, BC = 6, AB = 10. Match each ratio.",
+      "prompt": "Right angle at C, $AC = 8$, $BC = 6$, $AB = 10$. Match each ratio.",
       "left": [
-        "sin A",
-        "cos A",
-        "tan A",
-        "tan B"
+        "$\\sin$ A",
+        "$\\cos$ A",
+        "$\\tan$ A",
+        "$\\tan B$"
       ],
       "right": [
-        "6/10",
-        "8/10",
-        "6/8",
-        "8/6"
+        "$6/10$",
+        "$8/10$",
+        "$6/8$",
+        "$8/6$"
       ],
-      "why": "From A: opposite is BC = 6, adjacent is AC = 8, hypotenuse is 10. From B, opposite and adjacent swap."
+      "why": "From A: opposite is $BC = 6$, adjacent is $AC = 8$, hypotenuse is 10. From B, opposite and adjacent swap."
     },
     {
       "type": "predict",
-      "prompt": "In a right triangle, sin x° = 0.6. What is cos(90 − x)°?",
+      "prompt": "In a right triangle, $\\sin x^{\\circ} = 0.6$. What is cos(90 $- x)^{\\circ}$?",
       "choices": [
         "0.4",
         "0.6",
@@ -63,32 +63,32 @@
         "1.6"
       ],
       "answer": 1,
-      "why": "The two small angles add to 90°, and the sine of one is the cosine of the other."
+      "why": "The two small angles add to $90^{\\circ}$, and the sine of one is the cosine of the other."
     },
     {
       "type": "fill",
-      "prompt": "tan A = 3/4, and the side next to angle A is 12. How long is the side opposite A?",
+      "prompt": "$\\tan A = 3/4$, and the side next to angle A is 12. How long is the side opposite A?",
       "lines": [
-        "tan A = opposite ÷ adjacent",
-        "3/4 = opposite ÷ 12",
-        "opposite = ___"
+        "$\\tan A = \\text{opposite} \\div \\text{adjacent}$",
+        "$3/4 = \\text{opposite} \\div 12$",
+        "$\\text{opposite} =$ ___"
       ],
       "accept": [
         "9"
       ],
-      "why": "12 × 3/4 = 9."
+      "why": "$12 \\times 3/4 = 9$."
     },
     {
       "type": "spot",
       "prompt": "A 13-foot ladder reaches 12 feet up a wall. How far is its foot from the wall? Tap the line with the mistake.",
       "lines": [
         "The ladder is the hypotenuse: 13",
-        "a² + 12² = 13²",
-        "a² = 169 + 144",
-        "a = √313"
+        "$a^{2} + 12^{2} = 13^{2}$",
+        "$a^{2} = 169 + 144$",
+        "$a = \\sqrt{313}$"
       ],
       "wrong": 2,
-      "why": "Subtract: a² = 169 − 144 = 25, so a = 5 feet."
+      "why": "Subtract: $a^{2} = 169 - 144 = 25$, so $a = 5$ feet."
     },
     {
       "type": "order",
@@ -98,50 +98,51 @@
         "Add them: 225",
         "Take the square root: 15"
       ],
-      "why": "a² + b² = c², then the square root."
+      "why": "$a^{2} + b^{2} = c^{2}$, then the square root."
     }
   ],
   "keys": [
-    "sin = opposite/hypotenuse, cos = adjacent/hypotenuse, tan = opposite/adjacent, all measured from the angle you're using.",
-    "In a right triangle, sin x° = cos(90 − x)°.",
-    "a² + b² = c², where c is the hypotenuse."
+    "$\\sin =$ opposite/hypotenuse, $\\cos =$ adjacent/hypotenuse, $\\tan =$ opposite/adjacent, all measured from the angle you're using.",
+    "In a right triangle, $\\sin x^{\\circ} =$ cos(90 $- x)^{\\circ}$.",
+    "$a^{2} + b^{2} = c^{2}$, where $c$ is the hypotenuse."
   ],
   "recall": [
     {
       "type": "predict",
       "prompt": "Tangent equals",
       "choices": [
-        "opposite ÷ hypotenuse",
-        "adjacent ÷ hypotenuse",
-        "opposite ÷ adjacent"
+        "$\\text{opposite} \\div \\text{hypotenuse}$",
+        "$\\text{adjacent} \\div \\text{hypotenuse}$",
+        "$\\text{opposite} \\div \\text{adjacent}$"
       ],
       "answer": 2,
       "why": "TOA."
     },
     {
       "type": "predict",
-      "prompt": "cos 30° equals",
+      "prompt": "$\\cos 30^{\\circ}$ equals",
       "choices": [
-        "sin 30°",
-        "sin 60°",
-        "tan 60°",
-        "cos 60°"
+        "$\\sin 30^{\\circ}$",
+        "$\\sin 60^{\\circ}$",
+        "$\\tan 60^{\\circ}$",
+        "$\\cos 60^{\\circ}$"
       ],
       "answer": 1,
-      "why": "30 + 60 = 90."
+      "why": "$30 + 60 = 90$."
     },
     {
       "type": "fill",
       "prompt": "Legs 6 and 8. Hypotenuse:",
       "lines": [
-        "√(36 + 64) = ___"
+        "$\\sqrt{36 + 64} =$ ___"
       ],
       "accept": [
         "10"
       ],
-      "why": "√100 = 10."
+      "why": "$\\sqrt{100} = 10$."
     }
   ],
   "format": "timed",
-  "seconds": 45
+  "seconds": 45,
+  "tex": true
 }

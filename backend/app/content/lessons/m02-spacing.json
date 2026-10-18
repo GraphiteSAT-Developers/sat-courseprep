@@ -77,7 +77,7 @@
         "12",
         "12th"
       ],
-      "why": "5 + 7 = 12. Each successful recall makes the memory last longer, so the next gap can be longer."
+      "why": "$5 + 7 = 12$. Each successful recall makes the memory last longer, so the next gap can be longer."
     },
     {
       "type": "predict",
@@ -154,5 +154,6 @@
     }
   ],
   "format": "case",
-  "intro": "Case file: Jay studied for 6 hours and forgot most of it by test day. Figure out what went wrong."
+  "intro": "Case file: Jay studied for 6 hours and forgot most of it by test day. Figure out what went wrong.",
+  "tex": true
 }

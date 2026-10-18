@@ -5,7 +5,7 @@
   "skill": "two-variable-data-models-and-scatterplots",
   "title": "Linear or exponential?",
   "minutes": 5,
-  "hook": "Equal steps in x with equal differences: linear. Equal ratios: exponential.",
+  "hook": "Equal steps in $x$ with equal differences: linear. Equal ratios: exponential.",
   "steps": [
     {
       "type": "recall",
@@ -14,24 +14,24 @@
     },
     {
       "type": "predict",
-      "prompt": "x = 0, 1, 2, 3 gives y = 2, 6, 18, 54. Which model fits?",
+      "prompt": "$x = 0$, 1, 2, 3 gives $y = 2$, 6, 18, 54. Which model fits?",
       "choices": [
-        "y = 2(3)^x",
-        "y = 4x + 2",
-        "y = 3x + 2",
-        "y = 3(2)^x"
+        "$y = 2(3)^{x}$",
+        "$y = 4x + 2$",
+        "$y = 3x + 2$",
+        "$y = 3(2)^{x}$"
       ],
       "answer": 0,
       "why": "Start at 2 and multiply by 3 each step."
     },
     {
       "type": "predict",
-      "prompt": "x = 0, 1, 2, 3 gives y = 5, 8, 11, 14. Which model fits?",
+      "prompt": "$x = 0$, 1, 2, 3 gives $y = 5$, 8, 11, 14. Which model fits?",
       "choices": [
-        "y = 3x + 5",
-        "y = 5(3)^x",
-        "y = 5x + 3",
-        "y = 8x"
+        "$y = 3x + 5$",
+        "$y = 5(3)^{x}$",
+        "$y = 5x + 3$",
+        "$y = 8x$"
       ],
       "answer": 0,
       "why": "Start at 5 and add 3 each step."
@@ -45,15 +45,15 @@
       ],
       "cards": [
         {
-          "text": "y = 2, 6, 18, 54",
+          "text": "$y = 2$, 6, 18, 54",
           "bucket": 1
         },
         {
-          "text": "y = 5, 8, 11, 14",
+          "text": "$y = 5$, 8, 11, 14",
           "bucket": 0
         },
         {
-          "text": "$50 is added each month",
+          "text": "\\$50 is added each month",
           "bucket": 0
         },
         {
@@ -75,16 +75,16 @@
       "type": "fill",
       "prompt": "A population of 100 triples every year. How many after 3 years?",
       "lines": [
-        "100 × 3³ = ___"
+        "$100 \\times 3^{3} =$ ___"
       ],
       "accept": [
         "2700"
       ],
-      "why": "100 × 27."
+      "why": "$100 \\times 27$."
     },
     {
       "type": "predict",
-      "prompt": "Account 1 gets $50 added each month. Account 2 grows 2% each month. Which is which?",
+      "prompt": "Account 1 gets \\$50 added each month. Account 2 grows 2% each month. Which is which?",
       "choices": [
         "1 is linear, 2 is exponential",
         "Both are linear",
@@ -96,22 +96,22 @@
     },
     {
       "type": "spot",
-      "prompt": "x = 0, 1, 2, 3 gives y = 4, 8, 16, 32. Tap the false statement.",
+      "prompt": "$x = 0$, 1, 2, 3 gives $y = 4$, 8, 16, 32. Tap the false statement.",
       "lines": [
-        "The y-values double each step",
+        "The $y$-values double each step",
         "The differences are 4, 8 and 16",
-        "It's linear because y always increases",
-        "y = 4(2)^x fits"
+        "It's linear because $y$ always increases",
+        "$y = 4(2)^{x}$ fits"
       ],
       "wrong": 2,
       "why": "Increasing doesn't mean linear. The differences change while the ratio stays 2."
     },
     {
       "type": "predict",
-      "prompt": "Which eventually becomes larger: y = 100x or y = 2^x?",
+      "prompt": "Which eventually becomes larger: $y = 100x$ or $y = 2^{x}$?",
       "choices": [
-        "y = 2^x",
-        "y = 100x",
+        "$y = 2^{x}$",
+        "$y = 100x$",
         "They stay equal"
       ],
       "answer": 0,
@@ -126,7 +126,7 @@
   "recall": [
     {
       "type": "predict",
-      "prompt": "y: 7, 14, 28, 56 is:",
+      "prompt": "$y$: 7, 14, 28, 56 is:",
       "choices": [
         "Exponential",
         "Linear"
@@ -136,7 +136,7 @@
     },
     {
       "type": "predict",
-      "prompt": "Adding $20 every week is:",
+      "prompt": "Adding \\$20 every week is:",
       "choices": [
         "Linear",
         "Exponential"
@@ -146,16 +146,17 @@
     },
     {
       "type": "fill",
-      "prompt": "y = 5(2)^x. Find y at x = 3.",
+      "prompt": "$y = 5(2)^{x}$. Find $y$ at $x = 3$.",
       "lines": [
-        "5 × 2³ = ___"
+        "$5 \\times 2^{3} =$ ___"
       ],
       "accept": [
         "40"
       ],
-      "why": "5 × 8."
+      "why": "$5 \\times 8$."
     }
   ],
   "format": "timed",
-  "seconds": 35
+  "seconds": 35,
+  "tex": true
 }

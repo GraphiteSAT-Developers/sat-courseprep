@@ -14,14 +14,14 @@
     },
     {
       "type": "fill",
-      "prompt": "Type 2x + y = 7 and x − y = 2. Where do they cross?",
+      "prompt": "Type $2x + y = 7$ and $x - y = 2$. Where do they cross?",
       "lines": [
         "The lines cross at (___, 1)"
       ],
       "accept": [
         "3"
       ],
-      "why": "By hand: add them, 3x = 9.",
+      "why": "By hand: add them, $3x = 9$.",
       "desmos": [
         "2x+y=7",
         "x-y=2"
@@ -29,7 +29,7 @@
     },
     {
       "type": "plot",
-      "prompt": "Tap where 2x + y = 7 and x − y = 2 cross.",
+      "prompt": "Tap where $2x + y = 7$ and $x - y = 2$ cross.",
       "curves": [
         "7-2x",
         "x-2"
@@ -38,7 +38,7 @@
         3,
         1
       ],
-      "why": "(3, 1). Check: 2(3) + 1 = 7 and 3 − 1 = 2.",
+      "why": "$(3, 1)$. Check: $2(3) + 1 = 7$ and $3 - 1 = 2$.",
       "window": {
         "x": [
           -1,
@@ -53,10 +53,10 @@
     },
     {
       "type": "predict",
-      "prompt": "Can you type an equation like 3x + 4y = 12 straight into Desmos?",
+      "prompt": "Can you type an equation like $3x + 4y = 12$ straight into Desmos?",
       "choices": [
-        "Yes, no need to solve for y first",
-        "No, it needs y = form"
+        "Yes, no need to solve for $y$ first",
+        "No, it needs $y = \\text{form}$"
       ],
       "answer": 0,
       "why": "Desmos graphs standard form directly."
@@ -74,7 +74,7 @@
     },
     {
       "type": "spot",
-      "prompt": "Using Desmos on y = 0.5x + 3 and y = 0.5x − 1. Tap the wrong conclusion.",
+      "prompt": "Using Desmos on $y = 0.5x + 3$ and $y = 0.5x - 1$. Tap the wrong conclusion.",
       "lines": [
         "Both lines have slope 0.5",
         "They never cross on screen",
@@ -86,14 +86,14 @@
     },
     {
       "type": "predict",
-      "prompt": "y = x² − 4 and y = 2x − 1 cross twice. The question wants the sum of the x-values. What do you do?",
+      "prompt": "$y = x^{2} - 4$ and $y = 2x - 1$ cross twice. The question wants the sum of the $x$-values. What do you do?",
       "choices": [
-        "Click both points and add their x-coordinates: 3 + (−1) = 2",
-        "Read the y-intercept",
-        "Average the y-values"
+        "Click both points and add their $x$-coordinates: $3 + (-1) = 2$",
+        "Read the $y$-intercept",
+        "Average the $y$-values"
       ],
       "answer": 0,
-      "why": "The crossings are (3, 5) and (−1, −3).",
+      "why": "The crossings are $(3, 5)$ and $(-1, -3)$.",
       "desmos": [
         "y=x^2-4",
         "y=2x-1"
@@ -103,7 +103,7 @@
       "type": "predict",
       "prompt": "When is elimination by hand better than Desmos?",
       "choices": [
-        "When the coefficients cancel cleanly, like x + y = 10 and x − y = 4",
+        "When the coefficients cancel cleanly, like $x + y = 10$ and $x - y = 4$",
         "When the numbers are messy decimals",
         "When one graph is a parabola"
       ],
@@ -141,14 +141,14 @@
     },
     {
       "type": "fill",
-      "prompt": "Type x + y = 6 and x − y = 2. They cross at x?",
+      "prompt": "Type $x + y = 6$ and $x - y = 2$. They cross at $x$?",
       "lines": [
-        "x = ___"
+        "$x =$ ___"
       ],
       "accept": [
         "4"
       ],
-      "why": "Add: 2x = 8.",
+      "why": "Add: $2x = 8$.",
       "desmos": [
         "x+y=6",
         "x-y=2"
@@ -160,5 +160,6 @@
     "skill": "systems-of-two-linear-equations-in-two-variables"
   },
   "format": "timed",
-  "seconds": 40
+  "seconds": 40,
+  "tex": true
 }

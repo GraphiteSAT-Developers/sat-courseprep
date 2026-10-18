@@ -9,7 +9,7 @@
   "use strict";
   if (!document.querySelector(".lessons-page")) return;
   var R = window.GraphiteRewards, call = R && R.call(), esc = R.esc;
-  var K = window.GraphiteLessonKit;
+  var K = window.GraphiteLessonKit, T = K ? K.tex : esc, P = K ? K.plain : String;
   var API = window.GraphiteAPI, LIVE = !!(API && API.live);
   var params = new URLSearchParams(location.search);
   var START = "desmos-hacks";
@@ -30,7 +30,6 @@
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function mixed(n) { var o = shuffle(Array.from({ length: n }, function (_, i) { return i; })); if (n > 1 && o.every(function (v, i) { return v === i; })) o.push(o.shift()); return o; }
   function each(list, fn) { Array.prototype.forEach.call(list, fn); }
-  function pretty(expr) { return String(expr).replace(/\*/g, "").replace(/\^2/g, "²").replace(/\^3/g, "³").replace(/-/g, " − ").replace(/\+/g, " + ").replace(/\( − /g, "(−").replace(/^ − /, "−").replace(/\s+/g, " ").trim(); }
 
   var FORMAT = {
     classic: "Classic", lives: "Three hearts", timed: "Beat the clock", "cold-open": "Cold open", story: "Story",
@@ -58,7 +57,7 @@
     $("ls-due").hidden = !due.length;
     $("ls-due-count").textContent = due.length + " due";
     $("ls-due-list").innerHTML = due.map(function (l) {
-      return '<li><span><strong>' + esc(l.title) + '</strong><span class="fine">' + esc(l.skill_name) + "</span></span>" +
+      return '<li><span><strong>' + T(l.title) + '</strong><span class="fine">' + esc(l.skill_name) + "</span></span>" +
         '<a class="btn btn-primary" href="lessons.html?lesson=' + encodeURIComponent(l.id) + '&amp;mode=recall">Start recall check</a></li>';
     }).join("");
     var groups = {}, order = [];
@@ -77,8 +76,8 @@
         '<ul class="ls-list">' + groups[d].map(function (l) {
           var st = stateText(l.progress, o.recall_days), shut = locked && l.id !== o.start_with;
           var href = "lessons.html?lesson=" + encodeURIComponent(l.id);
-          return '<li class="ls-item' + (shut ? " is-locked" : "") + (l.id === START ? " is-start" : "") + '"><div class="ls-item-copy"><h3>' + (shut ? esc(l.title) : '<a href="' + href + '">' + esc(l.title) + "</a>") + "</h3>" +
-            '<p class="fine">' + esc(l.hook) + "</p>" +
+          return '<li class="ls-item' + (shut ? " is-locked" : "") + (l.id === START ? " is-start" : "") + '"><div class="ls-item-copy"><h3>' + (shut ? T(l.title) : '<a href="' + href + '">' + T(l.title) + "</a>") + "</h3>" +
+            '<p class="fine">' + T(l.hook) + "</p>" +
             '<p class="ls-meta"><span class="chip ' + st.cls + '">' + st.chip + '</span><span class="ls-format-chip ls-f-' + esc(l.format || "classic") + '">' + esc(FORMAT[l.format] || "Classic") + "</span><span>" + l.minutes + " min · " + l.steps + " steps · " + esc(l.skill_name) + "</span>" +
             (l.progress.done ? stageDots(l.progress, o.recall_days) : "") + "</p>" + (st.line ? '<p class="fine">' + st.line + "</p>" : "") + "</div>" +
             (shut ? '<span class="ls-lock fine">Opens after Desmos hacks</span>'
@@ -96,10 +95,10 @@
       kind = mode === "recall" && lesson.progress.done ? "recall" : "lesson";
       steps = kind === "recall" ? lesson.recall : lesson.steps;
       $("ls-kicker").textContent = (kind === "recall" ? "Recall check · " : "Lesson · ") + lesson.skill_name;
-      $("ls-title").textContent = lesson.title;
-      document.title = lesson.title + " | Graphite SAT Tutoring";
-      if (window.GraphiteCrumb) window.GraphiteCrumb(lesson.title, "lessons.html?list=1");
-      if (tools) { tools.available(lesson.domain !== "memory"); tools.context({ title: lesson.title, detail: lesson.skill_name }); }
+      $("ls-title").innerHTML = T(lesson.title);
+      document.title = P(lesson.title) + " | Graphite SAT Tutoring";
+      if (window.GraphiteCrumb) window.GraphiteCrumb(P(lesson.title), "lessons.html?list=1");
+      if (tools) { tools.available(lesson.domain !== "memory"); tools.context({ title: P(lesson.title), detail: lesson.skill_name }); }
       $("ls-player").hidden = false;
       $("ls-progress").setAttribute("aria-valuemax", String(steps.length));
       $("ls-firsttime").hidden = !(firstTime || note);
@@ -133,7 +132,7 @@
     if (f === "race") extra = "<p>Steps marked <strong>By hand</strong> and <strong>In Desmos</strong> are timed, so you'll see which way is faster for you.</p>";
     if (f === "lab") extra = "<p>Play with the graph or the numbers first. Then put into words what you found.</p>";
     box.innerHTML = '<p class="label">How this one works</p><h2 class="ls-format-name">' + esc(FORMAT[f]) + "</h2>" +
-      '<p class="ls-format-rule">' + esc(lesson.format_rule || "") + "</p>" + (lesson.intro ? '<p class="ls-story-intro">' + esc(lesson.intro) + "</p>" : "") + extra +
+      '<p class="ls-format-rule">' + esc(lesson.format_rule || "") + "</p>" + (lesson.intro ? '<p class="ls-story-intro">' + T(lesson.intro) + "</p>" : "") + extra +
       '<button class="btn btn-primary" type="button" id="ls-go">Start</button>';
     $("ls-go").addEventListener("click", function () { renderStep(); focusStep(); });
   }
@@ -199,9 +198,9 @@
   }
   function table(t) {
     if (!t) return "";
-    return '<div class="ls-table-wrap"><table class="ls-table">' + (t.caption ? "<caption>" + esc(t.caption) + "</caption>" : "") +
-      "<thead><tr>" + t.head.map(function (h) { return '<th scope="col">' + esc(h) + "</th>"; }).join("") + "</tr></thead><tbody>" +
-      t.rows.map(function (r) { return "<tr>" + r.map(function (c, i) { return i ? "<td>" + esc(c) + "</td>" : '<th scope="row">' + esc(c) + "</th>"; }).join("") + "</tr>"; }).join("") +
+    return '<div class="ls-table-wrap"><table class="ls-table">' + (t.caption ? "<caption>" + T(t.caption) + "</caption>" : "") +
+      "<thead><tr>" + t.head.map(function (h) { return '<th scope="col">' + T(h) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      t.rows.map(function (r) { return "<tr>" + r.map(function (c, i) { return i ? "<td>" + T(c) + "</td>" : '<th scope="row">' + T(c) + "</th>"; }).join("") + "</tr>"; }).join("") +
       "</tbody></table></div>";
   }
   // Keystrokes for the Desmos course, with a link to the College Board's own Desmos to try them.
@@ -225,7 +224,7 @@
     if (s.rematch) play.rematchRight = right;
     var fb = document.createElement("div");
     fb.className = "ls-fb " + (right ? "ok" : "no"); fb.tabIndex = -1;
-    fb.innerHTML = '<strong class="ls-fb-head">' + (right ? PRAISE[at % PRAISE.length] : s.cold ? "Not yet, and that's fine." : "Not quite.") + "</strong>" + (extra ? '<span class="ls-fb-extra">' + extra + "</span>" : "") + (why ? "<span>" + esc(why) + "</span>" : "") + (notes ? '<span class="ls-fb-notes">' + notes + "</span>" : "");
+    fb.innerHTML = '<strong class="ls-fb-head">' + (right ? PRAISE[at % PRAISE.length] : s.cold ? "Not yet, and that's fine." : "Not quite.") + "</strong>" + (extra ? '<span class="ls-fb-extra">' + extra + "</span>" : "") + (why ? "<span>" + T(why) + "</span>" : "") + (notes ? '<span class="ls-fb-notes">' + notes + "</span>" : "");
     $("ls-step").appendChild(fb);
     if (s.gate && right) {
       var skip = steps.filter(function (x) { return x.skip_if === 0; }).length;
@@ -275,8 +274,8 @@
     progress();
     box.className = "panel ls-step is-" + s.type + (s.cold ? " is-cold" : "") + (s.rematch ? " is-rematch" : "") + (s.gate ? " is-gate" : "");
     box.innerHTML = '<p class="label">' + esc(kicker(s)) + (s.lane ? ' <span class="ls-lane ls-lane-' + s.lane + '">' + (s.lane === "hand" ? "By hand" : "In Desmos") + "</span>" : "") + "</p>" +
-      (s.scene ? '<p class="ls-scene">' + esc(s.scene) + "</p>" : "") +
-      table(s.table) + '<p class="ls-prompt">' + esc(s.prompt) + "</p>" + desmos(s.desmos);
+      (s.scene ? '<p class="ls-scene">' + T(s.scene) + "</p>" : "") +
+      table(s.table) + '<p class="ls-prompt">' + T(s.prompt) + "</p>" + desmos(s.desmos);
     STEP[s.type](s, box);
     startClocks(s);
   }
@@ -291,7 +290,7 @@
     area.querySelector("button").addEventListener("click", function () {
       this.remove();
       var rev = document.createElement("div"); rev.className = "ls-reveal";
-      rev.innerHTML = '<p class="label">Answer</p><p class="ls-answer">' + esc(s.answer) + '</p><p class="fine">How did you do?</p>' +
+      rev.innerHTML = '<p class="label">Answer</p><p class="ls-answer">' + T(s.answer) + '</p><p class="fine">How did you do?</p>' +
         '<div class="ls-rate"><button class="btn btn-quiet" type="button" data-r="1">Got it</button><button class="btn btn-quiet" type="button" data-r="0">Partly</button><button class="btn btn-quiet" type="button" data-r="0">Not yet</button></div>';
       box.appendChild(rev);
       rev.querySelector(".ls-rate").addEventListener("click", function (e) {
@@ -307,7 +306,7 @@
     var list = document.createElement("div"); list.className = "ls-choices"; list.setAttribute("role", "group"); list.setAttribute("aria-label", "Choices");
     s.choices.forEach(function (c, k) {
       var b = document.createElement("button"); b.type = "button"; b.className = "sp-choice";
-      b.innerHTML = '<span class="mc-letter">' + "ABCD"[k] + '</span><span class="mc-text">' + esc(c) + "</span>";
+      b.innerHTML = '<span class="mc-letter">' + "ABCD"[k] + '</span><span class="mc-text">' + T(c) + "</span>";
       b.addEventListener("click", function () {
         if (answered) return;
         each(list.children, function (x, i) { x.disabled = true; if (i === s.answer) x.classList.add("is-key"); });
@@ -322,12 +321,13 @@
   function stepFill(s, box) {
     var work = document.createElement("form"); work.className = "ls-work"; work.setAttribute("novalidate", "");
     work.innerHTML = s.lines.map(function (line) {
-      if (line.indexOf("___") < 0) return '<p class="ls-line">' + esc(line) + "</p>";
+      if (line.indexOf("___") < 0) return '<p class="ls-line">' + T(line) + "</p>";
       var parts = line.split("___");
-      return '<p class="ls-line">' + esc(parts[0]) + '<label class="visually-hidden" for="ls-blank">Missing value</label><input id="ls-blank" class="ls-blank" data-no-filter autocomplete="off" inputmode="decimal" spellcheck="false" maxlength="12">' + esc(parts[1] || "") + "</p>";
+      return '<p class="ls-line">' + T(parts[0]) + '<label class="visually-hidden" for="ls-blank">Missing value</label><input id="ls-blank" class="ls-blank" data-no-filter autocomplete="off" inputmode="decimal" spellcheck="false" maxlength="12">' + T(parts[1] || "") + "</p>";
     }).join("") + '<button class="btn btn-secondary" type="submit">Check</button>';
     box.appendChild(work);
     var input = work.querySelector("input");
+    if (s.accept.some(function (x) { return /[^\d.\-\u2212]/.test(x); })) input.setAttribute("inputmode", "text");  // fractions and letters need the full keyboard
     work.addEventListener("submit", function (e) {
       e.preventDefault();
       if (answered || !input.value.trim()) { input.focus(); return; }
@@ -335,7 +335,7 @@
       var right = K.right(s, pending);
       input.readOnly = true; input.classList.add(right ? "is-right" : "is-wrong");
       work.querySelector("button").remove();
-      feedback(right, s.why, right ? "" : "It's <strong>" + esc(s.accept[0]) + "</strong>. ");
+      feedback(right, s.why, right ? "" : "It's <strong>" + K.answer(s.accept[0]) + "</strong>. ");
     });
   }
   function stepOrder(s, box) {
@@ -345,8 +345,8 @@
       '<button class="btn btn-secondary" type="button" id="ls-order-check" disabled>Check</button>';
     box.appendChild(wrap);
     function draw() {
-      $("ls-pool").innerHTML = pool.map(function (i) { return '<li><button type="button" class="ls-tile" data-i="' + i + '">' + esc(s.items[i]) + "</button></li>"; }).join("");
-      $("ls-placed").innerHTML = placed.map(function (i, n) { return '<li><button type="button" class="ls-tile is-placed" data-i="' + i + '"><span class="ls-n">' + (n + 1) + "</span>" + esc(s.items[i]) + "</button></li>"; }).join("");
+      $("ls-pool").innerHTML = pool.map(function (i) { return '<li><button type="button" class="ls-tile" data-i="' + i + '">' + T(s.items[i]) + "</button></li>"; }).join("");
+      $("ls-placed").innerHTML = placed.map(function (i, n) { return '<li><button type="button" class="ls-tile is-placed" data-i="' + i + '"><span class="ls-n">' + (n + 1) + "</span>" + T(s.items[i]) + "</button></li>"; }).join("");
       $("ls-order-check").disabled = placed.length !== s.items.length;
     }
     wrap.addEventListener("click", function (e) {
@@ -362,7 +362,7 @@
       var right = K.right(s, pending);
       this.remove();
       each($("ls-placed").querySelectorAll(".ls-tile"), function (b, n) { b.disabled = true; b.classList.add(placed[n] === n ? "is-right" : "is-wrong"); });
-      var correct = right ? "" : "<ol class=\"ls-correct\">" + s.items.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ol>";
+      var correct = right ? "" : "<ol class=\"ls-correct\">" + s.items.map(function (t) { return "<li>" + T(t) + "</li>"; }).join("") + "</ol>";
       feedback(right, s.why, right ? "" : "Here's the order:" + correct);
     });
     draw();
@@ -371,7 +371,7 @@
     var list = document.createElement("ol"); list.className = "ls-lines";
     s.lines.forEach(function (line, k) {
       var li = document.createElement("li"), b = document.createElement("button");
-      b.type = "button"; b.className = "ls-tile"; b.textContent = line;
+      b.type = "button"; b.className = "ls-tile"; b.innerHTML = T(line);
       b.addEventListener("click", function () {
         if (answered) return;
         each(list.querySelectorAll("button"), function (x, i) { x.disabled = true; if (i === s.wrong) x.classList.add("is-key-wrong"); });
@@ -406,8 +406,8 @@
     var chk = checkButton(); box.appendChild(chk);
     function readout(val) {
       if (!s.readout) return "";
-      return s.readout.replace(/\{=([^}]+)\}/g, function (_, ex) { var o = {}; o[name] = val; var r = K.value(ex, 0, o); return r === null ? "?" : K.fmt(Math.round(r * 100) / 100); })
-                      .replace(new RegExp("\\{" + name + "\\}", "g"), K.fmt(val));
+      return s.readout.replace(/\{=([^}]+)\}/g, function (_, ex) { var o = {}; o[name] = val; var r = K.value(ex, 0, o); return r === null ? "?" : String(Math.round(r * 100) / 100); })
+                      .replace(new RegExp("\\{" + name + "\\}", "g"), val < 0 ? "(" + val + ")" : String(val));
     }
     function draw(val, state) {
       var e = {}; e[name] = val;
@@ -422,7 +422,7 @@
         $("lk-visual").innerHTML = K.pie(K.value(s.pie.angle, 0, e), "Sector of " + val + " degrees");
       }
       $("lk-out").textContent = K.fmt(val);
-      $("lk-readout").textContent = readout(val);
+      $("lk-readout").innerHTML = T(readout(val));
     }
     var range = $("lk-range");
     range.addEventListener("input", function () { if (answered) return; v = Number(this.value); draw(v); });
@@ -503,7 +503,7 @@
       var right = K.right(s, pending);
       chk.remove(); $("lk-expr").readOnly = true;
       if (!right) draw({ f: K.compile(s.accept[0]), cls: "lk-c1 is-answer" });
-      feedback(right, s.why, right ? "" : "One answer: <strong>y = " + esc(pretty(s.accept[0])) + "</strong>" + (s.forbid && (s.forbid.some(function (f) { return pending.indexOf(f) >= 0; })) ? ", written without brackets" : "") + ". ");
+      feedback(right, s.why, right ? "" : "One answer: <strong>" + K.answer("y=" + s.accept[0]) + "</strong>" + (s.forbid && (s.forbid.some(function (f) { return pending.indexOf(f) >= 0; })) ? ", written without brackets" : "") + ". ");
     });
     draw();
   }
@@ -513,8 +513,8 @@
     var order = mixed(s.cards.length), picks = s.cards.map(function () { return null; });
     var list = document.createElement("ul"); list.className = "lk-sort";
     list.innerHTML = order.map(function (ci) {
-      return '<li class="lk-card" data-c="' + ci + '"><span class="lk-card-text" id="lk-card-' + ci + '">' + esc(s.cards[ci].text) + '</span><span class="lk-buckets" role="group" aria-labelledby="lk-card-' + ci + '">' +
-        s.buckets.map(function (b, bi) { return '<button type="button" class="lk-bucket" data-b="' + bi + '" aria-pressed="false">' + esc(b) + "</button>"; }).join("") + "</span></li>";
+      return '<li class="lk-card" data-c="' + ci + '"><span class="lk-card-text" id="lk-card-' + ci + '">' + T(s.cards[ci].text) + '</span><span class="lk-buckets" role="group" aria-labelledby="lk-card-' + ci + '">' +
+        s.buckets.map(function (b, bi) { return '<button type="button" class="lk-bucket" data-b="' + bi + '" aria-pressed="false">' + T(b) + "</button>"; }).join("") + "</span></li>";
     }).join("");
     box.appendChild(list);
     var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
@@ -546,8 +546,8 @@
     var n = s.left.length, rightOrder = mixed(n), pairOf = s.left.map(function () { return null; }), active = null;
     var wrap = document.createElement("div"); wrap.className = "lk-match";
     wrap.innerHTML = '<p class="fine">Tap one on the left, then its partner on the right. Tap a pair again to undo it.</p><div class="lk-match-cols"><ul class="lk-left">' +
-      s.left.map(function (t, i) { return '<li><button type="button" class="lk-m" data-l="' + i + '" aria-pressed="false"><span class="lk-pair-n" aria-hidden="true"></span>' + esc(t) + "</button></li>"; }).join("") +
-      '</ul><ul class="lk-right">' + rightOrder.map(function (ri) { return '<li><button type="button" class="lk-m" data-r="' + ri + '"><span class="lk-pair-n" aria-hidden="true"></span>' + esc(s.right[ri]) + "</button></li>"; }).join("") + "</ul></div>";
+      s.left.map(function (t, i) { return '<li><button type="button" class="lk-m" data-l="' + i + '" aria-pressed="false"><span class="lk-pair-n" aria-hidden="true"></span>' + T(t) + "</button></li>"; }).join("") +
+      '</ul><ul class="lk-right">' + rightOrder.map(function (ri) { return '<li><button type="button" class="lk-m" data-r="' + ri + '"><span class="lk-pair-n" aria-hidden="true"></span>' + T(s.right[ri]) + "</button></li>"; }).join("") + "</ul></div>";
     box.appendChild(wrap);
     var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
     function draw() {
@@ -587,7 +587,7 @@
       chk.remove(); active = null; draw();
       each(wrap.querySelectorAll("[data-l]"), function (b) { var i = Number(b.getAttribute("data-l")); b.disabled = true; b.classList.add(pairOf[i] === i ? "is-right" : "is-wrong"); });
       each(wrap.querySelectorAll("[data-r]"), function (b) { b.disabled = true; });
-      var fix = right ? "" : '<ul class="ls-correct">' + s.left.map(function (l, i) { return "<li>" + esc(l) + " → " + esc(s.right[i]) + "</li>"; }).join("") + "</ul>";
+      var fix = right ? "" : '<ul class="ls-correct">' + s.left.map(function (l, i) { return "<li>" + T(l) + " → " + T(s.right[i]) + "</li>"; }).join("") + "</ul>";
       feedback(right, s.why, right ? "" : "The pairs:" + fix);
     });
     active = 0; draw();
@@ -636,8 +636,8 @@
     box.appendChild(wrap);
     var chk = checkButton(); chk.disabled = true; box.appendChild(chk);
     function draw() {
-      $("lk-bar").innerHTML = placed.length ? placed.map(function (i) { return '<button type="button" class="lk-tile is-placed" data-i="' + i + '">' + esc(s.tiles[i]) + "</button>"; }).join("") : '<span class="fine">Your answer goes here</span>';
-      $("lk-tiles").innerHTML = pool.map(function (i) { return '<button type="button" class="lk-tile" data-i="' + i + '">' + esc(s.tiles[i]) + "</button>"; }).join("");
+      $("lk-bar").innerHTML = placed.length ? placed.map(function (i) { return '<button type="button" class="lk-tile is-placed" data-i="' + i + '">' + T(s.tiles[i]) + "</button>"; }).join("") : '<span class="fine">Your answer goes here</span>';
+      $("lk-tiles").innerHTML = pool.map(function (i) { return '<button type="button" class="lk-tile" data-i="' + i + '">' + T(s.tiles[i]) + "</button>"; }).join("");
       chk.disabled = !placed.length;
     }
     wrap.addEventListener("click", function (e) {
@@ -653,7 +653,7 @@
       var right = K.right(s, pending);
       chk.remove(); $("lk-bar").classList.add(right ? "is-right" : "is-wrong");
       each(wrap.querySelectorAll(".lk-tile"), function (b) { b.disabled = true; });
-      feedback(right, s.why, right ? "" : "It's <strong>" + esc(s.answers[0].map(function (i) { return s.tiles[i]; }).join(" ")) + "</strong>. ");
+      feedback(right, s.why, right ? "" : "It's <strong>" + s.answers[0].map(function (i) { return T(s.tiles[i]); }).join(" ") + "</strong>. ");
     });
     draw();
   }
@@ -662,10 +662,10 @@
   function stepGrid(s, box) {
     var n = 0;
     var wrap = document.createElement("form"); wrap.className = "lk-grid"; wrap.setAttribute("novalidate", "");
-    wrap.innerHTML = '<div class="ls-table-wrap"><table class="ls-table"><thead><tr>' + s.head.map(function (h) { return '<th scope="col">' + esc(h) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+    wrap.innerHTML = '<div class="ls-table-wrap"><table class="ls-table"><thead><tr>' + s.head.map(function (h) { return '<th scope="col">' + T(h) + "</th>"; }).join("") + "</tr></thead><tbody>" +
       s.rows.map(function (r) {
         return "<tr>" + r.map(function (c, ci) {
-          var cell = c.indexOf("___") < 0 ? esc(c) : c.split("___").map(esc).join('<input class="ls-blank lk-cell" data-k="' + (n++) + '" aria-label="' + esc(s.head[ci] + ", " + r[0]) + '" data-no-filter autocomplete="off" spellcheck="false" maxlength="10">');
+          var cell = c.indexOf("___") < 0 ? T(c) : c.split("___").map(T).join('<input class="ls-blank lk-cell" data-k="' + (n++) + '" aria-label="' + esc(P(s.head[ci]) + ", " + P(r[0])) + '" data-no-filter autocomplete="off" spellcheck="false" maxlength="10">');
           return ci ? "<td>" + cell + "</td>" : '<th scope="row">' + cell + "</th>";
         }).join("") + "</tr>";
       }).join("") + "</tbody></table></div>";
@@ -680,7 +680,7 @@
       var right = K.right(s, pending);
       chk.remove();
       each(cells, function (c, i) { c.readOnly = true; var ok = K.right({ type: "fill", accept: s.accept[i] }, pending[i]); c.classList.add(ok ? "is-right" : "is-wrong"); if (!ok) c.title = "It's " + s.accept[i][0]; });
-      var fix = right ? "" : "The blanks are " + s.accept.map(function (a) { return "<strong>" + esc(a[0]) + "</strong>"; }).join(", ") + ". ";
+      var fix = right ? "" : "The blanks are " + s.accept.map(function (a) { return "<strong>" + K.answer(a[0]) + "</strong>"; }).join(", ") + ". ";
       feedback(right, s.why, fix);
     });
   }
@@ -689,14 +689,14 @@
   function stepFlash(s, box) {
     var prompt = box.querySelector(".ls-prompt"); prompt.textContent = "Look closely. This disappears in " + s.seconds + " seconds.";
     var card = document.createElement("div"); card.className = "lk-flash";
-    card.innerHTML = '<div class="lk-flash-bar"><i id="lk-flash-fill"></i></div><ul>' + s.show.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" +
+    card.innerHTML = '<div class="lk-flash-bar"><i id="lk-flash-fill"></i></div><ul>' + s.show.map(function (t) { return "<li>" + T(t) + "</li>"; }).join("") + "</ul>" +
       '<button type="button" class="btn btn-quiet" id="lk-ready">I\'m ready</button>';
     box.appendChild(card);
     var t0 = Date.now(), timer = setInterval(tick, 100);
     function tick() { var left = Math.max(0, 1 - (Date.now() - t0) / (s.seconds * 1000)); var f = $("lk-flash-fill"); if (f) f.style.width = left * 100 + "%"; if (left <= 0) hide(); }
     function hide() {
       clearInterval(timer); if (!card.parentNode) return;
-      card.remove(); prompt.textContent = s.prompt;
+      card.remove(); prompt.innerHTML = T(s.prompt);
       choices(s, box); var b = box.querySelector(".sp-choice"); if (b) b.focus();
     }
     $("lk-ready").addEventListener("click", hide);
@@ -739,7 +739,7 @@
         (kind === "recall" && !r.passed ? " This one comes back tomorrow for another try." : "");
       var fl = formatLine(); $("ls-end-format").textContent = fl; $("ls-end-format").hidden = !fl;
       $("ls-unlocked").hidden = !(lesson.id === START && firstTime);
-      $("ls-keys").innerHTML = lesson.keys.map(function (k) { return "<li>" + esc(k) + "</li>"; }).join("");
+      $("ls-keys").innerHTML = lesson.keys.map(function (k) { return "<li>" + T(k) + "</li>"; }).join("");
       var p = r.progress;
       $("ls-next-recall").innerHTML = p.mastered ? "<strong>Mastered.</strong> You've passed every recall check for this lesson."
         : p.due_on ? "Recall check <strong>" + (p.due_on === new Date().toISOString().slice(0, 10) ? "today" : day(p.due_on)) + "</strong>: three questions from memory, " + (p.stage + 1) + " of " + lesson.recall_days.length + "." : "";

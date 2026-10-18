@@ -5,20 +5,20 @@
   "skill": "functions",
   "title": "Define a function, then evaluate it",
   "minutes": 5,
-  "hook": "Type f(x)= once, then ask for f(3), f(g(2)), or click the graph's key points.",
+  "hook": "Type `f(x)=` once, then ask for `f(3), f(g(2))`, or click the graph's key points.",
   "steps": [
     {
       "type": "recall",
-      "prompt": "From memory: how do you evaluate f(3) for f(x) = 2x² − 5 in Desmos?",
-      "answer": "Type f(x)=2x^2-5 on one line and f(3) on the next. Desmos shows 13."
+      "prompt": "From memory: how do you evaluate `f(3)` for `f(x)` $= 2x^{2} - 5$ in Desmos?",
+      "answer": "Type `f(x)=2x^2-5` on one line and `f(3)` on the next. Desmos shows 13."
     },
     {
       "type": "graph",
-      "prompt": "Type f(x) = 2x² − 5 to see the curve.",
+      "prompt": "Type `f(x)` $= 2x^{2} - 5$ to see the curve.",
       "accept": [
         "2x^2-5"
       ],
-      "why": "Desmos draws it right away. Now f(3) is just one more line: f(3).",
+      "why": "Desmos draws it right away. Now `f(3)` is just one more line: `f(3)`.",
       "window": {
         "x": [
           -4,
@@ -33,14 +33,14 @@
     },
     {
       "type": "fill",
-      "prompt": "Define f(x) = 2x² − 5 in Desmos, then evaluate f(3).",
+      "prompt": "Define `f(x)` $= 2x^{2} - 5$ in Desmos, then evaluate `f(3)`.",
       "lines": [
-        "f(3) = ___"
+        "`f(3)` $=$ ___"
       ],
       "accept": [
         "13"
       ],
-      "why": "2(9) − 5 = 13.",
+      "why": "$2(9) - 5 = 13$.",
       "desmos": [
         "f(x)=2x^2-5",
         "f(3)"
@@ -48,14 +48,14 @@
     },
     {
       "type": "predict",
-      "prompt": "f(x) = x + 4 and g(x) = 3x. How do you get f(g(2)) in Desmos?",
+      "prompt": "`f(x)` $= x + 4$ and `g(x)` $= 3x$. How do you get `f(g(2))` in Desmos?",
       "choices": [
-        "Define both, then type f(g(2))",
-        "Type f*g(2)",
-        "Type fg(2)"
+        "Define both, then type `f(g(2))`",
+        "Type `f*g(2)`",
+        "Type `fg(2)`"
       ],
       "answer": 0,
-      "why": "f(g(2)) = f(6) = 10.",
+      "why": "`f(g(2))` $=$ `f(6)` $= 10$.",
       "desmos": [
         "f(x)=x+4",
         "g(x)=3x",
@@ -65,43 +65,43 @@
     },
     {
       "type": "predict",
-      "prompt": "f(x) = x² − 6x + 5. You need its minimum value. A Desmos move?",
+      "prompt": "`f(x)` $= x^{2} - 6x + 5$. You need its minimum value. A Desmos move?",
       "choices": [
-        "Graph y=f(x) and click the parabola to see its lowest point",
-        "Type min(f)",
-        "Type f(0)"
+        "Graph `y=f(x)` and click the parabola to see its lowest point",
+        "Type `min(f)`",
+        "Type `f(0)`"
       ],
       "answer": 0,
-      "why": "Clicking a curve shows its key points, including the vertex (3, −4). Try it on the College Board version so you know what it looks like."
+      "why": "Clicking a curve shows its key points, including the vertex $(3, -4)$. Try it on the College Board version so you know what it looks like."
     },
     {
       "type": "spot",
       "prompt": "Name trouble. Tap the line that causes an error.",
       "lines": [
-        "f(x)=3x+1",
-        "g(x)=x^2",
-        "f=7",
-        "f(2)"
+        "`f(x)=3x+1`",
+        "`g(x)=x^2`",
+        "$f=7$",
+        "`f(2)`"
       ],
       "wrong": 2,
-      "why": "f already names the function, so f = 7 defines it twice. Use a new name like a or c_1."
+      "why": "$f$ already names the function, so $f = 7$ defines it twice. Use a new name like a or `c_1`."
     },
     {
       "type": "predict",
-      "prompt": "A table gives a linear h(t) for t = 0, 1, 2, 3. To find h(5) with Desmos:",
+      "prompt": "A table gives a linear `h(t)` for $t = 0$, 1, 2, 3. To find `h(5)` with Desmos:",
       "choices": [
-        "Put the table in, fit y_1~mx_1+b, then evaluate m(5)+b",
-        "Type h(5) right away",
-        "Graph y=5"
+        "Put the table in, fit `y_1~mx_1+b`, then evaluate `m(5)+b`",
+        "Type `h(5)` right away",
+        "Graph $y=5$"
       ],
       "answer": 0,
-      "why": "h isn't defined until you build it from the table."
+      "why": "$h$ isn't defined until you build it from the table."
     },
     {
       "type": "predict",
       "prompt": "When is plugging in by hand faster?",
       "choices": [
-        "Simple cases, like f(x) = 2x + 1 at x = 4",
+        "Simple cases, like `f(x)` $= 2x + 1$ at $x = 4$",
         "Messy compositions with decimals",
         "Finding where two functions meet"
       ],
@@ -110,32 +110,32 @@
     }
   ],
   "keys": [
-    "Define f(x)= once, then evaluate f(any number).",
-    "Compositions work too: f(g(2)).",
+    "Define `f(x)=` once, then evaluate `f(any` number).",
+    "Compositions work too: `f(g(2))`.",
     "Use new names for constants so they don't clash."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "To evaluate f at 4 after defining f(x):",
+      "prompt": "To evaluate $f$ at 4 after defining `f(x)`:",
       "choices": [
-        "Type f(4)",
-        "Type f*4",
-        "Type f=4"
+        "Type `f(4)`",
+        "Type `f*4`",
+        "Type $f=4$"
       ],
       "answer": 0,
       "why": "Function notation."
     },
     {
       "type": "fill",
-      "prompt": "Define f(x) = x² + 1, then evaluate f(3).",
+      "prompt": "Define `f(x)` $= x^{2} + 1$, then evaluate `f(3)`.",
       "lines": [
-        "f(3) = ___"
+        "`f(3)` $=$ ___"
       ],
       "accept": [
         "10"
       ],
-      "why": "9 + 1.",
+      "why": "$9 + 1$.",
       "desmos": [
         "f(x)=x^2+1",
         "f(3)"
@@ -143,14 +143,14 @@
     },
     {
       "type": "predict",
-      "prompt": "Typing f=5 after f(x)=x+1 gives:",
+      "prompt": "Typing $f=5$ after `f(x)=x+1` gives:",
       "choices": [
         "An error",
-        "f(5)",
+        "`f(5)`",
         "A slider"
       ],
       "answer": 0,
-      "why": "f is already taken."
+      "why": "$f$ is already taken."
     }
   ],
   "practice": {
@@ -158,5 +158,6 @@
     "skill": "nonlinear-functions"
   },
   "format": "story",
-  "intro": "You're coding a game. A character's jump height follows a function, and you're using Desmos to test it."
+  "intro": "You're coding a game. A character's jump height follows a function, and you're using Desmos to test it.",
+  "tex": true
 }

@@ -14,19 +14,19 @@
     },
     {
       "type": "predict",
-      "prompt": "Solve −3x + 5 > 17.",
+      "prompt": "Solve $-3x + 5 > 17$.",
       "choices": [
-        "x > −4",
-        "x < −4",
-        "x > 4",
-        "x < 4"
+        "$x > -4$",
+        "$x < -4$",
+        "$x > 4$",
+        "$x < 4$"
       ],
       "answer": 1,
-      "why": "−3x > 12, and dividing by −3 flips the sign: x < −4."
+      "why": "$-3x > 12$, and dividing by $-3$ flips the sign: $x < -4$."
     },
     {
       "type": "line",
-      "prompt": "Mark the solution of −3x + 5 > 17 on the number line.",
+      "prompt": "Mark the solution of $-3x + 5 > 17$ on the number line.",
       "min": -8,
       "max": 2,
       "answer": {
@@ -34,11 +34,11 @@
         "closed": false,
         "dir": "left"
       },
-      "why": "−3x > 12. Dividing by −3 flips the sign: x < −4. Open circle, because −4 itself doesn't work."
+      "why": "$-3x > 12$. Dividing by $-3$ flips the sign: $x < -4$. Open circle, because $-4$ itself doesn't work."
     },
     {
       "type": "predict",
-      "prompt": "Which value is a solution of 2x − 7 ≤ 5?",
+      "prompt": "Which value is a solution of $2x - 7 \\le 5$?",
       "choices": [
         "7",
         "6.5",
@@ -46,51 +46,51 @@
         "8"
       ],
       "answer": 2,
-      "why": "2x ≤ 12, so x ≤ 6. Only 6 works."
+      "why": "$2x \\le 12$, so $x \\le 6$. Only 6 works."
     },
     {
       "type": "predict",
-      "prompt": "A rental van costs $50 plus $0.40 per mile. Jo can spend at most $90. Which inequality?",
+      "prompt": "A rental van costs \\$50 plus \\$0.40 per mile. Jo can spend at most \\$90. Which inequality?",
       "choices": [
-        "50 + 0.4m ≤ 90",
-        "50 + 0.4m ≥ 90",
-        "0.4 + 50m ≤ 90",
-        "50m + 0.4 < 90"
+        "$50 + 0.4m \\le 90$",
+        "$50 + 0.4m \\ge 90$",
+        "$0.4 + 50m \\le 90$",
+        "$50m + 0.4 < 90$"
       ],
       "answer": 0,
-      "why": "\"At most\" means ≤."
+      "why": "\"At most\" means $\\le$."
     },
     {
       "type": "fill",
-      "prompt": "Solve 50 + 0.4m ≤ 90 for the most miles.",
+      "prompt": "Solve $50 + 0.4m \\le 90$ for the most miles.",
       "lines": [
-        "0.4m ≤ 40",
-        "m ≤ ___"
+        "$0.4m \\le 40$",
+        "$m \\le$ ___"
       ],
       "accept": [
         "100"
       ],
-      "why": "40 ÷ 0.4 = 100 miles."
+      "why": "$40 \\div 0.4 = 100$ miles."
     },
     {
       "type": "spot",
-      "prompt": "Solving 4 − 2x ≥ 10. Tap the line with the mistake.",
+      "prompt": "Solving $4 - 2x \\ge 10$. Tap the line with the mistake.",
       "lines": [
-        "4 − 2x ≥ 10",
-        "Subtract 4: −2x ≥ 6",
-        "Divide by −2: x ≥ −3"
+        "$4 - 2x \\ge 10$",
+        "Subtract 4: $-2x \\ge 6$",
+        "Divide by $-2$: $x \\ge -3$"
       ],
       "wrong": 2,
-      "why": "Dividing by −2 flips the sign: x ≤ −3."
+      "why": "Dividing by $-2$ flips the sign: $x \\le -3$."
     },
     {
       "type": "predict",
       "prompt": "\"At least 30\" means:",
       "choices": [
-        "≥ 30",
-        "> 30",
-        "≤ 30",
-        "< 30"
+        "$\\ge 30$",
+        "$> 30$",
+        "$\\le 30$",
+        "$< 30$"
       ],
       "answer": 0,
       "why": "30 or more."
@@ -99,43 +99,44 @@
   "keys": [
     "Solve like an equation.",
     "Multiply or divide by a negative: flip the sign.",
-    "\"At least\" is ≥, \"at most\" is ≤, \"more than\" is >."
+    "\"At least\" is $\\ge$, \"at most\" is $\\le$, \"more than\" is $>$."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "Solve −2x < 8.",
+      "prompt": "Solve $-2x < 8$.",
       "choices": [
-        "x > −4",
-        "x < −4",
-        "x > 4"
+        "$x > -4$",
+        "$x < -4$",
+        "$x > 4$"
       ],
       "answer": 0,
-      "why": "Divide by −2 and flip."
+      "why": "Divide by $-2$ and flip."
     },
     {
       "type": "predict",
       "prompt": "\"No more than 12\" means:",
       "choices": [
-        "≤ 12",
-        "≥ 12",
-        "< 12"
+        "$\\le 12$",
+        "$\\ge 12$",
+        "$< 12$"
       ],
       "answer": 0,
       "why": "12 or fewer."
     },
     {
       "type": "fill",
-      "prompt": "Solve 3x + 2 ≤ 20.",
+      "prompt": "Solve $3x + 2 \\le 20$.",
       "lines": [
-        "3x ≤ 18",
-        "x ≤ ___"
+        "$3x \\le 18$",
+        "$x \\le$ ___"
       ],
       "accept": [
         "6"
       ],
-      "why": "18 ÷ 3 = 6."
+      "why": "$18 \\div 3 = 6$."
     }
   ],
-  "format": "lives"
+  "format": "lives",
+  "tex": true
 }

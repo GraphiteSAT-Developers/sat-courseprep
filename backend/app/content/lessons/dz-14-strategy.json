@@ -16,9 +16,9 @@
       "type": "predict",
       "prompt": "Which is Desmos-first?",
       "choices": [
-        "Solve 2^x = x + 5",
-        "Solve 3x = 12",
-        "Find a triangle's third angle given 50° and 60°"
+        "Solve `2^x` $= x + 5$",
+        "Solve $3x = 12$",
+        "Find a triangle's third angle given $50^{\\circ}$ and $60^{\\circ}$"
       ],
       "answer": 0,
       "why": "No clean algebra solves it, but a graph does."
@@ -27,9 +27,9 @@
       "type": "match",
       "prompt": "Match each question to the fastest first move.",
       "left": [
-        "Solve 2ˣ = x + 5",
-        "Solve 3x + 4 = 19",
-        "Find a, b and c in an equivalent expression",
+        "Solve $2^{x} = x + 5$",
+        "Solve $3x + 4 = 19$",
+        "Find $a$, $b$ and $c$ in an equivalent expression",
         "Fit a model to a table"
       ],
       "right": [
@@ -38,7 +38,7 @@
         "Desmos: the tilde trick",
         "Desmos: regression"
       ],
-      "why": "No algebra solves 2ˣ = x + 5 neatly, so graph it. One-step equations are faster by hand."
+      "why": "No algebra solves $2^{x} = x + 5$ neatly, so graph it. One-step equations are faster by hand."
     },
     {
       "type": "predict",
@@ -104,7 +104,7 @@
   "recall": [
     {
       "type": "predict",
-      "prompt": "2x + 6 = 14: Desmos or by hand?",
+      "prompt": "$2x + 6 = 14$: Desmos or by hand?",
       "choices": [
         "By hand",
         "Desmos"
@@ -114,7 +114,7 @@
     },
     {
       "type": "predict",
-      "prompt": "x³ − 2x = 5: Desmos or by hand?",
+      "prompt": "$x^{3} - 2x = 5$: Desmos or by hand?",
       "choices": [
         "Desmos",
         "By hand"
@@ -135,5 +135,6 @@
     }
   ],
   "practice": null,
-  "format": "classic"
+  "format": "classic",
+  "tex": true
 }

@@ -9,16 +9,16 @@
   "steps": [
     {
       "type": "spot",
-      "prompt": "A story for the quadratic formula. Tap the line that gets the formula x = (−b ± √(b² − 4ac)) / 2a wrong.",
+      "prompt": "A story for the quadratic formula. Tap the line that gets the formula $x = (-b \\pm \\sqrt{b^{2} -}$ 4ac)) $/ 2a$ wrong.",
       "lines": [
-        "A negative boy (−b)",
-        "couldn't decide (±)",
-        "whether to go to a radical party (√)",
-        "where he met b squared plus four awesome chicks (b² + 4ac)",
-        "and it was all over by 2 a.m. (2a)"
+        "A negative boy $(-b)$",
+        "couldn't decide $(\\pm )$",
+        "whether to go to a radical party $(\\sqrt{})$",
+        "where he met $b$ squared plus four awesome chicks ($b^{2} +$ 4ac)",
+        "and it was all over by 2 a.m. $(2a)$"
       ],
       "wrong": 3,
-      "why": "It's b² minus 4ac. Fix the story: he was square (b²) but missed out on four awesome chicks (− 4ac).",
+      "why": "It's $b^{2}$ minus 4ac. Fix the story: he was square $(b^{2})$ but missed out on four awesome chicks ($-$ 4ac).",
       "gate": true
     },
     {
@@ -44,9 +44,9 @@
       "prompt": "A story for solving a linear equation: \"The Distributor smashes the parentheses, the Collector gathers the x's on one side, the Mover sends the numbers across, and the Divider splits what's left.\" Put the solving steps in the story's order.",
       "items": [
         "Distribute to clear the parentheses",
-        "Collect the x terms on one side",
+        "Collect the $x$ terms on one side",
         "Move the constants to the other side",
-        "Divide by the coefficient of x"
+        "Divide by the coefficient of $x$"
       ],
       "why": "Four characters, four steps, always in that order."
     },
@@ -70,16 +70,16 @@
       "type": "predict",
       "prompt": "SOH CAH TOA as a story: \"Some Old Horse Caught Another Horse Taking Oats Away.\" What does \"Caught Another Horse\" stand for?",
       "choices": [
-        "cos = adjacent / hypotenuse",
-        "sin = opposite / hypotenuse",
-        "tan = opposite / adjacent"
+        "$\\cos = \\text{adjacent} /$ hypotenuse",
+        "$\\sin = \\text{opposite} /$ hypotenuse",
+        "$\\tan = \\text{opposite} /$ adjacent"
       ],
       "answer": 0,
       "why": "C-A-H: Cosine is Adjacent over Hypotenuse."
     },
     {
       "type": "predict",
-      "prompt": "Which will be easier to remember for percent change = (new − old) / old?",
+      "prompt": "Which will be easier to remember for percent $\\text{change} = (\\text{new} - \\text{old}) /$ old?",
       "choices": [
         "Repeating \"new minus old over old\"",
         "Your old phone sits in a drawer when you buy a new one. To see how much more the new one cost, take new minus old, then compare it to the old price by dividing by old.",
@@ -110,9 +110,9 @@
       "type": "predict",
       "prompt": "In SOH CAH TOA, what does TOA mean?",
       "choices": [
-        "tan = opposite / adjacent",
-        "tan = adjacent / opposite",
-        "sin = opposite / adjacent"
+        "$\\tan = \\text{opposite} /$ adjacent",
+        "$\\tan = \\text{adjacent} /$ opposite",
+        "$\\sin = \\text{opposite} /$ adjacent"
       ],
       "answer": 0,
       "why": "Taking Oats Away: Tangent, Opposite, Adjacent."
@@ -132,13 +132,14 @@
       "type": "predict",
       "prompt": "In the quadratic formula story, what's under the radical?",
       "choices": [
-        "b² − 4ac",
-        "b² + 4ac",
-        "2a"
+        "$b^{2} -$ 4ac",
+        "$b^{2} +$ 4ac",
+        "$2a$"
       ],
       "answer": 0,
       "why": "He missed out on four awesome chicks: minus 4ac."
     }
   ],
-  "format": "path"
+  "format": "path",
+  "tex": true
 }

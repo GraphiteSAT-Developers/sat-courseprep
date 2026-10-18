@@ -18,8 +18,8 @@
         "start": 70
       },
       "answer": 95,
-      "why": "Mean 85 for 5 scores means a total of 425. 80 + 85 + 90 + 75 = 330, so the fifth is 95.",
-      "readout": "Fifth score: {s}   Mean: {=(330+s)/5}",
+      "why": "Mean 85 for 5 scores means a total of 425. $80 + 85 + 90 + 75 = 330$, so the fifth is 95.",
+      "readout": "Fifth score: ${s}$, mean: ${=(330+s)/5}$",
       "dots": {
         "values": [
           "80",
@@ -42,8 +42,8 @@
       "type": "fill",
       "prompt": "Find the mean of 4, 8, 9, 11, 18.",
       "lines": [
-        "Sum = 50",
-        "Mean = 50 ÷ 5 = ___"
+        "$\\text{Sum} = 50$",
+        "$\\text{Mean} = 50 \\div 5 =$ ___"
       ],
       "accept": [
         "10"
@@ -83,7 +83,7 @@
         "25"
       ],
       "answer": 0,
-      "why": "The total goes from 5 × 12 = 60 to 6 × 13 = 78, so the new number is 18."
+      "why": "The total goes from $5 \\times 12 = 60$ to $6 \\times 13 = 78$, so the new number is 18."
     },
     {
       "type": "spot",
@@ -95,7 +95,7 @@
         "The mode stays 3"
       ],
       "wrong": 1,
-      "why": "The median was 3, and for 2, 3, 3, 4 it's still (3 + 3) / 2 = 3."
+      "why": "The median was 3, and for 2, 3, 3, 4 it's still $(3 + 3) / 2 = 3$."
     },
     {
       "type": "predict",
@@ -107,12 +107,12 @@
         "84"
       ],
       "answer": 0,
-      "why": "(1,600 + 2,700) / 50 = 86. The bigger class pulls the mean toward its own."
+      "why": "$(1,600 + 2,700) / 50 = 86$. The bigger class pulls the mean toward its own."
     }
   ],
   "keys": [
-    "Mean = total ÷ count. Use totals to work backward.",
-    "Median = the middle of the sorted list.",
+    "$\\text{Mean} = \\text{total} \\div \\text{count}$. Use totals to work backward.",
+    "$\\text{Median} =$ the middle of the sorted list.",
     "Outliers move the mean a lot and the median hardly at all."
   ],
   "recall": [
@@ -130,8 +130,8 @@
       "type": "fill",
       "prompt": "Find the mean of 3, 7, 8.",
       "lines": [
-        "Sum = 18",
-        "18 ÷ 3 = ___"
+        "$\\text{Sum} = 18$",
+        "$18 \\div 3 =$ ___"
       ],
       "accept": [
         "6"
@@ -147,8 +147,9 @@
         "6"
       ],
       "answer": 0,
-      "why": "(4 + 6) / 2."
+      "why": "$(4 + 6) / 2$."
     }
   ],
-  "format": "lab"
+  "format": "lab",
+  "tex": true
 }

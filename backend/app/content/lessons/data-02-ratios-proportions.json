@@ -10,14 +10,14 @@
     {
       "type": "recall",
       "prompt": "From memory: boys to girls is 3 : 5 in a class of 32. How many girls?",
-      "answer": "20. There are 3 + 5 = 8 parts, 32 ÷ 8 = 4 students per part, and 5 × 4 = 20."
+      "answer": "20. There are $3 + 5 = 8$ parts, $32 \\div 8 = 4$ students per part, and $5 \\times 4 = 20$."
     },
     {
       "type": "fill",
-      "prompt": "Solve x/12 = 5/8.",
+      "prompt": "Solve $x/12 = 5/8$.",
       "lines": [
-        "8x = 60",
-        "x = ___"
+        "$8x = 60$",
+        "$x =$ ___"
       ],
       "accept": [
         "7.5",
@@ -35,11 +35,11 @@
         "8 miles"
       ],
       "answer": 0,
-      "why": "3.2 × 25 = 80."
+      "why": "$3.2 \\times 25 = 80$."
     },
     {
       "type": "predict",
-      "prompt": "y is proportional to x, and y = 21 when x = 7. What is y when x = 10?",
+      "prompt": "$y$ is proportional to $x$, and $y = 21$ when $x = 7$. What is $y$ when $x = 10$?",
       "choices": [
         "30",
         "24",
@@ -47,7 +47,7 @@
         "21"
       ],
       "answer": 0,
-      "why": "y = 3x."
+      "why": "$y = 3x$."
     },
     {
       "type": "grid",
@@ -96,13 +96,13 @@
       "type": "spot",
       "prompt": "2 cans of paint cover 450 square feet. How many cans for 1,575 square feet? Tap the line with the mistake.",
       "lines": [
-        "2/450 = c/1575",
-        "450c = 3150",
-        "c = 3150 / 450",
-        "c = 6"
+        "$2/450 = c/1575$",
+        "$450c = 3150$",
+        "$c = 3150 / 450$",
+        "$c = 6$"
       ],
       "wrong": 3,
-      "why": "3150 ÷ 450 = 7 cans."
+      "why": "$3150 \\div 450 = 7$ cans."
     },
     {
       "type": "predict",
@@ -121,19 +121,19 @@
       "type": "predict",
       "prompt": "Which is a proportional relationship?",
       "choices": [
-        "y = 4x",
-        "y = 4x + 1",
-        "y = x + 4",
-        "y = x²"
+        "$y = 4x$",
+        "$y = 4x + 1$",
+        "$y = x + 4$",
+        "$y = x^{2}$"
       ],
       "answer": 0,
-      "why": "Proportional means y = kx: a line through the origin."
+      "why": "Proportional means $y = kx$: a line through the origin."
     }
   ],
   "keys": [
     "Ratios: add the parts, find the size of one part, then multiply.",
     "Proportions: keep matching units in matching places and cross-multiply.",
-    "Proportional means y = kx, a line through the origin."
+    "Proportional means $y = kx$, a line through the origin."
   ],
   "recall": [
     {
@@ -149,28 +149,29 @@
     },
     {
       "type": "fill",
-      "prompt": "Solve x/9 = 4/6.",
+      "prompt": "Solve $x/9 = 4/6$.",
       "lines": [
-        "6x = 36",
-        "x = ___"
+        "$6x = 36$",
+        "$x =$ ___"
       ],
       "accept": [
         "6"
       ],
-      "why": "36 ÷ 6."
+      "why": "$36 \\div 6$."
     },
     {
       "type": "predict",
       "prompt": "The graph of a proportional relationship passes through:",
       "choices": [
         "The origin",
-        "(1, 1)",
-        "(0, 1)"
+        "$(1, 1)$",
+        "$(0, 1)$"
       ],
       "answer": 0,
-      "why": "When x = 0, y = 0."
+      "why": "When $x = 0$, $y = 0$."
     }
   ],
   "format": "story",
-  "intro": "You're selling lemonade at the game. The recipe is 2 cups of concentrate to 7 cups of water."
+  "intro": "You're selling lemonade at the game. The recipe is 2 cups of concentrate to 7 cups of water.",
+  "tex": true
 }

@@ -14,7 +14,7 @@
     },
     {
       "type": "predict",
-      "prompt": "A line of best fit is y = 2.5x + 40, where x is hours studied and y is the score. What does 2.5 mean?",
+      "prompt": "A line of best fit is $y = 2.5x + 40$, where $x$ is hours studied and $y$ is the score. What does 2.5 mean?",
       "choices": [
         "Each extra hour predicts 2.5 more points",
         "The predicted score with 0 hours",
@@ -25,19 +25,19 @@
     },
     {
       "type": "fill",
-      "prompt": "Predict the score for 8 hours with y = 2.5x + 40.",
+      "prompt": "Predict the score for 8 hours with $y = 2.5x + 40$.",
       "lines": [
-        "2.5(8) + 40 = ___"
+        "2.5(8) $+ 40 =$ ___"
       ],
       "accept": [
         "60"
       ],
-      "why": "20 + 40 = 60.",
+      "why": "$20 + 40 = 60$.",
       "lane": "hand"
     },
     {
       "type": "plot",
-      "prompt": "The Desmos way: y = 2.5x + 40 is graphed. Tap the predicted score at 8 hours.",
+      "prompt": "The Desmos way: $y = 2.5x + 40$ is graphed. Tap the predicted score at 8 hours.",
       "curves": [
         "2.5x+40"
       ],
@@ -45,7 +45,7 @@
         8,
         60
       ],
-      "why": "Click the line at x = 8: (8, 60). Same as 2.5(8) + 40 by hand.",
+      "why": "Click the line at $x = 8$: $(8, 60)$. Same as 2.5(8) $+ 40$ by hand.",
       "window": {
         "x": [
           0,
@@ -67,12 +67,12 @@
       "prompt": "A student studied 8 hours and scored 66. What's the residual?",
       "choices": [
         "6",
-        "−6",
+        "$-6$",
         "66",
         "60"
       ],
       "answer": 0,
-      "why": "66 − 60 = 6. Positive means the point is above the line."
+      "why": "$66 - 60 = 6$. Positive means the point is above the line."
     },
     {
       "type": "predict",
@@ -103,7 +103,7 @@
       "prompt": "The data only went up to 10 hours. Is it reasonable to predict the score for 30 hours with this line?",
       "choices": [
         "No, that's far outside the data",
-        "Yes, any x works",
+        "Yes, any $x$ works",
         "Yes, as long as the score is under 100"
       ],
       "answer": 0,
@@ -111,8 +111,8 @@
     }
   ],
   "keys": [
-    "Slope = predicted change in y per 1 unit of x.",
-    "Residual = actual − predicted.",
+    "$\\text{Slope} = \\text{predicted}$ change in $y$ per 1 unit of $x$.",
+    "$\\text{Residual} = \\text{actual} - \\text{predicted}$.",
     "Only predict inside (or near) the range of the data."
   ],
   "recall": [
@@ -120,8 +120,8 @@
       "type": "predict",
       "prompt": "Residual means:",
       "choices": [
-        "Actual − predicted",
-        "Predicted − actual",
+        "$\\text{Actual} - \\text{predicted}$",
+        "$\\text{Predicted} - \\text{actual}$",
         "The slope"
       ],
       "answer": 0,
@@ -129,14 +129,14 @@
     },
     {
       "type": "fill",
-      "prompt": "y = 3x + 10. Predict y at x = 4.",
+      "prompt": "$y = 3x + 10$. Predict $y$ at $x = 4$.",
       "lines": [
-        "3(4) + 10 = ___"
+        "$3(4) + 10 =$ ___"
       ],
       "accept": [
         "22"
       ],
-      "why": "12 + 10."
+      "why": "$12 + 10$."
     },
     {
       "type": "predict",
@@ -150,5 +150,6 @@
       "why": "Rising and loose."
     }
   ],
-  "format": "race"
+  "format": "race",
+  "tex": true
 }

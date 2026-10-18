@@ -14,7 +14,7 @@
   var THEMES = Object.keys(BASE), SHOP_THEMES = ["chalkboard", "nightowl", "sunrise", "sakura", "graph", "deepsea", "espresso", "plum"];
   var ACCENTS = ["pencil", "sky", "mint", "coral", "lilac", "rose", "blueprint", "ember", "custom"];  // rose onward come from the shop
   var LOOK = { text: ["s", "m", "l", "xl"], font: ["default", "readable", "rounded", "mono"], motion: ["system", "reduce", "full"], density: ["comfortable", "compact"],
-               corners: ["round", "soft", "sharp"], effect: ["none", "ripple", "dots", "snow", "constellation", "symbols", "waves", "fireflies", "warp"] };
+               corners: ["round", "soft", "sharp"], effect: ["none", "ripple", "dots", "snow", "constellation", "symbols", "waves", "fireflies", "warp", "springy", "pencil", "magnet", "graphpaper", "bubbles", "gravity"] };
   var FREE_EFFECTS = ["none", "ripple", "dots"];
   var DEFAULTS = {
     dashboard: { order: ["kpis", "play", "today", "scores", "domains", "review", "plan", "account"], hidden: [], pins: [] },

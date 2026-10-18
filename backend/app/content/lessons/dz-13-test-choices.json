@@ -14,9 +14,9 @@
     },
     {
       "type": "predict",
-      "prompt": "Which is equivalent to (x + 3)² − 9? The Desmos move:",
+      "prompt": "Which is equivalent to $(x + 3)^{2} - 9$? The Desmos move:",
       "choices": [
-        "Graph y=(x+3)^2-9 and each choice, and keep the one that overlaps",
+        "Graph `y=(x+3)^2-9` and each choice, and keep the one that overlaps",
         "Average the choices",
         "Graph only the first choice"
       ],
@@ -29,11 +29,11 @@
     },
     {
       "type": "graph",
-      "prompt": "(x + 3)² − 9 is drawn. Type an equivalent expression with no brackets. If it's right, it lands exactly on top.",
+      "prompt": "$(x + 3)^{2} - 9$ is drawn. Type an equivalent expression with no brackets. If it's right, it lands exactly on top.",
       "accept": [
         "x^2+6x"
       ],
-      "why": "x² + 6x + 9 − 9 = x² + 6x. Matching graphs mean equivalent expressions.",
+      "why": "$x^{2} + 6x + 9 - 9 = x^{2} + 6x$. Matching graphs mean equivalent expressions.",
       "window": {
         "x": [
           -8,
@@ -53,27 +53,27 @@
     },
     {
       "type": "predict",
-      "prompt": "Which choice is equivalent to (x + 3)² − 9?",
+      "prompt": "Which choice is equivalent to $(x + 3)^{2} - 9$?",
       "choices": [
-        "x(x + 6)",
-        "x² + 9",
-        "x² − 6x",
-        "(x − 3)(x + 3)"
+        "`x(x` $+ 6$)",
+        "$x^{2} + 9$",
+        "$x^{2} - 6x$",
+        "$(x - 3)(x + 3)$"
       ],
       "answer": 0,
-      "why": "x² + 6x + 9 − 9 = x² + 6x = x(x + 6)."
+      "why": "$x^{2} + 6x + 9 - 9 = x^{2} + 6x =$ `x(x` $+ 6$)."
     },
     {
       "type": "predict",
-      "prompt": "Which point lies on y = 2x² − 3?",
+      "prompt": "Which point lies on $y = 2x^{2} - 3$?",
       "choices": [
-        "(2, 5)",
-        "(1, 1)",
-        "(−1, 1)",
-        "(0, 3)"
+        "$(2, 5)$",
+        "$(1, 1)$",
+        "$(-1, 1)$",
+        "$(0, 3)$"
       ],
       "answer": 0,
-      "why": "2(4) − 3 = 5."
+      "why": "$2(4) - 3 = 5$."
     },
     {
       "type": "spot",
@@ -99,14 +99,14 @@
     },
     {
       "type": "fill",
-      "prompt": "f(x) = 3x − 4. Which choice makes f(x) = 11? Try x = 5.",
+      "prompt": "`f(x)` $= 3x - 4$. Which choice makes `f(x)` $= 11$? Try $x = 5$.",
       "lines": [
-        "3(5) − 4 = ___"
+        "$3(5) - 4 =$ ___"
       ],
       "accept": [
         "11"
       ],
-      "why": "It matches, so x = 5."
+      "why": "It matches, so $x = 5$."
     }
   ],
   "keys": [
@@ -138,9 +138,9 @@
     },
     {
       "type": "fill",
-      "prompt": "Does x = 2 solve 4x + 1 = 9? 4(2) + 1?",
+      "prompt": "Does $x = 2$ solve $4x + 1 = 9$? $4(2) + 1$?",
       "lines": [
-        "4(2) + 1 = ___"
+        "$4(2) + 1 =$ ___"
       ],
       "accept": [
         "9"
@@ -150,5 +150,6 @@
   ],
   "practice": null,
   "format": "case",
-  "intro": "Case file: four answer choices, one is equivalent. Let Desmos be the witness."
+  "intro": "Case file: four answer choices, one is equivalent. Let Desmos be the witness.",
+  "tex": true
 }

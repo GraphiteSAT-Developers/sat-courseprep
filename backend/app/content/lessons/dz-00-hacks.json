@@ -10,11 +10,11 @@
   "steps": [
     {
       "type": "graph",
-      "prompt": "Desmos doesn't need \"y =\". Type 2x − 3 and watch it draw.",
+      "prompt": "Desmos doesn't need \"$y =$\". Type $2x - 3$ and watch it draw.",
       "accept": [
         "2x-3"
       ],
-      "why": "Any expression in x gets graphed as y = that expression.",
+      "why": "Any expression in $x$ gets graphed as $y =$ that expression.",
       "window": {
         "x": [
           -4,
@@ -28,7 +28,7 @@
     },
     {
       "type": "graph",
-      "prompt": "Solve x² − 4 = 5 by graphing both sides. The right side, y = 5, is drawn. Type the left side.",
+      "prompt": "Solve $x^{2} - 4 = 5$ by graphing both sides. The right side, $y = 5$, is drawn. Type the left side.",
       "accept": [
         "x^2-4"
       ],
@@ -49,7 +49,7 @@
     },
     {
       "type": "plot",
-      "prompt": "Tap the crossing point on the right. Its x is a solution.",
+      "prompt": "Tap the crossing point on the right. Its $x$ is a solution.",
       "curves": [
         "x^2-4",
         "5"
@@ -58,7 +58,7 @@
         3,
         5
       ],
-      "why": "(3, 5), so x = 3. The other crossing gives x = −3.",
+      "why": "$(3, 5)$, so $x = 3$. The other crossing gives $x = -3$.",
       "window": {
         "x": [
           -5,
@@ -73,7 +73,7 @@
     },
     {
       "type": "slider",
-      "prompt": "Any letter Desmos doesn't know becomes a slider. Drag k until the vertex of y = (x − k)² sits on the ring at (3, 0).",
+      "prompt": "Any letter Desmos doesn't know becomes a slider. Drag $k$ until the vertex of $y = (x - k)^{2}$ sits on the ring at $(3, 0)$.",
       "param": {
         "name": "k",
         "min": -5,
@@ -82,7 +82,7 @@
         "start": -2
       },
       "answer": 3,
-      "why": "k = 3. Sliders let you see what a constant does, then you confirm it by hand.",
+      "why": "$k = 3$. Sliders let you see what a constant does, then you confirm it by hand.",
       "curves": [
         "(x-k)^2"
       ],
@@ -102,23 +102,23 @@
           10
         ]
       },
-      "readout": "y = (x − {k})²"
+      "readout": "$y = (x - {k})^2$"
     },
     {
       "type": "predict",
-      "prompt": "(2x + 3)(x − c) = 2x² + bx − 12 for all x. Which entries find c and b?",
+      "prompt": "$(2x + 3)(x - c) = 2x^{2} + bx - 12$ for all $x$. Which entries find $c$ and $b$?",
       "choices": [
-        "x_1=[1,2,3], then (2x_1+3)(x_1-c)~2x_1^2+bx_1-12",
-        "(2x+3)(x-c)=2x^2+bx-12",
-        "c=2x+3",
-        "y~2x^2+bx-12"
+        "`x_1=[1,2,3]`, then `(2x_1+3)(x_1-c)~2x_1^2+bx_1-12`",
+        "`(2x+3)(x-c)=2x^2+bx-12`",
+        "$c=2x+3$",
+        "`y~2x^2+bx-12`"
       ],
       "answer": 0,
-      "why": "That's the tilde trick: a list of x-values, then ~ instead of =. Desmos reports c = 4 and b = −5."
+      "why": "That's the tilde trick: a list of $x$-values, then $\\sim \\text{instead}$ of $=$. Desmos reports $c = 4$ and $b = -5$."
     },
     {
       "type": "plot",
-      "prompt": "Tap the lowest point of y = x² − 6x + 5. Clicking a curve in Desmos shows this gray point with its coordinates.",
+      "prompt": "Tap the lowest point of $y = x^{2} - 6x + 5$. Clicking a curve in Desmos shows this gray point with its coordinates.",
       "curves": [
         "x^2-6x+5"
       ],
@@ -126,7 +126,7 @@
         3,
         -4
       ],
-      "why": "(3, −4). Desmos marks vertices, intercepts and crossings when you click a curve.",
+      "why": "$(3, -4)$. Desmos marks vertices, intercepts and crossings when you click a curve.",
       "window": {
         "x": [
           -1,
@@ -148,15 +148,15 @@
       ],
       "cards": [
         {
-          "text": "Solve 2ˣ = x + 3",
+          "text": "Solve $2^{x} = x + 3$",
           "bucket": 0
         },
         {
-          "text": "Solve 3x + 4 = 19",
+          "text": "Solve $3x + 4 = 19$",
           "bucket": 1
         },
         {
-          "text": "Find the vertex of y = 2x² − 12x + 7",
+          "text": "Find the vertex of $y = 2x^{2} - 12x + 7$",
           "bucket": 0
         },
         {
@@ -164,7 +164,7 @@
           "bucket": 1
         },
         {
-          "text": "How many solutions does x³ − 4x = 1 have?",
+          "text": "How many solutions does $x^{3} - 4x = 1$ have?",
           "bucket": 0
         }
       ],
@@ -172,52 +172,56 @@
     },
     {
       "type": "fill",
-      "prompt": "Desmos shows 0.4285714. Grid-ins take 5 characters, so type the exact fraction.",
+      "prompt": "You type $3 \\div 7$ into Desmos and it shows 0.4285714. A grid-in answer fits 5 characters. Enter an answer the SAT would accept.",
       "lines": [
-        "0.4285714 = ___"
+        "Your entry: ___"
       ],
       "accept": [
-        "3/7"
+        "3/7",
+        ".4285",
+        ".4286",
+        "0.428",
+        "0.429"
       ],
-      "why": "3 ÷ 7 = 0.428571… Desmos can show the fraction too: click the decimal's fraction button."
+      "why": "Any of $3/7$, .4285, .4286, 0.428 or 0.429 counts. A long decimal can be cut off or rounded, but it has to fill all 5 spaces, so 0.43 is marked wrong."
     }
   ],
   "keys": [
-    "You don't need \"y =\": Desmos graphs any expression in x.",
+    "You don't need \"$y =$\": Desmos graphs any expression in $x$.",
     "To solve an equation, graph both sides and click where they cross.",
     "A letter Desmos doesn't know becomes a slider.",
-    "The tilde (~) finds constants: the move for \"which values of a, b and c\".",
+    "The tilde `(~)` finds constants: the move for \"which values of $a$, $b$ and $c$\".",
     "Click a curve for its vertex, intercepts and crossings.",
     "Desmos first when it needs a graph; by hand when it takes 15 seconds."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "To solve 2ˣ = 9 − x in Desmos, you:",
+      "prompt": "To solve $2^{x} = 9 - x$ in Desmos, you:",
       "choices": [
-        "Graph y = 2ˣ and y = 9 − x and click the crossing",
-        "Type 2ˣ = 9 − x and read a number",
+        "Graph $y = 2^{x}$ and $y = 9 - x$ and click the crossing",
+        "Type $2^{x} = 9 - x$ and read a number",
         "Make a table",
         "Use the tilde"
       ],
       "answer": 0,
-      "why": "Graph both sides; the crossing's x is the answer."
+      "why": "Graph both sides; the crossing's $x$ is the answer."
     },
     {
       "type": "predict",
       "prompt": "Which symbol fits constants to make two expressions match?",
       "choices": [
-        "~",
-        "=",
-        "≈",
+        "$\\sim$",
+        "$=$",
+        "$\\approx$",
         ":"
       ],
       "answer": 0,
-      "why": "The tilde, with x_1 from a list."
+      "why": "The tilde, with `x_1` from a list."
     },
     {
       "type": "predict",
-      "prompt": "You type y = ax + 3 and Desmos offers to add a slider for a. What will the slider do?",
+      "prompt": "You type $y = ax + 3$ and Desmos offers to add a slider for a. What will the slider do?",
       "choices": [
         "Let you drag a and watch the line turn",
         "Solve for a",
@@ -227,5 +231,6 @@
       "answer": 0,
       "why": "Sliders let you explore a constant, then confirm by hand."
     }
-  ]
+  ],
+  "tex": true
 }

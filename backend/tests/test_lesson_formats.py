@@ -1,6 +1,7 @@
 """Lesson formats and hands-on steps: every lesson plays differently, every answer key is right, the math in the
 graphs checks out, and Desmos hacks opens first. Run from the backend folder: python -m unittest discover tests"""
 import json
+import re
 import shutil
 import subprocess
 import unittest
@@ -151,6 +152,45 @@ class LessonContentTest(unittest.TestCase):
         out = json.loads(subprocess.run(["node", "-e", script], input=json.dumps(cases), capture_output=True, text=True, check=True).stdout)
         bad = [cases[i] for i, ok in enumerate(out) if not ok]
         self.assertEqual(bad, [])
+
+
+SHOWN = ("title", "hook", "intro", "keys", "prompt", "why", "scene", "choices", "lines", "items", "show", "buckets", "left", "right",
+         "cards", "text", "tiles", "head", "rows", "caption", "table", "steps", "recall", "readout")
+MATH = re.compile(r"(?<!\\)\$((?:\\.|[^$\\])+)\$|`[^`]*`")
+KATEX = Path(__file__).resolve().parents[2] / "website" / "src" / "vendor" / "katex" / "katex.min.js"
+
+
+def shown_text(o, key=None):
+    """Every string a student sees in a lesson."""
+    if isinstance(o, str):
+        if key in SHOWN or key is None:
+            yield o
+    elif isinstance(o, list):
+        for x in o:
+            yield from shown_text(x, key)
+    elif isinstance(o, dict):
+        for k, v in o.items():
+            if k in SHOWN or (k == "answer" and isinstance(v, str)):
+                yield from shown_text(v, k if k not in ("steps", "recall", "cards", "table") else None)
+
+
+class LatexTest(unittest.TestCase):
+    def test_all_math_is_latex(self):
+        for l in lessons.all_lessons():
+            self.assertTrue(l.get("tex"), l["id"])
+            for t in shown_text(l):
+                outside = MATH.sub(" ", t).replace("\\$", "")
+                self.assertNotRegex(outside, r"[=+−×÷^²³√π≤≥°₁₂⁻~±$]", (l["id"], t))
+
+    @unittest.skipUnless(shutil.which("node"), "node isn't installed")
+    def test_every_formula_renders(self):
+        spans = sorted({m.group(1) for l in lessons.all_lessons() for t in shown_text(l) for m in MATH.finditer(t) if m.group(1)})
+        self.assertGreater(len(spans), 1000)
+        js = ("const k = require(%s); const a = JSON.parse(require('fs').readFileSync(0, 'utf8')); const bad = [];"
+              "for (const s of a) { try { k.renderToString(s.replace(/\\{=[^}]*\\}/g, '1').replace(/\\{[a-z]\\}/g, '1'), { throwOnError: true, strict: 'ignore' }); }"
+              " catch (e) { bad.push([s, e.message]); } } process.stdout.write(JSON.stringify(bad));" % json.dumps(str(KATEX)))
+        out = subprocess.run(["node", "-e", js], input=json.dumps(spans), capture_output=True, text=True, check=True).stdout
+        self.assertEqual(json.loads(out), [])
 
 
 class StartFirstTest(unittest.TestCase):

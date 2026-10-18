@@ -9,39 +9,39 @@
   "steps": [
     {
       "type": "recall",
-      "prompt": "What happens to the exponents when you multiply x³ · x⁴?",
-      "answer": "You add them: x⁷."
+      "prompt": "What happens to the exponents when you multiply $x^{3} \\cdot x^{4}$?",
+      "answer": "You add them: $x^{7}$."
     },
     {
       "type": "predict",
-      "prompt": "(x³)⁴ = ?",
+      "prompt": "$(x^{3})^{4} =$ ?",
       "choices": [
-        "x⁷",
-        "x¹²",
-        "x⁸¹",
-        "4x³"
+        "$x^{7}$",
+        "$x^{12}$",
+        "$x^{81}$",
+        "$4x^{3}$"
       ],
       "answer": 1,
-      "why": "A power of a power multiplies the exponents: 3 × 4 = 12. Four copies of x³ is 3 + 3 + 3 + 3."
+      "why": "A power of a power multiplies the exponents: $3 \\times 4 = 12$. Four copies of $x^{3}$ is $3 + 3 + 3 + 3$."
     },
     {
       "type": "predict",
-      "prompt": "x⁻² = ?",
+      "prompt": "$x^{-2} =$ ?",
       "choices": [
-        "−x²",
-        "1/x²",
-        "−2x",
-        "x/2"
+        "$-x^{2}$",
+        "$1/x^{2}$",
+        "$-2x$",
+        "$x/2$"
       ],
       "answer": 1,
-      "why": "A negative exponent means one over: x⁻² = 1/x². It never makes the answer negative."
+      "why": "A negative exponent means one over: $x^{-2} = 1/x^{2}$. It never makes the answer negative."
     },
     {
       "type": "fill",
-      "prompt": "Simplify x⁸ ÷ x³.",
+      "prompt": "Simplify $x^{8} \\div x^{3}$.",
       "lines": [
-        "Dividing: subtract the exponents, 8 − 3",
-        "x⁸ ÷ x³ = x to the power ___"
+        "Dividing: subtract the exponents, $8 - 3$",
+        "$x^{8} \\div x^{3} = x$ to the power ___"
       ],
       "accept": [
         "5"
@@ -52,96 +52,97 @@
       "type": "match",
       "prompt": "Match each expression to its simplest form.",
       "left": [
-        "x³ · x⁴",
-        "(x³)⁴",
-        "x⁸ ÷ x³",
-        "x⁻²",
-        "x^(1/2)"
+        "$x^{3} \\cdot x^{4}$",
+        "$(x^{3})^{4}$",
+        "$x^{8} \\div x^{3}$",
+        "$x^{-2}$",
+        "$x^{1/2}$"
       ],
       "right": [
-        "x⁷",
-        "x¹²",
-        "x⁵",
-        "1/x²",
-        "√x"
+        "$x^{7}$",
+        "$x^{12}$",
+        "$x^{5}$",
+        "$1/x^{2}$",
+        "$\\sqrt{x}$"
       ],
       "why": "Multiply: add exponents. Power of a power: multiply. Divide: subtract. Negative: flip. One half: square root."
     },
     {
       "type": "predict",
-      "prompt": "x to the 1/2 power is the same as",
+      "prompt": "$x$ to the $1/2$ power is the same as",
       "choices": [
-        "x/2",
-        "√x",
-        "x²",
-        "1/(2x)"
+        "$x/2$",
+        "$\\sqrt{x}$",
+        "$x^{2}$",
+        "$1/(2x)$"
       ],
       "answer": 1,
-      "why": "A fractional exponent is a root. The 2 in 1/2 means square root."
+      "why": "A fractional exponent is a root. The 2 in $1/2$ means square root."
     },
     {
       "type": "spot",
-      "prompt": "Simplifying (2x³)². Tap the line with the mistake.",
+      "prompt": "Simplifying $(2x^{3})^{2}$. Tap the line with the mistake.",
       "lines": [
-        "(2x³)²",
-        "= 2² · (x³)²",
-        "= 2x⁶"
+        "$(2x^{3})^{2}$",
+        "$= 2^{2} \\cdot (x^{3})^{2}$",
+        "$= 2x^{6}$"
       ],
       "wrong": 2,
-      "why": "The 2 is squared too: 2² = 4, so the answer is 4x⁶."
+      "why": "The 2 is squared too: $2^{2} = 4$, so the answer is $4x^{6}$."
     },
     {
       "type": "order",
-      "prompt": "Put the steps in order to find 8 to the 2/3 power.",
+      "prompt": "Put the steps in order to find 8 to the $2/3$ power.",
       "items": [
-        "Take the cube root first: ∛8 = 2",
-        "Then square it: 2² = 4",
-        "So 8 to the 2/3 power is 4"
+        "Take the cube root first: $\\sqrt[3]{8} = 2$",
+        "Then square it: $2^{2} = 4$",
+        "So 8 to the $2/3$ power is 4"
       ],
       "why": "The bottom of the fraction is the root, the top is the power. Root first keeps the numbers small."
     }
   ],
   "keys": [
     "Multiplying the same base: add exponents. Dividing: subtract. Power of a power: multiply.",
-    "A negative exponent means one over: x⁻ⁿ = 1/xⁿ.",
-    "A fractional exponent is a root: x to the m/n is the nth root of x, raised to the m."
+    "A negative exponent means one over: $x^{-n} = 1/x^{n}$.",
+    "A fractional exponent is a root: $x$ to the m/n is the nth root of $x$, raised to the $m$."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "x⁴ · x⁻¹ = ?",
+      "prompt": "$x^{4} \\cdot x^{-1} =$ ?",
       "choices": [
-        "x³",
-        "x⁻⁴",
-        "x⁵",
-        "x"
+        "$x^{3}$",
+        "$x^{-4}$",
+        "$x^{5}$",
+        "$x$"
       ],
       "answer": 0,
-      "why": "4 + (−1) = 3."
+      "why": "$4 + (-1) = 3$."
     },
     {
       "type": "predict",
-      "prompt": "(x²)⁵ = ?",
+      "prompt": "$(x^{2})^{5} =$ ?",
       "choices": [
-        "x⁷",
-        "x¹⁰",
-        "x³²",
-        "5x²"
+        "$x^{7}$",
+        "$x^{10}$",
+        "$x^{32}$",
+        "$5x^{2}$"
       ],
       "answer": 1,
-      "why": "2 × 5 = 10."
+      "why": "$2 \\times 5 = 10$."
     },
     {
       "type": "fill",
-      "prompt": "16 to the 1/2 power:",
+      "prompt": "16 to the $1/2$ power:",
       "lines": [
-        "√16 = ___"
+        "$\\sqrt{16} =$ ___"
       ],
       "accept": [
         "4"
       ],
-      "why": "4 × 4 = 16."
+      "why": "$4 \\times 4 = 16$."
     }
   ],
-  "format": "lives"
+  "format": "lives",
+  "tex": true
 }

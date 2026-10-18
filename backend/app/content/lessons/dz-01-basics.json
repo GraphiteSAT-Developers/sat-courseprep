@@ -14,26 +14,26 @@
     },
     {
       "type": "predict",
-      "prompt": "You want (x + 1) ÷ (x − 3). Which entry is right?",
+      "prompt": "You want $(x + 1) \\div (x - 3)$. Which entry is right?",
       "choices": [
-        "(x+1)/(x-3)",
-        "x+1/x-3",
-        "x+1/(x-3)",
-        "(x+1)/x-3"
+        "$(x+1)/(x-3)$",
+        "$x+1/x-3$",
+        "$x+1/(x-3)$",
+        "$(x+1)/x-3$"
       ],
       "answer": 0,
       "why": "Without parentheses, Desmos divides only the term right next to the slash."
     },
     {
       "type": "build",
-      "prompt": "Build the Desmos entry for (x + 1) ÷ (x − 3).",
+      "prompt": "Build the Desmos entry for $(x + 1) \\div (x - 3)$.",
       "tiles": [
-        "(x+1)",
-        "/",
-        "(x-3)",
-        "x+1",
-        "x-3",
-        "÷"
+        "`(x+1)`",
+        "`/`",
+        "`(x-3)`",
+        "`x+1`",
+        "`x-3`",
+        "`÷`"
       ],
       "answers": [
         [
@@ -42,29 +42,29 @@
           2
         ]
       ],
-      "why": "Brackets around the top and the bottom. Without them, Desmos divides only 1 by x."
+      "why": "Brackets around the top and the bottom. Without them, Desmos divides only 1 by $x$."
     },
     {
       "type": "predict",
       "prompt": "Which of these makes a list in Desmos?",
       "choices": [
-        "[2,4,6]",
+        "`[2,4,6]`",
         "{2,4,6}",
-        "(2,4,6)"
+        "$(2,4,6)$"
       ],
       "answer": 0,
-      "why": "Square brackets make lists. Curly braces are restrictions, like {0<x<5}, and parentheses make points."
+      "why": "Square brackets make lists. Curly braces are restrictions, like ${0<x<5}$, and parentheses make points."
     },
     {
       "type": "predict",
-      "prompt": "Why type x_1 (x with a subscript 1) in tables and regressions?",
+      "prompt": "Why type `x_1` ($x$ with a subscript 1) in tables and regressions?",
       "choices": [
         "It matches the table's column names, and keeps Desmos from reading two letters as multiplication",
         "It looks nicer",
         "Every equation needs it"
       ],
       "answer": 0,
-      "why": "Desmos reads ab as a × b. Subscripts like x_1 and y_1 are single names, and they're what a table's columns are called."
+      "why": "Desmos reads ab as $a \\times b$. Subscripts like `x_1` and `y_1` are single names, and they're what a table's columns are called."
     },
     {
       "type": "order",
@@ -82,9 +82,9 @@
       "type": "spot",
       "prompt": "Finding the mean of 4, 9 and 11 in Desmos. Tap the entry that won't work.",
       "lines": [
-        "mean([4,9,11])",
-        "L=[4,9,11], then mean(L)",
-        "mean({4,9,11})"
+        "`mean([4,9,11])`",
+        "`L=[4,9,11]`, then `mean(L)`",
+        "`mean({4,9,11})`"
       ],
       "wrong": 2,
       "why": "Curly braces aren't a list, so there's nothing to average."
@@ -111,20 +111,20 @@
       "type": "predict",
       "prompt": "Which makes a list?",
       "choices": [
-        "[1,2,3]",
+        "`[1,2,3]`",
         "{1,2,3}",
-        "(1,2,3)"
+        "$(1,2,3)$"
       ],
       "answer": 0,
       "why": "Square brackets."
     },
     {
       "type": "predict",
-      "prompt": "Type (x − 2) ÷ 4 as:",
+      "prompt": "Type $(x - 2) \\div 4$ as:",
       "choices": [
-        "(x-2)/4",
-        "x-2/4",
-        "x/4-2"
+        "$(x-2)/4$",
+        "$x-2/4$",
+        "$x/4-2$"
       ],
       "answer": 0,
       "why": "Parentheses around the numerator."
@@ -142,5 +142,6 @@
     }
   ],
   "practice": null,
-  "format": "lives"
+  "format": "lives",
+  "tex": true
 }

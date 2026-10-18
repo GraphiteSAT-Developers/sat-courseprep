@@ -9,19 +9,19 @@
   "steps": [
     {
       "type": "recall",
-      "prompt": "From memory: how does Desmos draw y < 2x + 1 compared with y ≤ 2x + 1?",
-      "answer": "< or > gets a dashed boundary (not included); ≤ or ≥ gets a solid one. The solution region is shaded."
+      "prompt": "From memory: how does Desmos draw $y < 2x + 1$ compared with $y \\le 2x + 1$?",
+      "answer": "$<$ or $> \\text{gets}$ a dashed boundary (not included); $\\le$ or $\\ge \\text{gets}$ a solid one. The solution region is shaded."
     },
     {
       "type": "predict",
-      "prompt": "To type ≤ in Desmos, you type:",
+      "prompt": "To type $\\le$ in Desmos, you type:",
       "choices": [
-        "<=",
-        "=<",
-        "< ="
+        "$<=$",
+        "$=<$",
+        "$< =$"
       ],
       "answer": 0,
-      "why": "Desmos turns <= into ≤ for you."
+      "why": "Desmos turns $<=$ into $\\le$ for you."
     },
     {
       "type": "predict",
@@ -43,39 +43,39 @@
       ],
       "cards": [
         {
-          "text": "(1, 3)",
+          "text": "$(1, 3)$",
           "bucket": 0
         },
         {
-          "text": "(0, 0)",
+          "text": "$(0, 0)$",
           "bucket": 1
         },
         {
-          "text": "(3, 3)",
+          "text": "$(3, 3)$",
           "bucket": 1
         },
         {
-          "text": "(−1, 2)",
+          "text": "$(-1, 2)$",
           "bucket": 0
         },
         {
-          "text": "(2, 5)",
+          "text": "$(2, 5)$",
           "bucket": 1
         }
       ],
-      "why": "Check both: (1, 3) has 3 > 2 and 3 < 4. (3, 3) fails 3 > 4. When a point is near a boundary, plug it in."
+      "why": "Check both: $(1, 3)$ has $3 > 2$ and $3 < 4$. $(3, 3)$ fails $3 > 4$. When a point is near a boundary, plug it in."
     },
     {
       "type": "predict",
-      "prompt": "Which point satisfies both y > x + 1 and y < −x + 5?",
+      "prompt": "Which point satisfies both $y > x + 1$ and $y < -x + 5$?",
       "choices": [
-        "(1, 3)",
-        "(2, 2)",
-        "(0, 6)",
-        "(3, 3)"
+        "$(1, 3)$",
+        "$(2, 2)$",
+        "$(0, 6)$",
+        "$(3, 3)$"
       ],
       "answer": 0,
-      "why": "(1, 3): 3 > 2 and 3 < 4. Plot the choices as points to see which sit in the overlap.",
+      "why": "$(1, 3)$: $3 > 2$ and $3 < 4$. Plot the choices as points to see which sit in the overlap.",
       "desmos": [
         "y>x+1",
         "y<-x+5",
@@ -95,21 +95,21 @@
     },
     {
       "type": "fill",
-      "prompt": "Is (2, 5) a solution of y ≥ 3x − 1? Check the boundary value.",
+      "prompt": "Is $(2, 5)$ a solution of $y \\ge 3x - 1$? Check the boundary value.",
       "lines": [
-        "3(2) − 1 = ___",
-        "5 ≥ that, so yes"
+        "$3(2) - 1 =$ ___",
+        "$5 \\ge$ that, so yes"
       ],
       "accept": [
         "5"
       ],
-      "why": "5 ≥ 5 is true, because ≥ includes the line."
+      "why": "$5 \\ge 5$ is true, $\\text{because} \\ge \\text{includes}$ the line."
     },
     {
       "type": "predict",
-      "prompt": "(2, 5) on y ≥ 3x − 1: is the boundary there dashed or solid?",
+      "prompt": "$(2, 5)$ on $y \\ge 3x - 1$: is the boundary there dashed or solid?",
       "choices": [
-        "Solid, since ≥ includes the line",
+        "Solid, $\\text{since} \\ge \\text{includes}$ the line",
         "Dashed",
         "There's no boundary"
       ],
@@ -118,18 +118,18 @@
     }
   ],
   "keys": [
-    "Dashed: strict (< or >). Solid: included (≤ or ≥).",
+    "Dashed: strict ($<$ or $>$). Solid: included ($\\le$ or $\\ge$).",
     "The answer is where the shadings overlap.",
     "Near an edge, substitute instead of trusting colors."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "Type ≥ as:",
+      "prompt": "Type $\\ge$ as:",
       "choices": [
-        ">=",
-        "=>",
-        "≥ only"
+        "$>=$",
+        "$=>$",
+        "$\\ge$ only"
       ],
       "answer": 0,
       "why": "Desmos converts it."
@@ -160,6 +160,7 @@
     "skill": "linear-inequalities-in-one-or-two-variables"
   },
   "format": "teach",
-  "intro": "Sam graphed y > x + 1 and y < −x + 5 in Desmos and picked out points. Check Sam's picks.",
-  "student": "Sam"
+  "intro": "Sam graphed $y > x + 1$ and $y < -x + 5$ in Desmos and picked out points. Check Sam's picks.",
+  "student": "Sam",
+  "tex": true
 }

@@ -3,128 +3,128 @@
   "order": 212,
   "domain": "advanced-math",
   "skill": "nonlinear-functions",
-  "title": "Zeros, factors and x-intercepts",
+  "title": "Zeros, factors and $x$-intercepts",
   "minutes": 6,
-  "hook": "If f(a) = 0, then (x − a) is a factor and (a, 0) is an x-intercept.",
+  "hook": "If $f(a) = 0$, then $(x - a)$ is a factor and $(a, 0)$ is an $x$-intercept.",
   "steps": [
     {
       "type": "recall",
-      "prompt": "From memory: if (x − 4) is a factor of p(x), what is p(4)?",
-      "answer": "0. A factor (x − a) means x = a is a zero, so p(a) = 0."
+      "prompt": "From memory: if $(x - 4)$ is a factor of $p(x)$, what is $p(4)$?",
+      "answer": "0. A factor $(x - a)$ means $x = a$ is a zero, so $p(a) = 0$."
     },
     {
       "type": "predict",
-      "prompt": "p(x) = (x − 2)(x + 5)(x − 1). Which is an x-intercept?",
+      "prompt": "$p(x) = (x - 2)(x + 5)(x - 1)$. Which is an $x$-intercept?",
       "choices": [
-        "(−5, 0)",
-        "(5, 0)",
-        "(0, −5)",
-        "(−2, 0)"
+        "$(-5, 0)$",
+        "$(5, 0)$",
+        "$(0, -5)$",
+        "$(-2, 0)$"
       ],
       "answer": 0,
-      "why": "x + 5 = 0 when x = −5."
+      "why": "$x + 5 = 0$ when $x = -5$."
     },
     {
       "type": "match",
       "prompt": "Match each zero to its factor.",
       "left": [
-        "Zero at x = 3",
-        "Zero at x = −2",
-        "Zero at x = 1/2",
-        "Zero at x = 0"
+        "Zero at $x = 3$",
+        "Zero at $x = -2$",
+        "Zero at $x = 1/2$",
+        "Zero at $x = 0$"
       ],
       "right": [
-        "(x − 3)",
-        "(x + 2)",
-        "(2x − 1)",
-        "x"
+        "$(x - 3)$",
+        "$(x + 2)$",
+        "$(2x - 1)$",
+        "$x$"
       ],
-      "why": "A zero at x = a comes from a factor that's 0 there: x − a. For 1/2, 2x − 1 = 0."
+      "why": "A zero at $x = a$ comes from a factor that's 0 there: $x - a$. For $1/2$, $2x - 1 = 0$."
     },
     {
       "type": "predict",
-      "prompt": "p(3) = 0. Which must be a factor of p(x)?",
+      "prompt": "$p(3) = 0$. Which must be a factor of $p(x)$?",
       "choices": [
-        "x − 3",
-        "x + 3",
-        "3x",
-        "x − 1/3"
+        "$x - 3$",
+        "$x + 3$",
+        "$3x$",
+        "$x - 1/3$"
       ],
       "answer": 0,
-      "why": "A zero at 3 means a factor of x − 3."
+      "why": "A zero at 3 means a factor of $x - 3$."
     },
     {
       "type": "fill",
-      "prompt": "Find the zeros of p(x) = x³ − 4x.",
+      "prompt": "Find the zeros of $p(x) = x^{3} - 4x$.",
       "lines": [
-        "Take out x: x(x² − 4)",
-        "Difference of squares: x(x − ___)(x + 2)"
+        "Take out $x$: $x(x^{2} - 4)$",
+        "Difference of squares: $x(x -$ ___$)(x + 2)$"
       ],
       "accept": [
         "2"
       ],
-      "why": "The zeros are 0, 2 and −2."
+      "why": "The zeros are 0, 2 and $-2$."
     },
     {
       "type": "predict",
-      "prompt": "When p(x) is divided by x − 2, the remainder is 7. What is p(2)?",
+      "prompt": "When $p(x)$ is divided by $x - 2$, the remainder is 7. What is $p(2)$?",
       "choices": [
         "7",
         "2",
         "0",
-        "−7"
+        "$-7$"
       ],
       "answer": 0,
-      "why": "The remainder theorem: dividing by x − a leaves the remainder p(a)."
+      "why": "The remainder theorem: dividing by $x - a$ leaves the remainder $p(a)$."
     },
     {
       "type": "spot",
-      "prompt": "Finding the zeros of f(x) = 2(x + 3)(x − 1)². Tap the line with the mistake.",
+      "prompt": "Finding the zeros of $f(x) = 2(x + 3)(x - 1)^{2}$. Tap the line with the mistake.",
       "lines": [
-        "Set each factor with x equal to 0",
-        "x + 3 = 0 gives x = −3",
-        "(x − 1)² = 0 gives x = 1",
-        "So the zeros are −3, 1 and 2"
+        "Set each factor with $x$ equal to 0",
+        "$x + 3 = 0$ gives $x = -3$",
+        "$(x - 1)^{2} = 0$ gives $x = 1$",
+        "So the zeros are $-3$, 1 and 2"
       ],
       "wrong": 3,
-      "why": "The 2 in front is a constant, not a factor with x. The zeros are −3 and 1 (a double zero, where the graph touches and turns)."
+      "why": "The 2 in front is a constant, not a factor with $x$. The zeros are $-3$ and 1 (a double zero, where the graph touches and turns)."
     },
     {
       "type": "predict",
-      "prompt": "A parabola opening upward crosses the x-axis only at x = −1 and x = 4, with y-intercept −8. Which could it be?",
+      "prompt": "A parabola opening upward crosses the $x$-axis only at $x = -1$ and $x = 4$, with $y$-intercept $-8$. Which could it be?",
       "choices": [
-        "y = 2(x + 1)(x − 4)",
-        "y = (x − 1)(x + 4)",
-        "y = 2(x − 1)(x + 4)",
-        "y = −2(x + 1)(x − 4)"
+        "$y = 2(x + 1)(x - 4)$",
+        "$y = (x - 1)(x + 4)$",
+        "$y = 2(x - 1)(x + 4)$",
+        "$y = -2(x + 1)(x - 4)$"
       ],
       "answer": 0,
-      "why": "Zeros at −1 and 4 give (x + 1)(x − 4). At x = 0 that's −4, so the front number is 2 to make −8, and positive opens upward."
+      "why": "Zeros at $-1$ and 4 give $(x + 1)(x - 4)$. At $x = 0$ that's $-4$, so the front number is 2 to make $-8$, and positive opens upward."
     }
   ],
   "keys": [
-    "A zero at x = a means a factor (x − a) and an x-intercept (a, 0).",
-    "The remainder when dividing by x − a is p(a).",
-    "Use the y-intercept to find a leading constant."
+    "A zero at $x = a$ means a factor $(x - a)$ and an $x$-intercept $(a, 0)$.",
+    "The remainder when dividing by $x - a$ is $p(a)$.",
+    "Use the $y$-intercept to find a leading constant."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "If p(−2) = 0, a factor is:",
+      "prompt": "If $p(-2) = 0$, a factor is:",
       "choices": [
-        "x + 2",
-        "x − 2",
-        "2x"
+        "$x + 2$",
+        "$x - 2$",
+        "$2x$"
       ],
       "answer": 0,
-      "why": "x − (−2) = x + 2."
+      "why": "$x - (-2) = x + 2$."
     },
     {
       "type": "predict",
-      "prompt": "The zeros of (x − 6)(x + 1) are:",
+      "prompt": "The zeros of $(x - 6)(x + 1)$ are:",
       "choices": [
-        "6 and −1",
-        "−6 and 1",
+        "6 and $-1$",
+        "$-6$ and 1",
         "6 and 1"
       ],
       "answer": 0,
@@ -132,17 +132,18 @@
     },
     {
       "type": "fill",
-      "prompt": "Find the positive zero of p(x) = x² − 9.",
+      "prompt": "Find the positive zero of $p(x) = x^{2} - 9$.",
       "lines": [
-        "(x − 3)(x + 3)",
+        "$(x - 3)(x + 3)$",
         "Positive zero: ___"
       ],
       "accept": [
         "3"
       ],
-      "why": "x − 3 = 0."
+      "why": "$x - 3 = 0$."
     }
   ],
   "format": "case",
-  "intro": "Case file: a polynomial left clues at its zeros. Match each zero to the factor that made it."
+  "intro": "Case file: a polynomial left clues at its zeros. Match each zero to the factor that made it.",
+  "tex": true
 }

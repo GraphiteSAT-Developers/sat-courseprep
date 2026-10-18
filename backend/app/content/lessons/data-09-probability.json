@@ -9,12 +9,12 @@
   "steps": [
     {
       "type": "predict",
-      "prompt": "A fair die is rolled. What's P(even or greater than 4)?",
+      "prompt": "A fair die is rolled. What's $P(\\text{even or greater than 4})$?",
       "choices": [
-        "2/3",
-        "5/6",
-        "1/2",
-        "1/3"
+        "$2/3$",
+        "$5/6$",
+        "$1/2$",
+        "$1/3$"
       ],
       "answer": 0,
       "why": "Even is 2, 4, 6 and greater than 4 is 5, 6. Together that's 2, 4, 5, 6: 4 of 6. Don't count 6 twice.",
@@ -22,32 +22,32 @@
     },
     {
       "type": "recall",
-      "prompt": "From memory: if P(rain) = 0.3, what's P(no rain)?",
-      "answer": "0.7. The complement is 1 − P."
+      "prompt": "From memory: if $P(\\text{rain}) = 0.3$, what's $P(\\text{no rain})$?",
+      "answer": "0.7. The complement is $1 - P$."
     },
     {
       "type": "match",
       "prompt": "A bag has 4 red, 6 blue and 10 green marbles. Match each event to its probability.",
       "left": [
-        "P(red)",
-        "P(blue)",
-        "P(green)",
-        "P(not red)"
+        "$P(\\text{red})$",
+        "$P(\\text{blue})$",
+        "$P(\\text{green})$",
+        "$P(\\text{not red})$"
       ],
       "right": [
-        "1/5",
-        "3/10",
-        "1/2",
-        "4/5"
+        "$1/5$",
+        "$3/10$",
+        "$1/2$",
+        "$4/5$"
       ],
-      "why": "There are 20 marbles. Red: 4/20. Blue: 6/20. Green: 10/20. Not red: 16/20."
+      "why": "There are 20 marbles. Red: $4/20$. Blue: $6/20$. Green: $10/20$. Not red: $16/20$."
     },
     {
       "type": "fill",
-      "prompt": "A bag has 4 red, 6 blue and 10 green marbles. What's P(blue)?",
+      "prompt": "A bag has 4 red, 6 blue and 10 green marbles. What's $P(\\text{blue})$?",
       "lines": [
-        "Total = 20",
-        "P(blue) = 6/20 = ___"
+        "$\\text{Total} = 20$",
+        "$P(\\text{blue}) = 6/20 =$ ___"
       ],
       "accept": [
         "0.3",
@@ -58,7 +58,7 @@
     },
     {
       "type": "predict",
-      "prompt": "A student is picked at random. What's P(likes math)?",
+      "prompt": "A student is picked at random. What's $P(\\text{likes math})$?",
       "choices": [
         "0.75",
         "0.45",
@@ -99,7 +99,7 @@
     },
     {
       "type": "predict",
-      "prompt": "What's P(grade 11 and doesn't like math)?",
+      "prompt": "What's $P(\\text{grade 11 and doesn’t like math})$?",
       "choices": [
         "0.05",
         "0.1",
@@ -140,7 +140,7 @@
     },
     {
       "type": "predict",
-      "prompt": "What's P(likes math, given grade 10)?",
+      "prompt": "What's $P(\\text{likes math, given grade 10})$?",
       "choices": [
         "0.6",
         "0.3",
@@ -148,7 +148,7 @@
         "0.75"
       ],
       "answer": 0,
-      "why": "\"Given grade 10\" means only the 50 tenth graders count: 30/50.",
+      "why": "\"Given grade 10\" means only the 50 tenth graders count: $30/50$.",
       "table": {
         "caption": "Survey of 100 students",
         "head": [
@@ -181,49 +181,49 @@
     },
     {
       "type": "spot",
-      "prompt": "Two fair coins are flipped. Finding P(at least one head). Tap the line with the mistake.",
+      "prompt": "Two fair coins are flipped. Finding $P(\\text{at least one head})$. Tap the line with the mistake.",
       "lines": [
         "The outcomes are HH, HT, TH and TT",
         "Only TT has no heads",
-        "P(at least one head) = 1/4"
+        "$P(\\text{at least one head}) = 1/4$"
       ],
       "wrong": 2,
-      "why": "3 of the 4 outcomes have a head: 3/4."
+      "why": "3 of the 4 outcomes have a head: $3/4$."
     },
     {
       "type": "predict",
-      "prompt": "A fair die is rolled. What's P(odd or less than 3)?",
+      "prompt": "A fair die is rolled. What's $P(\\text{odd or less than 3})$?",
       "choices": [
-        "2/3",
-        "1/2",
-        "5/6",
-        "1/3"
+        "$2/3$",
+        "$1/2$",
+        "$5/6$",
+        "$1/3$"
       ],
       "answer": 0,
-      "why": "Odd or less than 3 is {1, 2, 3, 5}: 4 of 6 outcomes, so 2/3. Count each outcome once.",
+      "why": "Odd or less than 3 is {1, 2, 3, 5}: 4 of 6 outcomes, so $2/3$. Count each outcome once.",
       "rematch": true
     }
   ],
   "keys": [
-    "P = favorable ÷ total. P(not A) = 1 − P(A).",
+    "$P = \\text{favorable} \\div \\text{total}$. $P(\\text{not }A) = 1 - P(A)$.",
     "\"Given\" shrinks the denominator to that row or column.",
     "For \"or\", count each outcome once."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "P(snow) = 0.2. P(no snow) =",
+      "prompt": "$P(\\text{snow}) = 0.2$. $P(\\text{no snow}) =$",
       "choices": [
         "0.8",
         "0.2",
         "1.2"
       ],
       "answer": 0,
-      "why": "1 − 0.2."
+      "why": "$1 - 0.2$."
     },
     {
       "type": "predict",
-      "prompt": "From the table, P(doesn't like math, given grade 11):",
+      "prompt": "From the table, $P(\\text{doesn’t like math, given grade 11})$:",
       "choices": [
         "0.1",
         "0.05",
@@ -263,17 +263,18 @@
     },
     {
       "type": "fill",
-      "prompt": "A spinner has 8 equal parts, 3 red. P(red)?",
+      "prompt": "A spinner has 8 equal parts, 3 red. $P(\\text{red})$?",
       "lines": [
         "3 of 8 parts",
-        "P = ___"
+        "$P =$ ___"
       ],
       "accept": [
         "3/8",
         "0.375"
       ],
-      "why": "3 ÷ 8."
+      "why": "$3 \\div 8$."
     }
   ],
-  "format": "cold-open"
+  "format": "cold-open",
+  "tex": true
 }

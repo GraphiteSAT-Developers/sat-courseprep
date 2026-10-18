@@ -14,10 +14,10 @@
     },
     {
       "type": "fill",
-      "prompt": "Triangle ABC is similar to triangle DEF. AB = 6, DE = 9 and BC = 8. Find EF.",
+      "prompt": "Triangle ABC is similar to triangle DEF. $AB = 6$, $DE = 9$ and $BC = 8$. Find EF.",
       "lines": [
-        "Scale factor = 9/6 = 1.5",
-        "EF = 8 × 1.5 = ___"
+        "Scale $\\text{factor} = 9/6 = 1.5$",
+        "$EF = 8 \\times 1.5 =$ ___"
       ],
       "accept": [
         "12"
@@ -57,7 +57,7 @@
           "10"
         ]
       ],
-      "why": "Multiply by 1.5 to go from ABC to DEF: 4 × 1.5 = 6. Divide to go back: 15 ÷ 1.5 = 10."
+      "why": "Multiply by 1.5 to go from ABC to DEF: $4 \\times 1.5 = 6$. Divide to go back: $15 \\div 1.5 = 10$."
     },
     {
       "type": "predict",
@@ -69,7 +69,7 @@
         "36 ft"
       ],
       "answer": 0,
-      "why": "6/4 = h/30, so h = 45."
+      "why": "$6/4 = h/30$, so $h = 45$."
     },
     {
       "type": "predict",
@@ -92,19 +92,19 @@
         "27"
       ],
       "answer": 0,
-      "why": "Areas scale by the square: 3² = 9."
+      "why": "Areas scale by the square: $3^{2} = 9$."
     },
     {
       "type": "spot",
-      "prompt": "In triangle ABC, DE is parallel to BC, with D on AB and E on AC. AD = 4, DB = 6 and DE = 5. Finding BC. Tap the line with the mistake.",
+      "prompt": "In triangle ABC, DE is parallel to BC, with D on AB and E on AC. $AD = 4$, $DB = 6$ and $DE = 5$. Finding BC. Tap the line with the mistake.",
       "lines": [
         "Triangles ADE and ABC are similar",
-        "AD/AB = DE/BC",
-        "4/6 = 5/BC",
-        "BC = 7.5"
+        "$AD/AB = DE/BC$",
+        "$4/6 = 5/BC$",
+        "$BC = 7.5$"
       ],
       "wrong": 2,
-      "why": "AB = AD + DB = 10, so 4/10 = 5/BC and BC = 12.5."
+      "why": "$AB = AD + DB = 10$, so $4/10 = 5/BC$ and $BC = 12.5$."
     },
     {
       "type": "predict",
@@ -121,7 +121,7 @@
   "keys": [
     "Similar: equal angles, proportional sides.",
     "A parallel line inside a triangle makes a smaller similar triangle; use whole sides.",
-    "Scale factor k: areas scale by k²."
+    "Scale factor $k$: areas scale by $k^{2}$."
   ],
   "recall": [
     {
@@ -139,7 +139,7 @@
       "type": "fill",
       "prompt": "The scale factor is 2 and a small side is 7. How long is the matching large side?",
       "lines": [
-        "7 × 2 = ___"
+        "$7 \\times 2 =$ ___"
       ],
       "accept": [
         "14"
@@ -155,9 +155,10 @@
         "8"
       ],
       "answer": 0,
-      "why": "2²."
+      "why": "$2^{2}$."
     }
   ],
   "format": "case",
-  "intro": "Case file: two triangles, one shape, different sizes. Use the scale factor to fill in what's missing."
+  "intro": "Case file: two triangles, one shape, different sizes. Use the scale factor to fill in what's missing.",
+  "tex": true
 }

@@ -54,8 +54,8 @@
       "type": "fill",
       "prompt": "Find the range of 4, 15, 9, 22, 7.",
       "lines": [
-        "Max − min = 22 − 4",
-        "= ___"
+        "$\\text{Max} - \\text{min} = 22 - 4$",
+        "$=$ ___"
       ],
       "accept": [
         "18"
@@ -75,7 +75,7 @@
     },
     {
       "type": "predict",
-      "prompt": "A box plot has Q1 = 12, median 18 and Q3 = 25. What's the interquartile range?",
+      "prompt": "A box plot has $Q1 = 12$, median 18 and $Q3 = 25$. What's the interquartile range?",
       "choices": [
         "13",
         "7",
@@ -83,7 +83,7 @@
         "25"
       ],
       "answer": 0,
-      "why": "IQR = Q3 − Q1."
+      "why": "$\\text{IQR} = Q3 - Q1$."
     },
     {
       "type": "spot",
@@ -113,7 +113,7 @@
   "keys": [
     "Standard deviation measures spread around the mean.",
     "Adding a constant: no change in spread. Multiplying: spread scales too.",
-    "Range = max − min. IQR = Q3 − Q1."
+    "$\\text{Range} = \\text{max} - \\text{min}$. $\\text{IQR} = Q3 - Q1$."
   ],
   "recall": [
     {
@@ -129,14 +129,14 @@
     },
     {
       "type": "fill",
-      "prompt": "Find the IQR when Q1 = 5 and Q3 = 14.",
+      "prompt": "Find the IQR when $Q1 = 5$ and $Q3 = 14$.",
       "lines": [
-        "14 − 5 = ___"
+        "$14 - 5 =$ ___"
       ],
       "accept": [
         "9"
       ],
-      "why": "Q3 − Q1."
+      "why": "$Q3 - Q1$."
     },
     {
       "type": "predict",
@@ -152,5 +152,6 @@
   ],
   "format": "teach",
   "intro": "Sam is comparing data sets by eye. Check whether Sam picked the one with more spread.",
-  "student": "Sam"
+  "student": "Sam",
+  "tex": true
 }

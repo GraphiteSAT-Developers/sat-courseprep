@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="graphite-mode" content="live">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script src="/js/theme.js?v=cee64bfb20"></script>
+<script src="/js/theme.js?v=290014ff0d"></script>
 <title>Settings | Graphite SAT Tutoring</title>
 <meta name="description" content="Your Graphite settings: profile picture, name, theme and accent color, study goals, email, password and your data.">
 <meta name="robots" content="noindex, nofollow">
@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=1dd00b4d0f">
+<link rel="stylesheet" href="/css/site.css?v=416874cf03">
 <script src="/js/site.js?v=4c779e48ab" defer></script><script src="/js/game-ui.js?v=b46dc13746" defer></script><script src="/js/settings.js?v=eea6622c7a" defer></script>
 </head>
 <body>
@@ -32,7 +32,7 @@
 <header class="site-header">
   <div class="wrap header-row">
     <a class="logo" href="/" aria-label="Graphite home">
-      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="7" fill="#2d3136"/><ellipse cx="16" cy="16" rx="10" ry="7" fill="#f2c14e"/></svg>
+      <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="#f2c14e"/><path d="M32 32L57 17.5V46.5ZM32 32V61L7 46.5ZM32 32L7 17.5L32 3Z" fill="#000" fill-opacity=".12"/><circle cx="32" cy="32" r="16" fill="#e9c79a"/><circle cx="32" cy="32" r="7" fill="#2d3136"/></svg>
       <span>Graphite</span>
     </a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
@@ -230,17 +230,17 @@
           <div class="st-look-grid">
             <fieldset class="st-fieldset">
               <legend>Font</legend>
-              <div class="seg" role="radiogroup" aria-label="Font">
-                <span><input type="radio" name="look-font" id="st-font-default" value="default"><label for="st-font-default">Standard</label></span>
-                <span><input type="radio" name="look-font" id="st-font-readable" value="readable"><label for="st-font-readable" class="st-font-readable">Easy-read</label></span>
-                <span><input type="radio" name="look-font" id="st-font-rounded" value="rounded"><label for="st-font-rounded" class="st-font-rounded">Rounded</label></span>
-                <span><input type="radio" name="look-font" id="st-font-mono" value="mono"><label for="st-font-mono" class="st-font-mono">Typewriter</label></span>
+              <div class="seg st-seg-grid st-font-seg" role="radiogroup" aria-label="Font">
+                <span><input type="radio" name="look-font" id="st-font-default" value="default"><label for="st-font-default" class="st-font-default"><span class="st-aa" aria-hidden="true">Aa</span>Standard</label></span>
+                <span><input type="radio" name="look-font" id="st-font-readable" value="readable"><label for="st-font-readable" class="st-font-readable"><span class="st-aa" aria-hidden="true">Aa</span>Easy-read</label></span>
+                <span><input type="radio" name="look-font" id="st-font-rounded" value="rounded"><label for="st-font-rounded" class="st-font-rounded"><span class="st-aa" aria-hidden="true">Aa</span>Rounded</label></span>
+                <span><input type="radio" name="look-font" id="st-font-mono" value="mono"><label for="st-font-mono" class="st-font-mono"><span class="st-aa" aria-hidden="true">Aa</span>Typewriter</label></span>
               </div>
               <p class="fine">Easy-read uses Atkinson Hyperlegible, made so letters like I, l and 1 never look alike.</p>
             </fieldset>
             <fieldset class="st-fieldset">
               <legend>Motion</legend>
-              <div class="seg" role="radiogroup" aria-label="Motion">
+              <div class="seg st-seg-grid" role="radiogroup" aria-label="Motion">
                 <span><input type="radio" name="look-motion" id="st-motion-system" value="system"><label for="st-motion-system">Match device</label></span>
                 <span><input type="radio" name="look-motion" id="st-motion-reduce" value="reduce"><label for="st-motion-reduce">Less</label></span>
                 <span><input type="radio" name="look-motion" id="st-motion-full" value="full"><label for="st-motion-full">Full</label></span>
@@ -249,7 +249,7 @@
             </fieldset>
             <fieldset class="st-fieldset">
               <legend>Spacing</legend>
-              <div class="seg" role="radiogroup" aria-label="Spacing">
+              <div class="seg st-seg-grid" role="radiogroup" aria-label="Spacing">
                 <span><input type="radio" name="look-density" id="st-density-comfortable" value="comfortable"><label for="st-density-comfortable">Roomy</label></span>
                 <span><input type="radio" name="look-density" id="st-density-compact" value="compact"><label for="st-density-compact">Compact</label></span>
               </div>
@@ -304,8 +304,32 @@
                 <input type="radio" name="look-effect" id="st-fx-warp" value="warp" disabled data-shop="effect:warp">
                 <span class="st-fx-name">Star warp</span><small class="st-lock">900 coins</small>
               </label>
+              <label class="st-fx is-locked" for="st-fx-springy" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-springy" value="springy" disabled data-shop="effect:springy">
+                <span class="st-fx-name">Springy dots</span><small class="st-lock">300 coins</small><small class="st-fx-tag">Interactive</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-pencil" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-pencil" value="pencil" disabled data-shop="effect:pencil">
+                <span class="st-fx-name">Pencil trail</span><small class="st-lock">340 coins</small><small class="st-fx-tag">Interactive</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-magnet" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-magnet" value="magnet" disabled data-shop="effect:magnet">
+                <span class="st-fx-name">Iron filings</span><small class="st-lock">380 coins</small><small class="st-fx-tag">Interactive</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-graphpaper" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-graphpaper" value="graphpaper" disabled data-shop="effect:graphpaper">
+                <span class="st-fx-name">Graph paper</span><small class="st-lock">480 coins</small><small class="st-fx-tag">Interactive</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-bubbles" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-bubbles" value="bubbles" disabled data-shop="effect:bubbles">
+                <span class="st-fx-name">Number bubbles</span><small class="st-lock">560 coins</small><small class="st-fx-tag">Interactive</small>
+              </label>
+              <label class="st-fx is-locked" for="st-fx-gravity" data-student-only>
+                <input type="radio" name="look-effect" id="st-fx-gravity" value="gravity" disabled data-shop="effect:gravity">
+                <span class="st-fx-name">Gravity well</span><small class="st-lock">950 coins</small><small class="st-fx-tag">Interactive</small>
+              </label>
             </div>
-            <p class="fine">Plays behind the main pages, never on Settings, sign-in or tests. Motion set to Less keeps it still. More in your <a href="/rewards.html">locker</a>.</p>
+            <p class="fine">Plays behind the main pages, never on Settings, sign-in or tests. Interactive ones follow your cursor or finger and react to clicks and taps. Motion set to Less keeps it still. More in your <a href="/rewards.html">locker</a>.</p>
           </fieldset>
           <div class="status" id="st-look-status" role="status" aria-live="polite" tabindex="-1"></div>
         </section>

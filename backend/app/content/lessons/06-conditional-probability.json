@@ -52,7 +52,7 @@
           "120"
         ]
       ],
-      "why": "Rows and columns add to their totals: 100 − 45 = 55, 80 − 45 = 35, 200 − 80 = 120."
+      "why": "Rows and columns add to their totals: $100 - 45 = 55$, $80 - 45 = 35$, $200 - 80 = 120$."
     },
     {
       "type": "predict",
@@ -87,10 +87,10 @@
       },
       "prompt": "One student is picked at random. What is the probability they play a sport?",
       "choices": [
-        "45/200",
-        "80/200",
-        "45/80",
-        "35/100"
+        "$45/200$",
+        "$80/200$",
+        "$45/80$",
+        "$35/100$"
       ],
       "answer": 1,
       "why": "80 of all 200 students play a sport."
@@ -128,10 +128,10 @@
       },
       "prompt": "What is the probability a student plays a sport, given they're in grade 12?",
       "choices": [
-        "35/200",
-        "35/80",
-        "35/100",
-        "65/100"
+        "$35/200$",
+        "$35/80$",
+        "$35/100$",
+        "$65/100$"
       ],
       "answer": 2,
       "why": "\"Given grade 12\" means only the 100 twelfth graders count. 35 of them play."
@@ -169,10 +169,10 @@
       },
       "prompt": "What is the probability a student is in grade 12, given they play a sport?",
       "choices": [
-        "35/80",
-        "35/100",
-        "80/200",
-        "35/200"
+        "$35/80$",
+        "$35/100$",
+        "$80/200$",
+        "$35/200$"
       ],
       "answer": 0,
       "why": "Now the group is the 80 sport players, and 35 of them are in grade 12. Flipping the condition changes the denominator."
@@ -211,14 +211,14 @@
       "prompt": "What is the probability a student is in grade 11 and plays no sport?",
       "lines": [
         "Grade 11 and no sport: 55 students",
-        "55 ÷ 200 = ___"
+        "$55 \\div 200 =$ ___"
       ],
       "accept": [
         "0.275",
         "11/40",
         "55/200"
       ],
-      "why": "\"And\" with no \"given\" divides by everyone: 55/200 = 0.275."
+      "why": "\"And\" with no \"given\" divides by everyone: $55/200 = 0.275$."
     },
     {
       "type": "spot",
@@ -256,15 +256,15 @@
         "The condition is grade 11",
         "Grade 11 has 100 students",
         "55 of them play no sport",
-        "Probability = 55 ÷ 120"
+        "$\\text{Probability} = 55 \\div 120$"
       ],
       "wrong": 3,
-      "why": "Divide by the 100 grade 11 students, not the 120 who play no sport: 55/100."
+      "why": "Divide by the 100 grade 11 students, not the 120 who play no sport: $55/100$."
     }
   ],
   "keys": [
     "\"Given\" tells you which row or column to divide by.",
-    "P(A given B) and P(B given A) usually have different denominators.",
+    "$P(A\\text{ given }B)$ and $P(B\\text{ given }A)$ usually have different denominators.",
     "\"And\" without \"given\" divides by the grand total."
   ],
   "recall": [
@@ -301,10 +301,10 @@
       },
       "prompt": "Probability of no sport, given grade 12?",
       "choices": [
-        "65/200",
-        "65/120",
-        "65/100",
-        "35/100"
+        "$65/200$",
+        "$65/120$",
+        "$65/100$",
+        "$35/100$"
       ],
       "answer": 2,
       "why": "Divide by the 100 twelfth graders."
@@ -342,10 +342,10 @@
       },
       "prompt": "Probability of grade 11, given no sport?",
       "choices": [
-        "55/120",
-        "55/100",
-        "55/200",
-        "45/80"
+        "$55/120$",
+        "$55/100$",
+        "$55/200$",
+        "$45/80$"
       ],
       "answer": 0,
       "why": "Divide by the 120 who play no sport."
@@ -383,7 +383,7 @@
       },
       "prompt": "Probability of plays a sport and grade 11:",
       "lines": [
-        "45 ÷ ___"
+        "$45 \\div$ ___"
       ],
       "accept": [
         "200"
@@ -392,5 +392,6 @@
     }
   ],
   "format": "case",
-  "intro": "Case file: 200 students, one table, and a lot of questions about who plays a sport."
+  "intro": "Case file: 200 students, one table, and a lot of questions about who plays a sport.",
+  "tex": true
 }

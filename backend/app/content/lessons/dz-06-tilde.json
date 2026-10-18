@@ -5,36 +5,36 @@
   "skill": "tilde",
   "title": "The tilde trick: find the constants",
   "minutes": 7,
-  "hook": "For \"find a, b and c\" questions, give Desmos a list of x-values and let regression solve for the constants.",
+  "hook": "For \"find $a$, $b$ and $c$\" questions, give Desmos a list of $x$-values and let regression solve for the constants.",
   "steps": [
     {
       "type": "predict",
-      "prompt": "By hand: (x + k)² = x² + 6x + m. What are k and m?",
+      "prompt": "By hand: $(x + k)^{2} = x^{2} + 6x + m$. What are $k$ and $m$?",
       "choices": [
-        "k = 3, m = 9",
-        "k = 6, m = 36",
-        "k = 3, m = 6",
-        "k = 9, m = 3"
+        "$k = 3$, $m = 9$",
+        "$k = 6$, $m = 36$",
+        "$k = 3$, $m = 6$",
+        "$k = 9$, $m = 3$"
       ],
       "answer": 0,
-      "why": "Match: 2k = 6 and m = k². The tilde trick gives the same answer.",
+      "why": "Match: $2k = 6$ and $m = k^{2}$. The tilde trick gives the same answer.",
       "cold": true
     },
     {
       "type": "recall",
       "prompt": "From memory: what kind of question is the tilde trick for?",
-      "answer": "Equivalent-expression questions with unknown constants, like (5x − 17)(4x − c) = ax² + bx + 119. Desmos finds the constants."
+      "answer": "Equivalent-expression questions with unknown constants, like $(5x - 17)(4x - c) = ax^{2} + bx + 119$. Desmos finds the constants."
     },
     {
       "type": "build",
-      "prompt": "Build the tilde line for (5x − 17)(4x − c) = ax² + bx + 119.",
+      "prompt": "Build the tilde line for $(5x - 17)(4x - c) = ax^{2} + bx + 119$.",
       "tiles": [
-        "(5x_1-17)(4x_1-c)",
-        "~",
-        "ax_1^2+bx_1+119",
-        "=",
-        "(5x-17)(4x-c)",
-        "ax^2+bx+119"
+        "`(5x_1-17)(4x_1-c)`",
+        "`~`",
+        "`ax_1^2+bx_1+119`",
+        "`=`",
+        "`(5x-17)(4x-c)`",
+        "`ax^2+bx+119`"
       ],
       "answers": [
         [
@@ -43,29 +43,29 @@
           2
         ]
       ],
-      "why": "Use x_1 (from your list) on both sides and ~ in the middle. An = sign makes Desmos try to graph it instead."
+      "why": "Use `x_1` (from your list) on both sides and `~` in the middle. An `=` sign makes Desmos try to graph it instead."
     },
     {
       "type": "order",
       "prompt": "Set up the tilde trick. Put the steps in order.",
       "items": [
-        "Make a list of x-values: x_1=[2,3,4]",
-        "Type the equation with x_1 for x and ~ for =",
+        "Make a list of $x$-values: `x_1=[2,3,4]`",
+        "Type the equation with `x_1` for $x$ and `~` for `=`",
         "Read the constants Desmos reports"
       ],
       "why": "The list gives the regression points to fit."
     },
     {
       "type": "fill",
-      "prompt": "Type the two lines below to solve (5x − 17)(4x − c) = ax² + bx + 119. What does Desmos report for c?",
+      "prompt": "Type the two lines below to solve $(5x - 17)(4x - c) = ax^{2} + bx + 119$. What does Desmos report for $c$?",
       "lines": [
-        "By hand, the constant terms match: 17c = 119",
-        "c = ___"
+        "By hand, the constant terms match: $17c = 119$",
+        "$c =$ ___"
       ],
       "accept": [
         "7"
       ],
-      "why": "Desmos reports c = 7, a = 20 and b = −103. Expanding confirms 20x² − 103x + 119.",
+      "why": "Desmos reports $c = 7$, $a = 20$ and $b = -103$. Expanding confirms $20x^{2} - 103x + 119$.",
       "desmos": [
         "x_1=[2,3,4]",
         "(5x_1-17)(4x_1-c)~ax_1^2+bx_1+119"
@@ -73,7 +73,7 @@
     },
     {
       "type": "predict",
-      "prompt": "How many values should the x_1 list have?",
+      "prompt": "How many values should the `x_1` list have?",
       "choices": [
         "At least as many as there are unknown constants",
         "Exactly one",
@@ -86,16 +86,16 @@
       "type": "spot",
       "prompt": "Tap the setup that fails.",
       "lines": [
-        "x_1=[1,2,3,4]",
-        "(x_1+k)^2~x_1^2+6x_1+m",
-        "Leaving out the x_1 list line entirely"
+        "`x_1=[1,2,3,4]`",
+        "`(x_1+k)^2~x_1^2+6x_1+m`",
+        "Leaving out the `x_1` list line entirely"
       ],
       "wrong": 2,
       "why": "Without the list there's no data to fit, and it fails silently. Check that the list is there."
     },
     {
       "type": "predict",
-      "prompt": "Another check for \"which expression is equivalent\": graph both as y = …. What shows they're equivalent?",
+      "prompt": "Another check for \"which expression is equivalent\": graph both as $y =$ …. What shows they're equivalent?",
       "choices": [
         "The graphs overlap exactly",
         "They cross once",
@@ -106,21 +106,21 @@
     },
     {
       "type": "predict",
-      "prompt": "(x + k)² = x² − 10x + m. What are k and m?",
+      "prompt": "$(x + k)^{2} = x^{2} - 10x + m$. What are $k$ and $m$?",
       "choices": [
-        "k = −5, m = 25",
-        "k = 5, m = 25",
-        "k = −10, m = 100",
-        "k = −5, m = −25"
+        "$k = -5$, $m = 25$",
+        "$k = 5$, $m = 25$",
+        "$k = -10$, $m = 100$",
+        "$k = -5$, $m = -25$"
       ],
       "answer": 0,
-      "why": "2k = −10, so k = −5, and m = k² = 25.",
+      "why": "$2k = -10$, so $k = -5$, and $m = k^{2} = 25$.",
       "rematch": true
     }
   ],
   "keys": [
-    "Make an x_1 list with at least as many values as unknowns.",
-    "Swap x for x_1 and = for ~, then read the constants.",
+    "Make an `x_1` list with at least as many values as unknowns.",
+    "Swap $x$ for `x_1` and `=` for `~`, then read the constants.",
     "It returns one solution, so check it by expanding when you can."
   ],
   "recall": [
@@ -128,9 +128,9 @@
       "type": "predict",
       "prompt": "The tilde trick needs:",
       "choices": [
-        "An x_1 list and ~",
+        "An `x_1` list and $\\sim$",
         "A slider",
-        "A table of y-values only"
+        "A table of $y$-values only"
       ],
       "answer": 0,
       "why": "List plus regression."
@@ -162,5 +162,6 @@
     "domain": "advanced-math",
     "skill": "equivalent-expressions"
   },
-  "format": "cold-open"
+  "format": "cold-open",
+  "tex": true
 }

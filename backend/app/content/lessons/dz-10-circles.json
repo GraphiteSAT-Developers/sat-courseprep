@@ -9,15 +9,15 @@
   "steps": [
     {
       "type": "recall",
-      "prompt": "From memory: the by-hand method for x² + y² − 6x + 4y − 3 = 0?",
-      "answer": "Complete the square: (x − 3)² + (y + 2)² = 16. Center (3, −2), radius 4."
+      "prompt": "From memory: the by-hand method for $x^{2} + y^{2} - 6x + 4y - 3 = 0$?",
+      "answer": "Complete the square: $(x - 3)^{2} + (y + 2)^{2} = 16$. Center $(3, -2)$, radius 4."
     },
     {
       "type": "predict",
-      "prompt": "Desmos graphs x^2+y^2-6x+4y-3=0 directly. How do you find the center from the graph?",
+      "prompt": "Desmos graphs `x^2+y^2-6x+4y-3=0` directly. How do you find the center from the graph?",
       "choices": [
         "Take the top and bottom points of the circle and find their midpoint",
-        "Read the y-intercept",
+        "Read the $y$-intercept",
         "Click the leftmost point only"
       ],
       "answer": 0,
@@ -28,7 +28,7 @@
     },
     {
       "type": "plot",
-      "prompt": "Desmos drew x² + y² − 6x + 4y − 3 = 0. Tap its center.",
+      "prompt": "Desmos drew $x^{2} + y^{2} - 6x + 4y - 3 = 0$. Tap its center.",
       "curves": [
         "-2+sqrt(16-(x-3)^2)",
         "-2-sqrt(16-(x-3)^2)"
@@ -37,7 +37,7 @@
         3,
         -2
       ],
-      "why": "The center is halfway between the top and bottom points: (3, −2). The radius is 4.",
+      "why": "The center is halfway between the top and bottom points: $(3, -2)$. The radius is 4.",
       "window": {
         "x": [
           -3,
@@ -53,10 +53,10 @@
     },
     {
       "type": "fill",
-      "prompt": "The top point is (3, 2) and the bottom point is (3, −6). Find the radius.",
+      "prompt": "The top point is $(3, 2)$ and the bottom point is $(3, -6)$. Find the radius.",
       "lines": [
-        "The distance is 2 − (−6) = 8",
-        "Radius = 8 ÷ 2 = ___"
+        "The distance is $2 - (-6) = 8$",
+        "$\\text{Radius} = 8 \\div 2 =$ ___"
       ],
       "accept": [
         "4"
@@ -65,12 +65,12 @@
     },
     {
       "type": "predict",
-      "prompt": "A diameter has endpoints A = (−2, 1) and B = (4, 9). midpoint(A,B) gives the center:",
+      "prompt": "A diameter has endpoints $A = (-2, 1)$ and $B = (4, 9)$. `midpoint(A,B)` gives the center:",
       "choices": [
-        "(1, 5)",
-        "(3, 4)",
-        "(2, 10)",
-        "(−3, −4)"
+        "$(1, 5)$",
+        "$(3, 4)$",
+        "$(2, 10)$",
+        "$(-3, -4)$"
       ],
       "answer": 0,
       "why": "Average the coordinates.",
@@ -83,10 +83,10 @@
     },
     {
       "type": "fill",
-      "prompt": "Same circle: distance(A,B)/2 is the radius.",
+      "prompt": "Same circle: `distance(A,B)/2` is the radius.",
       "lines": [
-        "distance(A,B) = √(36 + 64) = 10",
-        "radius = ___"
+        "`distance(A,B)` $= \\sqrt{36 + 64} = 10$",
+        "$\\text{radius} =$ ___"
       ],
       "accept": [
         "5"
@@ -119,16 +119,16 @@
   "keys": [
     "Default: complete the square for center and radius.",
     "To check in Desmos: midpoint of the top and bottom points is the center.",
-    "From diameter endpoints: midpoint(A,B) and distance(A,B)/2."
+    "From diameter endpoints: `midpoint(A,B)` and `distance(A,B)/2`."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "(x − 1)² + (y + 4)² = 9 has center:",
+      "prompt": "$(x - 1)^{2} + (y + 4)^{2} = 9$ has center:",
       "choices": [
-        "(1, −4)",
-        "(−1, 4)",
-        "(1, 4)"
+        "$(1, -4)$",
+        "$(-1, 4)$",
+        "$(1, 4)$"
       ],
       "answer": 0,
       "why": "Opposite signs."
@@ -142,7 +142,7 @@
         "81"
       ],
       "answer": 0,
-      "why": "√9."
+      "why": "$\\sqrt{9}$."
     },
     {
       "type": "predict",
@@ -153,12 +153,13 @@
         "The first endpoint"
       ],
       "answer": 0,
-      "why": "midpoint(A,B)."
+      "why": "`midpoint(A,B)`."
     }
   ],
   "practice": {
     "domain": "geometry-trig",
     "skill": "circles"
   },
-  "format": "classic"
+  "format": "classic",
+  "tex": true
 }

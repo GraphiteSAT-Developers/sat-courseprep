@@ -9,7 +9,7 @@
   "steps": [
     {
       "type": "predict",
-      "prompt": "If x + y = 10 and x − y = 4, what is x² − y²?",
+      "prompt": "If $x + y = 10$ and $x - y = 4$, what is $x^{2} - y^{2}$?",
       "choices": [
         "40",
         "14",
@@ -17,28 +17,28 @@
         "24"
       ],
       "answer": 0,
-      "why": "x² − y² = (x + y)(x − y) = 10 × 4 = 40. No need to solve.",
+      "why": "$x^{2} - y^{2} = (x + y)(x - y) = 10 \\times 4 = 40$. No need to solve.",
       "cold": true
     },
     {
       "type": "recall",
       "prompt": "From memory: when is elimination a better choice than substitution?",
-      "answer": "When a variable has matching (or easily matched) coefficients, like +2y and −2y, so adding or subtracting cancels it. Substitution is easiest when a variable is already alone."
+      "answer": "When a variable has matching (or easily matched) coefficients, like $+2y$ and $-2y$, so adding or subtracting cancels it. Substitution is easiest when a variable is already alone."
     },
     {
       "type": "predict",
-      "prompt": "A theater sold 200 tickets. Adult tickets cost $10 and child tickets $6. Sales were $1,520. Which system fits?",
+      "prompt": "A theater sold 200 tickets. Adult tickets cost \\$10 and child tickets \\$6. Sales were \\$1,520. Which system fits?",
       "choices": [
-        "a + c = 200 and 10a + 6c = 1520",
-        "a + c = 1520 and 10a + 6c = 200",
-        "10a + 6c = 200 and a − c = 1520"
+        "$a + c = 200$ and $10a + 6c = 1520$",
+        "$a + c = 1520$ and $10a + 6c = 200$",
+        "$10a + 6c = 200$ and $a - c = 1520$"
       ],
       "answer": 0,
       "why": "One equation counts tickets, the other counts dollars."
     },
     {
       "type": "plot",
-      "prompt": "Tap where y = 2x − 1 and y = −3x + 14 cross.",
+      "prompt": "Tap where $y = 2x - 1$ and $y = -3x + 14$ cross.",
       "curves": [
         "2x-1",
         "-3x+14"
@@ -47,7 +47,7 @@
         3,
         5
       ],
-      "why": "2x − 1 = −3x + 14 gives x = 3, and y = 2(3) − 1 = 5.",
+      "why": "$2x - 1 = -3x + 14$ gives $x = 3$, and $y = 2(3) - 1 = 5$.",
       "window": {
         "x": [
           -1,
@@ -62,55 +62,55 @@
     },
     {
       "type": "fill",
-      "prompt": "Solve a + c = 200 and 10a + 6c = 1520.",
+      "prompt": "Solve $a + c = 200$ and $10a + 6c = 1520$.",
       "lines": [
-        "Multiply the first by 6: 6a + 6c = 1200",
-        "Subtract: 4a = 320",
-        "a = ___"
+        "Multiply the first by 6: $6a + 6c = 1200$",
+        "Subtract: $4a = 320$",
+        "$a =$ ___"
       ],
       "accept": [
         "80"
       ],
-      "why": "Then c = 120. Check: 800 + 720 = 1,520."
+      "why": "Then $c = 120$. Check: $800 + 720 = 1,520$."
     },
     {
       "type": "predict",
-      "prompt": "Solve y = 2x − 1 and 3x + y = 14. What is x?",
+      "prompt": "Solve $y = 2x - 1$ and $3x + y = 14$. What is $x$?",
       "choices": [
         "3",
         "5",
         "2",
-        "13/5"
+        "$13/5$"
       ],
       "answer": 0,
-      "why": "Substitute: 3x + 2x − 1 = 14, so 5x = 15, x = 3 and y = 5."
+      "why": "Substitute: $3x + 2x - 1 = 14$, so $5x = 15$, $x = 3$ and $y = 5$."
     },
     {
       "type": "spot",
-      "prompt": "Solving 2x + 3y = 12 and 4x − 3y = 6 by adding. Tap the line with the mistake.",
+      "prompt": "Solving $2x + 3y = 12$ and $4x - 3y = 6$ by adding. Tap the line with the mistake.",
       "lines": [
-        "Add: 6x = 18",
-        "x = 3",
-        "2(3) + 3y = 12",
-        "3y = 18, so y = 6"
+        "Add: $6x = 18$",
+        "$x = 3$",
+        "$2(3) + 3y = 12$",
+        "$3y = 18$, so $y = 6$"
       ],
       "wrong": 3,
-      "why": "6 + 3y = 12 gives 3y = 6, so y = 2. Check: 4(3) − 3(2) = 6."
+      "why": "$6 + 3y = 12$ gives $3y = 6$, so $y = 2$. Check: $4(3) - 3(2) = 6$."
     },
     {
       "type": "order",
-      "prompt": "A jar has 30 coins, all dimes and quarters, worth $4.50. Put the steps in order to find the quarters.",
+      "prompt": "A jar has 30 coins, all dimes and quarters, worth \\$4.50. Put the steps in order to find the quarters.",
       "items": [
-        "Write d + q = 30 and 10d + 25q = 450 (in cents)",
-        "Multiply the first by 10: 10d + 10q = 300",
-        "Subtract: 15q = 150",
-        "q = 10 quarters"
+        "Write $d + q = 30$ and $10d + 25q = 450$ (in cents)",
+        "Multiply the first by 10: $10d + 10q = 300$",
+        "Subtract: $15q = 150$",
+        "$q = 10$ quarters"
       ],
-      "why": "Check: 20 dimes and 10 quarters make $2.00 + $2.50 = $4.50."
+      "why": "Check: 20 dimes and 10 quarters make $\\$2.00 + \\$2.50 = \\$4.50$."
     },
     {
       "type": "predict",
-      "prompt": "If a + b = 7 and a − b = 3, what is a² − b²?",
+      "prompt": "If $a + b = 7$ and $a - b = 3$, what is $a^{2} - b^{2}$?",
       "choices": [
         "21",
         "10",
@@ -118,34 +118,34 @@
         "49"
       ],
       "answer": 0,
-      "why": "a² − b² = (a + b)(a − b) = 7 × 3 = 21. No need to find a and b.",
+      "why": "$a^{2} - b^{2} = (a + b)(a - b) = 7 \\times 3 = 21$. No need to find $a$ and $b$.",
       "rematch": true
     }
   ],
   "keys": [
     "One equation per fact: usually a count and a total.",
     "Use elimination when coefficients match and substitution when a variable is alone.",
-    "Sometimes the question wants a combination, like x² − y², that you can get without solving."
+    "Sometimes the question wants a combination, like $x^{2} - y^{2}$, that you can get without solving."
   ],
   "recall": [
     {
       "type": "predict",
       "prompt": "20 animals, chickens and cows, have 56 legs. Which system?",
       "choices": [
-        "c + w = 20 and 2c + 4w = 56",
-        "c + w = 56 and 2c + 4w = 20",
-        "2c + 4w = 20"
+        "$c + w = 20$ and $2c + 4w = 56$",
+        "$c + w = 56$ and $2c + 4w = 20$",
+        "$2c + 4w = 20$"
       ],
       "answer": 0,
       "why": "Count heads, then count legs."
     },
     {
       "type": "fill",
-      "prompt": "Solve c + w = 20 and 2c + 4w = 56.",
+      "prompt": "Solve $c + w = 20$ and $2c + 4w = 56$.",
       "lines": [
-        "Multiply the first by 2: 2c + 2w = 40",
-        "Subtract: 2w = 16",
-        "w = ___"
+        "Multiply the first by 2: $2c + 2w = 40$",
+        "Subtract: $2w = 16$",
+        "$w =$ ___"
       ],
       "accept": [
         "8"
@@ -154,15 +154,16 @@
     },
     {
       "type": "predict",
-      "prompt": "If a + b = 7 and a − b = 3, what is a?",
+      "prompt": "If $a + b = 7$ and $a - b = 3$, what is a?",
       "choices": [
         "5",
         "2",
         "4"
       ],
       "answer": 0,
-      "why": "Add: 2a = 10."
+      "why": "Add: $2a = 10$."
     }
   ],
-  "format": "cold-open"
+  "format": "cold-open",
+  "tex": true
 }

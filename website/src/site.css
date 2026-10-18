@@ -131,7 +131,7 @@ input, textarea, select, [contenteditable]:not([contenteditable="false"]) { care
 .header-row { display: flex; align-items: center; gap: var(--s5); min-height: 68px; }
 .logo { display: inline-flex; align-items: center; gap: var(--s2); color: var(--text); text-decoration: none; font: 800 1.3rem/1 var(--font-display); letter-spacing: -0.02em; }
 .logo:hover { color: var(--text); text-decoration: none; }
-.logo svg { width: 30px; height: 30px; flex: none; }
+.logo svg { width: 32px; height: 32px; flex: none; }
 .site-nav { margin-left: auto; display: flex; align-items: center; gap: var(--s5); }
 .site-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: var(--s5); }
 .site-nav a { color: var(--text); text-decoration: none; font-size: var(--t-sm); font-weight: 700; white-space: nowrap; }
@@ -2510,3 +2510,29 @@ html.qt-motion .qt-launch { transition: right 0.22s ease; }
   .ls-lock { justify-self: start; }
 }
 @media (prefers-reduced-motion: reduce) { .ls-clock-bar i { transition: none; } }
+
+/* ---------- Lessons: math set in LaTeX (KaTeX) ---------- */
+.lessons-page .katex { font-size: 1.1em; line-height: 1.2; white-space: nowrap; }
+.lessons-page .katex-display { margin: var(--s2) 0; }
+.lessons-page h1 .katex, .lessons-page h3 .katex { font-size: 1em; }
+.lessons-page code { font-family: var(--font-mono); font-size: 0.92em; padding: 1px 6px; border-radius: 6px; background: var(--raised); white-space: nowrap; }
+.lessons-page .lk-tile code, .lessons-page .lk-tile .katex { background: none; padding: 0; }
+.lessons-page .ls-blank { vertical-align: middle; }
+.lk-math { font-style: italic; }
+
+/* ---------- Settings: Font, Motion and Spacing ---------- */
+.st-look-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: var(--s5) var(--s6); }
+.st-look-grid > .st-fieldset:first-child { grid-column: 1 / -1; }
+.st-panel .seg.st-seg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 1px; width: 100%; max-width: 560px; background: var(--control); }
+.st-panel .seg.st-seg-grid > span { display: block; min-width: 0; }
+.st-panel .seg.st-seg-grid label { width: 100%; height: 100%; min-height: 44px; border: 0 !important; background: var(--surface); padding: var(--s2) var(--s3); line-height: 1.2; text-align: center; white-space: normal; }
+.st-panel .seg.st-seg-grid input:checked + label { background: var(--accent); color: var(--accent-ink); }
+.st-panel .seg.st-font-seg { grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); }
+.st-font-seg label { display: grid; gap: 2px; place-items: center; min-height: 64px !important; font-weight: 700; }
+.st-panel .seg .st-aa { display: block; font-size: 1.45rem; line-height: 1; font-weight: 700; }
+.st-font-default { font-family: "Nunito", "Segoe UI", Roboto, Arial, sans-serif; }
+.st-font-mono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; }
+@media (max-width: 560px) {
+  .st-panel .seg.st-font-seg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.st-fx-tag { justify-self: start; padding: 1px 6px; border-radius: 6px; background: color-mix(in srgb, var(--info) 22%, var(--raised)); color: var(--text); font-size: var(--t-xs); font-weight: 700; }

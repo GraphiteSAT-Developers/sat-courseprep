@@ -9,7 +9,7 @@
   "steps": [
     {
       "type": "slider",
-      "prompt": "Drag k until kx + 2y = 6 runs parallel to 3x + y = 5, so they never meet.",
+      "prompt": "Drag $k$ until $kx + 2y = 6$ runs parallel to $3x + y = 5$, so they never meet.",
       "param": {
         "name": "k",
         "min": -10,
@@ -18,7 +18,7 @@
         "start": 1
       },
       "answer": 6,
-      "why": "Parallel means equal slopes: −k/2 = −3, so k = 6. The slider shows it; the slope check proves it.",
+      "why": "Parallel means equal slopes: $-k/2 = -3$, so $k = 6$. The slider shows it; the slope check proves it.",
       "curves": [
         "(6-k*x)/2",
         "5-3x"
@@ -33,20 +33,20 @@
           15
         ]
       },
-      "readout": "{k}x + 2y = 6"
+      "readout": "${k}x + 2y = 6$"
     },
     {
       "type": "recall",
-      "prompt": "From memory: what does Desmos do when you type an equation with an unknown letter, like y = kx + 2?",
-      "answer": "It offers to add a slider for k. Drag it to see how the graph changes."
+      "prompt": "From memory: what does Desmos do when you type an equation with an unknown letter, like $y = kx + 2$?",
+      "answer": "It offers to add a slider for $k$. Drag it to see how the graph changes."
     },
     {
       "type": "predict",
-      "prompt": "For what k do kx + 2y = 6 and 3x + y = 5 have no solution? What's the slider move?",
+      "prompt": "For what $k$ do $kx + 2y = 6$ and $3x + y = 5$ have no solution? What's the slider move?",
       "choices": [
-        "Drag k until the lines are parallel and never touch",
-        "Drag k until the lines overlap",
-        "Drag k until they cross at the origin"
+        "Drag $k$ until the lines are parallel and never touch",
+        "Drag $k$ until the lines overlap",
+        "Drag $k$ until they cross at the origin"
       ],
       "answer": 0,
       "why": "No solution means parallel.",
@@ -57,15 +57,15 @@
     },
     {
       "type": "fill",
-      "prompt": "Check it by hand. The slope of kx + 2y = 6 is −k/2, and the slope of 3x + y = 5 is −3.",
+      "prompt": "Check it by hand. The slope of $kx + 2y = 6$ is $-k/2$, and the slope of $3x + y = 5$ is $-3$.",
       "lines": [
-        "−k/2 = −3",
-        "k = ___"
+        "$-k/2 = -3$",
+        "$k =$ ___"
       ],
       "accept": [
         "6"
       ],
-      "why": "Then 6x + 2y = 6 and 3x + y = 5 are parallel, with different intercepts (3 and 5)."
+      "why": "Then $6x + 2y = 6$ and $3x + y = 5$ are parallel, with different intercepts (3 and 5)."
     },
     {
       "type": "predict",
@@ -80,27 +80,27 @@
     },
     {
       "type": "predict",
-      "prompt": "ax + 4y = 12 and 6x + by = 18 have infinitely many solutions. Every ratio equals 12/18 = 2/3. What are a and b?",
+      "prompt": "$ax + 4y = 12$ and $6x + by = 18$ have infinitely many solutions. Every ratio equals $12/18 = 2/3$. What are $a$ and $b$?",
       "choices": [
-        "a = 4, b = 6",
-        "a = 6, b = 4",
-        "a = 9, b = 6",
-        "a = 4, b = 9"
+        "$a = 4$, $b = 6$",
+        "$a = 6$, $b = 4$",
+        "$a = 9$, $b = 6$",
+        "$a = 4$, $b = 9$"
       ],
       "answer": 0,
-      "why": "a/6 = 2/3 gives a = 4, and 4/b = 2/3 gives b = 6."
+      "why": "$a/6 = 2/3$ gives $a = 4$, and $4/b = 2/3$ gives $b = 6$."
     },
     {
       "type": "spot",
-      "prompt": "How many solutions does |x − 3| = k have? A student uses a slider. Tap the wrong conclusion.",
+      "prompt": "How many solutions does $|x - 3| = k$ have? A student uses a slider. Tap the wrong conclusion.",
       "lines": [
-        "Type y=|x-3| and y=k, with a slider for k",
-        "k > 0: the line crosses the V twice",
-        "k = 0: it touches once, at the corner",
-        "k < 0: it crosses twice"
+        "Type $y=|x-3|$ and $y=k$, with a slider for $k$",
+        "$k > 0$: the line crosses the V twice",
+        "$k = 0$: it touches once, at the corner",
+        "$k < 0$: it crosses twice"
       ],
       "wrong": 3,
-      "why": "For k < 0 the horizontal line is below the V: no solutions.",
+      "why": "For $k < 0$ the horizontal line is below the V: no solutions.",
       "desmos": [
         "y=|x-3|",
         "y=k"
@@ -108,7 +108,7 @@
     },
     {
       "type": "predict",
-      "prompt": "A slider runs from −10 to 10, but the answer is 25. What happens?",
+      "prompt": "A slider runs from $-10$ to 10, but the answer is 25. What happens?",
       "choices": [
         "You won't find it until you widen the slider's range",
         "Desmos finds it anyway",
@@ -126,7 +126,7 @@
   "recall": [
     {
       "type": "predict",
-      "prompt": "Typing y = ax + 1 in Desmos gives:",
+      "prompt": "Typing $y = ax + 1$ in Desmos gives:",
       "choices": [
         "A slider for a",
         "An error",
@@ -162,5 +162,6 @@
     "domain": "algebra",
     "skill": "systems-of-two-linear-equations-in-two-variables"
   },
-  "format": "lab"
+  "format": "lab",
+  "tex": true
 }

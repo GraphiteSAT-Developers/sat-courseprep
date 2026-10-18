@@ -339,6 +339,57 @@ li.row{grid-template-columns:52px minmax(0,1fr) 40px;border-bottom:1px solid var
 }
 @media (max-width:760px) and (max-height:340px){ .app{grid-template-columns:minmax(0,1fr)} }
 @media (prefers-reduced-motion: reduce){ .switch,.switch::after{transition:none} .cur{animation:none} }
+/* Math spacing: room between a function name and its brackets, after commas and around = */
+.par{margin:0 .03em}
+.v+.par,.fn+.par,.sub+.par,.sup+.par{margin-left:.09em}
+.pr{margin-left:.05em;margin-right:-.03em}
+.pr+.par{margin-left:0}
+.regsel-t{overflow:hidden;text-overflow:ellipsis}
+.pu{padding-right:.22em}
+.op{padding:0 .2em}
+.dl{width:.3em;min-height:1.08em}
+/* Regressions on a table */
+.regbtn{position:relative;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--muted);display:grid;place-items:center}
+.regbtn:hover,.regbtn:focus-visible{background:var(--panel);color:var(--ink)}
+.regbtn:hover::after,.regbtn:focus-visible::after{content:attr(data-tip);position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);z-index:20;padding:5px 9px;border-radius:5px;background:#111;color:#fff;font:500 13px var(--font-ui);white-space:nowrap;pointer-events:none}
+.regbtn:hover::before,.regbtn:focus-visible::before{content:"";position:absolute;left:calc(100% + 2px);top:50%;transform:translateY(-50%);border:6px solid transparent;border-right-color:#111;z-index:20}
+.regp{width:100%;padding:6px 4px 12px 0}
+.reg-top{position:relative;display:flex;align-items:center;gap:10px}
+.reg-ico{flex:none;display:grid;color:var(--ink)}
+.reg-pick{position:relative;flex:1 1 auto;min-width:0;max-width:360px}
+.regsel{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:38px;padding:6px 12px;border:1px solid var(--rule);border-radius:6px;background:var(--panel);color:var(--ink);font:400 15px var(--font-ui);text-align:left;white-space:nowrap}
+.regsel:hover{border-color:var(--muted)}
+.regsel .caret{width:12px;height:8px;fill:none;stroke:var(--muted);stroke-width:2;flex:none;transition:transform .15s}
+.regsel[aria-expanded="true"]{border-color:var(--sel);box-shadow:0 0 0 1px var(--sel)}
+.regsel[aria-expanded="true"] .caret{transform:rotate(180deg)}
+.reglist{position:absolute;left:0;right:0;top:calc(100% + 2px);z-index:30;max-height:340px;overflow-y:auto;background:var(--panel);border:1px solid var(--rule);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.18);outline:none}
+.regopt{padding:9px 12px;font:400 14.5px var(--font-ui);cursor:pointer}
+.regopt.hl{background:var(--accent-soft)}
+.regopt[aria-selected="true"]{font-weight:600}
+.regfoot{padding:9px 12px 11px;border-top:1px solid var(--rule);font:italic 13px/1.45 var(--font-ui);color:var(--muted)}
+.regfoot .tilde{display:inline-block;padding:0 6px;border:1px solid var(--rule);border-radius:4px;font-style:normal;color:var(--ink)}
+.reglearn{border:0;padding:0;background:none;color:var(--accent);font:inherit;text-decoration:underline}
+.regmore{flex:none;width:28px;height:34px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--muted);display:grid;place-items:center}
+.regmore svg{width:4px;height:16px;fill:currentColor}
+.regmore:hover,.regmore[aria-expanded="true"]{background:var(--tool);color:var(--ink)}
+.regmenu{position:absolute;right:0;top:calc(100% + 2px);z-index:30;display:flex;flex-direction:column;min-width:210px;padding:4px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.regmenu button{border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:4px;font:400 14px var(--font-ui)}
+.regmenu button:hover,.regmenu button:focus-visible{background:var(--accent-soft)}
+.regmenu button[aria-checked="true"]{font-weight:600}
+.regmenu button[aria-checked="true"]::before{content:"\2713  "}
+.reg-body{padding:10px 0 0 40px}
+.reg-sec{min-width:0}
+.reg-h{display:flex;align-items:center;gap:6px;font:500 11.5px var(--font-ui);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.regcopy{border:0;padding:2px;border-radius:4px;background:transparent;color:var(--muted);display:grid}
+.regcopy:hover{color:var(--ink);background:var(--tool)}
+.reg-eq{font-size:17px;color:var(--ink);max-width:100%;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}
+.reg-cols{display:flex;flex-wrap:wrap;gap:8px 36px;margin-top:10px}
+.reg-stats{display:flex;flex-direction:column;gap:1px;font-size:16px}
+.reg-res{display:flex;align-items:center;gap:8px;font-size:16px}
+.regresid{padding:2px 9px;border:1px solid var(--rule);border-radius:4px;background:var(--tool);font:400 13px var(--font-ui)}
+.regresid[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.reg-err{margin:8px 0 0 40px;color:var(--muted);font:italic 13px var(--font-ui)}
+.row[data-kind="table"] .zoomfit{margin-top:auto}
 </style>
 
 </head>
@@ -1667,6 +1718,113 @@ function fitReg(R) {
     return (R.res = { p: best.p, sse: best.sse, n, r2: sst > 0 ? 1 - best.sse / sst : NaN, rmse: Math.sqrt(best.sse / n) });
   } finally { R.fitting = false; }
 }
+// ---------- regressions picked from a list (a table's Add regression button) ----------
+const ICON_REG = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 15.5L16 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><g fill="currentColor"><circle cx="4" cy="9.5" r="1.7"/><circle cx="8" cy="12.5" r="1.7"/><circle cx="10.5" cy="4.5" r="1.7"/><circle cx="14.5" cy="9" r="1.7"/></g></svg>';
+const ICON_MODEL = '<svg width="30" height="30" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="currentColor"/><path d="M5.5 21.5c3.5 0 5-11 10.5-11s7 11 10.5 11" fill="none" stroke="var(--panel)" stroke-width="2.8" stroke-linecap="round"/></svg>';
+const ICON_ZOOM = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7.5" cy="7.5" r="5.5"/><path d="M11.6 11.6L16 16M5 7.5h5M7.5 5v5"/></svg>';
+const ICON_COPY = '<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="1.5" y="1.5" width="10" height="13" rx="1.5"/><path d="M4 5h5M4 8h5M4 11h3"/><path d="M10.5 12.5l4-6.5 1 .6-4 6.5-1.6.9z" fill="currentColor"/></svg>';
+function regSum(list) {
+  let s = '';
+  list.forEach(([c, part], i) => {
+    const neg = c < 0, a = Math.abs(c), body = part && Math.abs(a - 1) < 1e-12 ? part : numTex(a, 7) + part;
+    s += i === 0 ? (neg ? '-' : '') + body : (neg ? '-' : '+') + body;
+  });
+  return s || '0';
+}
+function polyFitData(X, Y, deg) {
+  const n = deg + 1, A = Array.from({ length: n }, () => new Array(n).fill(0)), b = new Array(n).fill(0);
+  for (let t = 0; t < X.length; t++) {
+    const pw = [1]; for (let k = 1; k <= 2 * deg; k++) pw.push(pw[k - 1] * X[t]);
+    for (let i = 0; i < n; i++) { b[i] += Y[t] * pw[i]; for (let j = 0; j < n; j++) A[i][j] += pw[i + j]; }
+  }
+  return solveLin(A, b);
+}
+const polyAt = (c, x) => c.reduce((s, v, i) => s + v * Math.pow(x, i), 0);
+function bestLm(X, Y, model, starts) {
+  let best = null;
+  for (const s0 of starts) {
+    if (s0.some(v => !isFinite(v))) continue;
+    const r = lm(p => X.map((x, i) => Y[i] - model(p, x)), s0);
+    if (r && isFinite(r.sse) && r.p.every(isFinite) && (!best || r.sse < best.sse)) best = r;
+  }
+  return best;
+}
+function polyType(key, name, deg) {
+  const vars = ['', 'x', 'x^{2}', 'x^{3}', 'x^{4}'];
+  return { key, name, need: deg + 1, f: (p, x) => polyAt(p, x), fit: (X, Y) => { const c = polyFitData(X, Y, deg); return c && { p: c }; },
+           tex: p => 'y=' + regSum(p.map((c, i) => [c, vars[i]]).reverse()) };
+}
+const REG_TYPES = [
+  polyType('linear', 'Linear Regression', 1), polyType('quadratic', 'Quadratic Regression', 2),
+  polyType('cubic', 'Cubic Regression', 3), polyType('quartic', 'Quartic Regression', 4),
+  { key: 'exponential', name: 'Exponential Regression', need: 2, f: (p, x) => p[0] * Math.pow(p[1], x),
+    fit: (X, Y) => {
+      const starts = [[Y[0] || 1, 1.1], [1, 2], [meanOf(Y), 0.9]];
+      if (Y.every(v => v > 0)) { const c = polyFitData(X, Y.map(Math.log), 1); if (c) starts.unshift([Math.exp(c[0]), Math.exp(c[1])]); }
+      return bestLm(X, Y, (p, x) => p[0] * Math.pow(p[1], x), starts);
+    },
+    tex: p => `y=${numTex(p[0], 7)}\\cdot ${numTex(p[1], 7)}^{x}` },
+  { key: 'logarithmic', name: 'Logarithmic Regression', need: 2, posX: true, f: (p, x) => p[0] + p[1] * Math.log(x),
+    fit: (X, Y) => { const c = polyFitData(X.map(Math.log), Y, 1); return c && { p: c }; },
+    tex: p => 'y=' + regSum([[p[0], ''], [p[1], '\\ln x']]) },
+  { key: 'power', name: 'Power Regression', need: 2, posX: true, f: (p, x) => p[0] * Math.pow(x, p[1]),
+    fit: (X, Y) => {
+      const starts = [[1, 1], [meanOf(Y), 0.5], [Y[0] || 1, 2]];
+      if (Y.every(v => v > 0)) { const c = polyFitData(X.map(Math.log), Y.map(Math.log), 1); if (c) starts.unshift([Math.exp(c[0]), c[1]]); }
+      return bestLm(X, Y, (p, x) => p[0] * Math.pow(x, p[1]), starts);
+    },
+    tex: p => `y=${numTex(p[0], 7)}x^{${numTex(p[1], 7)}}` },
+  { key: 'logistic', name: 'Logistic Regression', need: 3, f: (p, x) => p[0] / (1 + p[1] * Math.exp(-p[2] * x)),
+    fit: (X, Y) => {
+      const top = Math.max(...Y.map(Math.abs)) || 1, span = (Math.max(...X) - Math.min(...X)) || 1, x0 = X[0], y0 = Y[0] || top / 2, starts = [];
+      for (const c of [top * 1.05, top * 1.5, top * 3]) for (const b of [4 / span, 1, 0.1, -4 / span, -1]) {
+        const a = Math.abs(y0) > 1e-9 ? (c / y0 - 1) * Math.exp(b * x0) : 1;
+        starts.push([c, isFinite(a) && a > 0 ? a : 1, b]);
+      }
+      return bestLm(X, Y, (p, x) => p[0] / (1 + p[1] * Math.exp(-p[2] * x)), starts);
+    },
+    tex: p => `y=\\frac{${numTex(p[0], 7)}}{1+${numTex(p[1], 7)}e^{${p[2] > 0 ? '-' : ''}${numTex(Math.abs(p[2]), 7)}x}}` },
+  { key: 'sinusoidal', name: 'Sinusoidal Regression', need: 4, f: (p, x) => p[0] * Math.sin(p[1] * x + p[2]) + p[3],
+    fit: (X, Y) => {
+      const lo = Math.min(...Y), hi = Math.max(...Y), span = (Math.max(...X) - Math.min(...X)) || 1, starts = [];
+      for (const k of [2, 1.5, 1, 0.75, 0.5, 1 / 3, 0.25, 0.2, 1 / 6, 0.125]) for (const c of [0, Math.PI / 2, Math.PI, -Math.PI / 2])
+        starts.push([(hi - lo) / 2 || 1, 2 * Math.PI / (span * k), c, meanOf(Y)]);
+      const r = bestLm(X, Y, (p, x) => p[0] * Math.sin(p[1] * x + p[2]) + p[3], starts);
+      if (!r) return null;
+      let [a, b, c, d] = r.p;
+      if (b < 0) { b = -b; c = -c; a = -a; }
+      if (a < 0) { a = -a; c += Math.PI; }
+      c = ((c + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      return { p: [a, b, c, d] };
+    },
+    tex: p => `y=${numTex(p[0], 7)}\\sin\\left(${regSum([[p[1], 'x'], [p[2], '']])}\\right)${p[3] < 0 ? '-' : '+'}${numTex(Math.abs(p[3]), 7)}` },
+];
+const REG_BY = Object.fromEntries(REG_TYPES.map(t => [t.key, t]));
+function cleanReg(r) {
+  if (!r || typeof r !== 'object') return null;
+  return { type: REG_BY[r.type] ? r.type : 'linear', y: Math.max(1, r.y | 0), resid: !!r.resid };
+}
+function fitTableReg(R, reg, base) {
+  const yk = Math.min(Math.max(1, reg.y | 0), Math.max(1, R.cols.length - 1));
+  const M = REG_BY[reg.type] || REG_TYPES[0], out = { color: (base + yk - 1) % 6, f: null, resid: [], type: M.key };
+  const xs = R.colVals && R.colVals[0], ys = R.colVals && R.colVals[yk];
+  if (R.cols.length < 2 || !isArr(xs) || !isArr(ys)) return Object.assign(out, { error: 'Add a column of y-values to fit.' });
+  const X = [], Y = [];
+  for (let i = 0; i < Math.min(xs.length, ys.length); i++) if (isFinite(xs[i]) && isFinite(ys[i])) { X.push(xs[i]); Y.push(ys[i]); }
+  if (X.length < M.need) return Object.assign(out, { error: `${M.name.replace(' Regression', '')} regression needs at least ${M.need} points. This table has ${X.length}.` });
+  if (M.posX && X.some(v => v <= 0)) return Object.assign(out, { error: `${M.name.replace(' Regression', '')} regression needs every x-value to be positive.` });
+  let fit = null;
+  try { fit = M.fit(X, Y); } catch (e) { fit = null; }
+  if (!fit || !fit.p || !fit.p.every(isFinite)) return Object.assign(out, { error: "This model can't be fit to this data. Try another one." });
+  const p = fit.p, f = x => M.f(p, x);
+  let sse = 0; const my = meanOf(Y); let sst = 0;
+  X.forEach((x, i) => { const e = Y[i] - f(x); sse += e * e; sst += (Y[i] - my) ** 2; out.resid.push(new Pt(x, e)); });
+  out.f = f; out.p = p; out.n = X.length;
+  out.r2 = sst > 0 ? 1 - sse / sst : 1;
+  out.r = M.key === 'linear' ? (p[1] < 0 ? -1 : 1) * Math.sqrt(out.r2) : null;
+  out.tex = M.tex(p);
+  return out;
+}
 function evalCells(R, col) {
   if (!col.compiled) col.compiled = col.cells.map(cell => {
     const t = String(cell || '').trim(); if (!t) return null;
@@ -2509,7 +2667,7 @@ class MathField {
       id: nextId++, type: r.type === 'table' ? 'table' : 'expr', text: String(r.text || ''), color: (r.color | 0) % 6, hidden: !!r.hidden,
       slider: r.slider || null, playing: false, dir: 1, seed: r.seed || ((Math.random() * 1e9) | 0),
       style: { dash: false, label: false, connect: false, ...(r.style || {}) },
-      table: r.type === 'table' && r.table && Array.isArray(r.table.cols) ? { cols: r.table.cols.map(c => ({ name: String(c.name || ''), cells: (c.cells || []).map(String) })) } : null,
+      table: r.type === 'table' && r.table && Array.isArray(r.table.cols) ? { cols: r.table.cols.map(c => ({ name: String(c.name || ''), cells: (c.cells || []).map(String) })), reg: cleanReg(r.table.reg) } : null,
     }));
     rows.forEach(r => { if (r.type === 'table' && !r.table) r.table = { cols: freshCols() }; });
     if (!rows.length) rows = [newRow('')];
@@ -2658,6 +2816,16 @@ class MathField {
       if (R.label) R.labelText = R.label.replace(/\$\{([^}]*)\}/g, (_, e) => fmtVal(evalText(e)));
       if (!row.hidden) CURVES.push(...made);
     });
+    // Regressions attached to tables (the Add regression button)
+    RES.forEach((R, i) => {
+      const row = rows[i];
+      if (R.kind !== 'table' || !row.table || !row.table.reg) { R.reg = null; return; }
+      R.reg = fitTableReg(R, row.table.reg, row.color);
+      if (row.hidden || !R.reg.f) return;
+      CURVES.push({ R, row, color: R.reg.color, key: row.id + ':reg', type: 'fx', op: '=', f: R.reg.f });
+      if (row.table.reg.resid && R.reg.resid.length) CURVES.push({ R, row, color: (R.reg.color + 3) % 6, key: row.id + ':res', type: 'pts', pts: R.reg.resid, table: true });
+      R.drawable = true; R.hasLines = true;
+    });
     if (pinned && pinned.kind === 'poi') pinned = null;
   }
   function ensureTrailing() {
@@ -2720,7 +2888,8 @@ class MathField {
     const del = `<button class="del" type="button" aria-label="Delete">${ICON_DEL}</button>`;
     fields.delete(row.id);
     if (kind === 'table') {
-      li.innerHTML = `${gut}<div class="main"><div class="tbl"></div><div class="info" hidden></div>${opts}</div>${del}`;
+      li.innerHTML = `${gut}<div class="main"><div class="tbl"></div><div class="regp" hidden></div><div class="info" hidden></div>${opts}</div>${del}`;
+      li.querySelector('.gut').insertAdjacentHTML('beforeend', `<button class="regbtn" type="button" aria-label="Add regression" data-tip="Add Regression">${ICON_REG}</button><button class="zoomfit regbtn" type="button" aria-label="Zoom to fit this table" data-tip="Zoom to fit">${ICON_ZOOM}</button>`);
       buildTable(li, row);
     } else if (kind === 'note') {
       li.innerHTML = `${gut}<div class="main"><textarea class="note-in" id="note-${row.id}" rows="1" aria-label="Note" placeholder="Write a note"></textarea></div>${del}`;
@@ -2911,6 +3080,7 @@ class MathField {
           pl.setAttribute('aria-label', row.playing ? 'Pause slider' : 'Animate slider');
         } else { sl.hidden = true; row.playing = false; }
       }
+      if (kind === 'table') renderReg(li, row, R);
       renderInfo(li.querySelector('.info'), R);
       const opts = li.querySelector('.opts');
       opts.hidden = !(selected === row.id && R.drawable);
@@ -3073,7 +3243,8 @@ class MathField {
   }
   $('#kbToggle').addEventListener('click', () => { setKeypad($('#app').classList.contains('kp-off')); togglePanel(null, $('#listMenu'), false); });
   $('#kbShow').addEventListener('click', () => setKeypad(true));
-  setKeypad(true);
+  // With a mouse and keyboard the on-screen keypad starts tucked away, so the list has room; touch screens get it open.
+  setKeypad(!matchMedia('(pointer: fine)').matches);
   // A short window (the small calculator window on a phone) hides the keypad to give the graph room;
   // making the window taller brings it back.
   const shortWin = matchMedia('(max-height: 340px)');
@@ -3137,6 +3308,137 @@ class MathField {
     }
     if (focus) { selected = focus.id; syncRows(); focusRow(focus.id, 'end'); }
   });
+  // ---------- regressions on a table: pick a model from a list, like Desmos ----------
+  function renderReg(li, row, R) {
+    const box = li.querySelector('.regp'), btn = li.querySelector('.regbtn'), reg = row.table.reg, fit = R && R.reg;
+    const hasData = R && R.colVals && R.colVals[0] && R.colVals[0].some(isFinite);
+    btn.hidden = !!reg || !hasData;
+    li.querySelector('.zoomfit').hidden = !hasData;
+    if (!reg) { box.hidden = true; box.innerHTML = ''; box._k = ''; return; }
+    box.hidden = false;
+    const ys = row.table.cols.map((c, k) => ({ k, name: c.name.trim() })).filter(c => c.k > 0 && c.name);
+    if (!box._built) {
+      box.innerHTML = `<div class="reg-top"><span class="reg-ico" aria-hidden="true">${ICON_MODEL}</span>
+        <div class="reg-pick"><button class="regsel" type="button" aria-haspopup="listbox" aria-expanded="false"><span class="regsel-t"></span><svg class="caret" viewBox="0 0 12 8" aria-hidden="true"><path d="M1 1l5 5 5-5"/></svg></button>
+          <div class="reglist" role="listbox" tabindex="-1" aria-label="Regression model" hidden>${REG_TYPES.map(t => `<div class="regopt" role="option" data-type="${t.key}" aria-selected="false">${t.name}</div>`).join('')}
+          <div class="regfoot">Make a custom regression model in a new line using <span class="tilde">~</span>. <button class="reglearn" type="button">Learn how</button></div></div></div>
+        <button class="regmore" type="button" aria-label="Regression options" aria-haspopup="menu" aria-expanded="false"><svg viewBox="0 0 4 16" aria-hidden="true"><circle cx="2" cy="2" r="1.6"/><circle cx="2" cy="8" r="1.6"/><circle cx="2" cy="14" r="1.6"/></svg></button>
+        <div class="regmenu" role="menu" hidden></div></div>
+        <div class="reg-body"><div class="reg-sec reg-eqsec"><div class="reg-h">Equation <button class="regcopy" type="button" aria-label="Copy the equation into a new line" title="Copy into a new line">${ICON_COPY}</button></div><div class="reg-eq mstatic"></div></div>
+        <div class="reg-cols"><div class="reg-sec"><div class="reg-h">Statistics</div><div class="reg-stats"></div></div>
+        <div class="reg-sec"><div class="reg-h">Residuals</div><div class="reg-res"><span class="mstatic reg-e"></span><button class="regresid" type="button" aria-pressed="false">plot</button></div></div></div>
+        <p class="reg-err" role="status" hidden></p></div>`;
+      box._built = true;
+    }
+    const type = REG_BY[reg.type] || REG_TYPES[0];
+    box.querySelector('.regsel-t').textContent = type.name;
+    box.querySelectorAll('.regopt').forEach(o => o.setAttribute('aria-selected', String(o.dataset.type === type.key)));
+    const key = JSON.stringify([reg, fit && (fit.error || fit.tex), fit && fit.r2, ys.map(c => c.name)]);
+    if (box._k === key) return;
+    box._k = key;
+    const err = box.querySelector('.reg-err'), body = box.querySelectorAll('.reg-eqsec, .reg-cols');
+    box.querySelector('.regmenu').innerHTML = (ys.length > 1 ? ys.map(c => `<button type="button" role="menuitemradio" aria-checked="${c.k === reg.y}" data-y="${c.k}">Fit ${esc(c.name)}</button>`).join('') : '') +
+      '<button type="button" role="menuitem" data-act="copy">Copy equation to a new line</button><button type="button" role="menuitem" data-act="remove">Remove regression</button>';
+    if (!fit || fit.error) {
+      err.hidden = false; err.textContent = fit ? fit.error : 'Type some data into the table.';
+      body.forEach(b => (b.hidden = true)); return;
+    }
+    err.hidden = true; body.forEach(b => (b.hidden = false));
+    renderStatic(box.querySelector('.reg-eq'), fit.tex);
+    const st = box.querySelector('.reg-stats');
+    st.innerHTML = [`R^{2}=${numTex(fit.r2, 4)}`].concat(fit.r != null ? [`r=${numTex(fit.r, 4)}`] : []).map(() => '<span class="mstatic"></span>').join('');
+    [...st.children].forEach((el, i) => renderStatic(el, i ? `r=${numTex(fit.r, 4)}` : `R^{2}=${numTex(fit.r2, 4)}`));
+    renderStatic(box.querySelector('.reg-e'), `e_{${regIndex(row)}}`);
+    const rb = box.querySelector('.regresid');
+    rb.textContent = reg.resid ? 'hide' : 'plot'; rb.setAttribute('aria-pressed', String(!!reg.resid));
+    rb.setAttribute('aria-label', reg.resid ? 'Hide the residuals on the graph' : 'Plot the residuals on the graph');
+  }
+  // Fit the graph to a table's points (and residuals when they're shown). gentle: only when some point is off screen.
+  function zoomFitTable(row, gentle) {
+    const R = RES[rows.indexOf(row)]; if (!R || !R.colVals) return;
+    const xs = R.colVals[0] || [], pts = [];
+    R.colVals.slice(1).forEach(ys => ys && ys.forEach((y, i) => { if (isFinite(xs[i]) && isFinite(y)) pts.push([xs[i], y]); }));
+    if (R.reg && row.table.reg && row.table.reg.resid) R.reg.resid.forEach(q => pts.push([q.x, q.y]));
+    if (!pts.length) return;
+    let x0 = Math.min(...pts.map(q => q[0])), x1 = Math.max(...pts.map(q => q[0])), y0 = Math.min(...pts.map(q => q[1])), y1 = Math.max(...pts.map(q => q[1]));
+    if (gentle && pts.every(q => { const X = px(q[0]), Y = py(q[1]); return X > 20 && X < W - 20 && Y > 20 && Y < H - 20; })) return;
+    const dx = (x1 - x0) || Math.max(1, Math.abs(x0)), dy = (y1 - y0) || Math.max(1, Math.abs(y0));
+    setRange([x0 - dx * 0.15, x1 + dx * 0.15], [Math.min(y0 - dy * 0.15, 0), y1 + dy * 0.15]);
+    requestDraw(); save();
+  }
+  function regIndex(row) { const t = rows.filter(r => r.type === 'table' && r.table && r.table.reg); return Math.max(1, t.indexOf(row) + 1); }
+  function closeRegPopups(except) {
+    listEl.querySelectorAll('.reglist:not([hidden]), .regmenu:not([hidden])').forEach(p => {
+      if (p === except) return;
+      p.hidden = true;
+      const b = p.parentNode.querySelector(p.classList.contains('reglist') ? '.regsel' : '.regmore');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+  function setReg(row, patch) { row.table.reg = cleanReg({ ...(row.table.reg || {}), ...patch }); changed(); }
+  function copyRegLine(row, li) {
+    const R = RES[rows.indexOf(row)], fit = R && R.reg; if (!fit || fit.error) return;
+    const r = insertRowAfter(row.id, fit.tex); selected = r.id; syncRows(); focusRow(r.id, 'end');
+    toast('Copied the fitted equation into a new line.');
+  }
+  listEl.addEventListener('click', e => {
+    const li = e.target.closest('.row'); if (!li) return;
+    const row = rowById(+li.dataset.id); if (!row || row.type !== 'table') return;
+    const t = e.target;
+    if (t.closest('.zoomfit')) { zoomFitTable(row); return; }
+    if (t.closest('.regbtn')) {
+      setReg(row, { type: 'linear', y: 1, resid: false });
+      zoomFitTable(row, true);
+      requestAnimationFrame(() => { const b = li.querySelector('.regsel'); if (b) b.focus(); });
+      return;
+    }
+    const sel = t.closest('.regsel');
+    if (sel) {
+      const list = sel.parentNode.querySelector('.reglist'), show = list.hidden;
+      closeRegPopups(); list.hidden = !show; sel.setAttribute('aria-expanded', String(show));
+      if (show) { const cur = list.querySelector('[aria-selected="true"]') || list.querySelector('.regopt'); markOpt(list, cur); list.focus(); }
+      return;
+    }
+    const opt = t.closest('.regopt');
+    if (opt) { closeRegPopups(); setReg(row, { type: opt.dataset.type }); li.querySelector('.regsel').focus(); return; }
+    if (t.closest('.reglearn')) {
+      closeRegPopups();
+      const c = row.table.cols, x = c[0].name.trim(), y = (c[(row.table.reg || {}).y || 1] || c[1] || c[0]).name.trim(), k = fitIndex(['a', 'b']);
+      const r = insertRowAfter(row.id, `${y} ~ a_${k} ${x}^2 + b_${k}`); selected = r.id; syncRows(); focusRow(r.id, 'end');
+      toast('A custom model: change the right side to any formula. Letters you add become the constants it fits.');
+      return;
+    }
+    const more = t.closest('.regmore');
+    if (more) { const m = more.parentNode.querySelector('.regmenu'), show = m.hidden; closeRegPopups(); m.hidden = !show; more.setAttribute('aria-expanded', String(show)); if (show) m.querySelector('button').focus(); return; }
+    const item = t.closest('.regmenu button');
+    if (item) {
+      closeRegPopups();
+      if (item.dataset.y) setReg(row, { y: +item.dataset.y });
+      else if (item.dataset.act === 'copy') copyRegLine(row, li);
+      else if (item.dataset.act === 'remove') { const snap = row.table.reg; row.table.reg = null; changed(); toast('Regression removed.', () => { row.table.reg = snap; changed(); }); }
+      return;
+    }
+    if (t.closest('.regcopy')) { copyRegLine(row, li); return; }
+    if (t.closest('.regresid')) { setReg(row, { resid: !(row.table.reg && row.table.reg.resid) }); return; }
+  });
+  function markOpt(list, o) { list.querySelectorAll('.regopt').forEach(x => x.classList.toggle('hl', x === o)); if (o) { list.setAttribute('aria-activedescendant', ''); o.scrollIntoView({ block: 'nearest' }); } }
+  listEl.addEventListener('keydown', e => {
+    const list = e.target.closest && e.target.closest('.reglist'); if (!list) return;
+    const opts = [...list.querySelectorAll('.regopt')], cur = list.querySelector('.regopt.hl'), i = opts.indexOf(cur);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); markOpt(list, opts[Math.max(0, Math.min(opts.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))]); }
+    else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); markOpt(list, opts[e.key === 'Home' ? 0 : opts.length - 1]); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (cur) cur.click(); }
+    else if (e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); closeRegPopups(); list.parentNode.querySelector('.regsel').focus(); }
+  });
+  listEl.addEventListener('keydown', e => {
+    const menu = e.target.closest && e.target.closest('.regmenu'); if (!menu) return;
+    const items = [...menu.querySelectorAll('button')], i = items.indexOf(e.target);
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeRegPopups(); menu.parentNode.querySelector('.regmore').focus(); }
+  });
+  listEl.addEventListener('mouseover', e => { const o = e.target.closest && e.target.closest('.regopt'); if (o) markOpt(o.parentNode, o); });
+  document.addEventListener('pointerdown', e => { if (!e.target.closest('.reg-top')) closeRegPopups(); });
+
   $('#clearBtn').addEventListener('click', () => { togglePanel(null, $('#confirm'), true); $('#confirmYes').focus(); });
   $('#confirmNo').addEventListener('click', () => { $('#confirm').hidden = true; });
   $('#confirmYes').addEventListener('click', () => {

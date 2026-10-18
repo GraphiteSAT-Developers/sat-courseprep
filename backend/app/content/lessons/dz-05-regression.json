@@ -5,32 +5,32 @@
   "skill": "regression",
   "title": "Regression: fit a model to data",
   "minutes": 6,
-  "hook": "Put the data in a table and use ~ to fit a line or curve. Desmos finds the constants.",
+  "hook": "Put the data in a table and use $\\sim$ to fit a line or curve. Desmos finds the constants.",
   "steps": [
     {
       "type": "recall",
       "prompt": "From memory: what symbol tells Desmos to fit a model instead of graphing an exact equation?",
-      "answer": "The tilde, ~. For example y_1~mx_1+b."
+      "answer": "The tilde, $\\sim$. For example `y_1~mx_1+b`."
     },
     {
       "type": "predict",
-      "prompt": "Your table has columns x_1 and y_1. Which entry fits a line?",
+      "prompt": "Your table has columns `x_1` and `y_1`. Which entry fits a line?",
       "choices": [
-        "y_1~mx_1+b",
-        "y=mx+b",
-        "y_1=mx_1+b",
-        "mx+b~y"
+        "`y_1~mx_1+b`",
+        "$y=mx+b$",
+        "`y_1=mx_1+b`",
+        "`mx+b~y`"
       ],
       "answer": 0,
-      "why": "Use ~ and the table's column names."
+      "why": "Use $\\sim$ and the table's column names."
     },
     {
       "type": "sort",
-      "prompt": "Which regression fits each table of y-values (x = 0, 1, 2, 3)?",
+      "prompt": "Which regression fits each table of $y$-values ($x = 0$, 1, 2, 3)?",
       "buckets": [
-        "y₁ ~ mx₁ + b",
-        "y₁ ~ ab^x₁",
-        "y₁ ~ ax₁² + bx₁ + c"
+        "$y_{1} \\sim mx_{1} + b$",
+        "$y_{1} \\sim ab^{x_{1}}$",
+        "$y_{1} \\sim ax_{1}^{2} + bx_{1} + c$"
       ],
       "cards": [
         {
@@ -64,24 +64,24 @@
       "type": "predict",
       "prompt": "Which entry fits an exponential model?",
       "choices": [
-        "y_1~ab^{x_1}",
-        "y_1~a+bx_1",
-        "y_1~ax_1^2",
-        "y=ab^x"
+        "`y_1~ab^{x_1}`",
+        "`y_1~a+bx_1`",
+        "`y_1~ax_1^2`",
+        "`y=ab^x`"
       ],
       "answer": 0,
-      "why": "a times b to the x_1."
+      "why": "$a$ times $b$ to the `x_1`."
     },
     {
       "type": "fill",
-      "prompt": "The table has (1, 5), (2, 7), (3, 9) and (4, 11). Desmos fits y_1~mx_1+b. What is m?",
+      "prompt": "The table has $(1, 5)$, $(2, 7)$, $(3, 9)$ and $(4, 11)$. Desmos fits `y_1~mx_1+b`. What is $m$?",
       "lines": [
-        "Desmos shows m = ___ and b = 3"
+        "Desmos shows $m =$ ___ and $b = 3$"
       ],
       "accept": [
         "2"
       ],
-      "why": "Each step in x adds 2 to y.",
+      "why": "Each step in $x$ adds 2 to $y$.",
       "desmos": [
         "Table with x_1: 1, 2, 3, 4 and y_1: 5, 7, 9, 11",
         "y_1~mx_1+b"
@@ -101,11 +101,11 @@
     },
     {
       "type": "spot",
-      "prompt": "A student fits y_1~ab^{x_1}. Tap the step that causes trouble.",
+      "prompt": "A student fits `y_1~ab^{x_1}`. Tap the step that causes trouble.",
       "lines": [
         "Enter the data in a table",
-        "Type y_1~ab^{x_1}",
-        "Read a = 2.99876 and type 2.99 into the next calculation"
+        "Type `y_1~ab^{x_1}`",
+        "Read $a = 2.99876$ and type 2.99 into the next calculation"
       ],
       "wrong": 2,
       "why": "Don't retype rounded decimals. Desmos stores more digits, so use the variable a itself."
@@ -123,8 +123,8 @@
     }
   ],
   "keys": [
-    "Data in a table, then y_1~(model with x_1).",
-    "Use ~, not =, and the table's column names.",
+    "Data in a table, then `y_1~(model` with `x_1)`.",
+    "Use $\\sim$, not $=$, and the table's column names.",
     "Reuse the fitted variables instead of retyping rounded decimals."
   ],
   "recall": [
@@ -132,9 +132,9 @@
       "type": "predict",
       "prompt": "The regression symbol is:",
       "choices": [
-        "~",
-        "=",
-        "≈"
+        "$\\sim$",
+        "$=$",
+        "$\\approx$"
       ],
       "answer": 0,
       "why": "The tilde."
@@ -143,18 +143,18 @@
       "type": "predict",
       "prompt": "A line fit is typed:",
       "choices": [
-        "y_1~mx_1+b",
-        "y=mx+b",
-        "y_1=mx_1+b"
+        "`y_1~mx_1+b`",
+        "$y=mx+b$",
+        "`y_1=mx_1+b`"
       ],
       "answer": 0,
       "why": "Tilde and subscripts."
     },
     {
       "type": "predict",
-      "prompt": "Desmos shows b = 3.14159. In the next step you should:",
+      "prompt": "Desmos shows $b = 3.14159$. In the next step you should:",
       "choices": [
-        "Use b itself",
+        "Use $b$ itself",
         "Type 3.14",
         "Round to 3"
       ],
@@ -167,5 +167,6 @@
     "skill": "two-variable-data-models-and-scatterplots"
   },
   "format": "case",
-  "intro": "Case file: six tables, three possible models. Pick the regression that fits each one."
+  "intro": "Case file: six tables, three possible models. Pick the regression that fits each one.",
+  "tex": true
 }

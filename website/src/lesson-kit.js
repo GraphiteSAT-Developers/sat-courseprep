@@ -265,6 +265,43 @@
     return '<svg class="lk-dots" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Dot plot">' + out + "</svg>";
   }
 
-  window.GraphiteLessonKit = { parse: parse, compile: compile, value: value, check: check, same: same, key: key, right: right, grade: grade,
+  /* ---------- LaTeX in lesson text ----------
+     Lesson text marks math as $...$ (rendered with KaTeX), Desmos keystrokes as `...` and a dollar sign as \$. */
+  function tex(text) {
+    var s = String(text == null ? "" : text), out = "", last = 0, m;
+    var re = /`([^`]*)`|\\\$|\$((?:\\.|[^$\\])+)\$/g;
+    while ((m = re.exec(s))) {
+      out += esc(s.slice(last, m.index));
+      if (m[1] != null) out += "<code>" + esc(m[1]) + "</code>";
+      else if (m[2] == null) out += "$";
+      else out += math(m[2]);
+      last = re.lastIndex;
+    }
+    return out + esc(s.slice(last));
+  }
+  function math(src) {
+    if (window.katex) {
+      try { return window.katex.renderToString(src, { throwOnError: false, strict: "ignore" }); } catch (e) { /* fall through */ }
+    }
+    return '<span class="lk-math">' + esc(plain("$" + src + "$")) + "</span>";
+  }
+  var SUPS = { "0": "\u2070", "1": "\u00b9", "2": "\u00b2", "3": "\u00b3", "4": "\u2074", "5": "\u2075", "6": "\u2076", "7": "\u2077", "8": "\u2078", "9": "\u2079", "-": "\u207b", "x": "\u02e3", "n": "\u207f", "t": "\u1d57" };
+  var SUBS = { "0": "\u2080", "1": "\u2081", "2": "\u2082", "3": "\u2083" };
+  // Readable text for places that can't show math: page titles, labels, the tutor panel.
+  function plain(text) {
+    return String(text == null ? "" : text).replace(/\$((?:\\.|[^$\\])+)\$/g, function (_, m) {
+      return m.replace(/\\text\{([^}]*)\}/g, "$1").replace(/\\t?frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2").replace(/\\sqrt\[3\]\{([^}]*)\}/g, "\u221b($1)")
+        .replace(/\\sqrt\{([^}]*)\}/g, function (_, x) { return "\u221a" + (x.length > 1 ? "(" + x + ")" : x); })
+        .replace(/\^\{\\circ\}/g, "\u00b0").replace(/\^\{([^}]*)\}/g, function (_, x) { return x.split("").every(function (c) { return SUPS[c]; }) ? x.split("").map(function (c) { return SUPS[c]; }).join("") : "^(" + x + ")"; })
+        .replace(/_\{([^}]*)\}/g, function (_, x) { return x.split("").every(function (c) { return SUBS[c]; }) ? x.split("").map(function (c) { return SUBS[c]; }).join("") : "_" + x; })
+        .replace(/\\times/g, "\u00d7").replace(/\\div/g, "\u00f7").replace(/\\cdot/g, "\u00b7").replace(/\\le/g, "\u2264").replace(/\\ge/g, "\u2265").replace(/\\ne/g, "\u2260")
+        .replace(/\\pm/g, "\u00b1").replace(/\\pi/g, "\u03c0").replace(/\\sim/g, "~").replace(/\\approx/g, "\u2248").replace(/\\to/g, "\u2192").replace(/\\infty/g, "\u221e")
+        .replace(/\\ldots/g, "\u2026").replace(/\\(sin|cos|tan|log)/g, "$1").replace(/\\([$%])/g, "$1").replace(/(\d|\)|\w) ?- ?/g, function (x) { return x.replace(/ ?- ?/, " \u2212 "); }).replace(/^-/, "\u2212").replace(/\\/g, "");
+    }).replace(/`([^`]*)`/g, "$1").replace(/\\\$/g, "$");
+  }
+  // A typed answer like 3/7 or -8x, shown as math
+  function answer(a) { return /^[\s\d.,/\-\u2212a-z^()+]*$/i.test(a) ? math(String(a).replace(/\u2212/g, "-").replace(/\^(\w+)/g, "^{$1}").replace(/\*/g, "")) : esc(a); }
+
+  window.GraphiteLessonKit = { tex: tex, plain: plain, answer: answer, parse: parse, compile: compile, value: value, check: check, same: same, key: key, right: right, grade: grade,
                                Graph: Graph, NumberLine: NumberLine, pie: pie, dotPlot: dotPlot, fmt: fmt, MAX_LEN: MAX_LEN };
 })();

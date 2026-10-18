@@ -11,7 +11,7 @@
       "type": "fill",
       "prompt": "An estimate is 62% with a margin of error of 4%. What's the lowest plausible value?",
       "lines": [
-        "62 − 4 = ___%"
+        "$62 - 4 =$ ___%"
       ],
       "accept": [
         "58"
@@ -21,7 +21,7 @@
     },
     {
       "type": "recall",
-      "prompt": "From memory: a poll says 54% ± 3%. What range is plausible for the true value?",
+      "prompt": "From memory: a poll says $54\\% \\pm 3\\%$. What range is plausible for the true value?",
       "answer": "51% to 57%.",
       "skip_if": 0
     },
@@ -62,7 +62,7 @@
     },
     {
       "type": "spot",
-      "prompt": "A poll: Candidate A 48% ± 3%, Candidate B 46% ± 3%. Tap the false statement.",
+      "prompt": "A poll: Candidate A $48\\% \\pm 3\\%$, Candidate $B 46\\% \\pm 3\\%$. Tap the false statement.",
       "lines": [
         "A's true support could be as low as 45%",
         "B's true support could be as high as 49%",
@@ -74,7 +74,7 @@
     },
     {
       "type": "sort",
-      "prompt": "A poll: Candidate A 48% ± 3%, Candidate B 46% ± 3%. Does the poll support each claim?",
+      "prompt": "A poll: Candidate A $48\\% \\pm 3\\%$, Candidate $B 46\\% \\pm 3\\%$. Does the poll support each claim?",
       "buckets": [
         "Supported",
         "Not supported"
@@ -113,25 +113,25 @@
         "9,600"
       ],
       "answer": 0,
-      "why": "120/500 = 24%, and 24% of 80,000 = 19,200."
+      "why": "$120/500 = 24\\%$, and 24% of $80,000 = 19,200$."
     }
   ],
   "keys": [
     "A random sample generalizes only to the population it was drawn from.",
-    "Estimate ± margin of error = the plausible range.",
+    "$\\text{Estimate} \\pm \\text{margin}$ of $\\text{error} =$ the plausible range.",
     "Bigger samples give smaller margins of error."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "45% ± 5% means the true value is plausibly:",
+      "prompt": "$45\\% \\pm 5\\%$ means the true value is plausibly:",
       "choices": [
         "40% to 50%",
         "45% exactly",
         "0% to 50%"
       ],
       "answer": 0,
-      "why": "Estimate ± margin."
+      "why": "$\\text{Estimate} \\pm \\text{margin}$."
     },
     {
       "type": "predict",
@@ -156,5 +156,6 @@
       "why": "The population that was sampled."
     }
   ],
-  "format": "path"
+  "format": "path",
+  "tex": true
 }

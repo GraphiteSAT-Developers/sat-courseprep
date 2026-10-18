@@ -9,24 +9,24 @@
   "steps": [
     {
       "type": "predict",
-      "prompt": "Is the point (5, 4) inside, on, or outside the circle (x − 1)² + (y − 1)² = 25?",
+      "prompt": "Is the point $(5, 4)$ inside, on, or outside the circle $(x - 1)^{2} + (y - 1)^{2} = 25$?",
       "choices": [
         "Inside",
         "On the circle",
         "Outside"
       ],
       "answer": 1,
-      "why": "(5 − 1)² + (4 − 1)² = 16 + 9 = 25, exactly r², so it's on the circle.",
+      "why": "$(5 - 1)^{2} + (4 - 1)^{2} = 16 + 9 = 25$, exactly $r^{2}$, so it's on the circle.",
       "cold": true
     },
     {
       "type": "recall",
-      "prompt": "What is the equation of a circle with center (h, k) and radius r?",
-      "answer": "(x − h)² + (y − k)² = r²"
+      "prompt": "What is the equation of a circle with center $(h, k)$ and radius $r$?",
+      "answer": "$(x - h)^{2} + (y - k)^{2} = r^{2}$"
     },
     {
       "type": "plot",
-      "prompt": "Tap the center of (x + 1)² + (y − 2)² = 9.",
+      "prompt": "Tap the center of $(x + 1)^{2} + (y - 2)^{2} = 9$.",
       "curves": [
         "2+sqrt(9-(x+1)^2)",
         "2-sqrt(9-(x+1)^2)"
@@ -35,7 +35,7 @@
         -1,
         2
       ],
-      "why": "(x − h)² + (y − k)²: the signs flip, so the center is (−1, 2). The radius is √9 = 3.",
+      "why": "$(x - h)^{2} + (y - k)^{2}$: the signs flip, so the center is $(-1, 2)$. The radius is $\\sqrt{9} = 3$.",
       "window": {
         "x": [
           -6,
@@ -51,72 +51,72 @@
     },
     {
       "type": "predict",
-      "prompt": "(x − 2)² + (y + 5)² = 49. What are the center and radius?",
+      "prompt": "$(x - 2)^{2} + (y + 5)^{2} = 49$. What are the center and radius?",
       "choices": [
-        "(2, −5), radius 7",
-        "(−2, 5), radius 7",
-        "(2, −5), radius 49",
-        "(2, 5), radius 7"
+        "$(2, -5)$, radius 7",
+        "$(-2, 5)$, radius 7",
+        "$(2, -5)$, radius 49",
+        "$(2, 5)$, radius 7"
       ],
       "answer": 0,
-      "why": "Signs flip: y + 5 means k = −5. The right side is r², so r = √49 = 7."
+      "why": "Signs flip: $y + 5$ means $k = -5$. The right side is $r^{2}$, so $r = \\sqrt{49} = 7$."
     },
     {
       "type": "fill",
-      "prompt": "Complete the square: x² + 6x = (x + 3)² − ___",
+      "prompt": "Complete the square: $x^{2} + 6x = (x + 3)^{2} -$ ___",
       "lines": [
-        "(x + 3)² = x² + 6x + 9",
-        "so x² + 6x = (x + 3)² − ___"
+        "$(x + 3)^{2} = x^{2} + 6x + 9$",
+        "so $x^{2} + 6x = (x + 3)^{2} -$ ___"
       ],
       "accept": [
         "9"
       ],
-      "why": "Half of 6 is 3, and 3² = 9. Take it back off to keep both sides equal."
+      "why": "Half of 6 is 3, and $3^{2} = 9$. Take it back off to keep both sides equal."
     },
     {
       "type": "order",
-      "prompt": "Put the steps in order to find the radius of x² + y² − 4x + 10y = 7.",
+      "prompt": "Put the steps in order to find the radius of $x^{2} + y^{2} - 4x + 10y = 7$.",
       "items": [
-        "Group: (x² − 4x) + (y² + 10y) = 7",
+        "Group: $(x^{2} - 4x) + (y^{2} + 10y) = 7$",
         "Complete both squares: add 4 and 25 to both sides",
-        "Rewrite: (x − 2)² + (y + 5)² = 36",
-        "Radius = √36 = 6"
+        "Rewrite: $(x - 2)^{2} + (y + 5)^{2} = 36$",
+        "$\\text{Radius} = \\sqrt{36} = 6$"
       ],
-      "why": "Half of −4 is −2 (square: 4), half of 10 is 5 (square: 25). 7 + 4 + 25 = 36."
+      "why": "Half of $-4$ is $-2$ (square: 4), half of 10 is 5 (square: 25). $7 + 4 + 25 = 36$."
     },
     {
       "type": "spot",
-      "prompt": "Finding the center of x² + y² + 8x − 2y = 8. Tap the line with the mistake.",
+      "prompt": "Finding the center of $x^{2} + y^{2} + 8x - 2y = 8$. Tap the line with the mistake.",
       "lines": [
-        "(x² + 8x + 16) + (y² − 2y + 1) = 8 + 16 + 1",
-        "(x + 4)² + (y − 1)² = 25",
-        "Center (4, −1), radius 5"
+        "$(x^{2} + 8x + 16) + (y^{2} - 2y + 1) = 8 + 16 + 1$",
+        "$(x + 4)^{2} + (y - 1)^{2} = 25$",
+        "Center $(4, -1)$, radius 5"
       ],
       "wrong": 2,
-      "why": "x + 4 means h = −4 and y − 1 means k = 1. The center is (−4, 1)."
+      "why": "$x + 4$ means $h = -4$ and $y - 1$ means $k = 1$. The center is $(-4, 1)$."
     },
     {
       "type": "predict",
-      "prompt": "Is (4, −3) inside, on, or outside (x + 1)² + (y − 1)² = 36?",
+      "prompt": "Is $(4, -3)$ inside, on, or outside $(x + 1)^{2} + (y - 1)^{2} = 36$?",
       "choices": [
         "Inside",
         "On",
         "Outside"
       ],
       "answer": 2,
-      "why": "(4 + 1)² + (−3 − 1)² = 25 + 16 = 41, which is more than 36. Outside.",
+      "why": "$(4 + 1)^{2} + (-3 - 1)^{2} = 25 + 16 = 41$, which is more than 36. Outside.",
       "rematch": true
     }
   ],
   "keys": [
-    "(x − h)² + (y − k)² = r² has center (h, k) and radius r. Signs flip, and the right side is r squared.",
-    "To find the center from x² + y² + Dx + Ey = F, complete the square: add (D/2)² and (E/2)² to both sides.",
-    "Plug a point in: less than r² is inside, equal is on, more is outside."
+    "$(x - h)^{2} + (y - k)^{2} = r^{2}$ has center $(h, k)$ and radius $r$. Signs flip, and the right side is $r$ squared.",
+    "To find the center from $x^{2} + y^{2} + Dx + Ey = F$, complete the square: add $(D/2)^{2}$ and $(E/2)^{2}$ to both sides.",
+    "Plug a point in: less than $r^{2}$ is inside, equal is on, more is outside."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "Radius of x² + (y − 3)² = 16?",
+      "prompt": "Radius of $x^{2} + (y - 3)^{2} = 16$?",
       "choices": [
         "16",
         "4",
@@ -124,16 +124,16 @@
         "8"
       ],
       "answer": 1,
-      "why": "√16 = 4."
+      "why": "$\\sqrt{16} = 4$."
     },
     {
       "type": "predict",
-      "prompt": "Center of (x + 1)² + (y − 6)² = 9?",
+      "prompt": "Center of $(x + 1)^{2} + (y - 6)^{2} = 9$?",
       "choices": [
-        "(1, −6)",
-        "(−1, 6)",
-        "(−1, −6)",
-        "(1, 6)"
+        "$(1, -6)$",
+        "$(-1, 6)$",
+        "$(-1, -6)$",
+        "$(1, 6)$"
       ],
       "answer": 1,
       "why": "Signs flip."
@@ -142,13 +142,14 @@
       "type": "fill",
       "prompt": "Complete the square:",
       "lines": [
-        "x² − 10x = (x − 5)² − ___"
+        "$x^{2} - 10x = (x - 5)^{2} -$ ___"
       ],
       "accept": [
         "25"
       ],
-      "why": "(−5)² = 25."
+      "why": "$(-5)^{2} = 25$."
     }
   ],
-  "format": "cold-open"
+  "format": "cold-open",
+  "tex": true
 }

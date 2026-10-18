@@ -9,7 +9,7 @@ A browser graphing calculator with a live math editor, built as a single self-co
 - **Calculus.** `f'(x)`, `d/dx`, definite integrals, sums and products, and `with` substitution.
 - **Lists, tables and matrices.** Ranges, filters, list comprehensions with `for`, tables (type `table` into an empty line), and det, inv, transpose, rref and trace.
 - **Statistics.** Summary statistics, normal, t, binomial, Poisson and uniform distributions, t-tests, random values, histograms, dot plots and box plots.
-- **Regressions.** Fits written as `y_1 ~ m x_1 + b`, or any nonlinear model, with R² and RMSE.
+- **Regressions.** Every table has an Add regression button: pick linear, quadratic, cubic, quartic, exponential, logarithmic, power, logistic or sinusoidal from a list and see the fitted equation, R² (and r for a line) and a residual plot. Copy the fitted equation into its own line, or write a custom model as `y_1 ~ m x_1 + b`. A zoom button fits the graph to the table.
 - **Other.** Complex numbers, degrees or radians, and light and dark themes. Expressions are saved in the browser's local storage.
 
 ## Notes

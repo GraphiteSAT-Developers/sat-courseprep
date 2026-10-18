@@ -5,7 +5,7 @@
   "skill": "circles",
   "title": "Circle angles and tangents",
   "minutes": 5,
-  "hook": "An inscribed angle is half its arc, and a tangent meets the radius at 90°.",
+  "hook": "An inscribed angle is half its arc, and a tangent meets the radius at $90^{\\circ}$.",
   "steps": [
     {
       "type": "recall",
@@ -21,15 +21,15 @@
       ],
       "cards": [
         {
-          "text": "An inscribed angle on an 80° arc is 40°",
+          "text": "An inscribed angle on an $80^{\\circ}$ arc is $40^{\\circ}$",
           "bucket": 0
         },
         {
-          "text": "A tangent meets the radius at 90°",
+          "text": "A tangent meets the radius at $90^{\\circ}$",
           "bucket": 0
         },
         {
-          "text": "An inscribed angle on a 100° arc is 100°",
+          "text": "An inscribed angle on a $100^{\\circ}$ arc is $100^{\\circ}$",
           "bucket": 1
         },
         {
@@ -37,31 +37,31 @@
           "bucket": 0
         },
         {
-          "text": "An angle inscribed in a semicircle is 180°",
+          "text": "An angle inscribed in a semicircle is $180^{\\circ}$",
           "bucket": 1
         }
       ],
-      "why": "An inscribed angle is half its arc, so a semicircle gives 90°, and a 100° arc gives 50°."
+      "why": "An inscribed angle is half its arc, so a semicircle gives $90^{\\circ}$, and a $100^{\\circ}$ arc gives $50^{\\circ}$."
     },
     {
       "type": "predict",
-      "prompt": "A central angle is 110°. An inscribed angle on the same arc is:",
+      "prompt": "A central angle is $110^{\\circ}$. An inscribed angle on the same arc is:",
       "choices": [
-        "55°",
-        "110°",
-        "220°",
-        "70°"
+        "$55^{\\circ}$",
+        "$110^{\\circ}$",
+        "$220^{\\circ}$",
+        "$70^{\\circ}$"
       ],
       "answer": 0,
-      "why": "Half of 110°."
+      "why": "Half of $110^{\\circ}$."
     },
     {
       "type": "predict",
       "prompt": "A tangent line touches a circle at P. The angle between the tangent and the radius to P is:",
       "choices": [
-        "90°",
-        "45°",
-        "180°",
+        "$90^{\\circ}$",
+        "$45^{\\circ}$",
+        "$180^{\\circ}$",
         "It depends"
       ],
       "answer": 0,
@@ -69,38 +69,38 @@
     },
     {
       "type": "fill",
-      "prompt": "A tangent from point A touches a circle of radius 5 at P, and AP = 12. How far is A from the center?",
+      "prompt": "A tangent from point A touches a circle of radius 5 at P, and $AP = 12$. How far is A from the center?",
       "lines": [
-        "There's a right angle at P: 5² + 12² = d²",
-        "d = ___"
+        "There's a right angle at P: $5^{2} + 12^{2} = d^{2}$",
+        "$d =$ ___"
       ],
       "accept": [
         "13"
       ],
-      "why": "√169 = 13."
+      "why": "$\\sqrt{169} = 13$."
     },
     {
       "type": "predict",
       "prompt": "An angle inscribed in a semicircle (its sides go to the ends of a diameter) is:",
       "choices": [
-        "90°",
-        "180°",
-        "45°",
-        "60°"
+        "$90^{\\circ}$",
+        "$180^{\\circ}$",
+        "$45^{\\circ}$",
+        "$60^{\\circ}$"
       ],
       "answer": 0,
-      "why": "Half of the 180° arc."
+      "why": "Half of the $180^{\\circ}$ arc."
     },
     {
       "type": "spot",
-      "prompt": "Arc AB is 80°, and C is on the circle. Finding inscribed angle ACB. Tap the line with the mistake.",
+      "prompt": "Arc AB is $80^{\\circ}$, and C is on the circle. Finding inscribed angle ACB. Tap the line with the mistake.",
       "lines": [
-        "Inscribed angle = ½ × its arc",
-        "= ½ × 80°",
-        "= 160°"
+        "Inscribed $\\text{angle} = \\tfrac{1}{2} \\times$ its arc",
+        "$= \\tfrac{1}{2} \\times 80^{\\circ}$",
+        "$= 160^{\\circ}$"
       ],
       "wrong": 2,
-      "why": "Half of 80° is 40°."
+      "why": "Half of $80^{\\circ}$ is $40^{\\circ}$."
     },
     {
       "type": "predict",
@@ -116,18 +116,18 @@
     }
   ],
   "keys": [
-    "Inscribed angle = ½ of the arc (and of the central angle).",
+    "Inscribed $\\text{angle} = \\tfrac{1}{2}$ of the arc (and of the central angle).",
     "Tangent ⟂ radius at the point of contact.",
-    "An angle inscribed in a semicircle is 90°."
+    "An angle inscribed in a semicircle is $90^{\\circ}$."
   ],
   "recall": [
     {
       "type": "predict",
-      "prompt": "An inscribed angle of 35° cuts off an arc of:",
+      "prompt": "An inscribed angle of $35^{\\circ}$ cuts off an arc of:",
       "choices": [
-        "70°",
-        "35°",
-        "17.5°"
+        "$70^{\\circ}$",
+        "$35^{\\circ}$",
+        "$17.5^{\\circ}$"
       ],
       "answer": 0,
       "why": "Double it."
@@ -136,18 +136,18 @@
       "type": "predict",
       "prompt": "A radius meets a tangent at:",
       "choices": [
-        "90°",
-        "45°",
-        "180°"
+        "$90^{\\circ}$",
+        "$45^{\\circ}$",
+        "$180^{\\circ}$"
       ],
       "answer": 0,
       "why": "Always perpendicular."
     },
     {
       "type": "fill",
-      "prompt": "A central angle is 140°. How big is an inscribed angle on the same arc?",
+      "prompt": "A central angle is $140^{\\circ}$. How big is an inscribed angle on the same arc?",
       "lines": [
-        "½ × 140 = ___"
+        "$\\tfrac{1}{2} \\times 140 =$ ___"
       ],
       "accept": [
         "70"
@@ -157,5 +157,6 @@
   ],
   "format": "teach",
   "intro": "Sam wrote five facts about circle angles on a study card. Some are wrong. Sort them before Sam studies the wrong ones.",
-  "student": "Sam"
+  "student": "Sam",
+  "tex": true
 }

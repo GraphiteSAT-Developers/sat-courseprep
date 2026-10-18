@@ -15,8 +15,10 @@ SITE = "https://www.graphiteprep.com"
 # IBM Plex Mono is only for the keys a student types into Desmos.
 FONTS = ("https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700"
          "&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap")
-FAVICON_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#2d3136"/>'
-               '<ellipse cx="16" cy="16" rx="10" ry="7" fill="#f2c14e"/></svg>')
+# The logo: the end of a pencil (yellow paint, wood, graphite core).
+FAVICON_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="#f2c14e"/>'
+               '<path d="M32 32L57 17.5V46.5ZM32 32V61L7 46.5ZM32 32L7 17.5L32 3Z" fill="#000" fill-opacity=".12"/>'
+               '<circle cx="32" cy="32" r="16" fill="#e9c79a"/><circle cx="32" cy="32" r="8" fill="#2d3136"/></svg>')
 
 header = (SRC / "partials/header.html").read_text()
 footer = (SRC / "partials/footer.html").read_text()
@@ -292,6 +294,21 @@ def crumbs_html(meta):
     return f'<div class="crumbs-bar"><nav class="wrap crumbs" aria-label="You are here"><ol id="crumbs">{items}</ol></nav></div>\n'
 
 
+KATEX = SRC / "vendor" / "katex"
+
+
+def katex_css_inline():
+    """KaTeX's stylesheet with its fonts as woff2 data URIs, for the self-contained preview."""
+    css = (KATEX / "katex.min.css").read_text()
+    def font(m):
+        name = m.group(1)
+        data = base64.b64encode((KATEX / "fonts" / (name + ".woff2")).read_bytes()).decode()
+        return "src:url(data:font/woff2;base64," + data + ") format(\"woff2\")"
+    out = re.sub(r"src:url\(fonts/([\w-]+)\.woff2\) format\(\"woff2\"\)(?:,url\([^)]*\) format\(\"[a-z]+\"\))*", font, css)
+    assert "fonts/" not in out, "KaTeX css changed; update katex_css_inline()"
+    return out
+
+
 def render(meta, mode):
     is_home = meta["file"] == "index.html"
     h = "" if is_home else "./"
@@ -323,8 +340,10 @@ def render(meta, mode):
                  '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
                  '<link rel="manifest" href="/site.webmanifest">')
         styles = '<link rel="stylesheet" href="/css/site.css">'
+        if meta.get("katex"):
+            styles += '<link rel="stylesheet" href="/vendor/katex/katex.min.css">'
         # Served by the backend: site.js first (it sets up the API helper), and never the answer key.
-        script = '<script src="/js/site.js" defer></script>' + "".join(
+        script = '<script src="/js/site.js" defer></script>' + ('<script src="/vendor/katex/katex.min.js" defer></script>' if meta.get("katex") else "") + "".join(
             f'<script src="/js/{n}" defer></script>' for n in meta.get("scripts", []) if n not in PREVIEW_ONLY)
         canonical = f'<link rel="canonical" href="{url}">' if robots.startswith("index") else ""
         # Root-absolute internal links so pages work from any URL, including the 404 page
@@ -335,7 +354,11 @@ def render(meta, mode):
         fav = "data:image/svg+xml," + urllib.parse.quote(FAVICON_SVG)
         icons = f'<link rel="icon" href="{fav}" type="image/svg+xml">'
         styles = "<style>" + minify_css(css) + "</style>"
+        if meta.get("katex"):
+            styles += "<style>" + katex_css_inline() + "</style>"
         script = "<script>" + js + "</script>" + "".join("<script>" + script_source(n) + "</script>" for n in meta.get("scripts", []))
+        if meta.get("katex"):
+            script = "<script>" + (KATEX / "katex.min.js").read_text() + "</script>" + script
         if meta.get("test") or meta.get("calculator"):
             script = "<script>window.TOPLINE_SRC_B64 = '" + base64.b64encode(calculator_html().encode()).decode() + "';</script>" + script
         canonical = ""
@@ -389,23 +412,39 @@ def make_images(out):
     bold = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
     reg = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 
-    def mark(size):
+    def mark(size, tile=False):
+        """The pencil-end logo. tile=True puts it on a dark square (for app icons, which can't be transparent)."""
         s = size * 4
         im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
         d = ImageDraw.Draw(im)
-        d.rounded_rectangle([0, 0, s - 1, s - 1], radius=int(s * 7 / 32), fill="#2d3136")
-        d.ellipse([s * 6 / 32, s * 9 / 32, s * 26 / 32, s * 23 / 32], fill="#f2c14e")
+        pad = 0
+        if tile:
+            d.rounded_rectangle([0, 0, s - 1, s - 1], radius=int(s * 0.22), fill="#1c1e21")
+            pad = s * 0.16
+        u = (s - 2 * pad) / 64
+
+        def P(x, y):
+            return (pad + x * u, pad + y * u)
+        hexa = [P(32, 3), P(57, 17.5), P(57, 46.5), P(32, 61), P(7, 46.5), P(7, 17.5)]
+        d.polygon(hexa, fill="#f2c14e")
+        for tri in ([P(32, 32), P(57, 17.5), P(57, 46.5)], [P(32, 32), P(32, 61), P(7, 46.5)], [P(32, 32), P(7, 17.5), P(32, 3)]):
+            d.polygon(tri, fill="#d5aa45")
+        c = P(32, 32)
+        d.ellipse([c[0] - 16 * u, c[1] - 16 * u, c[0] + 16 * u, c[1] + 16 * u], fill="#e9c79a")
+        r = 8 * u
+        d.ellipse([c[0] - r, c[1] - r, c[0] + r, c[1] + r], fill="#2d3136")
         return im.resize((size, size), Image.LANCZOS)
 
-    for name, size in [("favicon-32.png", 32), ("apple-touch-icon.png", 180), ("icon-512.png", 512)]:
-        mark(size).quantize(colors=64, method=Image.FASTOCTREE).save(out / name, optimize=True)
+    mark(32).save(out / "favicon-32.png", optimize=True)
+    for name, size in [("apple-touch-icon.png", 180), ("icon-512.png", 512)]:
+        mark(size, tile=True).convert("RGB").quantize(colors=64, method=Image.FASTOCTREE).save(out / name, optimize=True)
 
     og = Image.new("RGB", (1200, 630), "#1c1e21")
     d = ImageDraw.Draw(og)
     og.paste(mark(120), (80, 80), mark(120))
     d.text((80, 260), "SAT prep that starts with", font=ImageFont.truetype(bold, 64), fill="#eceef0")
     d.text((80, 340), "the questions you miss.", font=ImageFont.truetype(bold, 64), fill="#f2c14e")
-    d.text((80, 470), "Graphite  ·  AI SAT tutoring for high school students", font=ImageFont.truetype(reg, 30), fill="#b1b6bd")
+    d.text((80, 470), "Graphite  ·  SAT tutoring for high school students", font=ImageFont.truetype(reg, 30), fill="#b1b6bd")
     og.quantize(colors=32, method=Image.FASTOCTREE).save(out / "og-image.png", optimize=True)
 
 ASSET_LINK = re.compile(r'((?:src|href)="/)((?:js|css)/[\w.-]+\.(?:js|css))"')
@@ -441,6 +480,9 @@ def build():
               "lessons.js", "lesson-kit.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
+    if (DIST / "vendor" / "katex").exists():
+        shutil.rmtree(DIST / "vendor" / "katex")
+    shutil.copytree(KATEX, DIST / "vendor" / "katex")
     make_images(DIST)
     for p in pages:
         (DIST / p["file"]).write_text(versioned(render(p, "dist")))

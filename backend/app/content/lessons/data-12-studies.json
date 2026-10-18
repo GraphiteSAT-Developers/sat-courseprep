@@ -147,5 +147,6 @@
       "why": "Nothing was assigned."
     }
   ],
-  "format": "classic"
+  "format": "classic",
+  "tex": true
 }

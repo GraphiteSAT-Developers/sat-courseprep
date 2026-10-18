@@ -9,7 +9,7 @@
   "steps": [
     {
       "type": "plot",
-      "prompt": "A rectangle with perimeter 20 and width w has area A = w(10 − w). Tap the top of the curve.",
+      "prompt": "A rectangle with perimeter 20 and width $w$ has area $A = w(10 - w)$. Tap the top of the curve.",
       "curves": [
         "x*(10-x)"
       ],
@@ -17,7 +17,7 @@
         5,
         25
       ],
-      "why": "The biggest area is at w = 5: a 5 × 5 square with area 25. For a fixed perimeter, a square wins.",
+      "why": "The biggest area is at $w = 5$: a $5 \\times 5$ square with area 25. For a fixed perimeter, a square wins.",
       "window": {
         "x": [
           -1,
@@ -33,13 +33,13 @@
     {
       "type": "recall",
       "prompt": "From memory: the area of a triangle and of a trapezoid?",
-      "answer": "Triangle: ½ × base × height. Trapezoid: ½ × (b₁ + b₂) × height."
+      "answer": "Triangle: $\\tfrac{1}{2} \\times \\text{base} \\times \\text{height}$. Trapezoid: $\\tfrac{1}{2} \\times (b_{1} + b_{2}) \\times \\text{height}$."
     },
     {
       "type": "fill",
       "prompt": "A rectangle is 12 by 7. Find its area.",
       "lines": [
-        "12 × 7 = ___"
+        "$12 \\times 7 =$ ___"
       ],
       "accept": [
         "84"
@@ -56,7 +56,7 @@
         "32"
       ],
       "answer": 0,
-      "why": "½ × 10 × 6."
+      "why": "$\\tfrac{1}{2} \\times 10 \\times 6$."
     },
     {
       "type": "predict",
@@ -68,18 +68,18 @@
         "70"
       ],
       "answer": 0,
-      "why": "½ × (8 + 14) × 5 = 55."
+      "why": "$\\tfrac{1}{2} \\times (8 + 14) \\times 5 = 55$."
     },
     {
       "type": "spot",
-      "prompt": "An L-shape: a 10 × 8 rectangle with a 4 × 3 piece cut from one corner. Finding the area. Tap the line with the mistake.",
+      "prompt": "An L-shape: a $10 \\times 8$ rectangle with a $4 \\times 3$ piece cut from one corner. Finding the area. Tap the line with the mistake.",
       "lines": [
-        "Big rectangle: 10 × 8 = 80",
-        "Cut-out: 4 × 3 = 12",
-        "Area = 80 + 12 = 92"
+        "Big rectangle: $10 \\times 8 = 80$",
+        "Cut-out: $4 \\times 3 = 12$",
+        "$\\text{Area} = 80 + 12 = 92$"
       ],
       "wrong": 2,
-      "why": "Take the cut-out away: 80 − 12 = 68."
+      "why": "Take the cut-out away: $80 - 12 = 68$."
     },
     {
       "type": "predict",
@@ -91,7 +91,7 @@
         "9"
       ],
       "answer": 0,
-      "why": "Each side is 9, and 9² = 81."
+      "why": "Each side is 9, and $9^{2} = 81$."
     },
     {
       "type": "predict",
@@ -103,11 +103,11 @@
         "3"
       ],
       "answer": 0,
-      "why": "2 × 3 = 6."
+      "why": "$2 \\times 3 = 6$."
     }
   ],
   "keys": [
-    "Rectangle: l × w. Triangle: ½bh. Trapezoid: ½(b₁ + b₂)h.",
+    "Rectangle: $l \\times w$. Triangle: $\\tfrac{1}{2}bh$. Trapezoid: $\\tfrac{1}{2}(b_{1} + b_{2})h$.",
     "Split odd shapes into simple ones, or subtract a cut-out.",
     "Scaling: multiply the area by every factor applied to a length."
   ],
@@ -121,13 +121,13 @@
         "13"
       ],
       "answer": 0,
-      "why": "½ × 8 × 5."
+      "why": "$\\tfrac{1}{2} \\times 8 \\times 5$."
     },
     {
       "type": "fill",
       "prompt": "A square has side 7. What is its area?",
       "lines": [
-        "7² = ___"
+        "$7^{2} =$ ___"
       ],
       "accept": [
         "49"
@@ -143,8 +143,9 @@
         "8"
       ],
       "answer": 0,
-      "why": "2 × 2."
+      "why": "$2 \\times 2$."
     }
   ],
-  "format": "lab"
+  "format": "lab",
+  "tex": true
 }

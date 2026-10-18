@@ -89,6 +89,13 @@ EFFECTS = [
     ("waves", "Sine waves", 450, "epic", "Layered waves rolling across the page."),
     ("fireflies", "Fireflies", 520, "epic", "Warm lights that wander and blink."),
     ("warp", "Star warp", 900, "legendary", "Stars rushing past, very slowly."),
+    # Interactive: these follow your pointer (or finger) and react when you click or tap.
+    ("springy", "Springy dots", 300, "rare", "Interactive. Dots bend away from your cursor and spring back. Click to push them."),
+    ("pencil", "Pencil trail", 340, "rare", "Interactive. Your cursor leaves a graphite line that slowly fades."),
+    ("magnet", "Iron filings", 380, "rare", "Interactive. Little lines turn to point at your cursor. Click to send a pulse."),
+    ("graphpaper", "Graph paper", 480, "epic", "Interactive. The grid lights up around your cursor and shows its coordinates. Click to plot a point."),
+    ("bubbles", "Number bubbles", 560, "epic", "Interactive. Click to blow bubbles. Move over one to pop it."),
+    ("gravity", "Gravity well", 950, "legendary", "Interactive. Specks fall toward your cursor and swing around it. Click to fling them away."),
 ]
 FREE_EFFECTS = {v for v, _, p, _, _ in EFFECTS if p == 0}
 

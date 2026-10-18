@@ -5,36 +5,36 @@
   "skill": "area-and-volume",
   "title": "Volume, surface area and scaling",
   "minutes": 6,
-  "hook": "Scale lengths by k and areas scale by k², volumes by k³.",
+  "hook": "Scale lengths by $k$ and areas scale by $k^{2}$, volumes by $k^{3}$.",
   "steps": [
     {
       "type": "recall",
       "prompt": "From memory: the volume of a cylinder?",
-      "answer": "V = πr²h."
+      "answer": "$V = \\pi r^{2}h$."
     },
     {
       "type": "fill",
-      "prompt": "A box is 3 × 4 × 5. Find its volume.",
+      "prompt": "A box is $3 \\times 4 \\times 5$. Find its volume.",
       "lines": [
-        "3 × 4 × 5 = ___"
+        "$3 \\times 4 \\times 5 =$ ___"
       ],
       "accept": [
         "60"
       ],
-      "why": "Length × width × height.",
+      "why": "$\\text{Length} \\times \\text{width} \\times \\text{height}$.",
       "scene": "First, the model's main hall."
     },
     {
       "type": "predict",
       "prompt": "A cylinder has radius 3 and height 10. Its volume is:",
       "choices": [
-        "90π",
-        "30π",
-        "60π",
-        "9π"
+        "$90\\pi$",
+        "$30\\pi$",
+        "$60\\pi$",
+        "$9\\pi$"
       ],
       "answer": 0,
-      "why": "π × 3² × 10 = 90π."
+      "why": "$\\pi \\times 3^{2} \\times 10 = 90\\pi$."
     },
     {
       "type": "predict",
@@ -46,7 +46,7 @@
         "24"
       ],
       "answer": 0,
-      "why": "The side is 4, and 6 faces × 16 = 96."
+      "why": "The side is 4, and $6 \\text{faces} \\times 16 = 96$."
     },
     {
       "type": "predict",
@@ -58,16 +58,16 @@
         "6"
       ],
       "answer": 0,
-      "why": "2³ = 8."
+      "why": "$2^{3} = 8$."
     },
     {
       "type": "grid",
       "prompt": "Fill in how lengths, areas and volumes scale.",
       "head": [
         "Scale factor",
-        "Lengths ×",
-        "Areas ×",
-        "Volume ×"
+        "$\\text{Lengths} \\times$",
+        "$\\text{Areas} \\times$",
+        "$\\text{Volume} \\times$"
       ],
       "rows": [
         [
@@ -83,10 +83,10 @@
           "___"
         ],
         [
-          "1/2",
-          "1/2",
+          "$1/2$",
+          "$1/2$",
           "___",
-          "1/8"
+          "$1/8$"
         ]
       ],
       "accept": [
@@ -101,36 +101,36 @@
           "0.25"
         ]
       ],
-      "why": "Areas scale by k² and volumes by k³. Scale 3: × 9 and × 27. Scale 1/2: area × 1/4.",
+      "why": "Areas scale by $k^{2}$ and volumes by $k^{3}$. Scale 3: $\\times 9$ and $\\times 27$. Scale $1/2$: $\\text{area} \\times 1/4$.",
       "scene": "Your teacher wants a bigger model."
     },
     {
       "type": "spot",
-      "prompt": "A cone has radius 3 and height 4, and V = ⅓πr²h. Tap the line with the mistake.",
+      "prompt": "A cone has radius 3 and height 4, and $V = \\tfrac{1}{3}\\pi r^{2}h$. Tap the line with the mistake.",
       "lines": [
-        "⅓ × π × 3² × 4",
-        "= ⅓ × π × 9 × 4",
-        "= 36π"
+        "$\\tfrac{1}{3} \\times \\pi \\times 3^{2} \\times 4$",
+        "$= \\tfrac{1}{3} \\times \\pi \\times 9 \\times 4$",
+        "$= 36\\pi$"
       ],
       "wrong": 2,
-      "why": "⅓ × 36π = 12π."
+      "why": "$\\tfrac{1}{3} \\times 36\\pi = 12\\pi$."
     },
     {
       "type": "predict",
-      "prompt": "A sphere has radius 3, and V = (4/3)πr³. Its volume is:",
+      "prompt": "A sphere has radius 3, and $V = (4/3)\\pi r^{3}$. Its volume is:",
       "choices": [
-        "36π",
-        "12π",
-        "108π",
-        "27π"
+        "$36\\pi$",
+        "$12\\pi$",
+        "$108\\pi$",
+        "$27\\pi$"
       ],
       "answer": 0,
-      "why": "(4/3) × 27π = 36π."
+      "why": "$(4/3) \\times 27\\pi = 36\\pi$."
     }
   ],
   "keys": [
-    "Prism or cylinder: base area × height. Cone or pyramid: ⅓ of that.",
-    "Scale lengths by k: areas by k², volumes by k³.",
+    "Prism or cylinder: base $\\text{area} \\times \\text{height}$. Cone or pyramid: $\\tfrac{1}{3}$ of that.",
+    "Scale lengths by $k$: areas by $k^{2}$, volumes by $k^{3}$.",
     "The formulas are given on the test's reference sheet, but knowing them saves time."
   ],
   "recall": [
@@ -138,9 +138,9 @@
       "type": "predict",
       "prompt": "A cylinder's volume formula is:",
       "choices": [
-        "πr²h",
-        "2πrh",
-        "⅓πr²h"
+        "$\\pi r^{2}h$",
+        "$2\\pi rh$",
+        "$\\tfrac{1}{3}\\pi r^{2}h$"
       ],
       "answer": 0,
       "why": "Base area times height."
@@ -154,20 +154,21 @@
         "3"
       ],
       "answer": 0,
-      "why": "3³."
+      "why": "$3^{3}$."
     },
     {
       "type": "fill",
       "prompt": "A cube has side 5. What is its volume?",
       "lines": [
-        "5³ = ___"
+        "$5^{3} =$ ___"
       ],
       "accept": [
         "125"
       ],
-      "why": "5 × 5 × 5."
+      "why": "$5 \\times 5 \\times 5$."
     }
   ],
   "format": "story",
-  "intro": "You're building a scale model of the school for a project. Everything gets bigger or smaller by the same factor."
+  "intro": "You're building a scale model of the school for a project. Everything gets bigger or smaller by the same factor.",
+  "tex": true
 }
