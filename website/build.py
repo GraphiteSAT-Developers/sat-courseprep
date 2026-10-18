@@ -121,7 +121,7 @@ def service(name):
         app_pkg = types.ModuleType("graphite_app")
         app_pkg.__path__ = []
         db = types.ModuleType("graphite_app.db")
-        for fn in ("execute", "changed", "query", "now_iso", "days_from_today", "today", "connect", "is_postgres", "now", "iso"):
+        for fn in ("execute", "changed", "query", "now_iso", "parse_iso", "local_day", "days_from_today", "today", "connect", "is_postgres", "now", "iso"):
             setattr(db, fn, lambda *a, **k: None)
         svc = types.ModuleType("graphite_app.services")
         svc.__path__ = [str(SERVICES)]

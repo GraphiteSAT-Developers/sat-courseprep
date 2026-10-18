@@ -7,7 +7,7 @@ counts from those sets, so focus sessions labeled that way earn XP but don't add
 import time
 from datetime import date, datetime, timedelta, timezone
 
-from ..db import execute, now_iso, query
+from ..db import execute, local_day, now_iso, query
 from . import game
 
 LENGTHS = (15, 25, 50)
@@ -89,7 +89,7 @@ def overview(user, today=None):
                  (uid, since))
     days = [0] * 7
     for r in rows:
-        i = (date.fromisoformat(r["created_at"][:10]) - monday).days
+        i = (local_day(r["created_at"]) - monday).days
         if 0 <= i < 7:
             days[i] += r["seconds"] or 0
     open_row = _open(uid)

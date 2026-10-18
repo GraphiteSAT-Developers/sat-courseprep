@@ -62,6 +62,9 @@ def create_app(overrides=None):
                 prune_events()
             # Parents see a student only through the parent dashboard; students can't use it.
             user = current_user()
+            if request.method not in ("GET", "HEAD", "OPTIONS"):
+                from .services import history
+                history.before(user)  # what the account looked like, so the change can be saved
             if user and user["role"] == "parent" and not request.path.startswith(PARENT_APIS):
                 raise ApiError(403, "Parent accounts see their student's progress on the parent dashboard.", code="parent_account")
             if user and user["role"] != "parent" and request.path.startswith("/api/parent"):
@@ -72,6 +75,13 @@ def create_app(overrides=None):
         """Email each parent their student's week. Schedule it weekly (for example Sunday evening)."""
         from .routes.family import send_weekly_reports
         print(f"Sent {send_weekly_reports()} reports")
+
+    @app.after_request
+    def save_history(resp):
+        if request.path.startswith("/api/") and request.method not in ("GET", "HEAD", "OPTIONS") and request.path not in WEBHOOKS:
+            from .services import history
+            history.after(resp)
+        return resp
 
     @app.after_request
     def headers(resp):

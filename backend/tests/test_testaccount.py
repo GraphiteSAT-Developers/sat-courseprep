@@ -29,7 +29,7 @@ class TestAccountTest(unittest.TestCase):
         self.assertEqual(client.get("/api/me").status_code, 200)
         self.assertEqual(self.login(self.make(), password="wrong").status_code, 401)
 
-    def test_every_sign_in_starts_fresh(self):
+    def test_progress_is_saved_and_reset_starts_over(self):
         client = self.make()
         self.login(client)
         self.assertTrue(client.get("/api/dashboard").json["start_with_diagnostic"])
@@ -37,11 +37,17 @@ class TestAccountTest(unittest.TestCase):
         client.post(f"/api/plan/diagnostic/{d['id']}/submit", json={"answers": {}, "sure": {}}, headers=ORIGIN)
         client.post("/api/practice/sessions", json={"mode": "test"}, headers=ORIGIN)
         self.assertIsNotNone(client.get("/api/plan").json["plan"])
-        self.login(client)  # sign in again
+        self.login(client)  # signing in again keeps everything
+        self.assertIsNotNone(client.get("/api/plan").json["plan"])
+        coins = client.get("/api/game/summary").json["coins"]
+        self.assertEqual(coins, 100_000)
+        r = client.post("/api/me/test-reset", json={}, headers=ORIGIN)  # Settings > Your data
+        self.assertEqual(r.status_code, 200, r.json)
         self.assertIsNone(client.get("/api/plan").json["plan"])
         self.assertIsNone(client.get("/api/plan").json["diagnostic"])
         self.assertEqual(client.get("/api/practice").json["unfinished"], [])
         self.assertIsNone(client.get("/api/me").json["user"]["test_date"])
+        self.assertEqual(client.get("/api/game/summary").json["coins"], 100_000)
 
     def test_off_when_disabled(self):
         self.assertEqual(self.login(self.make(TEST_ACCOUNT=False)).status_code, 400)

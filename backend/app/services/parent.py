@@ -9,7 +9,7 @@ import json
 from calendar import monthrange
 from datetime import date, datetime, timedelta, timezone
 
-from ..db import execute, now_iso, query
+from ..db import execute, local_day, now_iso, query
 from . import dashboard, levels, stripe_api, today as today_svc
 from .plans import ALERT_DAYS, INTERVALS, PAUSE_DAYS, PLANS, interval_words, key_for, next_renewal, price_label  # noqa: F401
 
@@ -131,7 +131,7 @@ def _study_dates(student_id, since):
                  "UNION ALL SELECT seen_at AS t FROM practice_seen WHERE user_id = ? AND seen_at >= ? "
                  "UNION ALL SELECT created_at AS t FROM practice_sessions WHERE user_id = ? AND created_at >= ?",
                  (student_id, since, student_id, since, student_id, since))
-    return {r["t"][:10] for r in rows}
+    return {local_day(r["t"]).isoformat() for r in rows}
 
 
 def _activity(student_id):
@@ -163,7 +163,7 @@ def _alerts(student, link, s, scores, diagnostic, today):
         if not s["last_active"]:
             out.append({"level": "warn", "text": f"{first} hasn't started practicing yet."})
         else:
-            idle = (today - date.fromisoformat(s["last_active"][:10])).days
+            idle = (today - local_day(s["last_active"])).days
             if idle >= link["alert_days"]:
                 out.append({"level": "warn", "text": f"{first} hasn't practiced in {idle} days."})
     if s["days_to_test"] is not None and s["days_to_test"] <= 21 and not diagnostic:

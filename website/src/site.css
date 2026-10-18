@@ -2176,3 +2176,21 @@ html[data-density="compact"] .lessons-page, html[data-density="compact"] .settin
   .mk-filter span:nth-child(3n + 1) label { border-left: 0; }
   .mk-filter span:nth-child(n + 4) label { border-top: 1px solid var(--control); }
 }
+
+/* ---------- Settings > History ---------- */
+.st-hist-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3) var(--s4); margin: 0; }
+.st-hist-stats dt { font-size: var(--t-xs); color: var(--muted); font-weight: 700; }
+.st-hist-stats dd { margin: 0; font: 800 var(--t-lg)/1.2 var(--font-display); font-variant-numeric: tabular-nums; }
+.st-hist-tabs { justify-self: start; }
+.st-hist-tabs label { font-family: var(--font-body); min-width: 110px; }
+.st-hist { list-style: none; margin: 0; padding: 0; display: grid; }
+.st-hist li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s1) var(--s3); align-items: start; padding: var(--s3) 0; border-bottom: 1px solid var(--line); }
+.st-hist li > span:nth-child(2) { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.st-hist time { font-size: var(--t-xs); color: var(--muted); white-space: nowrap; }
+.st-hist-tag { font-size: var(--t-xs); font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--raised); white-space: nowrap; }
+.st-hist-tag.is-ok { color: var(--ok); } .st-hist-tag.is-err { color: var(--err); }
+@media (max-width: 560px) {
+  .st-hist-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .st-hist li { grid-template-columns: auto minmax(0, 1fr); }
+  .st-hist time { grid-column: 2; }
+}

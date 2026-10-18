@@ -107,5 +107,13 @@ def today():
     return date.today()
 
 
+def local_day(stamp):
+    """The server's calendar day for a stored UTC stamp, so evening activity counts on the right day."""
+    try:
+        return parse_iso(stamp).astimezone().date()
+    except (TypeError, ValueError):
+        return date.fromisoformat(str(stamp)[:10])
+
+
 def days_from_today(n):
     return (date.today() + timedelta(days=n)).isoformat()

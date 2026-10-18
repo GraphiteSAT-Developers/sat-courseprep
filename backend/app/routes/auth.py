@@ -88,7 +88,9 @@ def login():
             raise ApiError(403, "That's a parent account. Choose \"I'm a parent\" above to sign in.", code="wrong_role")
         raise ApiError(403, "That's a student account. Choose \"I'm a student\" to sign in, or create a parent account "
                             "to follow a student's progress.", code="wrong_role")
-    if email == testaccount.USERNAME and current_app.config.get("TEST_ACCOUNT"):
+    if email == testaccount.USERNAME and current_app.config.get("TEST_ACCOUNT") and not testaccount.was_set_up(user["id"]):
+        # The first sign-in sets the test account up. After that its progress is saved like any account's;
+        # Settings > Your data has a button to start it over.
         testaccount.reset(user["id"])
         user = query("SELECT * FROM users WHERE id = ?", (user["id"],), one=True)
     login_user(user, remember=bool(data.get("remember")))

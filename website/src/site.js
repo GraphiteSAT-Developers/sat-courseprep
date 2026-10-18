@@ -240,6 +240,10 @@
     });
   }
   window.GraphiteAPI = { live: LIVE, call: api };
+  // Signed-in pages note that they were opened, for the student's own history (Settings > History).
+  if (LIVE && document.querySelector('.site-nav[aria-label="Dashboard"]')) {
+    api("/api/me/history/view", { page: location.pathname }).catch(function () { /* not signed in, or offline: nothing to save */ });
+  }
 
   function send(endpoint, data) {
     if (!endpoint) return new Promise(function (resolve) { setTimeout(function () { resolve({}); }, 600); });

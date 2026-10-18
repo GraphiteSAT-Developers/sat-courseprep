@@ -2,7 +2,7 @@
 
 The pages blueprint stays last: it catches every path that isn't an API route.
 """
-from . import account, auth, checkout, dashboard, family, leads, pages, plan, play, practice, settings, tests
+from . import account, auth, checkout, dashboard, family, history, leads, pages, plan, play, practice, settings, tests
 
 BLUEPRINTS = [
     auth.bp,        # /api/auth/...  create account, sign in and out, password reset
@@ -24,6 +24,7 @@ BLUEPRINTS = [
     play.focus_bp,    # /api/focus    the focus timer
     play.lessons_bp,  # /api/lessons  active recall lessons
     play.market_bp,   # /api/market   the collectibles market
+    history.bp,       # /api/me/history  everything done on the site, and every answered question
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health
 ]

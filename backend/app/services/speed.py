@@ -159,11 +159,15 @@ def answer(user_id, run, index, value):
     answers = json.loads(run["answers"])
     key = str(index)
     t = now_ms()
-    if key not in answers and t - run["started_ms"] <= MAX_MS:
+    fresh = key not in answers and t - run["started_ms"] <= MAX_MS
+    if fresh:
         answers[key] = value
         execute("UPDATE speed_runs SET answers = ? WHERE id = ?", (json.dumps(answers), run["id"]))
         run = get(user_id, run["id"])
     g = bank.graded_question(q, index, answers.get(key, value))
+    if fresh:
+        from . import history
+        history.question(user_id, ids[index], "speed", f"speed-{run['id']}", value, g["correct"])
     report = None
     if len(answers) >= len(ids) or t - run["started_ms"] > MAX_MS:
         run, report = finish(user_id, run, t)

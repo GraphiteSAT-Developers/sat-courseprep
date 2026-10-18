@@ -479,6 +479,71 @@
     return API.call("/api/me/prefs", change, "PATCH").then(function (r) { if (T.setMe) T.setMe(r.user); user = Object.assign({}, user, r.user); return r; }).then(done, fail);
   }
 
+  /* ---------- history ---------- */
+  (function () {
+    var kind = "questions", last = null, loading = false;
+    function when(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); }
+    function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    function show(v) { return v == null ? "none" : typeof v === "object" ? JSON.stringify(v) : String(v); }
+    function changes(d) {
+      var c = (d && d.changes) || {}, keys = Object.keys(c);
+      if (!keys.length) {
+        var sent = (d && d.sent) || {}, sk = Object.keys(sent).filter(function (k) { return sent[k] !== "[not saved]"; }).slice(0, 4);
+        return sk.length ? '<span class="fine">' + esc(sk.map(function (k) { return k.replace(/_/g, " ") + ": " + show(sent[k]); }).join(" · ")).slice(0, 220) + "</span>" : "";
+      }
+      return '<span class="fine">' + keys.map(function (k) {
+        var v = c[k]; return esc(k.replace(/_/g, " ")) + (v && "from" in v ? ": " + esc(show(v.from)).slice(0, 60) + " → " + esc(show(v.to)).slice(0, 60) : " changed");
+      }).join("<br>") + "</span>";
+    }
+    function row(it) {
+      if (kind === "questions") {
+        var mark = it.correct === true ? '<span class="st-hist-tag is-ok">Right</span>' : it.correct === false ? '<span class="st-hist-tag is-err">Missed</span>' : '<span class="st-hist-tag">Answered</span>';
+        return "<li>" + mark + "<span><strong>" + esc(it.skill || it.item_id) + '</strong><span class="fine">' + esc(it.source_name) + " · your answer: " + esc(it.answer) + "</span></span><time>" + when(it.at) + "</time></li>";
+      }
+      return "<li>" + (it.ok ? '<span class="st-hist-tag">Done</span>' : '<span class="st-hist-tag is-err">Didn\'t go through</span>') + "<span><strong>" + esc(it.label) + "</strong>" + changes(it.detail) + "</span><time>" + when(it.at) + "</time></li>";
+    }
+    function load(more) {
+      if (loading) return; loading = true;
+      var url = "/api/me/history/" + kind + (more && last ? "?before=" + last : "");
+      API.call(url).then(function (r) {
+        loading = false;
+        var list = $("st-hist-list");
+        if (!more) list.innerHTML = "";
+        list.insertAdjacentHTML("beforeend", r.items.length || more ? r.items.map(row).join("") : '<li class="fine">Nothing yet.</li>');
+        last = r.items.length ? r.items[r.items.length - 1].id : last;
+        $("st-hist-more").hidden = !r.more;
+      }).catch(function () { loading = false; $("st-hist-list").innerHTML = '<li class="fine">History didn\'t load. Try again in a moment.</li>'; });
+    }
+    function stats() {
+      API.call("/api/me/history").then(function (r) {
+        var s = r.stats, pct = s.answered ? Math.round(s.right / s.answered * 100) : 0;
+        $("st-hist-stats").innerHTML = "<div><dt>Questions answered</dt><dd>" + s.answered.toLocaleString("en-US") + "</dd></div>" +
+          "<div><dt>Right</dt><dd>" + (s.answered ? pct + "%" : "–") + "</dd></div>" +
+          "<div><dt>Different questions</dt><dd>" + s.different_questions.toLocaleString("en-US") + "</dd></div>" +
+          "<div><dt>Things saved</dt><dd>" + s.events.toLocaleString("en-US") + "</dd></div>";
+        $("st-hist-stats").hidden = false;
+      }).catch(function () { /* the list still shows */ });
+    }
+    if (!LIVE) { $("st-hist-preview").hidden = false; document.querySelector(".st-hist-tabs").hidden = true; return; }
+    all('input[name="st-hist"]').forEach(function (r) { r.addEventListener("change", function () { kind = r.value; last = null; load(false); }); });
+    $("st-hist-more").addEventListener("click", function () { load(true); });
+    stats(); load(false);
+  })();
+
+  /* ---------- test account reset ---------- */
+  (function () {
+    var me = T.me && T.me();
+    if (!LIVE || !me || me.email !== "beta") return;
+    $("st-test-reset-box").hidden = false;
+    $("st-test-reset").addEventListener("click", function () {
+      var btn = this, st = $("st-test-reset-status");
+      if (btn.getAttribute("data-sure") !== "1") { btn.setAttribute("data-sure", "1"); btn.textContent = "Press again to reset everything"; return; }
+      btn.disabled = true;
+      API.call("/api/me/test-reset", {}).then(function () { location.reload(); })
+        .catch(function (err) { btn.disabled = false; status(st, "err", "That didn't reset.", err && err.message); });
+    });
+  })();
+
   /* ---------- email ---------- */
   $("st-email-form").addEventListener("submit", function (e) {
     e.preventDefault();

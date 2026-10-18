@@ -2,7 +2,7 @@
 import json
 from datetime import date, datetime, timedelta, timezone
 
-from ..db import query
+from ..db import local_day, query
 from ..security import public_user
 from .content import MATH_DOMAINS, RW_DOMAINS, all_tests, summary
 from .planner import build_plan
@@ -52,7 +52,7 @@ def study_days(user_id, monday, since):
                  (user_id, since, user_id, since))
     days = [False] * 7
     for r in rows:
-        i = (date.fromisoformat(r["t"][:10]) - monday).days
+        i = (local_day(r["t"]) - monday).days
         if 0 <= i < 7:
             days[i] = True
     return days

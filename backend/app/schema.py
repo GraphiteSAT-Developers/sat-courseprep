@@ -316,7 +316,33 @@ MIGRATIONS = [
         "CREATE INDEX idx_trades_user ON market_trades (user_id, day)",
         "ALTER TABLE users ADD COLUMN market_seq INTEGER NOT NULL DEFAULT 0",
     ]),
-    # (13, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (13, "History: everything each person does on the site, and every question they answer", [
+        """CREATE TABLE user_events (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            kind TEXT NOT NULL,
+            action TEXT NOT NULL,
+            status INTEGER NOT NULL,
+            detail TEXT,
+            day TEXT NOT NULL,
+            at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_events_user ON user_events (user_id, id)",
+        """CREATE TABLE question_log (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            item_id TEXT NOT NULL,
+            source TEXT NOT NULL,
+            ref TEXT,
+            answer TEXT,
+            correct INTEGER,
+            day TEXT NOT NULL,
+            at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_qlog_user ON question_log (user_id, id)",
+        "CREATE INDEX idx_qlog_item ON question_log (user_id, item_id)",
+    ]),
+    # (14, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

@@ -20,7 +20,7 @@ from fractions import Fraction
 from functools import lru_cache
 from pathlib import Path
 
-from ..db import execute, now_iso, query
+from ..db import execute, now_iso, parse_iso, query
 from . import bank, game
 
 FOLDER = Path(__file__).resolve().parent.parent / "content" / "lessons"
@@ -143,13 +143,18 @@ def complete(user_id, lesson_id, kind, answers, today=None):
     steps = l["steps"] if kind == "lesson" else l["recall"]
     total = len(steps)
     score = grade(steps, answers)
+    from . import history
+    for i, (step, a) in enumerate(zip(steps, answers)):
+        history.question(user_id, f"lesson:{lesson_id}:{kind}:{i + 1}", "lesson" if kind == "lesson" else "recall",
+                         lesson_id, a if isinstance(a, str) else json.dumps(a), right(step, a))
     row = _rows(user_id).get(lesson_id)
     xp_before, _ = game.totals(user_id)
     badges = []
     passed = None
     if kind == "lesson":
         if row:
-            replayed_today = (row["last_recall_at"] or row["completed_at"])[:10] == today.isoformat()
+            # Stamps are UTC; compare in the server's own day so late-evening replays still count as today.
+            replayed_today = parse_iso(row["last_recall_at"] or row["completed_at"]).astimezone().date() == today
             xp, coins = (0 if replayed_today else game.XP_LESSON_REPLAY), 0
             execute("UPDATE lesson_progress SET best = ?, last_recall_at = ? WHERE id = ?",
                     (max(row["best"], score), now_iso(), row["id"]))

@@ -113,6 +113,10 @@ def submit_diagnostic(diag_id):
                 sure[i] = raw_sure.get(key) is True
     results = diagnostic.grade(ids, answers, sure)
     stamp = now_iso()
+    from ..services import history
+    graded = {q.get("index"): q.get("correct") for q in results.get("questions", []) if isinstance(q, dict)}
+    for i, a in answers.items():
+        history.question(user["id"], ids[i], "diagnostic", f"diagnostic-{diag_id}", a, graded.get(i))
     execute("UPDATE diagnostics SET submitted_at = ?, answers = ?, results = ? WHERE id = ?",
             (stamp, json.dumps({"answers": answers, "sure": sure}), json.dumps(results), diag_id))
     # Math questions answered here count as done, like any practice question.

@@ -253,6 +253,16 @@ def public(session):
     return out
 
 
+def _source(session):
+    """Where a question was answered, for the question history."""
+    task = session.get("plan_task") or ""
+    if task.startswith("ladder:"):
+        return "level"
+    if task.startswith("review:"):
+        return "review"
+    return "practice_test" if session["mode"] == "test" else "practice"
+
+
 def check(user_id, session, index, answer):
     """Grades one question in topic practice and locks it. Returns the graded question and any topics it finished."""
     items = bank.all_items()
@@ -265,6 +275,8 @@ def check(user_id, session, index, answer):
         graded = bank.graded_question(items[ids[index]], index, answer)
         finished = mark_seen(user_id, [ids[index]])
         task = session.get("plan_task") or ""
+        from . import history
+        history.question(user_id, ids[index], _source(session), f"practice-{session['id']}", answer, graded["correct"])
         if task.startswith("review:"):
             # Reopened from the review queue: a right answer counts toward clearing it, a miss resets it.
             if graded["correct"]:
@@ -293,6 +305,9 @@ def submit(user_id, session, answers, seconds):
     answered = [ids[i] for i in answers if answers[i] is not None and answers[i] != ""]
     result["finished"] = mark_seen(user_id, answered)
     unchecked = [q for q in result["questions"] if q["answered"] and q["index"] not in checked]
+    from . import history
+    for q in unchecked:
+        history.question(user_id, ids[q["index"]], _source(session), f"practice-{session['id']}", answers.get(q["index"]), q["correct"])
     task = session.get("plan_task") or ""
     if task.startswith("review:"):
         for q in unchecked:

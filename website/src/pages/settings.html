@@ -17,6 +17,7 @@
           <li data-student-only><a href="#layout">Dashboard layout</a></li>
           <li data-student-only><a href="#leaderboard">Leaderboard</a></li>
           <li><a href="#security">Sign-in and security</a></li>
+          <li><a href="#history">History</a></li>
           <li><a href="#data">Your data</a></li>
         </ul>
       </nav>
@@ -409,14 +410,34 @@
           </div>
         </section>
 
+        <!-- History: everything done on the site, and every answered question -->
+        <section class="panel st-panel" id="history" aria-labelledby="st-history-title">
+          <div class="panel-head"><h2 id="st-history-title">History</h2></div>
+          <p class="panel-lede">Everything you do on Graphite is saved to your account: every question you answer, every change to your profile and settings, and the pages you open. Only you can see it here. Passwords are never saved, and it's deleted with your account.</p>
+          <p class="fine" id="st-hist-preview" hidden>In the preview there's no account to save to. On the live site this shows your full history.</p>
+          <dl class="st-hist-stats" id="st-hist-stats" hidden></dl>
+          <div class="seg st-hist-tabs" role="radiogroup" aria-label="Show">
+            <span><input type="radio" name="st-hist" id="st-hist-q" value="questions" checked><label for="st-hist-q">Questions</label></span>
+            <span><input type="radio" name="st-hist" id="st-hist-e" value="events"><label for="st-hist-e">Everything</label></span>
+          </div>
+          <ul class="st-hist" id="st-hist-list" aria-live="polite"></ul>
+          <div class="pd-row"><button class="btn btn-secondary" type="button" id="st-hist-more" hidden>Show more</button></div>
+        </section>
+
         <!-- Your data -->
         <section class="panel st-panel" id="data" aria-labelledby="st-data-title">
           <div class="panel-head"><h2 id="st-data-title">Your data</h2></div>
           <div class="st-form">
             <h3 class="pd-h3">Download your data</h3>
-            <p class="fine">A file with your account, practice tests, practice sets, review questions and study plan. Passwords are never included.</p>
+            <p class="fine">A file with your account, practice tests, practice sets, review questions, study plan, rewards, market trades and your full history. Passwords are never included.</p>
             <div class="pd-row"><a class="btn btn-secondary" id="st-export" href="/api/me/export" download>Download my data</a></div>
             <p class="fine" id="st-export-note" hidden>Downloads work on the live site.</p>
+          </div>
+          <div class="st-form" id="st-test-reset-box" hidden>
+            <h3 class="pd-h3">Start the test account over</h3>
+            <p class="fine">The test account keeps its progress between sign-ins. This clears it back to a brand-new student with 100,000 coins.</p>
+            <div class="status" id="st-test-reset-status" role="status" aria-live="polite" tabindex="-1"></div>
+            <div class="pd-row"><button class="btn btn-secondary" type="button" id="st-test-reset">Reset the test account</button></div>
           </div>
           <form class="form st-form st-danger" id="st-delete-form" novalidate>
             <h3 class="pd-h3">Delete your account</h3>

@@ -33,7 +33,8 @@ EXPORT_TABLES = [("test_attempts", "user_id"), ("review_items", "user_id"), ("ac
                  ("diagnostics", "user_id"), ("study_plans", "user_id"), ("subscriptions", "student_id"),
                  ("billing_events", "student_id"), ("xp_events", "user_id"), ("badges", "user_id"), ("inventory", "user_id"),
                  ("speed_runs", "user_id"), ("focus_sessions", "user_id"), ("lesson_progress", "user_id"),
-                 ("market_holdings", "user_id"), ("market_trades", "user_id")]
+                 ("market_holdings", "user_id"), ("market_trades", "user_id"), ("user_events", "user_id"),
+                 ("question_log", "user_id")]
 NEVER_EXPORTED = {"password_hash", "session_version", "token_hash", "code_hash"}
 
 
@@ -248,6 +249,17 @@ def sign_out_others():
     execute("UPDATE users SET session_version = session_version + 1 WHERE id = ?", (user["id"],))
     login_user(_fresh(user["id"]), remember=True)
     return jsonify({"ok": True})
+
+
+@bp.post("/test-reset")
+@login_required
+def reset_test_account():
+    """Starts the student test account over (it keeps its progress between sign-ins otherwise)."""
+    user = current_user()
+    if not (user["email"] == testaccount.USERNAME and current_app.config.get("TEST_ACCOUNT")):
+        raise ApiError(403, "Only the test account can be reset.")
+    testaccount.reset(user["id"])
+    return jsonify({"user": public_user(_fresh(user["id"]))})
 
 
 # ---------- your data ----------

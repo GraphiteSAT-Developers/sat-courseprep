@@ -53,6 +53,10 @@ def submit(test_id):
         (user["id"], test_id, seconds, result["correct"], result["total"], json.dumps(answers), json.dumps(result), stamp))
     result["attempt_id"] = row["id"]
     result["submitted_at"] = stamp
+    from ..services import history
+    for q in result["questions"]:
+        if q["answered"]:
+            history.question(user["id"], f"{test_id}#{q['index'] + 1}", "test", f"attempt-{row['id']}", answers.get(q["index"]), q["correct"])
 
     # Every miss goes into the review queue (or back into it, if it was cleared before).
     for q in result["questions"]:
