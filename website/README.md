@@ -19,6 +19,7 @@ The pages run in two modes:
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
   - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results. With `?session=<id>` it runs a set from the question bank: a timed random practice test, or untimed topic practice with a Check answer button.
   - `practice.js`: the practice page: start a random practice test or practice one topic.
+  - `lessons.js`: the Lessons page. Shows one lesson at a time (from the URL hash) and checks the quick-check answers.
   - `theme.js`: signed-in pages only. Applies the theme and accent color before the page draws, and adds the profile picture to the header.
   - `settings.js`: the Settings page.
   - `ripple.js`: the dashboard's ripple background.
@@ -35,6 +36,7 @@ The pages run in two modes:
 | Dashboard (signed-in students) | `dashboard.html` |
 | Practice: random practice test or one topic | `practice.html` |
 | Math practice test with graphing calculator | `practice-test.html` |
+| Reading and Writing lessons, one per question type (built from `../backend/app/content/lessons/rw.json`) | `lessons.html` |
 | Settings: profile picture, name, theme and accent color, study goals, email, password, data download, delete account | `settings.html` |
 | Privacy policy | `privacy.html` |
 | Cookie policy | `cookies.html` |

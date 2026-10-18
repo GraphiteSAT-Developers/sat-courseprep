@@ -1,0 +1,816 @@
+{
+  "note": "Original Reading and Writing strategy lessons, written for Graphite (not College Board content). Every passage, example and quick-check question is original. People, studies, poems and stories are fictional unless they name a well-known real subject (the Svalbard Global Seed Vault, Mary Lou Williams, bolas spiders, octopuses, the Atacama Desert). Skill names match content/bank/rw-skills.json.",
+  "lessons": [
+    {
+      "id": "how-reading-and-writing-works",
+      "domain": null,
+      "skill": null,
+      "title": "How Reading and Writing works",
+      "minutes": 6,
+      "summary": "The format, the 11 question types, a method that works on all of them, and how to pace 27 questions in 32 minutes.",
+      "intro": [
+        "The Reading and Writing section is two modules of 27 questions, with 32 minutes for each. Every question comes with its own short text, from a sentence or two up to about 150 words, and four answer choices. You never have to hold a long passage in your head.",
+        "The second module adapts. Do well on the first and the second one is harder, which is the only way to reach the top scores. So accuracy on module 1 matters more than speed.",
+        "Questions come in a fixed order, grouped by type: <strong>Craft and Structure</strong> (vocabulary, purpose, paired texts), then <strong>Information and Ideas</strong> (main idea, evidence, inferences), then <strong>Standard English Conventions</strong> (grammar and punctuation), then <strong>Expression of Ideas</strong> (transitions and notes). Within each type, questions get harder as you go."
+      ],
+      "steps": [
+        "<strong>Read the question first.</strong> It tells you what to look for: a word's meaning, the main idea, a piece of evidence, a punctuation mark.",
+        "<strong>Read the whole text.</strong> It's short, and the clue you need is often in the sentence you would have skipped.",
+        "<strong>Predict before you look.</strong> Say the answer in your own words, even roughly (“something like ‘uncertain’”). A prediction protects you from choices that sound good.",
+        "<strong>Eliminate.</strong> Each wrong choice has a specific flaw: too strong, off topic, reversed, only half right. Find it, then cross the choice out.",
+        "<strong>Pick the choice the text proves.</strong> If you'd need to add an assumption or outside knowledge to make a choice work, it's wrong."
+      ],
+      "traps": [
+        {"name": "True, but not the answer", "text": "The choice is accurate to the text or the world, but it doesn't answer the question that was asked."},
+        {"name": "Too strong", "text": "Words like <em>proves</em>, <em>always</em>, <em>only</em> and <em>entirely</em> go further than most texts do."},
+        {"name": "Half right", "text": "The first half fits; the second half adds something the text never says. Read every choice to the last word."},
+        {"name": "Outside knowledge", "text": "The answer comes only from the text, even when you know more about the topic."}
+      ],
+      "reference": {
+        "title": "Pacing",
+        "head": ["Question type", "Target time"],
+        "rows": [
+          ["Grammar and punctuation (Boundaries; Form, structure, and sense)", "30–45 seconds"],
+          ["Transitions and Rhetorical synthesis", "About 45 seconds"],
+          ["Reading questions (everything else)", "About 75 seconds"],
+          ["Whole module", "About 70 seconds a question on average"]
+        ],
+        "note": "Quick grammar questions buy time for harder reading questions. If you're past two minutes on one question, pick your best remaining choice, mark it for review and move on. There's no penalty for a wrong answer, so never leave one blank."
+      }
+    },
+    {
+      "id": "words-in-context",
+      "domain": "craft-structure",
+      "skill": "Words in context",
+      "title": "Words in context",
+      "minutes": 8,
+      "summary": "Fill the blank with the most logical and precise word, or say what a word means as it's used here.",
+      "intro": [
+        "These questions give you a short text with a blank or an underlined word. You choose the word that fits most logically and precisely, or the meaning the word has in this text.",
+        "The words are ones you'll meet in college reading, but the question never rewards knowing a dictionary definition by heart. It rewards reading the clues around the blank."
+      ],
+      "spot": [
+        "Which choice completes the text with the most logical and precise word or phrase?",
+        "As used in the text, what does the word “______” most nearly mean?"
+      ],
+      "steps": [
+        "<strong>Cover the choices.</strong> Read the whole text, not only the sentence with the blank.",
+        "<strong>Find the clue.</strong> Look for a contrast (<em>but</em>, <em>although</em>, <em>yet</em>), a restatement after a colon, or a cause and effect. The text almost always explains the missing word somewhere else.",
+        "<strong>Fill the blank yourself.</strong> A rough word is fine: “good”, “not sure yet”, “mixed”.",
+        "<strong>Match.</strong> Find the choice closest to your word. Check that it has the right charge (positive or negative) and the right strength.",
+        "<strong>Reread the sentence with your choice in it.</strong> It should say exactly what the rest of the text says."
+      ],
+      "traps": [
+        {"name": "The common meaning", "text": "In meaning questions, one choice is the word's everyday sense (a <em>pointed</em> stick). The text usually uses a less common sense."},
+        {"name": "Right topic, wrong direction", "text": "The word fits the subject but reverses the logic, for example a positive word where the clue says the reaction was doubtful."},
+        {"name": "Too strong or too weak", "text": "A text that says results <em>suggest</em> something won't support <em>proved</em> or <em>confirmed</em>."},
+        {"name": "Hard-word bias", "text": "Don't pick a word just because you don't know it. Eliminate the words you do know first. If they all fail, the unknown word is the answer."}
+      ],
+      "example": {
+        "passage": "Early reviews of the bridge design were ______: engineers praised its elegant arch but questioned whether its thin deck could carry heavy trucks. The city asked for more tests before approving it.",
+        "question": "Which choice completes the text with the most logical and precise word or phrase?",
+        "choices": ["enthusiastic", "mixed", "hostile", "delayed"],
+        "answer": 1,
+        "why": [
+          "This ignores the doubts about the deck. Engineers weren't simply excited.",
+          "Correct. The colon introduces the explanation: praise for the arch plus doubts about the deck. That's a mixed reaction, and it explains why the city wanted more tests.",
+          "This ignores the praise. The engineers liked the arch.",
+          "The text is about what the reviews said, not when they arrived."
+        ],
+        "think": "The colon is the clue: what follows it explains the blank. Predict “some good, some bad” before you look at the choices."
+      },
+      "tryIt": [
+        {
+          "passage": "Botanist Lena Ortiz cautions that her results are ______: the drought-tolerant wheat grew well in her greenhouse trials, but it hasn't yet been tested in open fields, where weather and pests vary.",
+          "question": "Which choice completes the text with the most logical and precise word or phrase?",
+          "choices": ["conclusive", "preliminary", "irrelevant", "controversial"],
+          "answer": 1,
+          "explain": "Ortiz <em>cautions</em>, and the text explains why: the wheat worked in the greenhouse but hasn't faced real fields yet. Her results are early, or <em>preliminary</em>. <em>Conclusive</em> is the opposite. Nothing says the results don't matter (<em>irrelevant</em>) or that people are arguing about them (<em>controversial</em>)."
+        },
+        {
+          "passage": "In the novel, the old fisherman rarely speaks, but when he does, his remarks are so <u>pointed</u> that the younger crew members fall silent and reconsider their plans.",
+          "question": "As used in the text, what does the word “pointed” most nearly mean?",
+          "choices": ["sharp-tipped", "direct and meaningful", "impolite", "frequent"],
+          "answer": 1,
+          "explain": "His remarks make the crew stop and rethink their plans, so they hit the mark: they're direct and meaningful. <em>Sharp-tipped</em> is the everyday meaning for objects. Nothing says he's rude. And he <em>rarely</em> speaks, so his remarks aren't frequent."
+        }
+      ]
+    },
+    {
+      "id": "text-structure-and-purpose",
+      "domain": "craft-structure",
+      "skill": "Text structure and purpose",
+      "title": "Text structure and purpose",
+      "minutes": 8,
+      "summary": "Why the author wrote the text, how it's built, and what one sentence is doing in it.",
+      "intro": [
+        "These questions ask about the text as a piece of writing, not just what it says. Why did the author write it? How is it organized? What job does one sentence do?",
+        "The answer choices almost always start with a verb: <em>to describe</em>, <em>to argue</em>, <em>to challenge</em>, <em>to illustrate</em>. Getting the verb right is half the question."
+      ],
+      "spot": [
+        "Which choice best states the main purpose of the text?",
+        "Which choice best describes the function of the underlined sentence in the text as a whole?",
+        "Which choice best describes the overall structure of the text?"
+      ],
+      "steps": [
+        "<strong>Label each sentence in a few words</strong> as you read: “old belief”, “new claim”, “reason”, “example”, “result”.",
+        "<strong>For purpose,</strong> ask why the author wrote this. Is it to explain something, argue for it, describe it, or correct a belief?",
+        "<strong>For one sentence's function,</strong> look at the sentences right before and after it. Does it give an example, a reason, a contrast or a conclusion?",
+        "<strong>For structure,</strong> string your labels together (“belief, then evidence against it”) and find the choice with the same shape.",
+        "<strong>Check the verb.</strong> A choice with the right topic and the wrong verb is wrong."
+      ],
+      "traps": [
+        {"name": "Right topic, wrong verb", "text": "The text describes a finding, but the choice says it <em>argues</em> or <em>criticizes</em>."},
+        {"name": "A detail posing as the purpose", "text": "The choice describes one sentence, not the text as a whole."},
+        {"name": "The wrong tone", "text": "A neutral, informative text won't <em>mock</em> or <em>dismiss</em> anyone."}
+      ],
+      "example": {
+        "passage": "For decades, people assumed that sloths move slowly because they are lazy. Biologist Rafael Ochoa argues that the slowness is a strategy. Sloths eat leaves that provide very little energy, and by moving slowly and keeping a low body temperature, they use less energy than they take in. <u>Ochoa notes that a sloth may spend a week digesting a single meal.</u>",
+        "question": "Which choice best describes the function of the underlined sentence in the text as a whole?",
+        "choices": [
+          "It gives an example of how slowly a sloth's body works, illustrating the low-energy way of life Ochoa describes.",
+          "It introduces the assumption that Ochoa disputes.",
+          "It questions whether Ochoa's evidence is reliable.",
+          "It shows that the sloth's diet provides more energy than Ochoa claims."
+        ],
+        "answer": 0,
+        "why": [
+          "Correct. The sentence before it says sloths save energy by living slowly; a week-long digestion is a vivid example of that.",
+          "The disputed assumption (that sloths are lazy) is in the first sentence, not the underlined one.",
+          "Nothing in the sentence casts doubt on Ochoa; it comes from Ochoa.",
+          "This reverses the text, which says the leaves provide very little energy."
+        ],
+        "think": "Labels: old belief → Ochoa's claim → reason → underlined sentence. The underlined sentence adds a specific case, so its job is to illustrate."
+      },
+      "tryIt": [
+        {
+          "passage": "Many people think of glaciers as frozen and still. In fact, glaciers flow. Under their own enormous weight, the ice near the bottom slowly deforms and slides over the rock below, and the fastest glaciers in Greenland move more than 30 meters a day.",
+          "question": "Which choice best states the main purpose of the text?",
+          "choices": [
+            "To correct a common belief about glaciers by explaining how they move",
+            "To argue that glaciers are melting faster than scientists expected",
+            "To compare glaciers in Greenland with glaciers in other places",
+            "To describe the dangers of crossing a moving glacier"
+          ],
+          "answer": 0,
+          "explain": "The text states a common belief (“frozen and still”), says it's wrong (“In fact, glaciers flow”), and explains how they move. That's correcting a belief. The text never mentions melting, other places or danger."
+        },
+        {
+          "passage": "The following text is from a short story.<br><br>Nadia had practiced the speech for weeks, and in her bedroom every word came easily. But when she stepped onto the auditorium stage and saw the rows of faces, the first line vanished. She looked down at her note cards, found her place, and began, slowly at first and then with a steadiness that surprised her.",
+          "question": "Which choice best describes the overall structure of the text?",
+          "choices": [
+            "It shows a character's confidence, a sudden setback and her recovery.",
+            "It contrasts two characters' ways of preparing for a speech.",
+            "It explains why a character dislikes public speaking.",
+            "It presents a problem and then shows that it is never solved."
+          ],
+          "answer": 0,
+          "explain": "Easy practice (confidence), the forgotten first line (setback), then a steady finish (recovery). Only Nadia appears, so there's no contrast between characters. The text never says she dislikes speaking. And she does solve the problem."
+        }
+      ]
+    },
+    {
+      "id": "cross-text-connections",
+      "domain": "craft-structure",
+      "skill": "Cross-text connections",
+      "title": "Cross-text connections",
+      "minutes": 8,
+      "summary": "Two short texts on one topic: how would one author respond to the other?",
+      "intro": [
+        "You get two short texts on the same topic, labeled Text 1 and Text 2. The question asks how they relate, usually how the author of Text 2 would respond to something in Text 1.",
+        "This is usually the hardest question in Craft and Structure, because you have to keep two views apart and pin down exactly where they meet."
+      ],
+      "spot": [
+        "Based on the texts, how would the author of Text 2 most likely respond to the “conventional wisdom” discussed in Text 1?",
+        "Based on the texts, both authors would most likely agree with which statement?"
+      ],
+      "steps": [
+        "<strong>Sum up Text 1</strong> in a few words: whose view is it, and what is the claim?",
+        "<strong>Sum up Text 2</strong> the same way. Then note how it relates: does it agree, disagree, or agree with a condition (“yes, but only partly”)?",
+        "<strong>Find the exact target.</strong> The question often points to one claim, one group or one method in Text 1, not the whole text.",
+        "<strong>Predict</strong> how Text 2's author would react to that target, then match."
+      ],
+      "traps": [
+        {"name": "Mixing the voices", "text": "An author often reports a view in order to argue with it. Don't treat a reported view as the author's own."},
+        {"name": "Too extreme", "text": "Text 2 says the claim is incomplete; the choice says it's completely wrong. Partial disagreement is the most common relationship."},
+        {"name": "The wrong direction", "text": "The question asks how Text 2 would respond to Text 1; a choice describes how Text 1 would respond to Text 2."}
+      ],
+      "example": {
+        "passage": "<strong>Text 1</strong><br>Many researchers have concluded that city birds sing at a higher pitch because traffic noise is low-pitched, and higher songs are easier for other birds to hear over it.<br><br><strong>Text 2</strong><br>Ecologist Ji-woo Han agrees that city birds sing higher but doubts that noise alone explains it. In her recordings, birds in quiet city parks also sang higher than forest birds, which suggests that city surfaces, such as hard walls that echo sound, may also play a role.",
+        "question": "Based on the texts, how would Han most likely respond to the researchers' conclusion in Text 1?",
+        "choices": [
+          "She would argue that city birds don't actually sing at a higher pitch.",
+          "She would say that noise may be part of the explanation, but not all of it.",
+          "She would agree that traffic noise is the only cause of the change.",
+          "She would argue that forest birds sing at a higher pitch than city birds."
+        ],
+        "answer": 1,
+        "why": [
+          "Han agrees that city birds sing higher. She questions the cause, not the fact.",
+          "Correct. Han “doubts that noise alone explains it” and suggests another factor that “may <em>also</em> play a role”. That's partial agreement.",
+          "This is what Han doubts.",
+          "This reverses her data: city birds sang higher than forest birds."
+        ],
+        "think": "Text 1: noise causes higher songs. Text 2: higher songs, yes; noise, only partly. Predict “partly right” and look for that."
+      },
+      "tryIt": [
+        {
+          "passage": "<strong>Text 1</strong><br>Many nutrition guides advise eating breakfast every day, warning that people who skip it overeat later and gain weight.<br><br><strong>Text 2</strong><br>In a twelve-week trial led by researcher Tomás Rivera, adults were randomly assigned either to eat breakfast or to skip it. The two groups ended the trial with nearly identical changes in weight, though the breakfast group reported feeling less hungry before lunch.",
+          "question": "Based on the texts, how would Rivera most likely respond to the warning in Text 1?",
+          "choices": [
+            "He would say his trial gives little support to the idea that skipping breakfast leads to weight gain.",
+            "He would say that skipping breakfast helps people lose weight.",
+            "He would say that eating breakfast has no effect on hunger.",
+            "He would agree that people who skip breakfast gain weight."
+          ],
+          "answer": 0,
+          "explain": "Weight changed about the same in both groups, so the trial doesn't back the warning. The second choice goes too far: skippers didn't lose more weight. The third contradicts the hunger finding. The fourth contradicts the weight result."
+        },
+        {
+          "passage": "<strong>Text 1</strong><br>Architect Selin Aydın argues that new libraries should devote less space to bookshelves and more to rooms where people can meet, study together and use computers, because that is how visitors increasingly use libraries.<br><br><strong>Text 2</strong><br>Librarian Marcus Webb agrees that libraries must adapt to how visitors use them, but he warns that cutting shelf space too far drives away people who come to browse, a group his surveys show is still large.",
+          "question": "Based on the texts, both authors would most likely agree with which statement?",
+          "choices": [
+            "Libraries should be designed around how visitors actually use them.",
+            "Libraries should sharply reduce their shelf space.",
+            "People who come to browse are a shrinking group.",
+            "Libraries should stop providing computers."
+          ],
+          "answer": 0,
+          "explain": "Aydın bases her plan on how visitors use libraries, and Webb “agrees that libraries must adapt to how visitors use them”. They disagree about how far to cut shelves, so the second choice is only Aydın's view. Webb says browsers are still a large group, and neither author wants to remove computers."
+        }
+      ]
+    },
+    {
+      "id": "central-ideas-and-details",
+      "domain": "information-ideas",
+      "skill": "Central ideas and details",
+      "title": "Central ideas and details",
+      "minutes": 7,
+      "summary": "State the main idea of a text, or find what it says about one detail.",
+      "intro": [
+        "These questions ask what a text is mainly about, or what it says about a specific person or thing. In literary texts, they often ask what a character thinks, feels or wants.",
+        "The right answer is usually a close paraphrase. You aren't reading between the lines here; that's what Inferences questions are for."
+      ],
+      "spot": [
+        "Which choice best states the main idea of the text?",
+        "According to the text, what is true about ______?",
+        "Based on the text, what is the narrator's main concern?"
+      ],
+      "steps": [
+        "<strong>Read to the end.</strong> The main idea is often in the last sentence, or right after a turn word like <em>however</em>, <em>instead</em> or <em>in fact</em>.",
+        "<strong>Say it in one sentence:</strong> who did or thinks what, and what they found.",
+        "<strong>Check coverage.</strong> The right choice covers the whole text, not just one sentence of it.",
+        "<strong>For a detail question,</strong> find the line that answers it, then pick the choice that restates that line."
+      ],
+      "traps": [
+        {"name": "Too narrow", "text": "One accurate detail, offered as if it were the whole point."},
+        {"name": "Too broad", "text": "A sweeping claim about a whole field when the text is about one study."},
+        {"name": "The setup, not the point", "text": "Many texts open with an expectation or old belief and then overturn it. A choice that states the expectation is reversed."},
+        {"name": "Borrowed words", "text": "The choice copies words from the text but changes what they say."}
+      ],
+      "example": {
+        "passage": "When the city of Linden painted some of its crosswalks with bright, colorful patterns, officials hoped drivers would slow down. Traffic engineer Priya Nair measured driver speeds before and after. Average speeds near the painted crosswalks dropped only slightly, but the number of drivers who stopped for waiting pedestrians nearly doubled.",
+        "question": "Which choice best states the main idea of the text?",
+        "choices": [
+          "Colorful crosswalks caused drivers in Linden to slow down sharply.",
+          "Nair found that the painted crosswalks did little to lower speeds but made drivers much more likely to stop for pedestrians.",
+          "Linden painted its crosswalks mainly to make the city more attractive.",
+          "Drivers in Linden often ignore traffic laws."
+        ],
+        "answer": 1,
+        "why": [
+          "This was the officials' hope, but speeds dropped “only slightly”.",
+          "Correct. It covers both of Nair's findings, including the turn after “but”.",
+          "The text says officials hoped to slow drivers. It says nothing about how the city looks.",
+          "Too broad, and the text doesn't support it."
+        ],
+        "think": "The text opens with a hope and ends with what actually happened. The main idea is what happened."
+      },
+      "tryIt": [
+        {
+          "passage": "The following text is from a short story.<br><br>Every morning before school, Tomas checked the tomato plants on the balcony, counting the green fruit as if some of it might disappear overnight. His grandmother laughed at him, but she had started leaving the watering can by the door, where he would be sure to see it.",
+          "question": "Based on the text, what is true about Tomas's grandmother?",
+          "choices": [
+            "She thinks the plants need no care.",
+            "She is quietly encouraging Tomas's interest in the plants.",
+            "She is worried that the tomatoes will be stolen.",
+            "She waters the plants herself every morning."
+          ],
+          "answer": 1,
+          "explain": "She laughs, “but” she leaves the watering can where Tomas will see it: a quiet way of supporting him. Nothing says she thinks the plants need no care or worries about theft (that's closer to Tomas's habit). The text says Tomas checks the plants; it never says she waters them."
+        },
+        {
+          "passage": "Bats are often thought to rely almost entirely on echolocation to find their way in the dark. Biologist Ana Ferreira trained fruit bats to fly through a maze in dim light and found that they steered by sight as well as by sound, switching mostly to echolocation only when the light became very low.",
+          "question": "Which choice best states the main idea of the text?",
+          "choices": [
+            "Fruit bats can't echolocate.",
+            "Ferreira's study suggests that some bats rely on vision more than is commonly believed.",
+            "Bats see better in dim light than any other animal does.",
+            "Echolocation is of no use to fruit bats."
+          ],
+          "answer": 1,
+          "explain": "The text sets up a common belief (bats rely almost entirely on echolocation) and reports a finding against it: the bats also used sight. The first and last choices contradict the text, since the bats did use echolocation in very low light. The text never compares bats with other animals."
+        }
+      ]
+    },
+    {
+      "id": "command-of-evidence-textual",
+      "domain": "information-ideas",
+      "skill": "Command of evidence: textual",
+      "title": "Command of evidence: textual",
+      "minutes": 8,
+      "summary": "Find the finding that would support or weaken a claim, or the quotation that best illustrates it.",
+      "intro": [
+        "The text states a claim or hypothesis. You choose the finding that would support it, the finding that would weaken it, or, for a poem or novel, the quotation that best illustrates a claim about it.",
+        "Every choice is on topic. Only one connects to the exact claim."
+      ],
+      "spot": [
+        "Which finding, if true, would most directly support the researchers' hypothesis?",
+        "Which finding, if true, would most directly weaken the claim?",
+        "Which quotation from the poem most effectively illustrates the claim?"
+      ],
+      "steps": [
+        "<strong>Find the claim</strong> and break it into its parts. A hypothesis usually links a cause to an effect: “cool river water → reefs survive heat”.",
+        "<strong>Predict the evidence.</strong> What result would show that link? For “weaken”, what result would break it?",
+        "<strong>Test each choice against every part of the claim.</strong> Evidence that touches only one part doesn't support the whole claim.",
+        "<strong>For quotations,</strong> check the claim's key words. A claim about “both relief and regret” needs a line showing both."
+      ],
+      "traps": [
+        {"name": "Same topic, no link", "text": "A true-sounding fact about the subject that doesn't touch the cause and effect the claim is about."},
+        {"name": "A different explanation", "text": "The finding supports some other reason for the result, not the one the claim gives."},
+        {"name": "Half the claim", "text": "The quotation shows relief but not regret, or the finding shows the effect but not the cause."},
+        {"name": "Reversed", "text": "Read the question carefully: a choice that supports the claim is wrong when you're asked to weaken it."}
+      ],
+      "example": {
+        "passage": "Marine biologist Kofi Mensah hypothesizes that coral reefs near river mouths hold up better during ocean heat waves because cooler river water flowing over them lowers the temperature around the corals.",
+        "question": "Which finding, if true, would most directly support Mensah's hypothesis?",
+        "choices": [
+          "Reefs near river mouths are home to more fish species than other reefs.",
+          "During a recent heat wave, the water over reefs near river mouths stayed cooler than the water over other reefs, and fewer of their corals bleached.",
+          "Rivers carry sediment that can block sunlight from reaching corals.",
+          "Many reefs far from rivers survived the recent heat wave."
+        ],
+        "answer": 1,
+        "why": [
+          "On topic, but it says nothing about heat or river water.",
+          "Correct. It shows both parts of the hypothesis: the water stayed cooler, and the corals held up better.",
+          "This suggests a different reason (shade from sediment), not cooler water.",
+          "This doesn't compare reefs near rivers with reefs far from them, so it can't support the hypothesis."
+        ],
+        "think": "Claim: cooler river water → corals survive heat. The answer needs both the cooler water and the better survival."
+      },
+      "tryIt": [
+        {
+          "passage": "Researchers hypothesized that students remember new vocabulary better when they study right before sleeping than when they study in the morning, because sleep strengthens newly formed memories.",
+          "question": "Which finding, if true, would most directly weaken the researchers' hypothesis?",
+          "choices": [
+            "Students who studied at night remembered more words the next day than students who studied in the morning.",
+            "Students who studied in the evening and then stayed awake all night remembered as many words as students who studied in the evening and then slept.",
+            "Most students said they preferred studying in the evening.",
+            "Some students had trouble falling asleep after studying."
+          ],
+          "answer": 1,
+          "explain": "The hypothesis credits sleep. If evening studiers did just as well without sleeping, sleep isn't what helps, so the hypothesis is weakened. The first choice supports it. Preferences and trouble falling asleep don't test whether sleep strengthens memory."
+        },
+        {
+          "passage": "In the poem “Harbor at Dusk,” the speaker describes the end of a fishing day with both relief and regret.",
+          "question": "Which quotation from the poem most effectively illustrates the claim?",
+          "choices": [
+            "“The nets come in, the long day's labor done, / and yet I watch the light go with a sigh.”",
+            "“The gulls cry loud above the rocking boats.”",
+            "“Tomorrow we'll set out before the sun.”",
+            "“The water darkens slowly, green to gray.”"
+          ],
+          "answer": 0,
+          "explain": "“The long day's labor done” is relief; “and yet I watch the light go with a sigh” is regret. That's both parts of the claim. The other lines describe the harbor or the next day and show neither feeling clearly. (The poem is invented for this lesson.)"
+        }
+      ]
+    },
+    {
+      "id": "command-of-evidence-quantitative",
+      "domain": "information-ideas",
+      "skill": "Command of evidence: quantitative",
+      "title": "Command of evidence: quantitative",
+      "minutes": 8,
+      "summary": "Use a table or graph to complete a statement or support a claim.",
+      "intro": [
+        "These questions pair a short text with a table or graph. You choose the choice that uses the data to support a claim, complete an example, or describe a result.",
+        "Usually two or three choices are accurate readings of the graphic. Only one is accurate <em>and</em> fits the claim."
+      ],
+      "spot": [
+        "Which choice most effectively uses data from the table to complete the statement?",
+        "Which choice best describes data from the graph that support the researcher's claim?"
+      ],
+      "steps": [
+        "<strong>Read the text first.</strong> Find the claim the data are supposed to support. Underline exactly what it compares.",
+        "<strong>Then read the graphic:</strong> its title, row and column labels, and units.",
+        "<strong>Find the numbers the claim is about:</strong> which groups, which years, which measure.",
+        "<strong>Check each choice twice.</strong> Is it true to the graphic? Does it support this claim? The answer must pass both checks."
+      ],
+      "traps": [
+        {"name": "Accurate but off-claim", "text": "A correct reading of the table that doesn't show what the claim says."},
+        {"name": "The wrong comparison", "text": "The claim compares A with B; the choice compares A with C."},
+        {"name": "Misread labels", "text": "The wrong row, column, year or unit."},
+        {"name": "Beyond the data", "text": "Tables show amounts, not causes. A choice that explains why the numbers changed goes beyond the data."}
+      ],
+      "example": {
+        "passage": "<table><caption>Soil moisture 7 days after watering</caption><tr><th>Mulch</th><th>Soil moisture (%)</th></tr><tr><td>None</td><td>12</td></tr><tr><td>Straw</td><td>27</td></tr><tr><td>Wood chips</td><td>31</td></tr><tr><td>Gravel</td><td>15</td></tr></table>A group of students compared how well different mulches keep garden soil moist. They concluded that organic mulches, which are made from plant material, worked better than gravel. For example, ______",
+        "question": "Which choice most effectively uses data from the table to complete the example?",
+        "choices": [
+          "soil with no mulch had a moisture level of 12%, while soil under gravel had a moisture level of 15%.",
+          "soil under straw had a moisture level of 27%, while soil under gravel had a moisture level of 15%.",
+          "soil under wood chips had a higher moisture level than soil under straw did.",
+          "soil under gravel was moister than soil with no mulch."
+        ],
+        "answer": 1,
+        "why": [
+          "Accurate, but neither number is for an organic mulch.",
+          "Correct. Straw is an organic mulch, and it beats gravel, 27% to 15%.",
+          "Accurate, but it compares two organic mulches. Gravel isn't in it.",
+          "Accurate, but it says nothing about organic mulch."
+        ],
+        "think": "The claim compares organic mulch with gravel. The answer needs straw or wood chips on one side and gravel on the other."
+      },
+      "tryIt": [
+        {
+          "passage": "<table><caption>Average daily visitors to Riverside Library</caption><tr><th>Year</th><th>Weekdays</th><th>Weekends</th></tr><tr><td>2022</td><td>410</td><td>620</td></tr><tr><td>2023</td><td>450</td><td>580</td></tr><tr><td>2024</td><td>470</td><td>540</td></tr></table>The library's director noted that from 2022 to 2024, weekday visits rose every year while weekend visits fell.",
+          "question": "Which choice most effectively uses data from the table to support the director's statement?",
+          "choices": [
+            "Average weekday visits rose from 410 to 450 to 470, while average weekend visits fell from 620 to 580 to 540.",
+            "Average weekend visits were higher than average weekday visits in every year.",
+            "In 2024, the library averaged 470 visitors on weekdays.",
+            "Average weekend visits in 2023 were 580."
+          ],
+          "answer": 0,
+          "explain": "The statement has two parts, weekdays rising and weekends falling, and only the first choice shows both trends. The second choice is true but is about which is bigger, not which way each changed. The last two are single numbers, which can't show a trend."
+        },
+        {
+          "passage": "<table><caption>Seeds that sprouted (%)</caption><tr><th>Seed type</th><th>Stored cold</th><th>Stored warm</th></tr><tr><td>Bean</td><td>92</td><td>88</td></tr><tr><td>Squash</td><td>85</td><td>61</td></tr><tr><td>Pepper</td><td>78</td><td>74</td></tr></table>Gardener Rosa Klein claims that storing seeds somewhere cold matters much more for some kinds of seeds than for others.",
+          "question": "Which choice most effectively uses data from the table to support Klein's claim?",
+          "choices": [
+            "Squash seeds sprouted at 85% when stored cold but only 61% when stored warm, while bean seeds differed by only 4 percentage points.",
+            "Bean seeds stored cold had the highest sprouting rate in the table.",
+            "Pepper seeds stored warm sprouted at 74%.",
+            "All three kinds of seeds sprouted at higher rates when stored cold."
+          ],
+          "answer": 0,
+          "explain": "Klein's claim is about a difference between kinds of seeds: cold matters a lot for some and little for others. A 24-point gap for squash against a 4-point gap for beans shows exactly that. The last choice is true but shows cold helping everything, not helping some much more."
+        }
+      ]
+    },
+    {
+      "id": "inferences",
+      "domain": "information-ideas",
+      "skill": "Inferences",
+      "title": "Inferences",
+      "minutes": 8,
+      "summary": "Choose the conclusion that most logically completes the text.",
+      "intro": [
+        "The text lays out a few facts and ends with a blank. You choose the conclusion that follows logically from those facts.",
+        "Inference doesn't mean guessing. The right answer is the smallest step the facts force you to take. It must be true if the text is true."
+      ],
+      "spot": [
+        "Which choice most logically completes the text?"
+      ],
+      "steps": [
+        "<strong>Read every sentence</strong> and note what each one establishes. Most texts set up two or three facts that combine.",
+        "<strong>Notice the limits:</strong> one forest, one study, adults only, only in summer.",
+        "<strong>Predict the conclusion</strong> those facts lead to, before you look at the choices.",
+        "<strong>Pick the choice that must be true,</strong> not one that only might be. If a choice needs an extra fact the text didn't give, cross it out."
+      ],
+      "traps": [
+        {"name": "Goes too far", "text": "The text shows that something is likely; the choice says it's certain, or turns it into a policy recommendation."},
+        {"name": "Ignores a limit", "text": "The study looked at one city; the choice talks about every city."},
+        {"name": "Plausible but unsupported", "text": "It sounds reasonable in real life, but nothing in the text leads there."},
+        {"name": "Contradicts a detail", "text": "Read closely: one word in the text can rule a choice out."}
+      ],
+      "example": {
+        "passage": "Ecologists studying a forest found that a certain beetle lays its eggs only in trees that have recently been damaged by fire. They also found that, after decades of fire prevention, few trees in the forest had been burned recently. These findings suggest that ______",
+        "question": "Which choice most logically completes the text?",
+        "choices": [
+          "the beetle population in the forest is probably smaller than it would be if fires were more frequent.",
+          "the forest's fire-prevention program should be ended.",
+          "the beetle damages trees that have been burned.",
+          "the beetle can be found only in this forest."
+        ],
+        "answer": 0,
+        "why": [
+          "Correct. Fact 1: the beetles need burned trees. Fact 2: few trees have burned. Together: fewer places to lay eggs, so probably fewer beetles.",
+          "Too far. A finding about beetles doesn't decide what the forest's policy should be.",
+          "The text says where the beetle lays eggs, not that it damages the trees.",
+          "The text studies one forest; it never says the beetle lives nowhere else."
+        ],
+        "think": "Combine the two facts: the beetle needs burned trees, and burned trees are rare. The conclusion: fewer beetles."
+      },
+      "tryIt": [
+        {
+          "passage": "A museum curator noticed that a painting labeled as completed in 1820 contains a blue pigment that, according to chemical records, was first manufactured in 1834. Because the pigment appears in the painting's original layers of paint rather than in later repairs, the curator concluded that ______",
+          "question": "Which choice most logically completes the text?",
+          "choices": [
+            "the painting was most likely completed no earlier than 1834.",
+            "the painting was repaired in 1820.",
+            "the artist invented the pigment.",
+            "the label is correct and the chemical records are wrong."
+          ],
+          "answer": 0,
+          "explain": "The pigment didn't exist until 1834, and it's in the original paint, not in a repair. So the painting couldn't have been finished before 1834, and the 1820 label is likely wrong. Nothing supports an 1820 repair or the artist inventing the pigment, and the curator's reasoning trusts the records."
+        },
+        {
+          "passage": "After the city added bike lanes to Elm Street, the number of cyclists on Elm Street rose by about 40 percent. During the same months, however, the number of cyclists on nearby Oak Street, which got no new lanes, fell by almost the same number. This suggests that ______",
+          "question": "Which choice most logically completes the text?",
+          "choices": [
+            "many of the new cyclists on Elm Street may have switched from Oak Street rather than started cycling.",
+            "bike lanes discourage people from cycling.",
+            "Oak Street is more dangerous for cyclists than Elm Street.",
+            "the total number of cyclists in the city rose by 40 percent."
+          ],
+          "answer": 0,
+          "explain": "Elm gained about as many cyclists as Oak lost, so the likeliest explanation is that riders moved over, not that new people started cycling. That also rules out a citywide 40 percent rise. Nothing in the text shows lanes discourage cycling or compares safety."
+        }
+      ]
+    },
+    {
+      "id": "boundaries",
+      "domain": "conventions",
+      "skill": "Boundaries",
+      "title": "Boundaries",
+      "minutes": 9,
+      "summary": "Punctuation between and within sentences: periods, semicolons, colons, dashes and commas.",
+      "intro": [
+        "If the four choices use the same words and differ only in punctuation, it's a Boundaries question. You're deciding where one sentence ends and the next begins, and how to set off extra information.",
+        "A few rules cover almost every question. Learn the table below and these become some of the fastest points on the test."
+      ],
+      "spot": [
+        "Which choice completes the text so that it conforms to the conventions of Standard English?"
+      ],
+      "steps": [
+        "<strong>Check what changes across the choices.</strong> If only the punctuation changes, use these rules.",
+        "<strong>Test both sides of the blank.</strong> Could the words before it stand alone as a sentence? Could the words after it? If both can, you need a period, a semicolon, or a comma with <em>and</em>, <em>but</em> or <em>so</em>.",
+        "<strong>Look for extra information</strong> in the middle of a sentence. It needs a matching pair: comma and comma, dash and dash, or parentheses.",
+        "<strong>Before a list or an explanation,</strong> use a colon, but only after a complete sentence.",
+        "<strong>No reason to pause? Use no punctuation.</strong> Never put one mark between a subject and its verb, or between a verb and its object."
+      ],
+      "traps": [
+        {"name": "Comma splice", "text": "Two complete sentences joined by a comma alone. This is the most common wrong answer."},
+        {"name": "Mismatched pair", "text": "Extra information that opens with a dash and closes with a comma."},
+        {"name": "Colon after a fragment", "text": "“The causes were: heat and wind” is wrong. The words before a colon must be a complete sentence."},
+        {"name": "Splitting the subject from its verb", "text": "“The scientists who led the study, found…” The comma doesn't belong there."},
+        {"name": "<em>However</em> between two sentences", "text": "It needs a semicolon or period before it: “…was late; however, it…”"}
+      ],
+      "reference": {
+        "title": "Punctuation rules",
+        "head": ["Situation", "Use", "Example"],
+        "rows": [
+          ["Two complete sentences", "Period, semicolon, or comma + and/but/so", "The lab closed<strong>;</strong> the study ended."],
+          ["The second sentence explains the first", "Colon also works", "The lab closed<strong>:</strong> its funding had run out."],
+          ["Extra information mid-sentence", "Matching commas, dashes or parentheses", "Ruiz<strong>,</strong> a chemist<strong>,</strong> led it."],
+          ["List or explanation after a complete sentence", "Colon (or dash)", "They tested three metals<strong>:</strong> tin, zinc and lead."],
+          ["Subject → verb, verb → object", "Nothing", "The results showed a clear pattern."]
+        ]
+      },
+      "example": {
+        "passage": "The Atacama Desert in Chile is one of the driest places on ______ some of its weather stations have gone years without recording any rain.",
+        "question": "Which choice completes the text so that it conforms to the conventions of Standard English?",
+        "choices": ["Earth,", "Earth;", "Earth", "Earth, which"],
+        "answer": 1,
+        "why": [
+          "A comma splice. Both sides are complete sentences, so a comma alone can't join them.",
+          "Correct. A semicolon joins two complete sentences.",
+          "A run-on. Two complete sentences with nothing between them.",
+          "“which some of its weather stations have gone years…” doesn't make sense as a clause."
+        ],
+        "think": "Test both sides: “The Atacama Desert … is one of the driest places on Earth” is a sentence. “Some of its weather stations have gone years without … rain” is a sentence too. Two sentences need a period or semicolon."
+      },
+      "tryIt": [
+        {
+          "passage": "Mary Lou Williams______ wrote and arranged music for some of the best-known jazz bands of the 1930s and 1940s.",
+          "question": "Which choice completes the text so that it conforms to the conventions of Standard English?",
+          "choices": [", a pianist from Pittsburgh,", ", a pianist from Pittsburgh", "—a pianist from Pittsburgh,", " a pianist from Pittsburgh,"],
+          "answer": 0,
+          "explain": "“A pianist from Pittsburgh” is extra information about Williams, so it needs a matching pair around it: a comma before and a comma after. The second choice opens the pair but doesn't close it. The third opens with a dash and closes with a comma. The fourth has the closing comma but no opening one."
+        },
+        {
+          "passage": "The team's report listed three causes of the power ______ an overloaded transformer, a damaged cable and a backup switch that failed.",
+          "question": "Which choice completes the text so that it conforms to the conventions of Standard English?",
+          "choices": ["outage:", "outage,", "outage;", "outage. Including"],
+          "answer": 0,
+          "explain": "“The team's report listed three causes of the power outage” is a complete sentence, and a list follows, which is exactly what a colon is for. A comma makes the list look like more items in a series. A semicolon needs a complete sentence after it, and the list isn't one. “Including an overloaded transformer…” is a fragment."
+        }
+      ]
+    },
+    {
+      "id": "form-structure-and-sense",
+      "domain": "conventions",
+      "skill": "Form, structure, and sense",
+      "title": "Form, structure, and sense",
+      "minutes": 9,
+      "summary": "Verb agreement and tense, pronouns, possessives and misplaced modifiers.",
+      "intro": [
+        "If the choices change a word's form (<em>describe</em> or <em>describes</em>, <em>its</em> or <em>their</em>, who does the action after an opening phrase), it's a Form, structure, and sense question.",
+        "Like Boundaries, it rewards a short checklist. Figure out what's changing, then apply the one rule for it."
+      ],
+      "spot": [
+        "Which choice completes the text so that it conforms to the conventions of Standard English?"
+      ],
+      "steps": [
+        "<strong>See what changes across the choices:</strong> a verb, a pronoun, an apostrophe, or the order of a sentence.",
+        "<strong>Verbs:</strong> find the real subject. Skip phrases like “of old letters” or “which the historian found”. Then match singular or plural, and keep the tense consistent with the verbs around it.",
+        "<strong>Pronouns:</strong> find the noun the pronoun stands for, then match it. One company is <em>it</em>; two companies are <em>they</em>.",
+        "<strong>Modifiers:</strong> after an opening phrase like “After studying the photos,” the next words must name who did the studying.",
+        "<strong>Possessives:</strong> <em>its</em> means “belonging to it”; <em>it's</em> means “it is”. Same with <em>their</em> and <em>they're</em>."
+      ],
+      "traps": [
+        {"name": "The nearest noun", "text": "“The collection of letters <em>describe</em>…” The verb agrees with <em>collection</em>, not <em>letters</em>."},
+        {"name": "Group nouns", "text": "<em>Team</em>, <em>committee</em>, <em>company</em> and <em>city</em> are singular: use <em>it</em> and <em>its</em>."},
+        {"name": "Dangling modifier", "text": "“After studying the photos, a comet was found.” The comet didn't study anything."},
+        {"name": "Tense shift", "text": "The rest of the text is in the past tense; the choice switches to the present for no reason."}
+      ],
+      "reference": {
+        "title": "Quick checks",
+        "head": ["What changes", "Ask"],
+        "rows": [
+          ["Verb ending (is/are, -s/no -s)", "What is the real subject? One or many?"],
+          ["Verb tense", "When does this happen? What tense are the nearby verbs?"],
+          ["Pronoun (it/they, its/their)", "Which noun does it replace? One or many?"],
+          ["Apostrophe (its/it's, -'s/-s')", "Is it possession or a contraction? One owner or many?"],
+          ["Word order after an opening phrase", "Who is doing the action in the opening phrase?"]
+        ]
+      },
+      "example": {
+        "passage": "The collection of handwritten recipes, which a historian found in an attic in Ohio, ______ dishes that were popular in the region more than a century ago.",
+        "question": "Which choice completes the text so that it conforms to the conventions of Standard English?",
+        "choices": ["describe", "describes", "are describing", "have described"],
+        "answer": 1,
+        "why": [
+          "Plural. The subject, <em>collection</em>, is singular.",
+          "Correct. Cross out “of handwritten recipes” and the “which…” clause: “The collection describes dishes.”",
+          "Plural, so it doesn't agree with <em>collection</em>.",
+          "Plural, so it doesn't agree with <em>collection</em>."
+        ],
+        "think": "Three choices are plural and one is singular, so the question is about agreement. Strip away the extras to find the subject: <em>collection</em>."
+      },
+      "tryIt": [
+        {
+          "passage": "After studying thousands of photographs of the night sky, ______",
+          "question": "Which choice completes the text so that it conforms to the conventions of Standard English?",
+          "choices": [
+            "a faint new comet was discovered by the astronomer.",
+            "the astronomer discovered a faint new comet.",
+            "a faint new comet appeared to the astronomer.",
+            "the discovery of a faint new comet was made by the astronomer."
+          ],
+          "answer": 1,
+          "explain": "Whoever studied the photographs must come right after the comma. That's the astronomer. Every other choice puts the comet or the discovery there, as if it did the studying."
+        },
+        {
+          "passage": "The city's oldest bakery still bakes bread in the same brick oven that ______ founders built in 1902.",
+          "question": "Which choice completes the text so that it conforms to the conventions of Standard English?",
+          "choices": ["its", "it's", "their", "they're"],
+          "answer": 0,
+          "explain": "The founders belong to the bakery, which is singular: <em>its</em> founders. <em>It's</em> means “it is”. <em>Their</em> would need a plural noun to refer to, and <em>they're</em> means “they are”."
+        }
+      ]
+    },
+    {
+      "id": "rhetorical-synthesis",
+      "domain": "expression-ideas",
+      "skill": "Rhetorical synthesis",
+      "title": "Rhetorical synthesis",
+      "minutes": 7,
+      "summary": "Bulleted notes and a goal: choose the sentence that does exactly what the goal asks.",
+      "intro": [
+        "You get a student's research notes as a bulleted list, and a goal, such as “emphasize a difference” or “introduce the study to an unfamiliar audience”. You choose the sentence that uses the notes to meet that goal.",
+        "Here's the key: <strong>every choice is accurate to the notes.</strong> The only thing that separates them is whether they meet the goal. Read the goal first, and you can often answer without reading the notes closely."
+      ],
+      "spot": [
+        "While researching a topic, a student has taken the following notes: … The student wants to [goal]. Which choice most effectively uses relevant information from the notes to accomplish this goal?"
+      ],
+      "steps": [
+        "<strong>Read the goal first.</strong> It's the last sentence before the question. Underline its key words: <em>emphasize a similarity</em>, <em>explain a method</em>, <em>present the finding</em>, <em>for an audience unfamiliar with</em>.",
+        "<strong>Skim the notes,</strong> just enough to know what's in them.",
+        "<strong>Test each choice against the goal alone.</strong> Ask: does this sentence do exactly that?",
+        "<strong>For an “unfamiliar audience”,</strong> the sentence must say who or what the subject is, not assume the reader already knows."
+      ],
+      "traps": [
+        {"name": "Accurate but off-goal", "text": "A true sentence from the notes that does something else, such as giving a date when the goal is to explain a purpose."},
+        {"name": "Half the goal", "text": "The goal names a difference between two things, and the choice describes only one of them."},
+        {"name": "Assumes the background", "text": "For an unfamiliar audience, a sentence that mentions “the vault” without saying what it is doesn't work."}
+      ],
+      "example": {
+        "passage": "While researching a topic, a student has taken the following notes:<ul><li>The Svalbard Global Seed Vault opened in 2008 on a Norwegian island in the Arctic.</li><li>It stores backup copies of seeds from crop collections around the world.</li><li>The seeds are kept at about −18 °C (0 °F).</li><li>In 2015, researchers withdrew seeds from the vault to rebuild a crop collection damaged during the war in Syria.</li></ul>",
+        "question": "The student wants to explain the vault's purpose to an audience unfamiliar with it. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+        "choices": [
+          "The Svalbard Global Seed Vault, on an Arctic island in Norway, stores backup copies of seeds from crop collections around the world.",
+          "The seeds in the Svalbard Global Seed Vault are kept at about −18 °C (0 °F).",
+          "In 2015, researchers withdrew seeds from the vault.",
+          "The vault opened in 2008, seven years before researchers withdrew seeds from it."
+        ],
+        "answer": 0,
+        "why": [
+          "Correct. It names and places the vault for a new reader, and states its purpose: storing backup copies of the world's crop seeds.",
+          "Accurate, but it's a storage detail, not the purpose.",
+          "It assumes the reader knows what “the vault” is, and it describes one event, not the purpose.",
+          "Dates and timing, not purpose, and it also assumes the reader knows the vault."
+        ],
+        "think": "Goal keywords: <em>purpose</em> and <em>unfamiliar audience</em>. The answer must say what the vault is and what it's for."
+      },
+      "tryIt": [
+        {
+          "passage": "While researching a topic, a student has taken the following notes:<ul><li>Honeybees live in colonies of tens of thousands of bees.</li><li>Most bee species, such as the blue orchard bee, live alone.</li><li>A female blue orchard bee builds her own nest in a hollow stem or a hole in wood.</li><li>Both honeybees and blue orchard bees pollinate fruit trees.</li></ul>",
+          "question": "The student wants to emphasize a difference between honeybees and blue orchard bees. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+          "choices": [
+            "While honeybees live in colonies of tens of thousands, blue orchard bees live alone, with each female building her own nest.",
+            "Both honeybees and blue orchard bees pollinate fruit trees.",
+            "A female blue orchard bee builds her nest in a hollow stem or a hole in wood.",
+            "Most bee species, such as the blue orchard bee, live alone."
+          ],
+          "answer": 0,
+          "explain": "Only the first choice names both bees and contrasts them (“While…”). The second is a similarity. The third and fourth describe only the blue orchard bee."
+        },
+        {
+          "passage": "While researching a topic, a student has taken the following notes:<ul><li>Researcher Dana Okafor studied 120 apartment buildings in one city.</li><li>Some of the buildings had rooftop gardens; the others did not.</li><li>In summer, top-floor apartments in buildings with rooftop gardens were on average 3 °C cooler.</li><li>The gardens also gave residents a place to grow vegetables.</li></ul>",
+          "question": "The student wants to present the main finding of Okafor's study. Which choice most effectively uses relevant information from the notes to accomplish this goal?",
+          "choices": [
+            "Okafor studied 120 apartment buildings, some of which had rooftop gardens.",
+            "Okafor found that in summer, top-floor apartments in buildings with rooftop gardens were on average 3 °C cooler than those in buildings without them.",
+            "Rooftop gardens give residents a place to grow vegetables.",
+            "Okafor's study looked at whether rooftop gardens make a difference."
+          ],
+          "answer": 1,
+          "explain": "A finding is a result, and the second choice states the result. The first describes the method, the third is a side note about the gardens, and the fourth says what the study looked at without saying what it found."
+        }
+      ]
+    },
+    {
+      "id": "transitions",
+      "domain": "expression-ideas",
+      "skill": "Transitions",
+      "title": "Transitions",
+      "minutes": 7,
+      "summary": "Choose the word or phrase that shows how two ideas connect.",
+      "intro": [
+        "A blank sits at the start of a sentence (or clause), and the choices are transition words like <em>however</em>, <em>therefore</em> and <em>for example</em>. You choose the one that matches how the ideas actually relate.",
+        "Decide on the relationship before you read the choices, and these go fast."
+      ],
+      "spot": [
+        "Which choice completes the text with the most logical transition?"
+      ],
+      "steps": [
+        "<strong>Cover the choices.</strong>",
+        "<strong>Read the sentence before the blank and the sentence with the blank.</strong> Sometimes you need the whole text.",
+        "<strong>Name the relationship in plain words:</strong> “and also”, “but”, “so”, “for example”, “then”.",
+        "<strong>Pick the transition that means that.</strong> If two choices mean the same thing (<em>therefore</em> and <em>thus</em>), neither one can be the single right answer."
+      ],
+      "traps": [
+        {"name": "Same-meaning pairs", "text": "If <em>therefore</em> and <em>as a result</em> both appear, cross out both. There's only one right answer."},
+        {"name": "Reading one sentence", "text": "The relationship is between two ideas, so read the sentence before the blank too."},
+        {"name": "<em>Instead</em> vs <em>however</em>", "text": "<em>Instead</em> means one thing replaces another. <em>However</em> just signals a contrast."},
+        {"name": "<em>In fact</em> vs <em>for example</em>", "text": "<em>In fact</em> strengthens or corrects the last point. <em>For example</em> gives a specific case of it."}
+      ],
+      "reference": {
+        "title": "Transitions by relationship",
+        "head": ["Relationship", "Transitions"],
+        "rows": [
+          ["Adds a point", "furthermore, moreover, in addition, additionally, also"],
+          ["Shows a similarity", "similarly, likewise"],
+          ["Shows a contrast", "however, by contrast, nevertheless, still, on the other hand"],
+          ["Replaces one idea with another", "instead, rather"],
+          ["Shows a result", "therefore, thus, as a result, consequently, hence"],
+          ["Gives an example", "for example, for instance, specifically"],
+          ["Shows time order", "first, then, later, subsequently, finally"],
+          ["Admits a point", "granted, admittedly, of course"],
+          ["Emphasizes or restates", "in fact, indeed, in other words, that is"]
+        ]
+      },
+      "example": {
+        "passage": "For years, the town's river was too polluted for swimming. In 2015, a new water treatment plant began operating upstream. ______ by 2020, the river was clean enough to host a summer swimming race.",
+        "question": "Which choice completes the text with the most logical transition?",
+        "choices": ["As a result,", "However,", "For example,", "Similarly,"],
+        "answer": 0,
+        "why": [
+          "Correct. The plant came first, and the cleaner river followed from it: a result.",
+          "A contrast, but the cleaner river is what you'd expect after a new treatment plant, not a surprise.",
+          "The swimming race isn't an example of the plant; it's an outcome.",
+          "Nothing here is being compared."
+        ],
+        "think": "Plain words: “new plant… <em>so</em> clean river.” “So” means a result."
+      },
+      "tryIt": [
+        {
+          "passage": "Most spiders catch prey in webs that they rebuild every day or two. The bolas spider, ______ spins no web at all; it swings a single sticky thread at passing moths.",
+          "question": "Which choice completes the text with the most logical transition?",
+          "choices": ["for instance,", "by contrast,", "therefore,", "in addition,"],
+          "answer": 1,
+          "explain": "Most spiders build webs, and the bolas spider doesn't: a contrast. It isn't an example of web-building spiders, a result of anything, or an added point of the same kind."
+        },
+        {
+          "passage": "Octopuses can change the color of their skin in a fraction of a second. ______ many species can change the texture of their skin, raising small bumps that make them look like rock or coral.",
+          "question": "Which choice completes the text with the most logical transition?",
+          "choices": ["Moreover,", "Nevertheless,", "Instead,", "Thus,"],
+          "answer": 0,
+          "explain": "Changing texture is a second, separate ability added to changing color: <em>moreover</em>. Nothing contrasts or is replaced, so <em>nevertheless</em> and <em>instead</em> don't fit, and the texture change isn't caused by the color change, so <em>thus</em> doesn't fit either."
+        }
+      ]
+    }
+  ]
+}

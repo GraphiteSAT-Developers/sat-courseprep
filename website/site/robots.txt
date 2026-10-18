@@ -5,6 +5,7 @@ Disallow: /practice-test.html
 Disallow: /practice.html
 Disallow: /plan.html
 Disallow: /levels.html
+Disallow: /lessons.html
 Disallow: /parent.html
 Disallow: /settings.html
 Disallow: /calculator.html

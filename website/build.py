@@ -105,14 +105,18 @@ SERVICES = ROOT.parent / "backend" / "app" / "services"
 PREVIEW_ONLY = {"questions.js", "bank.js", "practice-local.js"}
 
 
-def bank_js():
-    """The question bank for the offline preview, built by the backend's own bank module (same HTML, same keys)."""
-    # Load the backend's services as a package of their own, without the Flask app around them.
+def service(name):
+    """One of the backend's services, loaded as a package of its own, without the Flask app around it."""
     if "graphite_services" not in sys.modules:
         pkg = types.ModuleType("graphite_services")
         pkg.__path__ = [str(SERVICES)]
         sys.modules["graphite_services"] = pkg
-    bank = importlib.import_module("graphite_services.bank")
+    return importlib.import_module("graphite_services." + name)
+
+
+def bank_js():
+    """The question bank for the offline preview, built by the backend's own bank module (same HTML, same keys)."""
+    bank = service("bank")
     diagnostic = importlib.import_module("graphite_services.diagnostic")
     studyplan = importlib.import_module("graphite_services.studyplan")
     levels = importlib.import_module("graphite_services.levels")
@@ -165,7 +169,10 @@ def render(meta, mode):
     else:
         head_nav = header.replace("{{H}}", h).replace("{{SIGNIN_CURRENT}}", ' aria-current="page"' if meta.get("signin") else "")
         foot = footer.replace("{{H}}", h)
-    body = head_nav + meta["body"].replace("{{SCORE_CHART}}", score_chart()) + foot + ("" if meta.get("test") else banner)
+    page_body = meta["body"].replace("{{SCORE_CHART}}", score_chart())
+    if "{{RW_LESSONS}}" in page_body:
+        page_body = page_body.replace("{{RW_LESSONS}}", service("lessons").page_html())
+    body = head_nav + page_body + foot + ("" if meta.get("test") else banner)
     url = SITE + meta["path"]
     robots = meta.get("robots", "index, follow")
 
@@ -288,6 +295,7 @@ def build():
     shutil.copy(SRC / "practice.js", DIST / "js" / "practice.js")
     shutil.copy(SRC / "plan.js", DIST / "js" / "plan.js")
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
+    shutil.copy(SRC / "lessons.js", DIST / "js" / "lessons.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
     for n in ("ripple.js", "theme.js", "settings.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
@@ -303,7 +311,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /lessons.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT Tutoring", "short_name": "Graphite", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",
