@@ -1,0 +1,133 @@
+{
+ "id": "desmos-regression",
+ "order": 505,
+ "domain": "desmos",
+ "skill": "regression",
+ "title": "Regression: fit a model to data",
+ "minutes": 6,
+ "hook": "Put the data in a table and use ~ to fit a line or curve. Desmos finds the constants.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: what symbol tells Desmos to fit a model instead of graphing an exact equation?",
+   "answer": "The tilde, ~. For example y_1~mx_1+b."
+  },
+  {
+   "type": "predict",
+   "prompt": "Your table has columns x_1 and y_1. Which entry fits a line?",
+   "choices": [
+    "y_1~mx_1+b",
+    "y=mx+b",
+    "y_1=mx_1+b",
+    "mx+b~y"
+   ],
+   "answer": 0,
+   "why": "Use ~ and the table's column names."
+  },
+  {
+   "type": "predict",
+   "prompt": "Which entry fits an exponential model?",
+   "choices": [
+    "y_1~ab^{x_1}",
+    "y_1~a+bx_1",
+    "y_1~ax_1^2",
+    "y=ab^x"
+   ],
+   "answer": 0,
+   "why": "a times b to the x_1."
+  },
+  {
+   "type": "fill",
+   "prompt": "The table has (1, 5), (2, 7), (3, 9) and (4, 11). Desmos fits y_1~mx_1+b. What is m?",
+   "lines": [
+    "Desmos shows m = ___ and b = 3"
+   ],
+   "accept": [
+    "2"
+   ],
+   "why": "Each step in x adds 2 to y.",
+   "desmos": [
+    "Table with x_1: 1, 2, 3, 4 and y_1: 5, 7, 9, 11",
+    "y_1~mx_1+b"
+   ]
+  },
+  {
+   "type": "predict",
+   "prompt": "How many points does a regression need to fit a line?",
+   "choices": [
+    "At least 2",
+    "1",
+    "Exactly 3",
+    "At least 10"
+   ],
+   "answer": 0,
+   "why": "With only one point and a slope, type the formula instead."
+  },
+  {
+   "type": "spot",
+   "prompt": "A student fits y_1~ab^{x_1}. Tap the step that causes trouble.",
+   "lines": [
+    "Enter the data in a table",
+    "Type y_1~ab^{x_1}",
+    "Read a = 2.99876 and type 2.99 into the next calculation"
+   ],
+   "wrong": 2,
+   "why": "Don't retype rounded decimals. Desmos stores more digits, so use the variable a itself."
+  },
+  {
+   "type": "predict",
+   "prompt": "On the College Board version, Desmos turns on Log Mode automatically for exponential and power fits. What should you do?",
+   "choices": [
+    "Nothing special: read the fitted values as usual",
+    "Turn it off",
+    "Use a linear fit instead"
+   ],
+   "answer": 0,
+   "why": "That's what the official College Board reference describes. Practice on the same version so it looks familiar."
+  }
+ ],
+ "keys": [
+  "Data in a table, then y_1~(model with x_1).",
+  "Use ~, not =, and the table's column names.",
+  "Reuse the fitted variables instead of retyping rounded decimals."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "The regression symbol is:",
+   "choices": [
+    "~",
+    "=",
+    "≈"
+   ],
+   "answer": 0,
+   "why": "The tilde."
+  },
+  {
+   "type": "predict",
+   "prompt": "A line fit is typed:",
+   "choices": [
+    "y_1~mx_1+b",
+    "y=mx+b",
+    "y_1=mx_1+b"
+   ],
+   "answer": 0,
+   "why": "Tilde and subscripts."
+  },
+  {
+   "type": "predict",
+   "prompt": "Desmos shows b = 3.14159. In the next step you should:",
+   "choices": [
+    "Use b itself",
+    "Type 3.14",
+    "Round to 3"
+   ],
+   "answer": 0,
+   "why": "Keep every digit."
+  }
+ ],
+ "practice": {
+  "domain": "psda",
+  "skill": "two-variable-data-models-and-scatterplots"
+ }
+}

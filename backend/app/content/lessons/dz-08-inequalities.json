@@ -1,0 +1,131 @@
+{
+ "id": "desmos-inequalities",
+ "order": 508,
+ "domain": "desmos",
+ "skill": "inequalities",
+ "title": "Inequalities: read the shading",
+ "minutes": 5,
+ "hook": "Desmos shades the solution region. Dashed means strict, solid means included, and the overlap is the answer.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: how does Desmos draw y < 2x + 1 compared with y ≤ 2x + 1?",
+   "answer": "< or > gets a dashed boundary (not included); ≤ or ≥ gets a solid one. The solution region is shaded."
+  },
+  {
+   "type": "predict",
+   "prompt": "To type ≤ in Desmos, you type:",
+   "choices": [
+    "<=",
+    "=<",
+    "< ="
+   ],
+   "answer": 0,
+   "why": "Desmos turns <= into ≤ for you."
+  },
+  {
+   "type": "predict",
+   "prompt": "In a system of inequalities, where are the solutions?",
+   "choices": [
+    "Where the shadings overlap",
+    "Anywhere that's shaded",
+    "Only on the boundary lines"
+   ],
+   "answer": 0,
+   "why": "Both must be true."
+  },
+  {
+   "type": "predict",
+   "prompt": "Which point satisfies both y > x + 1 and y < −x + 5?",
+   "choices": [
+    "(1, 3)",
+    "(2, 2)",
+    "(0, 6)",
+    "(3, 3)"
+   ],
+   "answer": 0,
+   "why": "(1, 3): 3 > 2 and 3 < 4. Plot the choices as points to see which sit in the overlap.",
+   "desmos": [
+    "y>x+1",
+    "y<-x+5",
+    "(1,3)"
+   ]
+  },
+  {
+   "type": "spot",
+   "prompt": "Using Desmos on a \"which point is a solution\" question. Tap the risky move.",
+   "lines": [
+    "Graph both inequalities",
+    "Plot the answer-choice points too",
+    "Trust the overlapping colors for a point right on the edge, without checking"
+   ],
+   "wrong": 2,
+   "why": "Colors can mislead near a boundary. Substitute the point to be sure."
+  },
+  {
+   "type": "fill",
+   "prompt": "Is (2, 5) a solution of y ≥ 3x − 1? Check the boundary value.",
+   "lines": [
+    "3(2) − 1 = ___",
+    "5 ≥ that, so yes"
+   ],
+   "accept": [
+    "5"
+   ],
+   "why": "5 ≥ 5 is true, because ≥ includes the line."
+  },
+  {
+   "type": "predict",
+   "prompt": "(2, 5) on y ≥ 3x − 1: is the boundary there dashed or solid?",
+   "choices": [
+    "Solid, since ≥ includes the line",
+    "Dashed",
+    "There's no boundary"
+   ],
+   "answer": 0,
+   "why": "Points on a solid line count."
+  }
+ ],
+ "keys": [
+  "Dashed: strict (< or >). Solid: included (≤ or ≥).",
+  "The answer is where the shadings overlap.",
+  "Near an edge, substitute instead of trusting colors."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "Type ≥ as:",
+   "choices": [
+    ">=",
+    "=>",
+    "≥ only"
+   ],
+   "answer": 0,
+   "why": "Desmos converts it."
+  },
+  {
+   "type": "predict",
+   "prompt": "A dashed boundary means:",
+   "choices": [
+    "The line isn't included",
+    "The line is included"
+   ],
+   "answer": 0,
+   "why": "Strict inequality."
+  },
+  {
+   "type": "predict",
+   "prompt": "System solutions are:",
+   "choices": [
+    "In the overlap",
+    "In any shaded area"
+   ],
+   "answer": 0,
+   "why": "Both true."
+  }
+ ],
+ "practice": {
+  "domain": "algebra",
+  "skill": "linear-inequalities-in-one-or-two-variables"
+ }
+}

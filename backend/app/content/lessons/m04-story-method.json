@@ -1,0 +1,124 @@
+{
+ "id": "story-method",
+ "order": 4,
+ "domain": "memory",
+ "skill": "storytelling",
+ "title": "The story method: chain facts into a tale",
+ "minutes": 6,
+ "hook": "Turn steps and formulas into a short, silly story so each piece pulls up the next.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: which is easier to remember, eight random words or a short story that uses those eight words?",
+   "answer": "The story. It links each item to the next with cause and effect, so one piece pulls up the next."
+  },
+  {
+   "type": "predict",
+   "prompt": "The story method helps most with...",
+   "choices": [
+    "Anything with an order, like the steps for solving an equation",
+    "A single number",
+    "Nothing on the SAT"
+   ],
+   "answer": 0,
+   "why": "Stories have a built-in order: first this happens, then that. That's exactly what multi-step methods need."
+  },
+  {
+   "type": "order",
+   "prompt": "A story for solving a linear equation: \"The Distributor smashes the parentheses, the Collector gathers the x's on one side, the Mover sends the numbers across, and the Divider splits what's left.\" Put the solving steps in the story's order.",
+   "items": [
+    "Distribute to clear the parentheses",
+    "Collect the x terms on one side",
+    "Move the constants to the other side",
+    "Divide by the coefficient of x"
+   ],
+   "why": "Four characters, four steps, always in that order."
+  },
+  {
+   "type": "predict",
+   "prompt": "SOH CAH TOA as a story: \"Some Old Horse Caught Another Horse Taking Oats Away.\" What does \"Caught Another Horse\" stand for?",
+   "choices": [
+    "cos = adjacent / hypotenuse",
+    "sin = opposite / hypotenuse",
+    "tan = opposite / adjacent"
+   ],
+   "answer": 0,
+   "why": "C-A-H: Cosine is Adjacent over Hypotenuse."
+  },
+  {
+   "type": "predict",
+   "prompt": "Which will be easier to remember for percent change = (new − old) / old?",
+   "choices": [
+    "Repeating \"new minus old over old\"",
+    "Your old phone sits in a drawer when you buy a new one. To see how much more the new one cost, take new minus old, then compare it to the old price by dividing by old.",
+    "A list: change, new, old, divide"
+   ],
+   "answer": 1,
+   "why": "The story gives every part a reason to be there, and the old phone reminds you what goes in the denominator."
+  },
+  {
+   "type": "spot",
+   "prompt": "A story for the quadratic formula. Tap the line that gets the formula x = (−b ± √(b² − 4ac)) / 2a wrong.",
+   "lines": [
+    "A negative boy (−b)",
+    "couldn't decide (±)",
+    "whether to go to a radical party (√)",
+    "where he met b squared plus four awesome chicks (b² + 4ac)",
+    "and it was all over by 2 a.m. (2a)"
+   ],
+   "wrong": 3,
+   "why": "It's b² minus 4ac. Fix the story: he was square (b²) but missed out on four awesome chicks (− 4ac)."
+  },
+  {
+   "type": "predict",
+   "prompt": "What's the best way to make your own story stick?",
+   "choices": [
+    "Make it silly, specific and full of action, then retell it from memory a few times",
+    "Keep it realistic and short",
+    "Write it once and never look at it again"
+   ],
+   "answer": 0,
+   "why": "Odd details make it memorable, and retelling it from memory is active recall."
+  }
+ ],
+ "keys": [
+  "Stories chain items so each one cues the next.",
+  "Use them for anything with an order: steps, formulas, lists.",
+  "Silly, specific and active beats sensible and vague. Then retell it from memory."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "In SOH CAH TOA, what does TOA mean?",
+   "choices": [
+    "tan = opposite / adjacent",
+    "tan = adjacent / opposite",
+    "sin = opposite / adjacent"
+   ],
+   "answer": 0,
+   "why": "Taking Oats Away: Tangent, Opposite, Adjacent."
+  },
+  {
+   "type": "predict",
+   "prompt": "The story method is best for...",
+   "choices": [
+    "Things you need in order",
+    "One single fact",
+    "Copying notes"
+   ],
+   "answer": 0,
+   "why": "Each event cues the next."
+  },
+  {
+   "type": "predict",
+   "prompt": "In the quadratic formula story, what's under the radical?",
+   "choices": [
+    "b² − 4ac",
+    "b² + 4ac",
+    "2a"
+   ],
+   "answer": 0,
+   "why": "He missed out on four awesome chicks: minus 4ac."
+  }
+ ]
+}

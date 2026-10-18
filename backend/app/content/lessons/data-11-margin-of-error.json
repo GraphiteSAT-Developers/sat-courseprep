@@ -1,0 +1,125 @@
+{
+ "id": "margin-of-error",
+ "order": 311,
+ "domain": "psda",
+ "skill": "inference-from-sample-statistics-and-margin-of-error",
+ "title": "Samples and margin of error",
+ "minutes": 5,
+ "hook": "A random sample estimates the population, and the margin of error gives the range of plausible values.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: a poll says 54% ± 3%. What range is plausible for the true value?",
+   "answer": "51% to 57%."
+  },
+  {
+   "type": "predict",
+   "prompt": "Why must a sample be random to generalize to a population?",
+   "choices": [
+    "So it's representative, with no group favored",
+    "So it's large",
+    "So it's fast"
+   ],
+   "answer": 0,
+   "why": "Random selection avoids bias."
+  },
+  {
+   "type": "predict",
+   "prompt": "A survey of 200 randomly chosen students at one school finds 30% walk to school. Who can this be generalized to?",
+   "choices": [
+    "All students at that school",
+    "All students in the country",
+    "Only the 200 surveyed",
+    "All teenagers"
+   ],
+   "answer": 0,
+   "why": "Only the population that was sampled."
+  },
+  {
+   "type": "predict",
+   "prompt": "A larger sample (with everything else the same) makes the margin of error:",
+   "choices": [
+    "Smaller",
+    "Larger",
+    "The same"
+   ],
+   "answer": 0,
+   "why": "More data, more precision."
+  },
+  {
+   "type": "fill",
+   "prompt": "An estimate is 62% with a margin of error of 4%. What's the lowest plausible value?",
+   "lines": [
+    "62 − 4 = ___%"
+   ],
+   "accept": [
+    "58"
+   ],
+   "why": "Estimate minus the margin."
+  },
+  {
+   "type": "spot",
+   "prompt": "A poll: Candidate A 48% ± 3%, Candidate B 46% ± 3%. Tap the false statement.",
+   "lines": [
+    "A's true support could be as low as 45%",
+    "B's true support could be as high as 49%",
+    "The poll proves A is ahead",
+    "The race is too close to call from this poll"
+   ],
+   "wrong": 2,
+   "why": "The ranges overlap, so the poll can't say who's ahead."
+  },
+  {
+   "type": "predict",
+   "prompt": "120 of 500 randomly chosen voters in a city of 80,000 support a plan. Estimate the city's supporters.",
+   "choices": [
+    "19,200",
+    "120",
+    "24,000",
+    "9,600"
+   ],
+   "answer": 0,
+   "why": "120/500 = 24%, and 24% of 80,000 = 19,200."
+  }
+ ],
+ "keys": [
+  "A random sample generalizes only to the population it was drawn from.",
+  "Estimate ± margin of error = the plausible range.",
+  "Bigger samples give smaller margins of error."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "45% ± 5% means the true value is plausibly:",
+   "choices": [
+    "40% to 50%",
+    "45% exactly",
+    "0% to 50%"
+   ],
+   "answer": 0,
+   "why": "Estimate ± margin."
+  },
+  {
+   "type": "predict",
+   "prompt": "To make the margin of error smaller:",
+   "choices": [
+    "Use a bigger random sample",
+    "Ask fewer people",
+    "Ask only friends"
+   ],
+   "answer": 0,
+   "why": "More data."
+  },
+  {
+   "type": "predict",
+   "prompt": "A random sample of a school's 9th graders generalizes to:",
+   "choices": [
+    "That school's 9th graders",
+    "All students everywhere",
+    "Only the people asked"
+   ],
+   "answer": 0,
+   "why": "The population that was sampled."
+  }
+ ]
+}

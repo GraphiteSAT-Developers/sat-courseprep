@@ -1,0 +1,137 @@
+{
+ "id": "desmos-sliders",
+ "order": 504,
+ "domain": "desmos",
+ "skill": "sliders",
+ "title": "Sliders for unknown constants",
+ "minutes": 6,
+ "hook": "Type the unknown letter, add a slider, and watch what it does. Then confirm the exact value by hand.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: what does Desmos do when you type an equation with an unknown letter, like y = kx + 2?",
+   "answer": "It offers to add a slider for k. Drag it to see how the graph changes."
+  },
+  {
+   "type": "predict",
+   "prompt": "For what k do kx + 2y = 6 and 3x + y = 5 have no solution? What's the slider move?",
+   "choices": [
+    "Drag k until the lines are parallel and never touch",
+    "Drag k until the lines overlap",
+    "Drag k until they cross at the origin"
+   ],
+   "answer": 0,
+   "why": "No solution means parallel.",
+   "desmos": [
+    "kx+2y=6",
+    "3x+y=5"
+   ]
+  },
+  {
+   "type": "fill",
+   "prompt": "Check it by hand. The slope of kx + 2y = 6 is −k/2, and the slope of 3x + y = 5 is −3.",
+   "lines": [
+    "−k/2 = −3",
+    "k = ___"
+   ],
+   "accept": [
+    "6"
+   ],
+   "why": "Then 6x + 2y = 6 and 3x + y = 5 are parallel, with different intercepts (3 and 5)."
+  },
+  {
+   "type": "predict",
+   "prompt": "Why does the course teach coefficient ratios first and sliders to confirm here?",
+   "choices": [
+    "A slider can land near the answer but not exactly on it, while ratios give the exact value fast",
+    "Sliders don't work in Bluebook",
+    "Ratios are always slower"
+   ],
+   "answer": 0,
+   "why": "Prep sources disagree about sliders for these. Use ratios for the exact value, then graph to confirm."
+  },
+  {
+   "type": "predict",
+   "prompt": "ax + 4y = 12 and 6x + by = 18 have infinitely many solutions. Every ratio equals 12/18 = 2/3. What are a and b?",
+   "choices": [
+    "a = 4, b = 6",
+    "a = 6, b = 4",
+    "a = 9, b = 6",
+    "a = 4, b = 9"
+   ],
+   "answer": 0,
+   "why": "a/6 = 2/3 gives a = 4, and 4/b = 2/3 gives b = 6."
+  },
+  {
+   "type": "spot",
+   "prompt": "How many solutions does |x − 3| = k have? A student uses a slider. Tap the wrong conclusion.",
+   "lines": [
+    "Type y=|x-3| and y=k, with a slider for k",
+    "k > 0: the line crosses the V twice",
+    "k = 0: it touches once, at the corner",
+    "k < 0: it crosses twice"
+   ],
+   "wrong": 3,
+   "why": "For k < 0 the horizontal line is below the V: no solutions.",
+   "desmos": [
+    "y=|x-3|",
+    "y=k"
+   ]
+  },
+  {
+   "type": "predict",
+   "prompt": "A slider runs from −10 to 10, but the answer is 25. What happens?",
+   "choices": [
+    "You won't find it until you widen the slider's range",
+    "Desmos finds it anyway",
+    "There's no answer"
+   ],
+   "answer": 0,
+   "why": "Slider ranges can hide the answer. Click the numbers at the ends of the slider to change them."
+  }
+ ],
+ "keys": [
+  "An unknown letter becomes a slider: drag it and watch.",
+  "No solution: parallel. Infinitely many: the same line. Use ratios for exact values.",
+  "Widen the slider's range if nothing happens."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "Typing y = ax + 1 in Desmos gives:",
+   "choices": [
+    "A slider for a",
+    "An error",
+    "A list"
+   ],
+   "answer": 0,
+   "why": "Unknown letters become sliders."
+  },
+  {
+   "type": "predict",
+   "prompt": "For no solution, drag the slider until the lines are:",
+   "choices": [
+    "Parallel",
+    "Overlapping",
+    "Perpendicular"
+   ],
+   "answer": 0,
+   "why": "They never meet."
+  },
+  {
+   "type": "predict",
+   "prompt": "The answer may be outside the slider's range. Fix?",
+   "choices": [
+    "Change the range",
+    "Give up",
+    "Use a list"
+   ],
+   "answer": 0,
+   "why": "Edit the endpoints."
+  }
+ ],
+ "practice": {
+  "domain": "algebra",
+  "skill": "systems-of-two-linear-equations-in-two-variables"
+ }
+}

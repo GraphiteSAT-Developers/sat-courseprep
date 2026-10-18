@@ -1,0 +1,128 @@
+{
+ "id": "equations-from-words",
+ "order": 103,
+ "domain": "algebra",
+ "skill": "linear-equations-in-one-variable",
+ "title": "Turn words into an equation",
+ "minutes": 6,
+ "hook": "Name the unknown, translate phrase by phrase, then solve.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: what's the first thing to write when you turn a word problem into an equation?",
+   "answer": "What the variable stands for, with units. For example: let m = the number of months."
+  },
+  {
+   "type": "predict",
+   "prompt": "A gym charges a $40 sign-up fee plus $25 a month. Ana has paid $240 in all. Which equation finds the number of months, m?",
+   "choices": [
+    "40m + 25 = 240",
+    "25m + 40 = 240",
+    "25 + 40 = 240m",
+    "65m = 240"
+   ],
+   "answer": 1,
+   "why": "$25 each month is 25m; the $40 fee is paid once."
+  },
+  {
+   "type": "fill",
+   "prompt": "Solve 25m + 40 = 240.",
+   "lines": [
+    "25m = 200",
+    "m = ___"
+   ],
+   "accept": [
+    "8"
+   ],
+   "why": "200 ÷ 25 = 8 months."
+  },
+  {
+   "type": "predict",
+   "prompt": "\"5 less than twice a number is 17.\" Which equation?",
+   "choices": [
+    "5 − 2n = 17",
+    "2n − 5 = 17",
+    "2(n − 5) = 17",
+    "2n + 5 = 17"
+   ],
+   "answer": 1,
+   "why": "\"5 less than\" something means take 5 away from it: 2n − 5."
+  },
+  {
+   "type": "spot",
+   "prompt": "\"A number increased by 6, then tripled, is 45.\" Tap the line with the mistake.",
+   "lines": [
+    "Let n = the number",
+    "3n + 6 = 45",
+    "3n = 39",
+    "n = 13"
+   ],
+   "wrong": 1,
+   "why": "Increase first, then triple: 3(n + 6) = 45, so n + 6 = 15 and n = 9."
+  },
+  {
+   "type": "order",
+   "prompt": "A plumber charges $60 plus $45 per hour. The bill was $285. Put the steps in order to find the hours.",
+   "items": [
+    "Let h = the hours worked",
+    "Write 60 + 45h = 285",
+    "Subtract 60: 45h = 225",
+    "Divide by 45: h = 5"
+   ],
+   "why": "Define, write, then solve."
+  },
+  {
+   "type": "predict",
+   "prompt": "A phone plan costs $30 a month plus $0.10 per text. This month's bill is $42.50. How many texts?",
+   "choices": [
+    "125",
+    "12.5",
+    "425",
+    "1,250"
+   ],
+   "answer": 0,
+   "why": "30 + 0.10t = 42.50, so 0.10t = 12.50 and t = 125."
+  }
+ ],
+ "keys": [
+  "Define the variable, with units, before writing anything.",
+  "One-time amounts are constants; per-item amounts multiply the variable.",
+  "Watch the word order: \"less than\" flips, and \"then tripled\" needs parentheses."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "A taxi charges $3 plus $2 per mile. The cost for m miles is:",
+   "choices": [
+    "3m + 2",
+    "2m + 3",
+    "5m"
+   ],
+   "answer": 1,
+   "why": "$2 per mile is 2m; the $3 is paid once."
+  },
+  {
+   "type": "predict",
+   "prompt": "\"7 more than half a number is 15.\"",
+   "choices": [
+    "n/2 + 7 = 15",
+    "7 − n/2 = 15",
+    "(n + 7)/2 = 15"
+   ],
+   "answer": 0,
+   "why": "Half the number, plus 7."
+  },
+  {
+   "type": "fill",
+   "prompt": "Solve n/2 + 7 = 15.",
+   "lines": [
+    "n/2 = 8",
+    "n = ___"
+   ],
+   "accept": [
+    "16"
+   ],
+   "why": "Multiply both sides by 2."
+  }
+ ]
+}

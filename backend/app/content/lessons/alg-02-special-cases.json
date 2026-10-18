@@ -1,0 +1,124 @@
+{
+ "id": "one-variable-special-cases",
+ "order": 102,
+ "domain": "algebra",
+ "skill": "linear-equations-in-one-variable",
+ "title": "No solution or infinitely many",
+ "minutes": 5,
+ "hook": "When the x's cancel, what's left tells you: always true means every x works, never true means none do.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: you solve an equation, the x's cancel, and you're left with 4 = 4. How many solutions?",
+   "answer": "Infinitely many. The statement is always true, so every x works."
+  },
+  {
+   "type": "predict",
+   "prompt": "3(x + 2) = 3x + 6. How many solutions?",
+   "choices": [
+    "None",
+    "Exactly one",
+    "Infinitely many"
+   ],
+   "answer": 2,
+   "why": "Distribute: 3x + 6 = 3x + 6. Both sides are identical."
+  },
+  {
+   "type": "predict",
+   "prompt": "2x + 7 = 2(x + 3). How many solutions?",
+   "choices": [
+    "None",
+    "Exactly one",
+    "Infinitely many"
+   ],
+   "answer": 0,
+   "why": "2x + 7 = 2x + 6 leaves 7 = 6, which is never true."
+  },
+  {
+   "type": "predict",
+   "prompt": "5x − 4 = 3x + 2. How many solutions?",
+   "choices": [
+    "None",
+    "Exactly one",
+    "Infinitely many"
+   ],
+   "answer": 1,
+   "why": "The x-coefficients differ (5 and 3), so the x's don't cancel: one solution, x = 3."
+  },
+  {
+   "type": "fill",
+   "prompt": "For what value of a does ax + 3 = 4x + 3 have infinitely many solutions?",
+   "lines": [
+    "Both sides must match exactly",
+    "a = ___"
+   ],
+   "accept": [
+    "4"
+   ],
+   "why": "Then both sides are 4x + 3."
+  },
+  {
+   "type": "predict",
+   "prompt": "4(x − c) = 4x − 12 has infinitely many solutions. What is c?",
+   "choices": [
+    "3",
+    "−3",
+    "12",
+    "4"
+   ],
+   "answer": 0,
+   "why": "4x − 4c must equal 4x − 12, so 4c = 12 and c = 3."
+  },
+  {
+   "type": "spot",
+   "prompt": "Deciding how many solutions 2(3x − 1) = 6x − 2 has. Tap the line with the mistake.",
+   "lines": [
+    "6x − 2 = 6x − 2",
+    "Subtract 6x: −2 = −2",
+    "That's never true, so there's no solution"
+   ],
+   "wrong": 2,
+   "why": "−2 = −2 is always true, so every x works: infinitely many solutions."
+  }
+ ],
+ "keys": [
+  "The x's cancel and what's left is true (like 4 = 4): infinitely many solutions.",
+  "The x's cancel and what's left is false (like 7 = 6): no solution.",
+  "Different x-coefficients on the two sides: exactly one solution."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "The x's cancel, leaving 0 = 5. How many solutions?",
+   "choices": [
+    "None",
+    "One",
+    "Infinitely many"
+   ],
+   "answer": 0,
+   "why": "0 = 5 is never true."
+  },
+  {
+   "type": "predict",
+   "prompt": "4x + 1 = 4x + 1. How many solutions?",
+   "choices": [
+    "None",
+    "One",
+    "Infinitely many"
+   ],
+   "answer": 2,
+   "why": "Both sides are the same."
+  },
+  {
+   "type": "predict",
+   "prompt": "ax − 2 = 7x + b has infinitely many solutions. What are a and b?",
+   "choices": [
+    "a = 7, b = −2",
+    "a = −2, b = 7",
+    "a = 7, b = 2"
+   ],
+   "answer": 0,
+   "why": "Match the x-coefficients and the constants."
+  }
+ ]
+}

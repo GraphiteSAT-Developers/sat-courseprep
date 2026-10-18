@@ -1,0 +1,130 @@
+{
+ "id": "standard-form-lines",
+ "order": 106,
+ "domain": "algebra",
+ "skill": "linear-equations-in-two-variables",
+ "title": "Ax + By = C: intercepts and combinations",
+ "minutes": 6,
+ "hook": "Standard form is made for intercepts and \"how many of each\" problems.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: how do you find the x-intercept of 3x + 4y = 24?",
+   "answer": "Set y = 0: 3x = 24, so x = 8. The x-intercept is (8, 0)."
+  },
+  {
+   "type": "fill",
+   "prompt": "Find the y-intercept of 3x + 4y = 24.",
+   "lines": [
+    "Set x = 0: 4y = 24",
+    "y = ___"
+   ],
+   "accept": [
+    "6"
+   ],
+   "why": "The y-intercept is (0, 6)."
+  },
+  {
+   "type": "predict",
+   "prompt": "What is the slope of 3x + 4y = 24?",
+   "choices": [
+    "3/4",
+    "−3/4",
+    "4/3",
+    "−4/3"
+   ],
+   "answer": 1,
+   "why": "The slope of Ax + By = C is −A/B = −3/4. Or solve for y: y = −(3/4)x + 6."
+  },
+  {
+   "type": "predict",
+   "prompt": "Student tickets cost $8 and adult tickets $12. Sales were $480. Which equation fits, with s students and a adults?",
+   "choices": [
+    "8s + 12a = 480",
+    "12s + 8a = 480",
+    "s + a = 480",
+    "20(s + a) = 480"
+   ],
+   "answer": 0,
+   "why": "Price times count, plus price times count, equals the total."
+  },
+  {
+   "type": "fill",
+   "prompt": "Using 8s + 12a = 480: if 30 adult tickets were sold, how many student tickets were sold?",
+   "lines": [
+    "8s + 12(30) = 480",
+    "8s + 360 = 480",
+    "8s = 120",
+    "s = ___"
+   ],
+   "accept": [
+    "15"
+   ],
+   "why": "120 ÷ 8 = 15."
+  },
+  {
+   "type": "spot",
+   "prompt": "Is (2, 5) on the line 4x − y = 3? Tap the line with the mistake.",
+   "lines": [
+    "Plug in: 4(2) − 5",
+    "= 8 − 5 = 3",
+    "3 = 3, so the point is not on the line"
+   ],
+   "wrong": 2,
+   "why": "3 = 3 is true, so (2, 5) is on the line."
+  },
+  {
+   "type": "predict",
+   "prompt": "In 8s + 12a = 480, what does the 12 mean?",
+   "choices": [
+    "Dollars per adult ticket",
+    "Number of adult tickets",
+    "Total sales"
+   ],
+   "answer": 0,
+   "why": "It multiplies a, the number of adult tickets, so it's the price of each."
+  }
+ ],
+ "keys": [
+  "Intercepts: set the other variable to 0.",
+  "The slope of Ax + By = C is −A/B.",
+  "\"Price × count + price × count = total\" is the classic two-variable setup."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "The x-intercept of 2x + 5y = 20 is:",
+   "choices": [
+    "(10, 0)",
+    "(0, 4)",
+    "(4, 0)"
+   ],
+   "answer": 0,
+   "why": "Set y = 0: 2x = 20."
+  },
+  {
+   "type": "predict",
+   "prompt": "The slope of 2x + 5y = 20 is:",
+   "choices": [
+    "−2/5",
+    "2/5",
+    "−5/2"
+   ],
+   "answer": 0,
+   "why": "−A/B = −2/5."
+  },
+  {
+   "type": "fill",
+   "prompt": "Pens cost $2 and notebooks $5. Someone spends $40 and buys 4 notebooks. How many pens?",
+   "lines": [
+    "2p + 5(4) = 40",
+    "2p = 20",
+    "p = ___"
+   ],
+   "accept": [
+    "10"
+   ],
+   "why": "20 ÷ 2 = 10."
+  }
+ ]
+}

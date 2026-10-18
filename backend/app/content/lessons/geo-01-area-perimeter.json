@@ -1,0 +1,126 @@
+{
+ "id": "area-perimeter",
+ "order": 401,
+ "domain": "geometry-trig",
+ "skill": "area-and-volume",
+ "title": "Area and perimeter",
+ "minutes": 5,
+ "hook": "Know the core formulas cold, and break odd shapes into simple ones.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: the area of a triangle and of a trapezoid?",
+   "answer": "Triangle: ½ × base × height. Trapezoid: ½ × (b₁ + b₂) × height."
+  },
+  {
+   "type": "fill",
+   "prompt": "A rectangle is 12 by 7. Find its area.",
+   "lines": [
+    "12 × 7 = ___"
+   ],
+   "accept": [
+    "84"
+   ],
+   "why": "Length times width."
+  },
+  {
+   "type": "predict",
+   "prompt": "A triangle has base 10 and height 6. Its area is:",
+   "choices": [
+    "30",
+    "60",
+    "16",
+    "32"
+   ],
+   "answer": 0,
+   "why": "½ × 10 × 6."
+  },
+  {
+   "type": "predict",
+   "prompt": "A trapezoid has bases 8 and 14 and height 5. Its area is:",
+   "choices": [
+    "55",
+    "110",
+    "27",
+    "70"
+   ],
+   "answer": 0,
+   "why": "½ × (8 + 14) × 5 = 55."
+  },
+  {
+   "type": "spot",
+   "prompt": "An L-shape: a 10 × 8 rectangle with a 4 × 3 piece cut from one corner. Finding the area. Tap the line with the mistake.",
+   "lines": [
+    "Big rectangle: 10 × 8 = 80",
+    "Cut-out: 4 × 3 = 12",
+    "Area = 80 + 12 = 92"
+   ],
+   "wrong": 2,
+   "why": "Take the cut-out away: 80 − 12 = 68."
+  },
+  {
+   "type": "predict",
+   "prompt": "A square's perimeter is 36. Its area is:",
+   "choices": [
+    "81",
+    "36",
+    "144",
+    "9"
+   ],
+   "answer": 0,
+   "why": "Each side is 9, and 9² = 81."
+  },
+  {
+   "type": "predict",
+   "prompt": "A rectangle's length doubles and its width triples. Its area is multiplied by:",
+   "choices": [
+    "6",
+    "5",
+    "2",
+    "3"
+   ],
+   "answer": 0,
+   "why": "2 × 3 = 6."
+  }
+ ],
+ "keys": [
+  "Rectangle: l × w. Triangle: ½bh. Trapezoid: ½(b₁ + b₂)h.",
+  "Split odd shapes into simple ones, or subtract a cut-out.",
+  "Scaling: multiply the area by every factor applied to a length."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "The area of a triangle with base 8 and height 5 is:",
+   "choices": [
+    "20",
+    "40",
+    "13"
+   ],
+   "answer": 0,
+   "why": "½ × 8 × 5."
+  },
+  {
+   "type": "fill",
+   "prompt": "A square has side 7. What is its area?",
+   "lines": [
+    "7² = ___"
+   ],
+   "accept": [
+    "49"
+   ],
+   "why": "Side squared."
+  },
+  {
+   "type": "predict",
+   "prompt": "Doubling both the length and width multiplies the area by:",
+   "choices": [
+    "4",
+    "2",
+    "8"
+   ],
+   "answer": 0,
+   "why": "2 × 2."
+  }
+ ]
+}

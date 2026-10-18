@@ -1,0 +1,126 @@
+{
+ "id": "active-recall",
+ "order": 1,
+ "domain": "memory",
+ "skill": "active-recall",
+ "title": "Active recall: test yourself, don't reread",
+ "minutes": 5,
+ "hook": "Why pulling an answer out of memory beats reading it again, and how every lesson here uses it.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "Before we start, from memory: which works better for remembering, rereading your notes or testing yourself?",
+   "answer": "Testing yourself. Pulling an answer out of memory (retrieval) strengthens it far more than reading it again."
+  },
+  {
+   "type": "predict",
+   "prompt": "Ana and Ben study the same page for 20 minutes. Ana rereads it four times. Ben reads it once, then writes down everything he remembers and checks it. A week later, who remembers more?",
+   "choices": [
+    "Ana",
+    "Ben",
+    "About the same"
+   ],
+   "answer": 1,
+   "why": "Retrieval practice beats rereading in study after study. Ben's effort to pull the ideas back out is what made them stick."
+  },
+  {
+   "type": "predict",
+   "prompt": "Why does rereading feel like it's working?",
+   "choices": [
+    "The words look familiar, so it feels like knowing them",
+    "Your brain stores more each time you read",
+    "Reading is the most active kind of study"
+   ],
+   "answer": 0,
+   "why": "Familiar isn't the same as recallable. On test day you have to produce the answer, not recognize the page."
+  },
+  {
+   "type": "order",
+   "prompt": "Put the active recall loop in order.",
+   "items": [
+    "Study the idea once, carefully",
+    "Close the notes",
+    "Write or say everything you can remember",
+    "Check against the notes and mark what you missed",
+    "Start with the misses next time"
+   ],
+   "why": "Try first, check second, and spend your next session on what you missed."
+  },
+  {
+   "type": "spot",
+   "prompt": "Maya's plan for learning the slope formula. Tap the step that breaks active recall.",
+   "lines": [
+    "Read the slope formula and one example",
+    "Cover it and write the formula from memory",
+    "Keep the answer key open while solving the next five problems",
+    "Check her work and redo the ones she missed"
+   ],
+   "wrong": 2,
+   "why": "Peeking turns recall back into recognition. Try each problem first, then check."
+  },
+  {
+   "type": "predict",
+   "prompt": "You try to recall the quadratic formula and get stuck halfway. What's the best move?",
+   "choices": [
+    "Give up and reread it",
+    "Keep trying for a moment, then check, then try it again later today",
+    "Skip it, since it might not be on the test",
+    "Copy it out 20 times"
+   ],
+   "answer": 1,
+   "why": "A little struggle before checking is part of what makes it stick. Then retrieve it again later, from scratch."
+  },
+  {
+   "type": "predict",
+   "prompt": "Which kind of step in these lessons is active recall?",
+   "choices": [
+    "Predict first",
+    "Fill in the step",
+    "Find the mistake",
+    "All of them"
+   ],
+   "answer": 3,
+   "why": "Every step makes you produce an answer before you see one. That's the whole design."
+  }
+ ],
+ "keys": [
+  "Testing yourself beats rereading: pulling it out is what makes it stick.",
+  "Familiar isn't the same as remembered. Check yourself by producing the answer.",
+  "Try first, check second, and come back to your misses."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "Which builds memory more?",
+   "choices": [
+    "Rereading highlighted notes",
+    "Writing what you remember, then checking",
+    "Watching the same video twice"
+   ],
+   "answer": 1,
+   "why": "Retrieval, not review, is what strengthens memory."
+  },
+  {
+   "type": "predict",
+   "prompt": "Why can rereading fool you?",
+   "choices": [
+    "It makes the material feel familiar",
+    "It takes too long",
+    "It uses the wrong part of the brain"
+   ],
+   "answer": 0,
+   "why": "Familiarity feels like knowing, but the test asks you to produce the answer."
+  },
+  {
+   "type": "predict",
+   "prompt": "You can't remember a formula. Best first move?",
+   "choices": [
+    "Try for a moment, then check",
+    "Look it up right away",
+    "Skip it forever"
+   ],
+   "answer": 0,
+   "why": "A short effort to retrieve, then a check, makes the next recall easier."
+  }
+ ]
+}

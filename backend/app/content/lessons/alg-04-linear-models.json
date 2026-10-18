@@ -1,0 +1,126 @@
+{
+ "id": "linear-models-in-context",
+ "order": 105,
+ "domain": "algebra",
+ "skill": "linear-functions",
+ "title": "What slope and intercept mean in a story",
+ "minutes": 6,
+ "hook": "In a real-world model, slope is the rate per unit and the y-intercept is the starting value.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: in y = mx + b, what do m and b mean in a real-world model?",
+   "answer": "m is the rate of change: how much y changes for each 1 unit of x. b is the starting value: y when x = 0."
+  },
+  {
+   "type": "predict",
+   "prompt": "A candle's height in cm is h = 30 − 1.5t, where t is the hours it has burned. What does 1.5 mean?",
+   "choices": [
+    "The candle starts 1.5 cm tall",
+    "The candle gets 1.5 cm shorter each hour",
+    "It burns for 1.5 hours",
+    "It's 30 cm tall after 1.5 hours"
+   ],
+   "answer": 1,
+   "why": "The coefficient of t is the change per hour. It's subtracted, so the height drops."
+  },
+  {
+   "type": "predict",
+   "prompt": "Same candle, h = 30 − 1.5t. What does 30 mean?",
+   "choices": [
+    "Its height before it's lit",
+    "Hours until it burns out",
+    "Centimeters burned per hour"
+   ],
+   "answer": 0,
+   "why": "When t = 0, h = 30."
+  },
+  {
+   "type": "fill",
+   "prompt": "When does the candle burn out? Solve 30 − 1.5t = 0.",
+   "lines": [
+    "1.5t = 30",
+    "t = ___"
+   ],
+   "accept": [
+    "20"
+   ],
+   "why": "30 ÷ 1.5 = 20 hours."
+  },
+  {
+   "type": "predict",
+   "prompt": "f(x) = 4x − 7. What is f(5)?",
+   "choices": [
+    "13",
+    "27",
+    "−2",
+    "20"
+   ],
+   "answer": 0,
+   "why": "4(5) − 7 = 13."
+  },
+  {
+   "type": "spot",
+   "prompt": "A linear function has f(0) = 3, f(2) = 11 and f(5) = 23. Finding its equation. Tap the line with the mistake.",
+   "lines": [
+    "Slope = (11 − 3) / (2 − 0) = 4",
+    "f(0) = 3, so the intercept is 3",
+    "f(x) = 3x + 4"
+   ],
+   "wrong": 2,
+   "why": "The slope goes with x: f(x) = 4x + 3. Check: f(5) = 23."
+  },
+  {
+   "type": "order",
+   "prompt": "Mia has $120 saved and adds $15 a week. Put the steps in order to find when she'll have $300.",
+   "items": [
+    "Write s = 120 + 15w",
+    "Set 120 + 15w = 300",
+    "Subtract 120: 15w = 180",
+    "Divide: w = 12 weeks"
+   ],
+   "why": "Model, set it equal to the target, solve."
+  }
+ ],
+ "keys": [
+  "Slope = the rate per one unit of x. Read its units.",
+  "y-intercept = the value when x = 0, the start.",
+  "To find when something reaches a value, set the model equal to it and solve."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "C = 12 + 3.5n is the cost of n items. What does 3.5 mean?",
+   "choices": [
+    "Cost per item",
+    "Fixed fee",
+    "Number of items"
+   ],
+   "answer": 0,
+   "why": "It multiplies n."
+  },
+  {
+   "type": "fill",
+   "prompt": "f(x) = −2x + 9. Find f(3).",
+   "lines": [
+    "f(3) = −2(3) + 9",
+    "f(3) = ___"
+   ],
+   "accept": [
+    "3"
+   ],
+   "why": "−6 + 9 = 3."
+  },
+  {
+   "type": "predict",
+   "prompt": "A tank drains: V = 500 − 20t. What is V when t = 0?",
+   "choices": [
+    "500",
+    "20",
+    "480"
+   ],
+   "answer": 0,
+   "why": "That's the starting volume."
+  }
+ ]
+}

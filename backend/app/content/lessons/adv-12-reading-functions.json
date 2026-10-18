@@ -1,0 +1,260 @@
+{
+ "id": "reading-function-graphs",
+ "order": 213,
+ "domain": "advanced-math",
+ "skill": "nonlinear-functions",
+ "title": "Read functions from tables and graphs",
+ "minutes": 5,
+ "hook": "f(a) is a height, a zero is where the graph meets the x-axis, and the vertex sits on the line of symmetry.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: on a graph of y = f(x), where do you look to find f(3)?",
+   "answer": "Go to x = 3 on the horizontal axis and read the y-value of the graph there."
+  },
+  {
+   "type": "predict",
+   "prompt": "Using the table, what is f(1)?",
+   "choices": [
+    "−4",
+    "1",
+    "0",
+    "−3"
+   ],
+   "answer": 0,
+   "why": "Find x = 1 and read across.",
+   "table": {
+    "caption": "Values of f",
+    "head": [
+     "x",
+     "f(x)"
+    ],
+    "rows": [
+     [
+      "−2",
+      "5"
+     ],
+     [
+      "−1",
+      "0"
+     ],
+     [
+      "0",
+      "−3"
+     ],
+     [
+      "1",
+      "−4"
+     ],
+     [
+      "2",
+      "−3"
+     ],
+     [
+      "3",
+      "0"
+     ]
+    ]
+   }
+  },
+  {
+   "type": "predict",
+   "prompt": "For which x-values is f(x) = 0?",
+   "choices": [
+    "−1 and 3",
+    "0 and 1",
+    "−3 only",
+    "−4"
+   ],
+   "answer": 0,
+   "why": "Those are the zeros, the x-intercepts.",
+   "table": {
+    "caption": "Values of f",
+    "head": [
+     "x",
+     "f(x)"
+    ],
+    "rows": [
+     [
+      "−2",
+      "5"
+     ],
+     [
+      "−1",
+      "0"
+     ],
+     [
+      "0",
+      "−3"
+     ],
+     [
+      "1",
+      "−4"
+     ],
+     [
+      "2",
+      "−3"
+     ],
+     [
+      "3",
+      "0"
+     ]
+    ]
+   }
+  },
+  {
+   "type": "predict",
+   "prompt": "The table is symmetric. What is the x-coordinate of the vertex?",
+   "choices": [
+    "1",
+    "0",
+    "−1",
+    "−4"
+   ],
+   "answer": 0,
+   "why": "f(0) = f(2) and f(−1) = f(3), so the line of symmetry is x = 1.",
+   "table": {
+    "caption": "Values of f",
+    "head": [
+     "x",
+     "f(x)"
+    ],
+    "rows": [
+     [
+      "−2",
+      "5"
+     ],
+     [
+      "−1",
+      "0"
+     ],
+     [
+      "0",
+      "−3"
+     ],
+     [
+      "1",
+      "−4"
+     ],
+     [
+      "2",
+      "−3"
+     ],
+     [
+      "3",
+      "0"
+     ]
+    ]
+   }
+  },
+  {
+   "type": "fill",
+   "prompt": "Find f(2) + f(−2).",
+   "lines": [
+    "f(2) = −3 and f(−2) = 5",
+    "Sum = ___"
+   ],
+   "accept": [
+    "2"
+   ],
+   "why": "−3 + 5 = 2.",
+   "table": {
+    "caption": "Values of f",
+    "head": [
+     "x",
+     "f(x)"
+    ],
+    "rows": [
+     [
+      "−2",
+      "5"
+     ],
+     [
+      "−1",
+      "0"
+     ],
+     [
+      "0",
+      "−3"
+     ],
+     [
+      "1",
+      "−4"
+     ],
+     [
+      "2",
+      "−3"
+     ],
+     [
+      "3",
+      "0"
+     ]
+    ]
+   }
+  },
+  {
+   "type": "spot",
+   "prompt": "A function rises until x = 4, then falls. Tap the false statement.",
+   "lines": [
+    "Its maximum value is at x = 4",
+    "f is increasing for x < 4",
+    "f is increasing for x > 4",
+    "f(4) is greater than f(6)"
+   ],
+   "wrong": 2,
+   "why": "After x = 4 the graph falls, so f is decreasing there."
+  },
+  {
+   "type": "predict",
+   "prompt": "What is the y-intercept of f(x) = 2^x?",
+   "choices": [
+    "(0, 1)",
+    "(0, 2)",
+    "(1, 0)",
+    "(0, 0)"
+   ],
+   "answer": 0,
+   "why": "2⁰ = 1."
+  }
+ ],
+ "keys": [
+  "f(a) is the y-value at x = a.",
+  "Zeros are where the graph meets the x-axis.",
+  "Symmetric values (like f(0) = f(2)) put the vertex halfway between them."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "f(5) means:",
+   "choices": [
+    "The y-value when x = 5",
+    "The x-value when y = 5",
+    "5 times f"
+   ],
+   "answer": 0,
+   "why": "Input 5, read the output."
+  },
+  {
+   "type": "predict",
+   "prompt": "A zero of f is where the graph:",
+   "choices": [
+    "Meets the x-axis",
+    "Crosses the y-axis",
+    "Is highest"
+   ],
+   "answer": 0,
+   "why": "f(x) = 0 there."
+  },
+  {
+   "type": "fill",
+   "prompt": "f(x) = x² − 2x − 3. Find f(4).",
+   "lines": [
+    "16 − 8 − 3 = ___"
+   ],
+   "accept": [
+    "5"
+   ],
+   "why": "Plug in 4."
+  }
+ ]
+}

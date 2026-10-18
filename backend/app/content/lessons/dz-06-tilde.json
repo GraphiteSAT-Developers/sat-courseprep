@@ -1,0 +1,131 @@
+{
+ "id": "desmos-tilde",
+ "order": 506,
+ "domain": "desmos",
+ "skill": "tilde",
+ "title": "The tilde trick: find the constants",
+ "minutes": 7,
+ "hook": "For \"find a, b and c\" questions, give Desmos a list of x-values and let regression solve for the constants.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: what kind of question is the tilde trick for?",
+   "answer": "Equivalent-expression questions with unknown constants, like (5x − 17)(4x − c) = ax² + bx + 119. Desmos finds the constants."
+  },
+  {
+   "type": "order",
+   "prompt": "Set up the tilde trick. Put the steps in order.",
+   "items": [
+    "Make a list of x-values: x_1=[2,3,4]",
+    "Type the equation with x_1 for x and ~ for =",
+    "Read the constants Desmos reports"
+   ],
+   "why": "The list gives the regression points to fit."
+  },
+  {
+   "type": "fill",
+   "prompt": "Type the two lines below to solve (5x − 17)(4x − c) = ax² + bx + 119. What does Desmos report for c?",
+   "lines": [
+    "By hand, the constant terms match: 17c = 119",
+    "c = ___"
+   ],
+   "accept": [
+    "7"
+   ],
+   "why": "Desmos reports c = 7, a = 20 and b = −103. Expanding confirms 20x² − 103x + 119.",
+   "desmos": [
+    "x_1=[2,3,4]",
+    "(5x_1-17)(4x_1-c)~ax_1^2+bx_1+119"
+   ]
+  },
+  {
+   "type": "predict",
+   "prompt": "How many values should the x_1 list have?",
+   "choices": [
+    "At least as many as there are unknown constants",
+    "Exactly one",
+    "Exactly two"
+   ],
+   "answer": 0,
+   "why": "Three unknowns need at least three values."
+  },
+  {
+   "type": "spot",
+   "prompt": "Tap the setup that fails.",
+   "lines": [
+    "x_1=[1,2,3,4]",
+    "(x_1+k)^2~x_1^2+6x_1+m",
+    "Leaving out the x_1 list line entirely"
+   ],
+   "wrong": 2,
+   "why": "Without the list there's no data to fit, and it fails silently. Check that the list is there."
+  },
+  {
+   "type": "predict",
+   "prompt": "Another check for \"which expression is equivalent\": graph both as y = …. What shows they're equivalent?",
+   "choices": [
+    "The graphs overlap exactly",
+    "They cross once",
+    "They're parallel"
+   ],
+   "answer": 0,
+   "why": "Equivalent expressions have the same graph."
+  },
+  {
+   "type": "predict",
+   "prompt": "By hand: (x + k)² = x² + 6x + m. What are k and m?",
+   "choices": [
+    "k = 3, m = 9",
+    "k = 6, m = 36",
+    "k = 3, m = 6",
+    "k = 9, m = 3"
+   ],
+   "answer": 0,
+   "why": "Match: 2k = 6 and m = k². The tilde trick gives the same answer."
+  }
+ ],
+ "keys": [
+  "Make an x_1 list with at least as many values as unknowns.",
+  "Swap x for x_1 and = for ~, then read the constants.",
+  "It returns one solution, so check it by expanding when you can."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "The tilde trick needs:",
+   "choices": [
+    "An x_1 list and ~",
+    "A slider",
+    "A table of y-values only"
+   ],
+   "answer": 0,
+   "why": "List plus regression."
+  },
+  {
+   "type": "predict",
+   "prompt": "Three unknown constants need a list of at least:",
+   "choices": [
+    "3 values",
+    "1 value",
+    "2 values"
+   ],
+   "answer": 0,
+   "why": "One per unknown."
+  },
+  {
+   "type": "predict",
+   "prompt": "Two expressions are equivalent when their graphs:",
+   "choices": [
+    "Overlap exactly",
+    "Cross once",
+    "Never meet"
+   ],
+   "answer": 0,
+   "why": "Same graph."
+  }
+ ],
+ "practice": {
+  "domain": "advanced-math",
+  "skill": "equivalent-expressions"
+ }
+}

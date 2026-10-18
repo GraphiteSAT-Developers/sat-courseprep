@@ -1,0 +1,140 @@
+{
+ "id": "desmos-solve-by-graphing",
+ "order": 502,
+ "domain": "desmos",
+ "skill": "equations",
+ "title": "Solve any equation by graphing",
+ "minutes": 6,
+ "hook": "Graph each side and click where they cross. The x-values are the solutions.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: how can Desmos solve 3x − 7 = x² − 5x + 8 without algebra?",
+   "answer": "Graph each side as its own y = equation and click the intersections. Their x-values are the solutions."
+  },
+  {
+   "type": "predict",
+   "prompt": "What do you type for 3x − 7 = x² − 5x + 8?",
+   "choices": [
+    "Two lines: y=3x-7 and y=x^2-5x+8",
+    "One line: y=3x-7=x^2-5x+8",
+    "3x-7=x^2-5x+8, then read the y-intercept"
+   ],
+   "answer": 0,
+   "why": "Each side becomes its own graph."
+  },
+  {
+   "type": "predict",
+   "prompt": "Another way: graph y = (left side) − (right side). Where are the solutions?",
+   "choices": [
+    "The x-intercepts",
+    "The y-intercept",
+    "The highest point"
+   ],
+   "answer": 0,
+   "why": "Left − right = 0 exactly where the two sides are equal."
+  },
+  {
+   "type": "fill",
+   "prompt": "Graph y = 3x − 7 and y = x² − 5x + 8. One intersection is at x = 3. Where's the other?",
+   "lines": [
+    "First intersection: x = 3",
+    "Second intersection: x = ___"
+   ],
+   "accept": [
+    "5"
+   ],
+   "why": "By hand, x² − 8x + 15 = 0 factors as (x − 3)(x − 5).",
+   "desmos": [
+    "y=3x-7",
+    "y=x^2-5x+8"
+   ]
+  },
+  {
+   "type": "spot",
+   "prompt": "Solving 2^x = x + 5 in Desmos. Tap the bad step.",
+   "lines": [
+    "Type y=2^x and y=x+5",
+    "See an intersection at (3, 8)",
+    "Decide 3 is the only solution without zooming out"
+   ],
+   "wrong": 2,
+   "why": "Zoom out: there's a second intersection near x = −4.97.",
+   "desmos": [
+    "y=2^x",
+    "y=x+5"
+   ]
+  },
+  {
+   "type": "predict",
+   "prompt": "When is solving by hand faster than Desmos?",
+   "choices": [
+    "When you can do it in under about 15 seconds, like 2x + 3 = 11",
+    "Whenever there's an exponent",
+    "Never"
+   ],
+   "answer": 0,
+   "why": "Opening Desmos and typing takes time. Use it when graphing beats the algebra."
+  },
+  {
+   "type": "predict",
+   "prompt": "Desmos shows an intersection at (1.333, 4), and the choices are fractions. Which is it?",
+   "choices": [
+    "4/3",
+    "1.3",
+    "13/10",
+    "3/4"
+   ],
+   "answer": 0,
+   "why": "1.333… is 4/3. Click the point to see the coordinates, then match the choice."
+  }
+ ],
+ "keys": [
+  "Graph each side as y = … and click the intersections; the x-values are the solutions.",
+  "Or graph left − right and read the x-intercepts.",
+  "Zoom out before deciding how many solutions there are."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "To solve f(x) = g(x) in Desmos:",
+   "choices": [
+    "Graph y=f(x) and y=g(x) and find where they cross",
+    "Graph only f",
+    "Read the y-intercepts"
+   ],
+   "answer": 0,
+   "why": "Intersections."
+  },
+  {
+   "type": "predict",
+   "prompt": "Before deciding there's one solution:",
+   "choices": [
+    "Zoom out",
+    "Zoom in",
+    "Close the calculator"
+   ],
+   "answer": 0,
+   "why": "Look for more crossings."
+  },
+  {
+   "type": "fill",
+   "prompt": "Graph y = x² and y = 2x + 3. Where's the positive intersection?",
+   "lines": [
+    "x = ___"
+   ],
+   "accept": [
+    "3"
+   ],
+   "why": "x² − 2x − 3 = 0 gives 3 and −1.",
+   "desmos": [
+    "y=x^2",
+    "y=2x+3"
+   ]
+  }
+ ],
+ "practice": {
+  "domain": "advanced-math",
+  "skill": "nonlinear-equations-in-one-variable-and-systems-of-equations-in-two-variables"
+ }
+}

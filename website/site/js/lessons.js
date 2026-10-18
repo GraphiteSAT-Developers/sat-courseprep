@@ -41,8 +41,17 @@
     }).join("");
     var groups = {}, order = [];
     o.lessons.forEach(function (l) { if (!groups[l.domain]) { groups[l.domain] = []; order.push(l.domain); } groups[l.domain].push(l); });
+    var ABOUT = { memory: "Start here. How to make anything you study stick, and how these lessons use it.",
+                  desmos: "The calculator you get on test day. Thirteen moves, when to use each, and when doing it by hand is faster." };
+    $("ls-jump").innerHTML = order.map(function (d) {
+      var done = groups[d].filter(function (l) { return l.progress.done; }).length;
+      return '<li><a href="#ls-sec-' + esc(d) + '">' + esc(groups[d][0].domain_name) + ' <span class="fine">' + done + "/" + groups[d].length + "</span></a></li>";
+    }).join("");
+    $("ls-jump-wrap").hidden = order.length < 2;
     $("ls-groups").innerHTML = order.map(function (d) {
-      return '<section class="panel" aria-labelledby="ls-g-' + esc(d) + '"><div class="panel-head"><h2 id="ls-g-' + esc(d) + '">' + esc(groups[d][0].domain_name) + "</h2></div>" +
+      var done = groups[d].filter(function (l) { return l.progress.done; }).length;
+      return '<section class="panel ls-group" id="ls-sec-' + esc(d) + '" aria-labelledby="ls-g-' + esc(d) + '"><div class="panel-head"><h2 id="ls-g-' + esc(d) + '">' + esc(groups[d][0].domain_name) + '</h2><span class="label">' + done + " of " + groups[d].length + " done</span></div>" +
+        (ABOUT[d] ? '<p class="panel-lede">' + ABOUT[d] + "</p>" : "") +
         '<ul class="ls-list">' + groups[d].map(function (l) {
           var st = stateText(l.progress, o.recall_days);
           return '<li class="ls-item"><div class="ls-item-copy"><h3><a href="lessons.html?lesson=' + encodeURIComponent(l.id) + '">' + esc(l.title) + "</a></h3>" +
@@ -65,6 +74,7 @@
       $("ls-kicker").textContent = (kind === "recall" ? "Recall check · " : "Lesson · ") + lesson.skill_name;
       $("ls-title").textContent = lesson.title;
       document.title = lesson.title + " | Graphite SAT Tutoring";
+      if (window.GraphiteCrumb) window.GraphiteCrumb(lesson.title, "lessons.html");
       $("ls-player").hidden = false;
       $("ls-progress").setAttribute("aria-valuemax", String(steps.length));
       renderStep();
@@ -88,6 +98,12 @@
       t.rows.map(function (r) { return "<tr>" + r.map(function (c, i) { return i ? "<td>" + esc(c) + "</td>" : '<th scope="row">' + esc(c) + "</th>"; }).join("") + "</tr>"; }).join("") +
       "</tbody></table></div>";
   }
+  // Keystrokes for the Desmos course, with a link to the College Board's own Desmos to try them.
+  function desmos(lines) {
+    if (!lines || !lines.length) return "";
+    return '<div class="ls-desmos"><p class="label">Type in Desmos</p><ol>' + lines.map(function (l) { return "<li><code>" + esc(l) + "</code></li>"; }).join("") + "</ol>" +
+      '<a href="https://www.desmos.com/testing/collegeboard/graphing" target="_blank" rel="noopener">Try it in the College Board Desmos<span class="visually-hidden"> (opens in a new tab)</span></a></div>';
+  }
   function feedback(right, why, extra) {
     var f = document.createElement("div");
     f.className = "ls-fb " + (right ? "ok" : "no"); f.tabIndex = -1;
@@ -106,7 +122,7 @@
     answered = false; $("ls-next").hidden = true;
     progress();
     box.className = "panel ls-step is-" + s.type;
-    box.innerHTML = '<p class="label">' + KICK[s.type] + "</p>" + table(s.table) + '<p class="ls-prompt">' + esc(s.prompt) + "</p>";
+    box.innerHTML = '<p class="label">' + KICK[s.type] + "</p>" + table(s.table) + '<p class="ls-prompt">' + esc(s.prompt) + "</p>" + desmos(s.desmos);
     ({ recall: stepRecall, predict: stepPredict, fill: stepFill, order: stepOrder, spot: stepSpot })[s.type](s, box);
   }
 
@@ -241,7 +257,9 @@
       var p = r.progress;
       $("ls-next-recall").innerHTML = p.mastered ? "<strong>Mastered.</strong> You've passed every recall check for this lesson."
         : p.due_on ? "Recall check <strong>" + (p.due_on === new Date().toISOString().slice(0, 10) ? "today" : day(p.due_on)) + "</strong>: three questions from memory, " + (p.stage + 1) + " of " + lesson.recall_days.length + "." : "";
-      $("ls-practice").setAttribute("data-domain", lesson.domain); $("ls-practice").setAttribute("data-skill", lesson.skill);
+      var pr = lesson.practice;
+      $("ls-practice").hidden = !pr;
+      if (pr) { $("ls-practice").setAttribute("data-domain", pr.domain); $("ls-practice").setAttribute("data-skill", pr.skill); }
       if (r.xp || r.coins || (r.badges && r.badges.length)) R.show(r);
       $("ls-end-title").focus();
     }).catch(function (err) { b.disabled = false; b.textContent = "Finish"; failed(err, "We couldn't save your lesson. Check your connection and press Finish again."); });

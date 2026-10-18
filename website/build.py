@@ -244,8 +244,7 @@ def bank_js():
         # Rewards, speed rounds, focus and lessons: the same numbers and content as the server (play-local.js).
         "play": {"rules": game.rules(), "lessons": lessons.all_lessons(), "recall_days": list(lessons.RECALL_DAYS),
                  "recall_pass": lessons.RECALL_PASS,
-                 "topic_names": {**{d["key"]: d["name"] for d in bank.topics()},
-                                 **{f"{d['key']}/{s['key']}": s["name"] for d in bank.topics() for s in d["skills"]}},
+                 "topic_names": lessons.topic_names(),
                  "speed": {"size": speed.SIZE, "penalty_ms": speed.PENALTY_MS, "max_ms": speed.MAX_MS,
                            "lightning_ms": speed.LIGHTNING_MS, "states": [{"code": c, "name": n} for c, n in speed.STATES],
                            "adjectives": speed.ADJECTIVES, "nouns": speed.NOUNS, "domains": sorted(speed.DOMAINS)},
@@ -266,6 +265,31 @@ def script_source(name):
     if name == "bank.js":
         return bank_js()
     return (SRC / name).read_text()
+
+
+# "You are here" trail under the header: the home of that part of the site, then this page.
+DASH = ("Dashboard", "dashboard.html")
+HOME = ("Home", "./")
+CRUMBS = {
+    "dashboard.html": [], "plan.html": [DASH], "practice.html": [DASH], "levels.html": [DASH], "lessons.html": [DASH],
+    "speed.html": [DASH], "focus.html": [DASH], "rewards.html": [DASH], "market.html": [DASH], "settings.html": [DASH],
+    "parent.html": [], "privacy.html": [HOME], "terms.html": [HOME], "cookies.html": [HOME], "checkout.html": [HOME],
+    "signin.html": [HOME], "404.html": [HOME],
+}
+CRUMB_NAMES = {"dashboard.html": "Dashboard", "parent.html": "Parent dashboard", "privacy.html": "Privacy policy",
+               "terms.html": "Terms of service", "cookies.html": "Cookie policy", "signin.html": "Sign in",
+               "404.html": "Page not found", "plan.html": "Study plan", "levels.html": "Level up"}
+
+
+def crumbs_html(meta):
+    trail = CRUMBS.get(meta["file"])
+    if trail is None or meta.get("test"):
+        return ""
+    name = CRUMB_NAMES.get(meta["file"]) or meta["title"].split(" | ")[0]
+    esc = lambda t: str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    items = "".join(f'<li><a href="{href}"{" data-crumb-home" if href == "dashboard.html" else ""}>{esc(label)}</a></li>' for label, href in trail)
+    items += f'<li><span aria-current="page" id="crumb-here">{esc(name)}</span></li>'
+    return f'<div class="crumbs-bar"><nav class="wrap crumbs" aria-label="You are here"><ol id="crumbs">{items}</ol></nav></div>\n'
 
 
 def render(meta, mode):
@@ -289,7 +313,7 @@ def render(meta, mode):
         page_body = page_body.replace("{{COMPARE}}", compare_html())
     if "{{PLANS_JSON}}" in page_body:
         page_body = page_body.replace("{{PLANS_JSON}}", plans_json())
-    body = head_nav + page_body + foot + ("" if meta.get("test") else banner)
+    body = head_nav + crumbs_html(meta) + page_body + foot + ("" if meta.get("test") else banner)
     url = SITE + meta["path"]
     robots = meta.get("robots", "index, follow")
 

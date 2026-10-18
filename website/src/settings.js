@@ -52,6 +52,7 @@
     var parent = u.role === "parent";
     all("[data-student-only]").forEach(function (el) { el.hidden = parent; });
     all("[data-role-home]").forEach(function (a) { a.href = parent ? "parent.html" : "dashboard.html"; a.textContent = "Back to " + (parent ? "parent dashboard" : "dashboard"); });
+    all("[data-crumb-home]").forEach(function (a) { a.href = parent ? "parent.html" : "dashboard.html"; a.textContent = parent ? "Parent dashboard" : "Dashboard"; });
     $("st-photo-remove").hidden = !u.avatar_url;
     drawProfilePicture();
     $("st-name").value = u.name || "";
@@ -478,6 +479,25 @@
     }
     return API.call("/api/me/prefs", change, "PATCH").then(function (r) { if (T.setMe) T.setMe(r.user); user = Object.assign({}, user, r.user); return r; }).then(done, fail);
   }
+
+  /* ---------- which section you're in: the side list and the trail under the header ---------- */
+  (function () {
+    var links = all(".st-nav a"), panels = all(".st-panel");
+    function mark(id) {
+      var panel = document.getElementById(id); if (!panel || panel.hidden) return;
+      links.forEach(function (a) { if (a.getAttribute("href") === "#" + id) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current"); });
+      var h = panel.querySelector("h2");
+      if (window.GraphiteCrumb && h) window.GraphiteCrumb(h.textContent, "settings.html");
+    }
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) mark(e.target.id); });
+      }, { rootMargin: "-90px 0px -65% 0px" });
+      panels.forEach(function (p) { io.observe(p); });
+    }
+    window.addEventListener("hashchange", function () { mark(location.hash.slice(1)); });
+    mark(location.hash.slice(1) || "profile");
+  })();
 
   /* ---------- history ---------- */
   (function () {

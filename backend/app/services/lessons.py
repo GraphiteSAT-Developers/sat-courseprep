@@ -6,7 +6,7 @@ Lessons live in app/content/lessons/ as JSON, one file each. Step types:
   fill     a worked solution with one blank to type
   order    put the steps of a solution in order
   spot     tap the line with the mistake
-Any step can carry a "table" (caption, head, rows). "keys" are the takeaways shown at the end, and "recall"
+Any step can carry a "table" (caption, head, rows) and "desmos" (lines to type into the Desmos calculator). "keys" are the takeaways shown at the end, and "recall"
 holds the questions for the spaced recall checks.
 
 After a lesson, a recall check is due in RECALL_DAYS[0] days, then RECALL_DAYS[1], then RECALL_DAYS[2].
@@ -24,6 +24,18 @@ from ..db import execute, now_iso, parse_iso, query
 from . import bank, game
 
 FOLDER = Path(__file__).resolve().parent.parent / "content" / "lessons"
+# Lessons that aren't one SAT skill: how to remember, and the Desmos course (reports/AI Desmos SAT math course plan.md).
+# The SAT Math lessons use the question bank's domains and skills, and "Practice this skill" opens a set on that skill.
+GROUPS = {
+    "memory": {"name": "How to remember", "skills": {
+        "active-recall": "Active recall", "spacing": "Spacing", "memory-palace": "Memory palace", "storytelling": "Story method"}},
+    "desmos": {"name": "The Desmos course", "skills": {
+        "basics": "Desmos basics", "equations": "Solve by graphing", "systems": "Systems", "sliders": "Sliders",
+        "regression": "Regression", "tilde": "Find the constants", "statistics": "Lists and statistics",
+        "inequalities": "Inequalities", "functions": "Functions", "circles": "Circles", "exact": "Exact answers",
+        "trig": "Trig", "choices": "Answer choices", "strategy": "Desmos or by hand"}},
+}
+GROUP_ORDER = {"memory": 0, "algebra": 1, "advanced-math": 2, "psda": 3, "geometry-trig": 4, "desmos": 5}
 STEP_TYPES = {"recall", "predict", "fill", "order", "spot"}
 RECALL_DAYS = (1, 3, 7)
 RECALL_PASS = 2 / 3  # share of recall questions to get right
@@ -32,13 +44,26 @@ RECALL_PASS = 2 / 3  # share of recall questions to get right
 @lru_cache(maxsize=1)
 def all_lessons():
     out = []
+    skills = {d["key"]: {s["key"] for s in d["skills"]} for d in bank.topics()}
     for f in sorted(FOLDER.glob("*.json")):
         lesson = json.loads(f.read_text(encoding="utf-8"))
         for step in lesson["steps"] + lesson["recall"]:
             if step["type"] not in STEP_TYPES:
                 raise ValueError(f"{f.name}: unknown step type {step['type']}")
+        d, s = lesson["domain"], lesson["skill"]
+        if d in GROUPS:
+            if s not in GROUPS[d]["skills"]:
+                raise ValueError(f"{f.name}: unknown {d} skill {s}")
+            lesson.setdefault("practice", None)
+        else:
+            if s not in skills.get(d, ()):
+                raise ValueError(f"{f.name}: {d}/{s} isn't a skill in the question bank")
+            lesson.setdefault("practice", {"domain": d, "skill": s})
+        p = lesson["practice"]
+        if p and p["skill"] not in skills.get(p["domain"], ()):
+            raise ValueError(f"{f.name}: practice skill {p} isn't in the question bank")
         out.append(lesson)
-    return sorted(out, key=lambda l: l["order"])
+    return sorted(out, key=lambda l: (GROUP_ORDER.get(l["domain"], 9), l["order"]))
 
 
 def lesson(lesson_id):
@@ -47,6 +72,10 @@ def lesson(lesson_id):
 
 def topic_names():
     names = {}
+    for key, g in GROUPS.items():
+        names[key] = g["name"]
+        for k, v in g["skills"].items():
+            names[f"{key}/{k}"] = v
     for d in bank.topics():
         names[d["key"]] = d["name"]
         for s in d["skills"]:

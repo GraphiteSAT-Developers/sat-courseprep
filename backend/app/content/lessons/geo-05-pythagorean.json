@@ -1,0 +1,129 @@
+{
+ "id": "pythagorean-special-triangles",
+ "order": 405,
+ "domain": "geometry-trig",
+ "skill": "right-triangles-and-trigonometry",
+ "title": "Pythagorean theorem and special right triangles",
+ "minutes": 6,
+ "hook": "a² + b² = c², plus the 45-45-90 and 30-60-90 shortcuts.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: the side ratios of 45-45-90 and 30-60-90 triangles?",
+   "answer": "45-45-90: x, x, x√2. 30-60-90: x, x√3, 2x."
+  },
+  {
+   "type": "fill",
+   "prompt": "The legs are 9 and 12. Find the hypotenuse.",
+   "lines": [
+    "9² + 12² = 81 + 144 = 225",
+    "c = ___"
+   ],
+   "accept": [
+    "15"
+   ],
+   "why": "√225 = 15."
+  },
+  {
+   "type": "predict",
+   "prompt": "A 45-45-90 triangle has legs of 7. The hypotenuse is:",
+   "choices": [
+    "7√2",
+    "14",
+    "7√3",
+    "49"
+   ],
+   "answer": 0,
+   "why": "x√2."
+  },
+  {
+   "type": "predict",
+   "prompt": "A 30-60-90 triangle has hypotenuse 10. The side opposite 60° is:",
+   "choices": [
+    "5√3",
+    "5",
+    "10√3",
+    "20"
+   ],
+   "answer": 0,
+   "why": "The short leg is 5, and the long leg is 5√3."
+  },
+  {
+   "type": "predict",
+   "prompt": "Which side lengths make a right triangle?",
+   "choices": [
+    "5, 12, 13",
+    "4, 5, 6",
+    "2, 3, 4",
+    "6, 8, 11"
+   ],
+   "answer": 0,
+   "why": "25 + 144 = 169."
+  },
+  {
+   "type": "spot",
+   "prompt": "The hypotenuse is 13 and one leg is 5. Finding the other leg. Tap the line with the mistake.",
+   "lines": [
+    "5² + b² = 13²",
+    "25 + b² = 169",
+    "b² = 194",
+    "b = √194"
+   ],
+   "wrong": 2,
+   "why": "Subtract: 169 − 25 = 144, so b = 12."
+  },
+  {
+   "type": "predict",
+   "prompt": "A square has diagonal 8√2. Its side is:",
+   "choices": [
+    "8",
+    "4",
+    "8√2",
+    "16"
+   ],
+   "answer": 0,
+   "why": "A diagonal splits a square into two 45-45-90 triangles."
+  }
+ ],
+ "keys": [
+  "a² + b² = c², where c is across from the right angle.",
+  "45-45-90: x, x, x√2. 30-60-90: x, x√3, 2x.",
+  "Common triples: 3-4-5, 5-12-13, 8-15-17."
+ ],
+ "recall": [
+  {
+   "type": "fill",
+   "prompt": "Legs 6 and 8. Hypotenuse?",
+   "lines": [
+    "36 + 64 = 100",
+    "c = ___"
+   ],
+   "accept": [
+    "10"
+   ],
+   "why": "√100."
+  },
+  {
+   "type": "predict",
+   "prompt": "A 30-60-90 triangle has short leg 4. The hypotenuse is:",
+   "choices": [
+    "8",
+    "4√3",
+    "4√2"
+   ],
+   "answer": 0,
+   "why": "2x."
+  },
+  {
+   "type": "predict",
+   "prompt": "A 45-45-90 triangle has hypotenuse 6√2. Each leg is:",
+   "choices": [
+    "6",
+    "3",
+    "6√2"
+   ],
+   "answer": 0,
+   "why": "Divide by √2."
+  }
+ ]
+}

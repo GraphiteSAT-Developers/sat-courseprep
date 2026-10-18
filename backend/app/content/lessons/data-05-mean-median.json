@@ -1,0 +1,127 @@
+{
+ "id": "mean-median",
+ "order": 305,
+ "domain": "psda",
+ "skill": "one-variable-data-distributions-and-measures-of-center-and-spread",
+ "title": "Mean, median and what moves them",
+ "minutes": 5,
+ "hook": "The mean uses every value; the median only cares about the middle. Outliers pull the mean.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: how do you find the median of a list with an even number of values?",
+   "answer": "Sort it, then average the two middle values."
+  },
+  {
+   "type": "fill",
+   "prompt": "Find the mean of 4, 8, 9, 11, 18.",
+   "lines": [
+    "Sum = 50",
+    "Mean = 50 ÷ 5 = ___"
+   ],
+   "accept": [
+    "10"
+   ],
+   "why": "Add, then divide by how many."
+  },
+  {
+   "type": "predict",
+   "prompt": "Find the median of 7, 3, 12, 5, 9, 10.",
+   "choices": [
+    "8",
+    "7.5",
+    "9",
+    "7"
+   ],
+   "answer": 0,
+   "why": "Sorted: 3, 5, 7, 9, 10, 12. The middle two average to 8."
+  },
+  {
+   "type": "predict",
+   "prompt": "In the list 2, 3, 3, 4, 50, which is greater?",
+   "choices": [
+    "The mean",
+    "The median",
+    "They're equal"
+   ],
+   "answer": 0,
+   "why": "The outlier 50 pulls the mean up to 12.4. The median stays 3."
+  },
+  {
+   "type": "predict",
+   "prompt": "The mean of 5 numbers is 12. Adding a sixth number makes the mean 13. What is the sixth number?",
+   "choices": [
+    "18",
+    "13",
+    "1",
+    "25"
+   ],
+   "answer": 0,
+   "why": "The total goes from 5 × 12 = 60 to 6 × 13 = 78, so the new number is 18."
+  },
+  {
+   "type": "spot",
+   "prompt": "Remove the outlier 50 from 2, 3, 3, 4, 50. Tap the false statement.",
+   "lines": [
+    "The mean decreases",
+    "The median decreases",
+    "The range decreases",
+    "The mode stays 3"
+   ],
+   "wrong": 1,
+   "why": "The median was 3, and for 2, 3, 3, 4 it's still (3 + 3) / 2 = 3."
+  },
+  {
+   "type": "predict",
+   "prompt": "Class A: mean 80 with 20 students. Class B: mean 90 with 30 students. What's the combined mean?",
+   "choices": [
+    "86",
+    "85",
+    "88",
+    "84"
+   ],
+   "answer": 0,
+   "why": "(1,600 + 2,700) / 50 = 86. The bigger class pulls the mean toward its own."
+  }
+ ],
+ "keys": [
+  "Mean = total ÷ count. Use totals to work backward.",
+  "Median = the middle of the sorted list.",
+  "Outliers move the mean a lot and the median hardly at all."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "An outlier affects which more?",
+   "choices": [
+    "The mean",
+    "The median"
+   ],
+   "answer": 0,
+   "why": "The mean uses every value."
+  },
+  {
+   "type": "fill",
+   "prompt": "Find the mean of 3, 7, 8.",
+   "lines": [
+    "Sum = 18",
+    "18 ÷ 3 = ___"
+   ],
+   "accept": [
+    "6"
+   ],
+   "why": "Divide by 3."
+  },
+  {
+   "type": "predict",
+   "prompt": "Find the median of 1, 4, 6, 9.",
+   "choices": [
+    "5",
+    "4",
+    "6"
+   ],
+   "answer": 0,
+   "why": "(4 + 6) / 2."
+  }
+ ]
+}

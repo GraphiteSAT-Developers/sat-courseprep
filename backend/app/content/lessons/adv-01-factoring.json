@@ -1,0 +1,128 @@
+{
+ "id": "factoring-patterns",
+ "order": 202,
+ "domain": "advanced-math",
+ "skill": "equivalent-expressions",
+ "title": "Factoring patterns to spot fast",
+ "minutes": 6,
+ "hook": "Common factor first, then look for a difference of squares, a perfect square or a simple trinomial.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: factor a² − b².",
+   "answer": "(a + b)(a − b): the difference of squares."
+  },
+  {
+   "type": "predict",
+   "prompt": "Factor x² − 49.",
+   "choices": [
+    "(x − 7)(x + 7)",
+    "(x − 7)²",
+    "(x − 49)(x + 1)",
+    "x(x − 49)"
+   ],
+   "answer": 0,
+   "why": "49 = 7², so it's a difference of squares."
+  },
+  {
+   "type": "fill",
+   "prompt": "Factor x² + 5x + 6.",
+   "lines": [
+    "Two numbers with product 6 and sum 5",
+    "(x + 2)(x + ___)"
+   ],
+   "accept": [
+    "3"
+   ],
+   "why": "2 × 3 = 6 and 2 + 3 = 5."
+  },
+  {
+   "type": "predict",
+   "prompt": "Which equals 4x² − 12x + 9?",
+   "choices": [
+    "(2x − 3)²",
+    "(2x + 3)²",
+    "(4x − 3)(x − 3)",
+    "(2x − 9)(2x − 1)"
+   ],
+   "answer": 0,
+   "why": "(2x − 3)² = 4x² − 12x + 9: a perfect square."
+  },
+  {
+   "type": "spot",
+   "prompt": "Factoring 3x² − 12 completely. Tap the line with the mistake.",
+   "lines": [
+    "Take out the common factor: 3(x² − 4)",
+    "Difference of squares: 3(x − 2)(x + 2)",
+    "So 3x² − 12 = (3x − 6)(x − 2)"
+   ],
+   "wrong": 2,
+   "why": "3(x − 2)(x + 2) = (3x − 6)(x + 2). The last factor should be (x + 2)."
+  },
+  {
+   "type": "predict",
+   "prompt": "Factor 2x² + 7x + 3.",
+   "choices": [
+    "(2x + 1)(x + 3)",
+    "(2x + 3)(x + 1)",
+    "(2x − 1)(x − 3)",
+    "2(x + 3)(x + 1)"
+   ],
+   "answer": 0,
+   "why": "(2x + 1)(x + 3) = 2x² + 6x + x + 3 = 2x² + 7x + 3."
+  },
+  {
+   "type": "predict",
+   "prompt": "If x² − y² = 36 and x − y = 4, what is x + y?",
+   "choices": [
+    "9",
+    "32",
+    "40",
+    "144"
+   ],
+   "answer": 0,
+   "why": "36 = (x + y)(x − y) = (x + y) × 4, so x + y = 9."
+  }
+ ],
+ "keys": [
+  "Always take out the greatest common factor first.",
+  "a² − b² = (a + b)(a − b), and a² ± 2ab + b² = (a ± b)².",
+  "For x² + bx + c, find two numbers that multiply to c and add to b."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "Factor x² − 16.",
+   "choices": [
+    "(x − 4)(x + 4)",
+    "(x − 4)²",
+    "(x − 8)(x + 2)"
+   ],
+   "answer": 0,
+   "why": "16 = 4²."
+  },
+  {
+   "type": "fill",
+   "prompt": "Factor x² − 7x + 10.",
+   "lines": [
+    "Product 10, sum −7",
+    "(x − 2)(x − ___)"
+   ],
+   "accept": [
+    "5"
+   ],
+   "why": "−2 × −5 = 10 and −2 + −5 = −7."
+  },
+  {
+   "type": "predict",
+   "prompt": "9x² + 6x + 1 equals:",
+   "choices": [
+    "(3x + 1)²",
+    "(3x − 1)²",
+    "(9x + 1)(x + 1)"
+   ],
+   "answer": 0,
+   "why": "(3x)² + 2(3x)(1) + 1²."
+  }
+ ]
+}

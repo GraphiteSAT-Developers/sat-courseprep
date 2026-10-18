@@ -1,0 +1,138 @@
+{
+ "id": "desmos-circles",
+ "order": 510,
+ "domain": "desmos",
+ "skill": "circles",
+ "title": "Circles: center and radius",
+ "minutes": 6,
+ "hook": "Desmos can graph a circle from its expanded form, but completing the square is the main route, with Desmos as the check.",
+ "steps": [
+  {
+   "type": "recall",
+   "prompt": "From memory: the by-hand method for x² + y² − 6x + 4y − 3 = 0?",
+   "answer": "Complete the square: (x − 3)² + (y + 2)² = 16. Center (3, −2), radius 4."
+  },
+  {
+   "type": "predict",
+   "prompt": "Desmos graphs x^2+y^2-6x+4y-3=0 directly. How do you find the center from the graph?",
+   "choices": [
+    "Take the top and bottom points of the circle and find their midpoint",
+    "Read the y-intercept",
+    "Click the leftmost point only"
+   ],
+   "answer": 0,
+   "why": "The top and bottom points line up with the center.",
+   "desmos": [
+    "x^2+y^2-6x+4y-3=0"
+   ]
+  },
+  {
+   "type": "fill",
+   "prompt": "The top point is (3, 2) and the bottom point is (3, −6). Find the radius.",
+   "lines": [
+    "The distance is 2 − (−6) = 8",
+    "Radius = 8 ÷ 2 = ___"
+   ],
+   "accept": [
+    "4"
+   ],
+   "why": "Half the diameter."
+  },
+  {
+   "type": "predict",
+   "prompt": "A diameter has endpoints A = (−2, 1) and B = (4, 9). midpoint(A,B) gives the center:",
+   "choices": [
+    "(1, 5)",
+    "(3, 4)",
+    "(2, 10)",
+    "(−3, −4)"
+   ],
+   "answer": 0,
+   "why": "Average the coordinates.",
+   "desmos": [
+    "A=(-2,1)",
+    "B=(4,9)",
+    "midpoint(A,B)",
+    "distance(A,B)/2"
+   ]
+  },
+  {
+   "type": "fill",
+   "prompt": "Same circle: distance(A,B)/2 is the radius.",
+   "lines": [
+    "distance(A,B) = √(36 + 64) = 10",
+    "radius = ___"
+   ],
+   "accept": [
+    "5"
+   ],
+   "why": "Half of 10."
+  },
+  {
+   "type": "spot",
+   "prompt": "Why do prep sources disagree about circles in Desmos? Tap the false statement.",
+   "lines": [
+    "Desmos doesn't reliably mark a circle's leftmost and rightmost points",
+    "Completing the square gives exact values quickly",
+    "Desmos always labels a circle's center for you"
+   ],
+   "wrong": 2,
+   "why": "There's no labeled center. You have to work it out from points."
+  },
+  {
+   "type": "predict",
+   "prompt": "So the course's default route for a circle's center and radius is:",
+   "choices": [
+    "By hand (complete the square), with Desmos to confirm",
+    "Desmos only",
+    "Guessing from the picture"
+   ],
+   "answer": 0,
+   "why": "Exact and fast by hand, checked on the graph."
+  }
+ ],
+ "keys": [
+  "Default: complete the square for center and radius.",
+  "To check in Desmos: midpoint of the top and bottom points is the center.",
+  "From diameter endpoints: midpoint(A,B) and distance(A,B)/2."
+ ],
+ "recall": [
+  {
+   "type": "predict",
+   "prompt": "(x − 1)² + (y + 4)² = 9 has center:",
+   "choices": [
+    "(1, −4)",
+    "(−1, 4)",
+    "(1, 4)"
+   ],
+   "answer": 0,
+   "why": "Opposite signs."
+  },
+  {
+   "type": "predict",
+   "prompt": "And radius:",
+   "choices": [
+    "3",
+    "9",
+    "81"
+   ],
+   "answer": 0,
+   "why": "√9."
+  },
+  {
+   "type": "predict",
+   "prompt": "From diameter endpoints, the center is:",
+   "choices": [
+    "Their midpoint",
+    "Their distance",
+    "The first endpoint"
+   ],
+   "answer": 0,
+   "why": "midpoint(A,B)."
+  }
+ ],
+ "practice": {
+  "domain": "geometry-trig",
+  "skill": "circles"
+ }
+}

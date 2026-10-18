@@ -135,11 +135,31 @@
   /* 3. Mobile menu */
   var toggle = $(".menu-toggle");
   var nav = $("#site-nav");
-  // Mark the app tab for this page (Practice, Level up); the dashboard's tabs are sections of one page.
+  // Mark the tab for this page in the header (Today, Practice, Level up...). Pages that aren't tabs light up the
+  // tab they belong to: the study plan is part of Today.
   if (nav) {
     var here = location.pathname.split("/").pop() || "index.html";
-    $all("a", nav).forEach(function (a) { if ((a.getAttribute("href") || "").replace(/^.*\//, "") === here) a.setAttribute("aria-current", "page"); });
+    var PARENT_TAB = { "plan.html": "dashboard.html" };
+    var tab = PARENT_TAB[here] || here;
+    $all("a", nav).forEach(function (a) {
+      var target = (a.getAttribute("href") || "").replace(/^.*\//, "").split("#")[0];
+      if (target && target === tab) a.setAttribute("aria-current", target === here ? "page" : "true");
+    });
   }
+  // The "You are here" trail: pages can add a last step (a lesson's title, a Settings section).
+  window.GraphiteCrumb = function (label, href) {
+    var ol = document.getElementById("crumbs"), here = document.getElementById("crumb-here");
+    if (!ol || !here) return;
+    var extra = ol.querySelector("[data-crumb-extra]");
+    if (!label) { if (extra) { extra.remove(); here.setAttribute("aria-current", "page"); } return; }
+    if (!extra) { extra = document.createElement("li"); extra.setAttribute("data-crumb-extra", ""); ol.appendChild(extra); }
+    here.removeAttribute("aria-current");
+    extra.innerHTML = '<span aria-current="page"></span>';
+    extra.firstChild.textContent = label;
+    if (href !== undefined && here.tagName === "SPAN") {
+      var a = document.createElement("a"); a.href = href; a.id = "crumb-here"; a.textContent = here.textContent; here.replaceWith(a);
+    }
+  };
   function closeMenu() {
     if (!toggle || !nav) return;
     toggle.setAttribute("aria-expanded", "false");

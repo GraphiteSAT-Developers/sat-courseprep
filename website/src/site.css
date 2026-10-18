@@ -2194,3 +2194,29 @@ html[data-density="compact"] .lessons-page, html[data-density="compact"] .settin
   .st-hist li { grid-template-columns: auto minmax(0, 1fr); }
   .st-hist time { grid-column: 2; }
 }
+
+/* ---------- Where you are: header tab and the trail under it ---------- */
+.site-nav a[aria-current] { color: var(--accent); text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 9px; }
+.crumbs-bar { border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 70%, var(--bg)); }
+.crumbs ol { list-style: none; margin: 0; padding: var(--s2) 0; display: flex; flex-wrap: wrap; align-items: center; gap: 2px var(--s2); font-size: var(--t-xs); font-weight: 700; min-width: 0; }
+.crumbs li { display: inline-flex; align-items: center; gap: var(--s2); min-width: 0; }
+.crumbs li + li::before { content: "/"; color: var(--muted); font-weight: 400; }
+.crumbs a { color: var(--muted); text-decoration: none; }
+.crumbs a:hover { color: var(--accent); text-decoration: underline; }
+.crumbs [aria-current="page"] { color: var(--text); overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  .site-nav.is-open a[aria-current] { text-decoration: none; box-shadow: inset 4px 0 0 var(--accent); padding-left: var(--s3); }
+}
+.st-nav a[aria-current="location"] { color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+
+/* ---------- Lessons: group jump list and Desmos keystrokes ---------- */
+.ls-jump { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s2); }
+.ls-jump a { display: inline-flex; align-items: center; gap: var(--s2); min-height: 40px; padding: 0 var(--s4); border: 1px solid var(--line); border-radius: 999px;
+  background: var(--surface); color: var(--text); font-size: var(--t-sm); font-weight: 700; text-decoration: none; }
+.ls-jump a:hover { border-color: var(--accent); }
+.ls-group { scroll-margin-top: 90px; }
+.ls-desmos { display: grid; gap: var(--s2); padding: var(--s3) var(--s4); border-radius: 12px; background: var(--raised); }
+.ls-desmos .label { margin: 0; }
+.ls-desmos ol { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s1); }
+.ls-desmos code { font-family: var(--font-mono); font-size: var(--t-sm); background: var(--bg); padding: 2px 6px; border-radius: 6px; overflow-wrap: anywhere; }
+.ls-desmos a { font-size: var(--t-sm); font-weight: 700; justify-self: start; }
