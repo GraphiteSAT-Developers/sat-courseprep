@@ -149,7 +149,7 @@ class PlayTest(PracticeTest):
 
         run2, out2 = self.run_round(10)
         self.assertFalse(out2["result"]["ranked"])  # only the first round of the day is ranked
-        self.assertEqual([q["id"] for q in run2["questions"]], [q["id"] for q in run["questions"]])
+        self.assertFalse({q["id"] for q in run2["questions"]} & {q["id"] for q in run["questions"]})  # new questions, no repeats
 
         self.post("/api/auth/logout")
         self.post("/api/auth/register", {"name": "Ana Cruz", "email": "ana@school.org", "password": "password123", "grade": 11})
