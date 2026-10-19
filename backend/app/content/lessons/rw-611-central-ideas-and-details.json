@@ -1,0 +1,135 @@
+{
+  "id": "rw-central-ideas",
+  "order": 611,
+  "domain": "information-ideas",
+  "skill": "central-ideas-and-details",
+  "title": "Find the point after the turn",
+  "minutes": 6,
+  "format": "path",
+  "hook": "The main idea covers the whole text. It usually comes right after 'but,' 'however,' or 'instead.'",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "Try this first. 'Brandt expected gardens with the most flower species to draw the most pollinators. Instead, visits depended mainly on how close a garden was to a park.' Main idea:",
+      "choices": [
+        "Pollinators avoid gardens with many species.",
+        "Brandt found location mattered more than flower variety.",
+        "Gardens usually have more species than parks."
+      ],
+      "answer": 1,
+      "why": "Instead marks the finding. The main idea is what Brandt found, not what she expected.",
+      "gate": true
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each choice for that text.",
+      "buckets": [
+        "Too narrow",
+        "Too broad or off topic",
+        "Just right"
+      ],
+      "cards": [
+        {
+          "text": "Brandt studied gardens in three cities.",
+          "bucket": 0
+        },
+        {
+          "text": "All insects prefer parks to gardens.",
+          "bucket": 1
+        },
+        {
+          "text": "A garden's location mattered more than its variety of flowers.",
+          "bucket": 2
+        },
+        {
+          "text": "Pollinators visited some gardens.",
+          "bucket": 0
+        }
+      ],
+      "why": "Too narrow: a true detail that isn't the point. Too broad: a claim the text never makes. Just right covers the whole text.",
+      "skip_if": 0
+    },
+    {
+      "type": "recall",
+      "prompt": "Why is the sentence after a turn word so important?",
+      "answer": "Texts often set up an expectation or common view, then turn. The author's real point comes after the turn."
+    },
+    {
+      "type": "flash",
+      "prompt": "Read fast. Then: which turn word was NOT in the list?",
+      "show": [
+        "however",
+        "but",
+        "instead",
+        "yet",
+        "in fact"
+      ],
+      "seconds": 6,
+      "choices": [
+        "however",
+        "instead",
+        "yet",
+        "for example"
+      ],
+      "answer": 3,
+      "why": "For example adds support; it doesn't turn. The others all signal that the main point is coming."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Economists assumed lottery winners stop working. But a study found most kept their jobs, cutting hours only slightly.' Main idea:",
+      "choices": [
+        "The study challenges the assumption that winners usually stop working.",
+        "Winners in the study earned less over time.",
+        "Most economists now agree winners work more."
+      ],
+      "answer": 0,
+      "why": "The turn word 'But' introduces the study that challenges the assumption."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which choice is the classic trap on main idea questions?",
+      "choices": [
+        "A true detail from one sentence",
+        "A choice that covers the whole text",
+        "A choice that uses the author's claim"
+      ],
+      "answer": 0,
+      "why": "A true but narrow detail is the most common wrong answer."
+    }
+  ],
+  "keys": [
+    "The main idea covers the whole text, not one detail.",
+    "Look for the turn: but, however, instead, yet, in fact.",
+    "Reject choices that are too narrow, too broad, or compare things the text never compares."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "The most common wrong answer on main idea questions is:",
+      "choices": [
+        "the author's own claim",
+        "a true detail that's too narrow",
+        "a summary of the whole text"
+      ],
+      "answer": 1,
+      "why": "Narrow details tempt you because they're true."
+    },
+    {
+      "type": "predict",
+      "prompt": "Where does the author's point usually appear?",
+      "choices": [
+        "In the first sentence",
+        "Right after a turn word",
+        "In the longest sentence"
+      ],
+      "answer": 1,
+      "why": "After but, however or instead."
+    },
+    {
+      "type": "recall",
+      "prompt": "Name three turn words.",
+      "answer": "However, but, instead (also yet, in fact)."
+    }
+  ],
+  "tex": true
+}

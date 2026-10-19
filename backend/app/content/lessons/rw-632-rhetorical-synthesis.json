@@ -1,0 +1,132 @@
+{
+  "id": "rw-rhetorical-synthesis",
+  "order": 632,
+  "domain": "expression-ideas",
+  "skill": "rhetorical-synthesis",
+  "title": "The goal is the whole question",
+  "minutes": 6,
+  "format": "classic",
+  "hook": "Read the goal first. Every choice is true to the notes, so only the goal decides.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "On a notes question, what should you read first: the notes or the goal?",
+      "answer": "The goal in the question. Every choice is accurate, so the goal decides."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each goal to what the right sentence must include.",
+      "left": [
+        "Contrast two rivers",
+        "Introduce a person to an unfamiliar audience",
+        "Emphasize a similarity",
+        "Explain why something is called a name"
+      ],
+      "right": [
+        "How the two rivers differ",
+        "Who the person is and why they matter",
+        "What both things share",
+        "The reason behind the name"
+      ],
+      "why": "The goal's verb tells you what the sentence must do."
+    },
+    {
+      "type": "predict",
+      "prompt": "Goal: emphasize how tough tardigrades are.",
+      "choices": [
+        "Tardigrades are usually under 1 millimeter long.",
+        "Tardigrades are called water bears.",
+        "Tardigrades can survive extreme cold, heat, and the vacuum of space."
+      ],
+      "answer": 2,
+      "why": "Toughness means surviving extremes."
+    },
+    {
+      "type": "sort",
+      "prompt": "Goal: contrast the Amazon and the Nile. Sort each sentence.",
+      "buckets": [
+        "Meets the goal",
+        "Doesn't"
+      ],
+      "cards": [
+        {
+          "text": "The Nile is often called the longest river, while the Amazon carries the most water.",
+          "bucket": 0
+        },
+        {
+          "text": "Both are major rivers.",
+          "bucket": 1
+        },
+        {
+          "text": "The Amazon flows through South America.",
+          "bucket": 1
+        }
+      ],
+      "why": "A contrast names a difference between both things."
+    },
+    {
+      "type": "flash",
+      "prompt": "Read the notes fast. Then answer.",
+      "show": [
+        "Wheatley was born in West Africa around 1753.",
+        "She learned English, Latin, and Greek.",
+        "In 1773 she published a book of poems.",
+        "It was the first poetry book by an African American woman."
+      ],
+      "seconds": 8,
+      "choices": [
+        "She was born around 1753.",
+        "The book was the first of its kind by an African American woman.",
+        "She learned three languages."
+      ],
+      "answer": 1,
+      "why": "Goal: emphasize the book's significance. Only one note says why it matters. Notice you didn't need to remember most of the notes; the goal points to one."
+    },
+    {
+      "type": "predict",
+      "prompt": "Goal: introduce Maria Tallchief to readers who don't know her. Which is best?",
+      "choices": [
+        "Maria Tallchief, an Osage Nation member, became the New York City Ballet's first prima ballerina in 1947.",
+        "In 1949, she danced in The Firebird.",
+        "The Osage Nation is a Native American tribe."
+      ],
+      "answer": 0,
+      "why": "An introduction names the person and says who they are."
+    }
+  ],
+  "keys": [
+    "Read the goal first; every choice is accurate.",
+    "The goal's verb (contrast, introduce, emphasize, explain) says what to include.",
+    "An introduction names the person or thing; a contrast names a difference."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Goal: emphasize a similarity. The right choice:",
+      "choices": [
+        "lists a difference",
+        "shows what both share",
+        "describes only one"
+      ],
+      "answer": 1,
+      "why": "Similarity means shared."
+    },
+    {
+      "type": "predict",
+      "prompt": "All four choices on a notes question are usually:",
+      "choices": [
+        "about different topics",
+        "accurate to the notes",
+        "false"
+      ],
+      "answer": 1,
+      "why": "So only the goal decides."
+    },
+    {
+      "type": "recall",
+      "prompt": "What decides the answer on a rhetorical synthesis question?",
+      "answer": "Whether the choice accomplishes the stated goal."
+    }
+  ],
+  "tex": true
+}

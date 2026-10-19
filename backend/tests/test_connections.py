@@ -35,7 +35,8 @@ class ConnectionsTest(unittest.TestCase):
         item = bank.all_items()[q["id"]]
         r = self.post("/api/sample/check", {"id": q["id"], "answer": item["answer"]}).json
         self.assertTrue(r["correct"])
-        self.assertIn("Solve it by hand", r["explain_html"])
+        # The sample can be Math or Reading and Writing; each explanation has its own steps heading.
+        self.assertIn("Solve it by hand" if item["section"] == "math" else "Work it out", r["explain_html"])
         self.assertEqual(self.post("/api/sample/check", {"id": "nope", "answer": 0}).status_code, 404)
 
     def test_today_sends_new_students_to_the_diagnostic(self):

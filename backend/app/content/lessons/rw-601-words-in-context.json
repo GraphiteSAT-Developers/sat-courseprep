@@ -1,0 +1,143 @@
+{
+  "id": "rw-words-in-context",
+  "order": 601,
+  "domain": "craft-structure",
+  "skill": "words-in-context",
+  "title": "Predict the word before you look",
+  "minutes": 6,
+  "format": "classic",
+  "hook": "Cover the choices, find the clue words, and say your own word for the blank. Then match it.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "From memory: what should you do before you read the four choices on a words-in-context question?",
+      "answer": "Read the whole text, find the clue that explains the blank, and predict your own word for it. Then pick the choice closest to your prediction."
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each clue word by what it tells you about the blank.",
+      "buckets": [
+        "Same direction",
+        "Opposite direction"
+      ],
+      "cards": [
+        {
+          "text": "although",
+          "bucket": 1
+        },
+        {
+          "text": "in other words",
+          "bucket": 0
+        },
+        {
+          "text": "but",
+          "bucket": 1
+        },
+        {
+          "text": "that is,",
+          "bucket": 0
+        },
+        {
+          "text": "rather than",
+          "bucket": 1
+        },
+        {
+          "text": "similarly",
+          "bucket": 0
+        }
+      ],
+      "why": "Contrast words (although, but, rather than) flip the meaning. Restating words (in other words, that is, similarly) keep it."
+    },
+    {
+      "type": "predict",
+      "prompt": "The fossil was so ______ that researchers used soft brushes and worked slowly to avoid breaking it. Predict first, then pick.",
+      "choices": [
+        "heavy",
+        "fragile",
+        "ancient",
+        "valuable"
+      ],
+      "answer": 1,
+      "why": "The clue is 'to avoid breaking it.' Your prediction was something like 'easy to break,' which is fragile. Ancient and valuable might be true, but they don't explain the soft brushes."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each word to its precise meaning.",
+      "left": [
+        "mitigate",
+        "corroborate",
+        "elusive",
+        "negligible",
+        "meticulous"
+      ],
+      "right": [
+        "make less severe",
+        "confirm with evidence",
+        "hard to find or catch",
+        "too small to matter",
+        "extremely careful about details"
+      ],
+      "why": "These are common SAT words. Notice how precise each one is: mitigate is not the same as stop, and negligible is not the same as none."
+    },
+    {
+      "type": "spot",
+      "prompt": "A student explained an answer. Tap the line with the mistake.",
+      "lines": [
+        "The text: 'Though her technique was not yet ______, her playing showed emotional depth.'",
+        "'Though' is a contrast word, so the blank should contrast with emotional depth.",
+        "So the technique still had flaws: I predict 'refined.'",
+        "'Musical' is closest to 'refined,' so the answer is musical."
+      ],
+      "wrong": 3,
+      "why": "Polished, not musical, is the word that means refined. Musical doesn't describe technique being finished. Always check that the choice matches the precise meaning of your prediction."
+    },
+    {
+      "type": "predict",
+      "prompt": "'The town had a way of absorbing every newcomer within a year.' As used here, absorbing most nearly means:",
+      "choices": [
+        "reducing the force of",
+        "soaking up liquid",
+        "taking in and making part of itself",
+        "holding the attention of"
+      ],
+      "answer": 2,
+      "why": "Familiar words often appear with a less common meaning. Put each choice into the sentence: only 'taking in and making part of itself' fits newcomers becoming part of a town."
+    }
+  ],
+  "keys": [
+    "Predict your own word from the clue before reading the choices.",
+    "Contrast words flip the meaning; colons and restating words keep it.",
+    "Check the precise meaning, not just the general feeling, of the choice."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "The report was criticized for being ______: it listed options without favoring any of them.",
+      "choices": [
+        "brief",
+        "noncommittal",
+        "decisive",
+        "inaccurate"
+      ],
+      "answer": 1,
+      "why": "Listing options without favoring any means not taking a position: noncommittal."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which clue word tells you the blank means the opposite of the nearby idea?",
+      "choices": [
+        "in other words",
+        "similarly",
+        "rather than"
+      ],
+      "answer": 2,
+      "why": "Rather than sets up a contrast."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the first step on every words-in-context question?",
+      "answer": "Predict a word for the blank from the clues, before reading the choices."
+    }
+  ],
+  "tex": true
+}

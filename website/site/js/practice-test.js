@@ -45,6 +45,11 @@
   function boot(T, user) {
   if (!T) return;
   var Q = T.questions, N = Q.length, LETTERS = "ABCD";
+  // Reading and Writing: every question has a passage, shown above the question like a Math question's stem. No calculator or reference sheet.
+  var RW = N > 0 && Q.every(function (q) { return q.section === "rw"; });
+  var SECTION = RW ? "Reading and Writing" : "Math";
+  root.classList.toggle("is-rw", RW);
+  $("dir-rw").hidden = !RW; $("dir-math").hidden = RW;
   var TOPIC = T.mode === "topic" || T.mode === "quiz" || T.mode === "review", UNTIMED = !T.minutes;
   var REVIEW = T.mode === "review";
   var LEVEL = (T.session && T.session.level) || null; // a Level up set
@@ -169,8 +174,18 @@
     $("mark-btn").setAttribute("aria-pressed", String(!!S.marked[i]));
     $("mark-btn").classList.toggle("on", !!S.marked[i]);
     $("elim-toggle").hidden = q.type !== "mc";
-    $("spr-help").hidden = q.type !== "spr";
-    $("q-stem").innerHTML = q.stem;
+    // Two panes, like the real test: a Reading and Writing passage, or a grid-in question's entry directions, on the
+    // left; the question on the right. Multiple-choice Math stays in one column.
+    var split = !!q.passage || q.type === "spr";
+    $("q-view").classList.toggle("is-split", split);
+    $("q-divider").hidden = !split;
+    $("q-passage").hidden = !split;
+    if (q.passage) { $("q-passage").innerHTML = q.passage; paintNotes(i); }
+    else if (split) {
+      $("q-passage").innerHTML = $("spr-directions").innerHTML;
+      if (window.matchMedia("(max-width: 860px)").matches) $("q-passage").querySelector("details").open = false;
+    } else $("q-passage").innerHTML = "";
+    $("q-stem").innerHTML = q.passage ? q.prompt : q.stem;
     var box = $("q-answer"); box.innerHTML = "";
     var locked = !!checked[i];
     var elimOn = !locked && $("elim-toggle").getAttribute("aria-pressed") === "true";
@@ -315,6 +330,108 @@
   }
   function focusChoice(k) { var b = $("q-answer").querySelectorAll(".mc-choice")[k]; if (b) b.focus(); }
 
+  /* ---------- annotate: highlight words in a passage and leave a note (Reading and Writing) ----------
+     Notes are kept per question as character offsets into the passage text: S.notes[i] = [{s, e, note}]. */
+  var passageBox = $("q-passage"), annoAt = null, lastSel = null;
+  $("annotate-btn").hidden = !RW;
+  function textOffset(node, offset) {
+    var r = document.createRange(); r.selectNodeContents(passageBox); r.setEnd(node, offset);
+    return r.toString().length;
+  }
+  function wrapRange(s, e, k, note) {
+    var walker = document.createTreeWalker(passageBox, NodeFilter.SHOW_TEXT), pos = 0, n, parts = [];
+    while ((n = walker.nextNode())) {
+      var len = n.nodeValue.length, a = Math.max(s, pos), b = Math.min(e, pos + len);
+      // Text inside a graph (SVG) or the screen-reader copy of its data can't hold a highlight.
+      if (a < b && !n.parentNode.closest("svg, .visually-hidden")) parts.push([n, a - pos, b - pos]);
+      pos += len;
+    }
+    parts.forEach(function (p) {
+      var node = p[0];
+      if (p[2] < node.nodeValue.length) node.splitText(p[2]);
+      if (p[1] > 0) node = node.splitText(p[1]);
+      var m = document.createElement("mark");
+      m.className = "anno" + (note ? " has-note" : ""); m.setAttribute("data-k", String(k)); m.tabIndex = 0;
+      m.setAttribute("aria-label", note ? "Highlight with a note: " + note : "Highlighted text");
+      if (note) m.title = note;
+      node.parentNode.insertBefore(m, node); m.appendChild(node);
+    });
+  }
+  function paintNotes(i) { (S.notes && S.notes[i] || []).forEach(function (n, k) { wrapRange(n.s, n.e, k, n.note); }); }
+  function repaint() { var q = Q[S.cur]; if (q.passage) { passageBox.innerHTML = q.passage; paintNotes(S.cur); } }
+  document.addEventListener("selectionchange", function () {
+    var sel = window.getSelection();
+    if (!sel.rangeCount || sel.isCollapsed) return;
+    var r = sel.getRangeAt(0);
+    if (!passageBox.contains(r.commonAncestorContainer)) return;
+    lastSel = { s: textOffset(r.startContainer, r.startOffset), e: textOffset(r.endContainer, r.endOffset), at: S.cur };
+  });
+  function openNote(k) {
+    var n = S.notes[S.cur][k];
+    annoAt = k;
+    var text = passageBox.textContent.slice(n.s, n.e).replace(/\s+/g, " ").trim();
+    $("anno-quote").textContent = "\u201C" + (text.length > 140 ? text.slice(0, 140) + "\u2026" : text) + "\u201D";
+    $("anno-text").value = n.note || "";
+    $("anno-pop").hidden = false;
+    $("anno-text").focus();
+  }
+  function closeNote() { $("anno-pop").hidden = true; annoAt = null; }
+  $("annotate-btn").addEventListener("click", function () {
+    var sel = lastSel && lastSel.at === S.cur && lastSel.e > lastSel.s ? lastSel : null;
+    if (!sel || !Q[S.cur].passage) { toast("Select words in the passage first, then press Annotate."); return; }
+    S.notes = S.notes || {};
+    var list = S.notes[S.cur] = S.notes[S.cur] || [];
+    var hit = list.map(function (n, k) { return n.s < sel.e && sel.s < n.e ? k : -1; }).filter(function (k) { return k >= 0; })[0];
+    if (hit === undefined) { list.push({ s: sel.s, e: sel.e, note: "" }); hit = list.length - 1; save(); repaint(); }
+    window.getSelection().removeAllRanges(); lastSel = null;
+    openNote(hit);
+  });
+  passageBox.addEventListener("click", function (e) {
+    var m = e.target.closest("mark.anno"); if (m) openNote(Number(m.getAttribute("data-k")));
+  });
+  passageBox.addEventListener("keydown", function (e) {
+    var m = e.target.closest && e.target.closest("mark.anno");
+    if (m && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openNote(Number(m.getAttribute("data-k"))); }
+  });
+  $("anno-save").addEventListener("click", function () {
+    if (annoAt === null) return;
+    S.notes[S.cur][annoAt].note = $("anno-text").value.trim().slice(0, 500);
+    save(); repaint(); closeNote();
+  });
+  $("anno-delete").addEventListener("click", function () {
+    if (annoAt === null) return;
+    S.notes[S.cur].splice(annoAt, 1);
+    save(); repaint(); closeNote();
+  });
+  $("anno-close").addEventListener("click", closeNote);
+
+  /* ---------- the divider between the panes: drag it, use the arrow keys, or press a side's button to widen it ---------- */
+  var SPLIT_KEY = "graphite_split";
+  var leftShare = 50;
+  try { leftShare = Number(localStorage.getItem(SPLIT_KEY)) || 50; } catch (e) { /* storage blocked */ }
+  function setSplit(v) {
+    leftShare = Math.max(25, Math.min(75, Math.round(v)));
+    $("q-view").style.setProperty("--left", leftShare + "fr"); $("q-view").style.setProperty("--right", (100 - leftShare) + "fr");
+    $("q-divider").setAttribute("aria-valuenow", String(leftShare));
+    try { localStorage.setItem(SPLIT_KEY, String(leftShare)); } catch (e) { /* storage blocked */ }
+  }
+  setSplit(leftShare);
+  $("widen-left").addEventListener("click", function () { setSplit(leftShare >= 70 ? 50 : 70); });
+  $("widen-right").addEventListener("click", function () { setSplit(leftShare <= 30 ? 50 : 30); });
+  $("q-divider").addEventListener("keydown", function (e) {
+    if (e.target !== $("q-divider")) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); setSplit(leftShare - 5); }
+    if (e.key === "ArrowRight") { e.preventDefault(); setSplit(leftShare + 5); }
+  });
+  $("q-divider").addEventListener("pointerdown", function (e) {
+    if (e.target.closest("button")) return;
+    e.preventDefault();
+    var box = $("q-view").getBoundingClientRect();
+    function move(ev) { setSplit((ev.clientX - box.left) / box.width * 100); }
+    function up() { document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); }
+    document.addEventListener("pointermove", move); document.addEventListener("pointerup", up);
+  });
+
   /* ---------- navigator & review ---------- */
   function buildGrid(el, closeAfter) {
     el.innerHTML = "";
@@ -360,7 +477,7 @@
     $("q-area").scrollTop = 0;
     tutorRules(); tutorContext();
   }
-  function goTo(i) { S.cur = Math.max(0, Math.min(N - 1, i)); showPage("q"); renderNav(); $("q-area").focus({ preventScroll: true }); }
+  function goTo(i) { closeNote(); S.cur = Math.max(0, Math.min(N - 1, i)); showPage("q"); renderNav(); $("q-area").focus({ preventScroll: true }); }
 
   /* ---------- submit & results ---------- */
   function submit(auto) {
@@ -451,6 +568,7 @@
     $("res-time").textContent = fmt(r.seconds_used);
     $("res-mc").textContent = r.multiple_choice.right + " of " + r.multiple_choice.total;
     $("res-spr").textContent = r.student_produced.right + " of " + r.student_produced.total;
+    $("res-spr").parentNode.hidden = !r.student_produced.total;  // Reading and Writing is all multiple choice
     $("res-marked").textContent = String(marked);
 
     var bars = $("res-domains"); bars.innerHTML = "";
@@ -545,7 +663,7 @@
     box.hidden = r.score == null;
     if (r.score == null) return;
     var m = r.modules || [];
-    box.innerHTML = '<p class="label">Estimated Math score</p><p class="res-score"><strong></strong><span>out of 800</span></p><p class="res-modules"></p>' +
+    box.innerHTML = '<p class="label">Estimated ' + SECTION + ' score</p><p class="res-score"><strong></strong><span>out of 800</span></p><p class="res-modules"></p>' +
       '<p class="fine">An estimate from how many you got right in each module, using our own questions. It isn\'t an official College Board score.</p>';
     box.querySelector("strong").textContent = String(r.score);
     box.querySelector(".res-modules").textContent = m.map(function (x) {
@@ -566,7 +684,8 @@
   });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    if (!$("done-dialog").hidden) closeDialog($("done-dialog"));
+    if (!$("anno-pop").hidden) { closeNote(); $("annotate-btn").focus(); }
+    else if (!$("done-dialog").hidden) closeDialog($("done-dialog"));
     else if (!$("dir-dialog").hidden) closeDialog($("dir-dialog"));
     else if (!$("ref-dialog").hidden) closeDialog($("ref-dialog"));
     else if (!$("nav-pop").hidden) { closeNav(); $("nav-toggle").focus(); }
@@ -580,7 +699,7 @@
     if (tools) tools.resetCalc();  // a new attempt starts with a blank calculator, like test day
     $("start-overlay").hidden = true; startClock(); renderTimer();
     $("q-area").focus({ preventScroll: true });
-    if (window.GraphiteTheme && GraphiteTheme.prefs().study.calculator === "open") setCalc(true);  // Settings > Practice defaults
+    if (!RW && window.GraphiteTheme && GraphiteTheme.prefs().study.calculator === "open") setCalc(true);  // Settings > Practice defaults
   });
   $("timer-toggle").addEventListener("click", function () { S.timerHidden = !S.timerHidden; save(); renderTimer(); });
   $("ref-open").addEventListener("click", function () { openDialog("ref-dialog"); });
@@ -623,7 +742,7 @@
     if (!T.session) { reset(); return; }
     if (FROM_PLAN) { location.href = "plan.html"; return; }
     var s = T.session, b = $("retake");
-    var data = s.mode === "test" ? { mode: "test" } : { mode: "topic", domain: s.domain, skill: s.skill, count: N };
+    var data = s.mode === "test" ? { mode: "test", section: RW ? "rw" : "math" } : { mode: "topic", domain: s.domain, skill: s.skill, count: N };
     var url = "/api/practice/sessions";
     if (MOCK) { url = "/api/mock-tests"; data = { section: MOCK.section, with_break: MOCK.with_break }; }
     if (LEVEL) { url = "/api/levels/start"; data = { track: LEVEL.track, level: Number(b.getAttribute("data-level")) || LEVEL.n }; }
@@ -652,9 +771,9 @@
   function applyLabels() {
     if (!T.session) return;
     // Like Bluebook: Reading and Writing is Section 1, Math is Section 2.
-    var heading = MOCK ? "Section 2, Module " + MOCK.module + ": Math" : T.mode === "test" ? "Math module" : T.title;
-    var kind = MOCK ? "Mock test · Math · Module " + MOCK.module + " of 2" : REVIEW ? "Review queue · one question" : LEVEL ? "Level up · " + LEVEL.tier : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? "Math practice test" : T.title)
-      : (T.mode === "test" ? "Mock test · one Math module" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
+    var heading = MOCK ? "Section " + (RW ? 1 : 2) + ", Module " + MOCK.module + ": " + SECTION : T.mode === "test" ? SECTION + " module" : T.title;
+    var kind = MOCK ? "Mock test · " + SECTION + " · Module " + MOCK.module + " of 2" : REVIEW ? "Review queue · one question" : LEVEL ? "Level up · " + LEVEL.tier : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? SECTION + " practice test" : T.title)
+      : (T.mode === "test" ? "Mock test · one " + SECTION + " module" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
     $("exam-title").textContent = heading;
     $("start-title").textContent = heading;
     document.querySelector("#start-overlay .label").textContent = kind;
@@ -663,25 +782,30 @@
     document.querySelector("#nav-pop .review-card-head strong").textContent = heading + " questions";
     var facts = '<li><strong>' + N + "</strong> questions</li>" +
       (UNTIMED ? "<li>Untimed. The clock counts up so you can see your pace</li><li>Check each answer as you go</li>"
-               : "<li><strong>" + T.minutes + "</strong> minutes</li><li>Graphing calculator on every question</li>" +
+               : "<li><strong>" + T.minutes + "</strong> minutes</li><li>" + (RW ? "One short passage per question, all multiple choice" : "Graphing calculator on every question") + "</li>" +
                  (MOCK ? "<li>" + (MOCK.module === 1 ? "Module 2 adapts to how this one goes" : "The last module: your score comes next") + "</li>" : "") +
                  "<li>No tutor until the test is over</li>");
     document.querySelector("#start-overlay .start-facts").innerHTML = facts;
     var intro = document.querySelector("#start-overlay .dialog > p:not(.label)");
     if (intro) intro.textContent = MOCK
       ? (MOCK.module === 1 ? "This module mixes easy, medium and hard questions. How it goes decides Module 2: harder after a strong start, easier otherwise, like the real test. The timer starts when you begin, and the module submits itself when time runs out."
-        : "Module 2 is " + "built from how Module 1 went. You can't go back to Module 1. When you submit, you'll see your estimated Math score and every explanation.")
+        : "Module 2 is " + "built from how Module 1 went. You can't go back to Module 1. When you submit, you'll see your estimated " + SECTION + " score and every explanation.")
       : LEVEL
       ? "Get " + LEVEL.pass + " of " + N + " right to pass" + (LEVEL.n < LEVEL.top ? " and unlock level " + (LEVEL.n + 1) : " the top level") + ". Check each answer as you go and read the full explanation right away."
       : UNTIMED
-      ? "Answer a question, then press Check answer to see if you got it and read the full explanation, with the Desmos shortcut when one helps. Your progress saves as you go."
+      ? (RW ? "Answer a question, then press Check answer to see if you got it, why, and a strategy for that kind of question. Your progress saves as you go."
+            : "Answer a question, then press Check answer to see if you got it and read the full explanation, with the Desmos shortcut when one helps. Your progress saves as you go.")
       : "New questions you haven't answered before, in the same mix as the real test. The timer starts when you begin. Your answers save as you go, and the module submits itself when time runs out.";
     $("start-btn").textContent = UNTIMED ? "Start practicing" : MOCK ? "Begin Module " + MOCK.module : "Begin module";
     $("submit-open").textContent = TOPIC ? "Finish set" : "Submit module";
     $("confirm-title").textContent = TOPIC ? "Finish this set?" : "Submit this module?";
     if (TOPIC) $("confirm-desc").textContent = "Questions you haven't answered go back into the pool for next time.";
     $("retake").textContent = FROM_PLAN ? "Back to your plan" : LEVEL ? "Try this level again" : MOCK ? "Take another mock test" : (TOPIC ? "New set, same topic" : "Take another module");
-    if (MOCK && MOCK.module === 2) document.querySelector("#results-view > .label").textContent = "Mock test · Math · both modules";
+    if (MOCK && MOCK.module === 2) document.querySelector("#results-view > .label").textContent = "Mock test · " + SECTION + " · both modules";
+    if (RW) {
+      $("next-text").textContent = "Module 2 is ready: " + N + " questions and " + T.minutes + " minutes. Like on test day, you can't go back to Module 1. Your score comes at the end of Module 2.";
+      document.querySelector("#next-overlay .label").textContent = "Mock test · " + SECTION;
+    }
     Array.prototype.forEach.call(document.querySelectorAll('a[href$="dashboard.html"]'), function (a) {
       if (a.id === "save-exit" || a.closest(".dialog-actions")) a.setAttribute("href", BACK_URL);
     });

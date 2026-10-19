@@ -120,12 +120,16 @@ def build(results, test_date, hours, today):
         if hours >= 2:
             tasks.append({"key": f"w{n}-drill-2", "kind": "drill", "title": focus[1]["name"], "skill": focus[1], "count": DRILL_SIZE})
         tasks.append({"key": f"w{n}-quiz", "kind": "quiz", "title": f"Week {n} quiz", "count": QUIZ_SIZE})
+        # Reading and Writing gets a drill too: the week's focus domain, one of its skills in turn.
+        rw_focus = rw_order[w % len(rw_order)]
+        rw = rw_skill(rw_focus, w // len(rw_order))
+        tasks.append({"key": f"w{n}-rw", "kind": "drill", "title": rw["name"], "skill": rw, "count": DRILL_SIZE})
         if phase != "foundation" and (phase == "sharpen" or w % 2 == 1):
             tasks.append({"key": f"w{n}-test", "kind": "test", "title": "Math practice test"})
         weeks.append({
             "n": n, "week_of": (monday + timedelta(weeks=w)).isoformat(), "phase": phase, "phase_label": PHASES[phase],
             "difficulty": d, "mix": mix, "difficulty_label": mix_label(mix),
-            "focus": focus, "review": review, "rw_focus": rw_order[w % len(rw_order)], "tasks": tasks,
+            "focus": focus, "review": review, "rw_focus": rw_focus, "tasks": tasks,
         })
 
     if has_test_week:
@@ -168,6 +172,13 @@ def summary(results, strongest, weakest, weeks, exam):
     else:
         parts.append(f"Quizzes run {first}.")
     return " ".join(parts)
+
+
+def rw_skill(domain_name, turn):
+    """The turn-th Reading and Writing skill of a domain (by name), as a plan skill: {domain, skill, name}."""
+    d = next(t for t in bank.topics("rw") if t["name"] == domain_name)
+    s = d["skills"][turn % len(d["skills"])]
+    return {"domain": d["key"], "skill": s["key"], "name": s["name"]}
 
 
 def current_week(plan, today):
