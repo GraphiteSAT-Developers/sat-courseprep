@@ -7,6 +7,13 @@
   status = 301
   force = true
 
+# The logo links to /home. The backend sends signed-in accounts to their dashboard; a static host has no
+# accounts, so it's the home page.
+[[redirects]]
+  from = "/home"
+  to = "/"
+  status = 302
+
 [[redirects]]
   from = "/*"
   to = "/404.html"

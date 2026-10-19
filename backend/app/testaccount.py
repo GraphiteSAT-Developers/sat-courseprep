@@ -31,6 +31,7 @@ def ensure(url):
             conn.execute(f"INSERT INTO users (email, password_hash, name, role, created_at) VALUES ({ph}, {ph}, {ph}, {ph}, {ph})",
                          (email, generate_password_hash(password), name, role, stamp))
             row = conn.execute(f"SELECT id, password_hash FROM users WHERE email = {ph}", (email,)).fetchone()
+            conn.execute(f"UPDATE users SET theme = 'paper' WHERE id = {ph}", (row["id"],))  # the site's look, as for new accounts
         else:
             conn.execute(f"UPDATE users SET name = {ph}, role = {ph} WHERE id = {ph}", (name, role, row["id"]))
         if not check_password_hash(row["password_hash"], password):
@@ -77,7 +78,7 @@ def reset(user_id):
     execute("UPDATE market_trades SET user_id = NULL WHERE user_id = ?", (user_id,))
     execute("UPDATE users SET plan = 'free' WHERE id = ?", (user_id,))
     execute("UPDATE users SET frame = NULL, title = NULL, board_opt_in = 0, nickname = NULL, state = NULL, accent = 'pencil', "
-            "theme = 'dark', prefs = '{}', reminder_sent_on = NULL "
+            "theme = 'paper', prefs = '{}', reminder_sent_on = NULL "
             "WHERE id = ?", (user_id,))
     from .db import now_iso
     from datetime import date

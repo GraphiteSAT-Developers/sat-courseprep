@@ -88,6 +88,14 @@ class ParentTest(unittest.TestCase):
         self.assertEqual(self.student.delete(f"/api/family/parents/{parent_id}", json={}, headers=ORIGIN).status_code, 200)
         self.assertEqual(self.parent.get(url).status_code, 404)
 
+    def test_logo_goes_to_each_accounts_dashboard(self):
+        # /home is where the logo links: each account's own dashboard, the home page when signed out. Nobody gets signed out.
+        self.assertTrue(self.student.get("/home").headers["Location"].endswith("/dashboard.html"))
+        self.assertTrue(self.parent.get("/home").headers["Location"].endswith("/parent.html"))
+        self.assertEqual(self.app.test_client().get("/home").headers["Location"], "/")
+        self.assertEqual(self.student.get("/api/me").status_code, 200)
+        self.assertEqual(self.parent.get("/api/me").status_code, 200)
+
     def test_summary_tracks_progress(self):
         url = self.link()
         s = self.parent.get(url).json

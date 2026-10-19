@@ -94,7 +94,7 @@ def public_user(user):
         "role": user["role"] if "role" in user.keys() else "student",
         "created_at": user["created_at"],
         "appearance": dict({
-            "theme": user["theme"] if "theme" in user.keys() else "dark",
+            "theme": user["theme"] if "theme" in user.keys() else "paper",
             "accent": user["accent"] if "accent" in user.keys() else "pencil",
             # the old on/off switch: on only when a moving background is actually showing
             "ripple": _prefs(user)["look"]["effect"] != "none",

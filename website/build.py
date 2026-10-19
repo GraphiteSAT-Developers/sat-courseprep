@@ -46,7 +46,7 @@ def calculator_html():
         assert t.count(old) == 1, "Topline changed; update calculator_html(): " + old[:40]
         t = t.replace(old, new)
     return t
-# site.css, then paper.css: the public pages' look, scoped to html.paper so signed-in pages keep their themes.
+# site.css, then paper.css: the site's look, scoped to html.paper so the other themes in Settings still work.
 css = (SRC / "site.css").read_text() + "\n" + (SRC / "paper.css").read_text()
 BLOCKED_WORDS = Path(__file__).resolve().parent.parent / "backend" / "app" / "content" / "blocked_words.txt"
 
@@ -344,6 +344,9 @@ def render(meta, mode):
     if "{{PLANS_JSON}}" in page_body:
         page_body = page_body.replace("{{PLANS_JSON}}", plans_json())
     body = head_nav + crumbs_html(meta) + page_body + foot + ("" if meta.get("test") else banner)
+    # The logo on pages anyone can open: the server's /home sends a signed-in account to its own dashboard and
+    # everyone else to the home page. The preview has no server, so there site.js points it at the dashboard.
+    body = body.replace("{{LOGO}}", "/home" if mode == "dist" else "./")
     url = SITE + meta["path"]
     robots = meta.get("robots", "index, follow")
 
@@ -380,16 +383,15 @@ def render(meta, mode):
         svg = (SRC / "assets/hint-ladder.svg").read_text().strip()
         body = body.replace('src="assets/hint-ladder.svg"', 'src="data:image/svg+xml;base64,' + base64.b64encode(svg.encode()).decode() + '"')
 
-    # Public pages get the paper look: the class goes on <html> before anything is drawn.
-    paper = not any(meta.get(k) for k in ("app", "parent", "test", "settings"))
-    # The live site's security policy blocks inline scripts, so there the class is on the <html> tag itself. The
-    # preview's home page has no <html> tag of its own (the artifact wraps it), so it adds the class with a script.
-    paper_tag = '<script>document.documentElement.classList.add("paper")</script>\n' if paper and mode == "artifact" else ""
+    # Every page gets the paper look: the class is on the <html> tag, so it's there before anything is drawn. On
+    # signed-in pages theme.js takes it off again when the account has picked another theme in Settings.
+    # The preview's home page has no <html> tag of its own (the artifact wraps it), so it adds the class with a script.
+    paper_tag = '<script>document.documentElement.classList.add("paper")</script>\n' if is_home and mode == "artifact" else ""
     head = f"""<title>{meta['title']}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="{meta['description']}">
 <meta name="robots" content="{robots}">
-<meta name="theme-color" content="{'#f4f1e9' if paper else '#1c1e21'}">
+<meta name="theme-color" content="#f4f1e9">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Graphite SAT">
 <meta property="og:title" content="{meta['title']}">
@@ -419,8 +421,8 @@ def render(meta, mode):
     if signed_in:
         theme_tag = ('<script src="/js/theme.js"></script>\n' if mode == "dist"
                      else "<script>" + (SRC / "theme.js").read_text() + "</script>\n")
-    classes = " ".join(c for c, on in (("live", mode == "dist"), ("paper", paper)) if on)
-    return ('<!doctype html>\n<html lang="en"' + (f' class="{classes}"' if classes else "") + '>\n<head>\n<meta charset="utf-8">\n' + live_meta +
+    classes = ("live paper" if mode == "dist" else "paper") + (" app" if signed_in else "")
+    return ('<!doctype html>\n<html lang="en" class="' + classes + '">\n<head>\n<meta charset="utf-8">\n' + live_meta +
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
             + theme_tag + head + "\n" + (script if mode == "dist" else "") + "\n</head>\n<body>\n" + body
             + (script if mode == "artifact" else "") + "\n</body>\n</html>\n")

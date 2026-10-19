@@ -46,8 +46,8 @@ def register():
         raise ApiError(409, "An account with this email already exists. Sign in instead.", "email", "email_taken")
     record_event(ip_bucket)
     row = execute(
-        "INSERT INTO users (email, password_hash, name, grade, test_date, target_score, role, created_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
+        "INSERT INTO users (email, password_hash, name, grade, test_date, target_score, role, theme, created_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, 'paper', ?) RETURNING id",
         (email, generate_password_hash(password), name, grade, test_date, target, role, now_iso()))
     user = query("SELECT * FROM users WHERE id = ?", (row["id"],), one=True)
     login_user(user, remember=True)

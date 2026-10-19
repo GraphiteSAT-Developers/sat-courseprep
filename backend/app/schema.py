@@ -429,7 +429,12 @@ MIGRATIONS = [
         )""",
         "CREATE INDEX idx_consent_visitor ON consent_log (visitor_id, id)",
     ]),
-    # (16, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    # The paper look (the home page's) becomes every page's default theme. New accounts are created with it
+    # (routes/auth.py); accounts still on the old default move to it. The other themes stay in Settings.
+    (16, "Paper is the default theme", [
+        "UPDATE users SET theme = 'paper' WHERE theme = 'dark'",
+    ]),
+    # (17, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

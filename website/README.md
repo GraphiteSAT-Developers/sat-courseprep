@@ -1,6 +1,6 @@
 # Graphite SAT website
 
-Marketing site, sign-in, student dashboard and math practice test for Graphite SAT, the AI SAT tutor. Dark graphite gray with a pencil-yellow accent.
+Marketing site, sign-in, student dashboard and math practice test for Graphite SAT, the AI SAT tutor. Off-white paper, graphite ink and a yellow highlighter.
 
 The pages run in two modes:
 
@@ -16,7 +16,7 @@ The pages run in two modes:
   - `pages/`: one file per page. The comment on the first line sets that page's title and meta description.
   - `partials/`: the shared header, footer and cookie banner. The dashboard uses `app-header.html` and `app-footer.html`.
   - `site.css`: all styles. Colors, fonts and spacing are set at the top.
-  - `paper.css`: the public pages' look (home, sign-in, checkout, legal, 404): paper, graphite ink, a yellow highlighter and the tutor's red-pen notes. The build puts `class="paper"` on `<html>` for those pages; signed-in pages keep their themes.
+  - `paper.css`: the site's look: paper, graphite ink, a yellow highlighter and the tutor's red-pen notes. The build puts `class="paper"` on `<html>` for every page (and `app` on signed-in pages). On signed-in pages Paper is the default theme; `theme.js` takes the class off when an account picks another theme in Settings.
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
   - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results. With `?session=<id>` it runs a set from the question bank: a timed random practice test, or untimed topic practice with a Check answer button.
   - `practice.js`: the practice page: start a random practice test or practice one topic.

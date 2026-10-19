@@ -41,6 +41,14 @@
   /* 2. Copyright year */
   $all("[data-year]").forEach(function (el) { el.textContent = String(new Date().getFullYear()); });
 
+  /* 2b. The logo takes a signed-in account to its own dashboard. The live site does this on the server (/home);
+     the preview has no server, so it goes by who signed in on this tab. */
+  if (!LIVE) {
+    var signedInAs = null;
+    try { signedInAs = sessionStorage.getItem("graphite_user") && sessionStorage.getItem("graphite_role"); } catch (e) { /* storage blocked */ }
+    if (signedInAs) $all("a[data-logo]").forEach(function (a) { a.href = signedInAs === "parent" ? "parent.html" : "dashboard.html"; });
+  }
+
   /* 3. Mobile menu */
   var toggle = $(".menu-toggle");
   var nav = $("#site-nav");

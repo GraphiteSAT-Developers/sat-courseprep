@@ -1,8 +1,10 @@
-/* The public pages (home, sign-in, checkout, legal, 404): a marked-up practice packet.
+/* The site's look: a marked-up practice packet.
    Off-white paper and graphite ink, a serif for headlines, a yellow highlighter for the one thing that matters on a
-   screen, and the tutor's notes in red pen. build.py puts class="paper" on <html> for these pages only; signed-in
-   pages keep their own themes. Everything here is scoped to html.paper. */
-html.paper {
+   screen, and the tutor's notes in red pen. build.py puts class="paper" on <html> for every page. On signed-in
+   pages it is the default theme, and theme.js takes the class off when the account picks another theme in
+   Settings. Everything here is scoped to html.paper. */
+/* [data-theme] in the selector so these win over the light theme's colors, which signed-in pages also carry. */
+html.paper, html.paper[data-theme] {
   color-scheme: light;
   --bg: #f4f1e9;
   --surface: #fbfaf6;
@@ -11,10 +13,6 @@ html.paper {
   --control: #8b8576;
   --text: #1e1c19;
   --muted: #555047;
-  --accent: #1e1c19;
-  --accent-hover: #3b3832;
-  --accent-ink: #fbfaf6;
-  --accent-shadow: #000;
   --ok: #1c6a3b; --ok-bg: #e2eee4;
   --err: #b02c1f; --err-bg: #f5e1db; --err-ink: #fff;
   --warn: #8a4f00; --warn-bg: #f6ead2; --info: #24519c;
@@ -29,12 +27,21 @@ html.paper {
   --radius: 3px;
   --t-2xl: clamp(2.5rem, 1.5rem + 4vw, 4.6rem);
 }
+/* The ink accent is paper's pencil color. Another accent picked in Settings still wins ([data-accent] rules). */
+html.paper, html.paper[data-accent="pencil"] {
+  --accent: #1e1c19;
+  --accent-hover: #3b3832;
+  --accent-ink: #fbfaf6;
+  --accent-shadow: #000;
+}
 html.paper body { background: var(--bg); font-size: 1.0625rem; }
 html.paper ::selection { background: var(--hi); color: var(--text); }
 html.paper h1, html.paper h2, html.paper h3 { font-family: var(--font-display); letter-spacing: -0.015em; }
 html.paper h1 { font-weight: 600; line-height: 1.04; }
-html.paper h2 { font-weight: 600; font-size: clamp(1.9rem, 1.3rem + 2vw, 2.8rem); line-height: 1.1; }
-html.paper h3 { font-weight: 600; font-size: 1.35rem; }
+html.paper h2, html.paper h3 { font-weight: 600; }
+/* The public pages' big section headings. Signed-in pages (class="app") keep their own heading sizes for panels. */
+html.paper:where(:not(.app)) h2 { font-size: clamp(1.9rem, 1.3rem + 2vw, 2.8rem); line-height: 1.1; }
+html.paper:where(:not(.app)) h3 { font-size: 1.35rem; }
 html.paper a { color: var(--text); text-decoration-color: var(--control); }
 html.paper a:hover { text-decoration-color: var(--text); }
 html.paper .label { font-family: var(--font-mono); text-transform: none; letter-spacing: 0; font-size: 0.8125rem; color: var(--muted); }
@@ -266,3 +273,10 @@ html.paper .role-pick input:checked + label { background: var(--text); color: va
 /* Checkout: the step headings and the summary title match the legends */
 html.paper .co-legend { font-size: 1.25rem; }
 html.paper #co-sum-title { font-size: 1.6rem; }
+
+/* Signed-in pages on paper (html.paper.app): the same packet look as the home page, sized for panels. */
+html.paper.app .panel h2, html.paper.app .panel-head h2 { font-size: 1.45rem; }
+html.paper.app .up-next { background: var(--surface); border: 1px solid var(--text); border-radius: 2px; box-shadow: 6px 6px 0 var(--raised); }
+html.paper.app .up-next .label { font-family: var(--font-hand); color: var(--pen); font-size: 1.05rem; }
+html.paper.app .up-next h2 { font-size: 1.6rem; }
+html.paper.app .lock-card, html.paper.app .kpis { border-radius: 2px; }

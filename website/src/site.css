@@ -1906,7 +1906,6 @@ body:has(.exam) .reward-stack { top: 84px; bottom: auto; }
 .wf-error { margin-top: var(--s1); }
 
 /* ---------- Theme skins (theme.js sets data-skin over a dark or light base) ---------- */
-:root[data-skin="paper"] { --bg: #f4efe4; --surface: #fffcf5; --raised: #ece4d4; --line: #d8cdb8; --control: #857a66; --text: #2b2620; --muted: #5a5144; }
 :root[data-skin="midnight"] { --bg: #000000; --surface: #0b0b0d; --raised: #17171a; --line: #2a2a2f; --control: #6f7378; }
 :root[data-skin="contrast"] { --bg: #000000; --surface: #000000; --raised: #1a1a1a; --line: #ffffff; --control: #ffffff; --text: #ffffff; --muted: #f0f0f0;
   --ok: #7dffa0; --err: #ff8a80; --ok-bg: #002b10; --err-bg: #330a07; }

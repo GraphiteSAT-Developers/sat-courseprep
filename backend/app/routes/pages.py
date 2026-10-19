@@ -25,6 +25,15 @@ def health():
     return jsonify({"ok": True, "version": API_VERSION})
 
 
+@bp.get("/home")
+def logo_home():
+    """Where the logo goes: a signed-in account's own dashboard (student or parent), or the home page."""
+    user = current_user()
+    response = redirect(home_for(user) if user else "/")
+    response.headers["Cache-Control"] = "no-store"  # the answer depends on who is signed in
+    return response
+
+
 @bp.get("/", defaults={"path": "index.html"})
 @bp.get("/<path:path>")
 def page(path):
