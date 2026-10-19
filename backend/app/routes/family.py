@@ -153,6 +153,8 @@ def change_plan(student_id):
         raise ApiError(400, "Pick weekly, monthly or yearly billing.", "interval")
     if service.payments_live():
         raise ApiError(409, "Paid plans start on the checkout page.", code="checkout_required")
+    if stripe_api.payments_off():
+        raise ApiError(503, "Paid plans aren't open yet, so nothing was charged. Try again soon.", code="payments_off")
     return jsonify({"subscription": service.change_plan(current_user()["id"], student_id, plan, interval),
                     "billing": service.billing_history(student_id)})
 

@@ -53,6 +53,8 @@ def start():
     student = next((s for s in students if s["id"] == student_id), None)
     if not student:
         raise ApiError(404, "That student isn't connected to your account.", "student_id")
+    if stripe_api.payments_off():
+        raise ApiError(503, "Paid plans aren't open yet, so nothing was charged. Try again soon.", code="payments_off")
     bucket = f"checkout:{me['id']}"
     if rate_limited(bucket, 20, 60):
         raise ApiError(429, "That's a lot of checkouts in an hour. Try again later.")
