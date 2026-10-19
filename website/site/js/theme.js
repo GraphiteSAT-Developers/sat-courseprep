@@ -22,7 +22,7 @@
     avatar: { mode: "photo", parts: { bg: "sky", skin: "s3", hair: "short", hair_color: "brown", eyes: "dots", mouth: "smile", acc: "none", shirt: "pencil", hat: "none", face: "none", outfit: "tee", backdrop: "solid" } }
   };
   var root = document.documentElement;
-  var state = { theme: "dark", accent: "pencil", ripple: false, text: "m", font: "default", motion: "system", density: "comfortable", custom_accent: "#f2c14e",
+  var state = { theme: "paper", accent: "pencil", ripple: false, text: "m", font: "default", motion: "system", density: "comfortable", custom_accent: "#f2c14e",
                 corners: "round", effect: "none" };
   var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: light)") : null;
   var mqMotion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
@@ -67,6 +67,11 @@
   }
   function apply() {
     root.setAttribute("data-theme", resolved());
+    // Paper is the whole site's look (paper.css, scoped to html.paper) and the default here. Any other theme
+    // takes the class off so its own colors show.
+    root.classList.toggle("paper", state.theme === "paper");
+    var tc = document.querySelector('meta[name="theme-color"]');
+    if (tc) tc.setAttribute("content", state.theme === "paper" ? "#f4f1e9" : resolved() === "light" ? "#f3f4f6" : "#1c1e21");
     if (BASE[state.theme] && state.theme !== BASE[state.theme] && state.theme !== "system") root.setAttribute("data-skin", state.theme); else root.removeAttribute("data-skin");
     root.setAttribute("data-accent", state.accent);
     var vars = state.accent === "custom" ? customVars(state.custom_accent) : null;

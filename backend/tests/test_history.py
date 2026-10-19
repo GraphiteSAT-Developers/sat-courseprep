@@ -33,7 +33,7 @@ class HistoryTest(PlayTest):
         self.patch("/api/me/appearance", {"theme": "light"})
         ev = self.client.get("/api/me/history/events").json["items"]
         self.assertEqual(ev[0]["label"], "Changed the look")
-        self.assertEqual(ev[0]["detail"]["changes"]["theme"], {"from": "dark", "to": "light"})
+        self.assertEqual(ev[0]["detail"]["changes"]["theme"], {"from": "paper", "to": "light"})
         self.assertEqual(ev[1]["detail"]["changes"]["name"], {"from": "Sam Lee", "to": "Sam Rivera"})
 
     def test_failed_changes_are_saved_with_the_error(self):
