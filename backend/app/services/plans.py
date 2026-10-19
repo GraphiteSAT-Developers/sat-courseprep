@@ -132,6 +132,9 @@ LIMITS = {
 LEGACY = {"daily": "sharpened", "coached": "masterstroke"}
 
 PAUSE_DAYS = 30
+# A free trial of TRIAL_PLAN: once per student, no card, and it goes back to the free plan by itself.
+TRIAL_PLAN = "sharpened"
+TRIAL_DAYS = 7
 ALERT_DAYS = (0, 2, 3, 5, 7)  # quiet days before a parent gets an inactivity alert; 0 turns alerts off
 
 

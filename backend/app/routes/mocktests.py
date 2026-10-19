@@ -3,7 +3,7 @@
 GET  /api/mock-tests                the sections, this month's allowance, and recent mock tests
 POST /api/mock-tests                start one: {section: "math", with_break: true}
 GET  /api/mock-tests/<id>           one mock test
-POST /api/mock-tests/<id>/break     {action: "start" | "end"}: the 10-minute break before Math
+POST /api/mock-tests/<id>/break     {action: "start" | "end"}: the 10-minute break between Module 1 and Module 2
 """
 from flask import Blueprint, jsonify
 

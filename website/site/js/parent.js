@@ -187,10 +187,11 @@
   function renderBilling() {
     var sub = S.subscription;
     var state = sub.status === "paused" ? "Paused until " + day(sub.paused_until) + ". Next bill " + day(sub.renews_on) + "."
+      : sub.status === "trial" ? "Free trial, no card. Ends " + day(sub.renews_on) + ", then the plan goes back to free by itself."
       : sub.status === "canceled" ? "Canceled. Stays on until " + day(sub.renews_on) + ", then switches to the free plan."
       : sub.plan === "free" ? "The free plan. Upgrade any time." : "Renews " + day(sub.renews_on) + ".";
     $("pd-current").innerHTML = '<div><p class="label">Current plan</p><p class="pd-plan-name">' + esc(sub.plan_name) + ' <span class="pd-price">' + esc(sub.price_label) + "</span></p>" +
-      '<p class="fine">' + esc(state) + "</p></div>" + '<span class="chip pd-status-' + sub.status + '">' + (sub.status === "active" ? "Active" : sub.status === "paused" ? "Paused" : sub.status === "past_due" ? "Payment failed" : "Canceled") + "</span>";
+      '<p class="fine">' + esc(state) + "</p></div>" + '<span class="chip pd-status-' + sub.status + '">' + (sub.status === "active" ? "Active" : sub.status === "paused" ? "Paused" : sub.status === "past_due" ? "Payment failed" : sub.status === "trial" ? "Trial" : "Canceled") + "</span>";
     if (sub.interval && $("pd-int-" + sub.interval)) $("pd-int-" + sub.interval).checked = true;
     closeConfirm();
     drawPlans();
@@ -198,6 +199,7 @@
     if (sub.status === "active" && sub.plan !== "free") acts.push(["pause", "btn-secondary", "Pause for 30 days"], ["cancel", "btn-quiet", "Cancel plan"]);
     if (sub.status === "paused") acts.push(["resume", "btn-primary", "Resume now"], ["cancel", "btn-quiet", "Cancel plan"]);
     if (sub.status === "canceled") acts.push(["resume", "btn-primary", "Keep " + sub.plan_name]);
+    if (sub.status === "trial") acts.push(["cancel", "btn-quiet", "Cancel the trial"]);
     if (sub.status === "past_due") acts.push(["portal", "btn-primary", "Update card and pay"], ["cancel", "btn-quiet", "Cancel plan"]);
     else if (home.payments_live && sub.plan !== "free") acts.push(["portal", "btn-quiet", "Card and receipts"]);
     $("pd-plan-actions").innerHTML = acts.map(function (a) { return '<button class="btn ' + a[1] + '" type="button" data-act="' + a[0] + '">' + a[2] + "</button>"; }).join("");

@@ -170,7 +170,7 @@ def plan_action(student_id, action):
     _student_or_404(student_id)
     sub = service.subscription(student_id)
     allowed = {"pause": sub["plan"] != "free" and sub["status"] == "active",
-               "cancel": sub["plan"] != "free" and sub["status"] in ("active", "paused"),
+               "cancel": sub["plan"] != "free" and sub["status"] in ("active", "paused", "trial"),
                "resume": sub["status"] in ("paused", "canceled")}
     if action not in allowed:
         raise ApiError(404, "Unknown plan action.")

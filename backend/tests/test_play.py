@@ -85,16 +85,18 @@ class PlayTest(PracticeTest):
         uid = self.uid()
         today = date.today()
         with self.app.app_context():
-            for back in (1, 2, 4):
+            for back in (1, 2, 5):  # two days off in a row: more than the weekly streak freeze covers
                 execute("INSERT INTO xp_events (user_id, kind, xp, coins, detail, day, at) VALUES (?, 'x', 5, 0, '', ?, '')",
                         (uid, (today - timedelta(days=back)).isoformat()))
-            self.assertEqual(game.streak(uid), {"days": 2, "today": False})  # alive until tonight
+            st = game.streak(uid)
+            self.assertEqual((st["days"], st["today"]), (2, False))  # alive until tonight
             s = game.award(uid, "x", 5)
             self.assertEqual(s["days"], 3)
             self.assertEqual(s["coins"], game.STREAK_COINS[3])
             self.assertEqual([b["key"] for b in s["badges"]], ["streak_3"])
             self.assertIsNone(game.award(uid, "x", 5))  # only the first XP of the day counts
-            self.assertEqual(game.streak(uid), {"days": 3, "today": True})
+            st = game.streak(uid)
+            self.assertEqual((st["days"], st["today"]), (3, True))
 
     # ---------- shop ----------
     def test_shop_and_equipping(self):

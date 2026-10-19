@@ -115,6 +115,8 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
 .info .stat{font-family:var(--font-data);font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums}
 .info .smath{font-size:16px;color:var(--ink)}
 .info .line{flex-basis:100%}
+.fracbtn{font-family:var(--font-data);font-size:11.5px;padding:2px 7px;border-radius:5px;border:1px solid var(--rule);color:var(--muted);background:transparent}
+.fracbtn:hover{color:var(--ink);background:var(--tool)}
 .add-slider{font-family:var(--font-data);font-size:11.5px;padding:4px 8px;border-radius:5px;border:1px solid var(--accent);color:var(--accent);background:transparent}
 .slider{display:grid;grid-template-columns:28px 56px minmax(0,1fr) 56px;gap:8px;align-items:center;padding:0 4px 10px}
 .slider input:not([type=range]){width:100%;font-family:var(--font-data);font-size:12px;text-align:center;padding:4px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);color:var(--ink)}
@@ -1954,6 +1956,21 @@ function numTex(v, digits = 10) {
   if (a >= 1e9 || a < 1e-4) { const [m, e] = v.toExponential(digits - 3).split('e'); return `${Number(m)}\\times10^{${Number(e)}}`; }
   return String(Number(v.toPrecision(digits)));
 }
+// The simplest fraction within 1e-9 of v, with a denominator up to 10000, for the fraction/decimal toggle.
+function toFrac(v) {
+  if (typeof v !== 'number' || !isFinite(v) || Number.isInteger(v) || Math.abs(v) >= 1e9) return null;
+  const a = Math.abs(v);
+  let h0 = 0, h1 = 1, k0 = 1, k1 = 0, x = a;
+  for (let i = 0; i < 40; i++) {
+    const n = Math.floor(x), h = n * h1 + h0, k = n * k1 + k0;
+    if (k > 10000) break;
+    h0 = h1; h1 = h; k0 = k1; k1 = k;
+    if (Math.abs(a - h / k) <= 1e-9 * Math.max(1, a)) return k === 1 ? null : { n: v < 0 ? -h : h, d: k };
+    const r = x - n; if (r < 1e-12) break; x = 1 / r;
+  }
+  return null;
+}
+const fracTex = f => `${f.n < 0 ? '-' : ''}\\frac{${Math.abs(f.n)}}{${f.d}}`;
 function vTex(v) {
   if (typeof v === 'number') return numTex(v);
   if (typeof v === 'boolean') return `\\text{${v}}`;
@@ -3015,7 +3032,7 @@ class MathField {
     syncRows();
   }
 
-  function renderInfo(el, R) {
+  function renderInfo(el, R, row) {
     let key = '', build = null, cls = 'info', after = null;
     const val = R.value;
     if (R.kind === 'err' || (R.kind === 'table' && R.error)) {
@@ -3057,8 +3074,13 @@ class MathField {
         else if (val.viz === 'hist') { key = 'hist:' + val.data.length + ':' + val.w; build = () => `<span class="stat">n = ${val.data.length}</span><span class="stat">bin width ${fmtNum(val.w, 4)}</span>`; }
         else if (val.viz === 'dot') { key = 'dot:' + val.data.length; build = () => `<span class="stat">n = ${val.data.length}</span>`; }
       } else if (!(val instanceof Pt) && !(isArr(val) && val.length && val.every(p => p instanceof Pt))) {
-        const tex = vTex(val);
-        if (tex !== null) { key = 'v:' + tex; build = () => '<span class="val mstatic"></span>'; after = () => renderStatic(el.firstChild, '=' + tex); }
+        // A number that is a simple fraction gets a button to show it either way, like 7/3 for a grid-in answer.
+        const fr = toFrac(val), asFrac = !!(fr && row && row.style.frac), tex = asFrac ? fracTex(fr) : vTex(val);
+        if (tex !== null) {
+          key = 'v:' + tex + (fr ? ':f' : '');
+          const btn = fr ? `<button type="button" class="fracbtn" aria-pressed="${asFrac}" aria-label="${asFrac ? 'Show as a decimal' : 'Show as a fraction'}" title="${asFrac ? 'Show as a decimal' : 'Show as a fraction'}">${asFrac ? '0.5' : 'a/b'}</button>` : '';
+          build = () => '<span class="val mstatic"></span>' + btn; after = () => renderStatic(el.firstChild, '=' + tex);
+        }
       }
     }
     if (el._k === key && el.className === cls) return;
@@ -3103,7 +3125,7 @@ class MathField {
         } else { sl.hidden = true; row.playing = false; }
       }
       if (kind === 'table') renderReg(li, row, R);
-      renderInfo(li.querySelector('.info'), R);
+      renderInfo(li.querySelector('.info'), R, row);
       const opts = li.querySelector('.opts');
       opts.hidden = !(selected === row.id && R.drawable);
       if (!opts.hidden) {
@@ -3165,6 +3187,7 @@ class MathField {
     const li = e.target.closest('.row'); if (!li) return;
     const id = +li.dataset.id, row = rowById(id);
     if (e.target.closest('.dot')) { row.hidden = !row.hidden; changed(); return; }
+    if (e.target.closest('.fracbtn')) { row.style.frac = !row.style.frac; changed(); return; }
     if (e.target.closest('.dice')) { row.seed = (row.seed * 1103515245 + 12345) >>> 0; changed(); return; }
     if (e.target.closest('.del')) { const prev = deleteRow(id); if (prev) focusRow(prev.id, 'end'); return; }
     if (e.target.closest('.play')) { row.playing = !row.playing; syncRows(); if (row.playing) startAnim(); return; }
