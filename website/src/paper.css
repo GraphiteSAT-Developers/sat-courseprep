@@ -131,9 +131,12 @@ html.paper .choice.is-wrong, html.paper .choice.is-right { border: 0; }
 html.paper .choice.is-wrong .choice-text { text-decoration: line-through; text-decoration-color: var(--pen); text-decoration-thickness: 2px; }
 html.paper .choice.is-wrong .bubble { position: relative; }
 html.paper .choice.is-wrong .bubble::after { content: ""; position: absolute; inset: -7px -9px; border: 2px solid var(--pen); border-radius: 50% 45% 55% 48%; transform: rotate(-8deg); }
-html.paper .choice.is-right::after { content: "✓"; font-family: var(--font-hand); color: var(--pen); font-size: 1.6rem; line-height: 1; margin-left: auto; padding-right: 6px; }
+html.paper .choice.is-right::after { content: "✓"; font-family: var(--font-hand); color: var(--ok); font-size: 1.6rem; line-height: 1; margin-left: auto; padding-right: 6px; }
 html.paper .tutor-note { border-top: 0; border-left: 2px solid var(--pen); padding: 2px 0 2px 16px; gap: 6px; }
 html.paper .tutor-note .verdict { font-family: var(--font-hand); font-weight: 700; font-size: 1.25rem; color: var(--pen); }
+html.paper .tutor-note .verdict.ok { color: var(--ok); }
+html.paper .tutor-note:has(.verdict.ok) { border-left-color: var(--ok); }
+html.paper .choice.is-right .choice-text { color: var(--ok); font-weight: 600; }
 html.paper .tutor-note p { font-size: 0.98rem; }
 html.paper .qcard-foot .label { font-family: var(--font-body); font-size: 0.875rem; }
 
