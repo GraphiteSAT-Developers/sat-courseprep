@@ -1,0 +1,137 @@
+/* The top bar: an SAT answer sheet.
+   Every link gets an answer bubble (A, B, C...), and the "pencil mark" (.nav-mark, added by site.js) fills the
+   bubble for the page you're on. Point at or tab to another link and the mark slides over to it, the way you'd move
+   your pencil to a different answer; the page's own bubble keeps a faint erased smudge. Timing marks run along the
+   bottom edge, every fifth one longer, like a ruler.
+   Wide screens: two rows. The top row (logo, account) scrolls away; the answer row stays stuck to the top.
+   Narrow screens (1200px and under): one row with the Menu button, which opens the answer row as a full sheet. */
+.site-header {
+  --nav-ink: var(--text);
+  --nav-paper: var(--bg);
+  --nav-bubble: 22px;
+  --nav-top: 58px;
+  --nav-row: 48px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--nav-ink);
+  transition: box-shadow 0.25s ease;
+}
+/* Timing marks, every fifth one longer */
+.site-header::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, var(--nav-ink) 0 2px, transparent 2px 120px) 0 0 / 100% 8px no-repeat,
+    repeating-linear-gradient(90deg, var(--nav-ink) 0 2px, transparent 2px 24px) 0 100% / 100% 5px no-repeat;
+  opacity: 0.7;
+}
+.site-header.is-stuck { box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.45); }
+.site-header.is-stuck .site-nav ul { border-top-color: transparent; }
+
+/* Bubbles, lettered like answer choices */
+.site-nav ul { counter-reset: nav-q; }
+.site-nav li { counter-increment: nav-q; }
+html .site-header .site-nav ul a {
+  display: inline-flex; align-items: center; gap: 9px; color: var(--nav-ink); text-decoration: none;
+}
+.site-nav ul a::before {
+  content: counter(nav-q, upper-alpha); flex: none; box-sizing: border-box;
+  width: var(--nav-bubble); height: var(--nav-bubble); border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--nav-ink) 78%, transparent);
+  display: grid; place-items: center; font: 600 10.5px/1 var(--font-mono, ui-monospace, monospace);
+  color: color-mix(in srgb, var(--nav-ink) 70%, transparent); background: transparent;
+}
+/* A lone link (Settings: back to the dashboard) is a way back, not a choice: an arrow instead of a letter. */
+.site-nav li:only-child a::before { content: "\2190"; font-size: 13px; }
+/* The page's own answer, under the moving mark: an erased smudge, darker at the middle. */
+.site-nav ul a[aria-current]::before {
+  background: radial-gradient(circle, color-mix(in srgb, var(--nav-ink) 24%, transparent) 0 30%, color-mix(in srgb, var(--nav-ink) 9%, transparent) 70%);
+}
+html .site-header .site-nav ul a:hover,
+html .site-header .site-nav ul a[aria-current] { color: var(--nav-ink); text-decoration: none; }
+
+/* The pencil mark */
+.nav-mark {
+  position: absolute; left: 0; top: 0; width: var(--nav-bubble); height: var(--nav-bubble); border-radius: 50%;
+  pointer-events: none; z-index: 1; opacity: 0;
+  background:
+    repeating-linear-gradient(-38deg, rgba(255, 255, 255, 0.10) 0 1px, transparent 1px 3px),
+    radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--nav-ink) 70%, #fff) 0 12%, transparent 45%),
+    var(--nav-ink);
+  box-shadow: 0 0 0 1.5px var(--nav-ink);
+  transform: translate(var(--mx, 0px), var(--my, 0px));
+}
+.nav-mark.is-on { opacity: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .nav-mark { transition: transform 0.46s cubic-bezier(0.3, 1.35, 0.45, 1), opacity 0.2s ease, width 0.2s ease; }
+  .nav-mark.is-moving { animation: nav-smear 0.46s ease; }
+  .nav-mark.is-new { animation: nav-fill 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+  .site-nav ul a::before { transition: background-color 0.2s ease, border-color 0.2s ease; }
+}
+/* While it slides, the mark stretches a little in the direction it moves, like a quick pencil stroke. */
+@keyframes nav-smear {
+  0%, 100% { border-radius: 50%; }
+  40% { border-radius: 46% 54% 50% 50% / 58% 42% 58% 42%; }
+}
+/* First paint: the bubble fills in from the middle out, the way a pencil would. */
+@keyframes nav-fill {
+  from { clip-path: circle(0% at 50% 50%); }
+  to { clip-path: circle(75% at 50% 50%); }
+}
+html[data-motion="reduce"] .nav-mark { transition: none; animation: none; }
+
+/* ---------- Wide screens: two rows ---------- */
+@media (min-width: 1201px) {
+  .site-header { top: calc(env(safe-area-inset-top, 0px) - var(--nav-top)); }
+  .site-header .header-row {
+    display: grid; grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: var(--nav-top) var(--nav-row); min-height: 0; gap: 0;
+  }
+  .site-header .logo { grid-area: 1 / 1; align-self: center; position: relative; z-index: 2; }
+  .site-header .site-nav {
+    grid-area: 1 / 1 / 3 / 3; margin: 0; display: grid; gap: 0;
+    grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: var(--nav-top) var(--nav-row);
+  }
+  .site-header .nav-actions { grid-area: 1 / 2; align-self: center; gap: var(--s4); }
+  html .site-header .nav-actions .btn { min-height: 40px; padding: 0 16px; }
+  .site-header .site-nav ul {
+    grid-area: 2 / 1 / 3 / 3; position: relative; align-items: center; gap: 2px 6px;
+    border-top: 1px dashed color-mix(in srgb, var(--nav-ink) 30%, transparent);
+    margin: 0 calc(var(--s3) * -1); padding: 0 var(--s3);
+  }
+  html .site-header .site-nav ul a { padding: 8px 10px 8px 6px; border-radius: 999px; font-size: 0.9375rem; }
+  html .site-header .site-nav ul a:hover { background: color-mix(in srgb, var(--nav-ink) 6%, transparent); }
+}
+
+/* ---------- Narrow screens: the Menu sheet ---------- */
+@media (max-width: 1200px) {
+  .nav-mark { display: none; }
+  /* Without the sliding mark, the current page's bubble is simply filled in. */
+  .site-nav ul a[aria-current]::before, .site-nav ul a.is-here::before { background: var(--nav-ink); color: var(--nav-paper); border-color: var(--nav-ink); }
+  .site-header .site-nav {
+    top: 100%; background: var(--nav-paper); border-bottom: 1px solid var(--nav-ink);
+    padding-top: var(--s4); box-shadow: 0 24px 40px -28px rgba(0, 0, 0, 0.5);
+    max-height: calc(100dvh - 76px);
+  }
+  html .site-header .site-nav li a {
+    display: flex; gap: 14px; padding: var(--s3) 0; font-size: var(--t-lg);
+    border-bottom: 1px dashed color-mix(in srgb, var(--nav-ink) 28%, transparent);
+  }
+  html .site-header .site-nav.is-open a[aria-current] { box-shadow: none; padding-left: 0; font-weight: 700; }
+  .site-header { --nav-bubble: 28px; }
+  .site-nav ul a::before { font-size: 12px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .site-nav.is-open { animation: nav-sheet 0.28s cubic-bezier(0.2, 0.8, 0.3, 1) both; transform-origin: top; }
+    .site-nav.is-open li, .site-nav.is-open .nav-actions { animation: nav-row 0.34s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+    .site-nav.is-open li:nth-child(2) { animation-delay: 25ms; }
+    .site-nav.is-open li:nth-child(3) { animation-delay: 50ms; }
+    .site-nav.is-open li:nth-child(4) { animation-delay: 75ms; }
+    .site-nav.is-open li:nth-child(5) { animation-delay: 100ms; }
+    .site-nav.is-open li:nth-child(6) { animation-delay: 125ms; }
+    .site-nav.is-open li:nth-child(7) { animation-delay: 150ms; }
+    .site-nav.is-open li:nth-child(8) { animation-delay: 175ms; }
+    .site-nav.is-open li:nth-child(n+9), .site-nav.is-open .nav-actions { animation-delay: 200ms; }
+    .site-nav.is-open a[aria-current]::before { animation: nav-fill 0.45s 0.18s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+  }
+}
+@keyframes nav-sheet { from { opacity: 0; transform: translateY(-10px); } }
+@keyframes nav-row { from { opacity: 0; transform: translateX(-12px); } }
