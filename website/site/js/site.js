@@ -1570,3 +1570,24 @@
   if (document.readyState === "complete") start();
   else { document.addEventListener("DOMContentLoaded", start); window.addEventListener("load", start); }
 })();
+
+  // Home page: the feature cards are folded. Open the one a link or the address points to, then scroll to it.
+  (function () {
+    function openFor(hash, scroll) {
+      if (!hash || hash.length < 2) return;
+      var el = null;
+      try { el = document.getElementById(decodeURIComponent(hash.slice(1))); } catch (e) { return; }
+      var fold = el && (el.matches && el.matches("details.fold") ? el : el.closest && el.closest("details.fold"));
+      if (!fold) return;
+      fold.open = true;
+      if (scroll) setTimeout(function () { fold.scrollIntoView({ block: "start" }); }, 0);
+    }
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest('a[href*="#"]');
+      if (!a || !a.hash || a.pathname.replace(/\/$/, "") !== location.pathname.replace(/\/$/, "")) return;
+      openFor(a.hash, true);
+    });
+    window.addEventListener("hashchange", function () { openFor(location.hash, true); });
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { openFor(location.hash, true); });
+    else openFor(location.hash, true);
+  })();

@@ -284,3 +284,22 @@ html.paper.app .up-next { background: var(--surface); border: 1px solid var(--te
 html.paper.app .up-next .label { font-family: var(--font-hand); color: var(--pen); font-size: 1.05rem; }
 html.paper.app .up-next h2 { font-size: 1.6rem; }
 html.paper.app .lock-card, html.paper.app .kpis { border-radius: 2px; }
+
+/* What's inside: the feature sections fold into cards, so the home page shows one idea at a time. */
+.fold-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.fold { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; scroll-margin-top: 88px; }
+.fold[open] { grid-column: 1 / -1; }
+.fold > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: center; padding: 18px 20px; border-radius: 10px; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::after { content: "+"; grid-column: 2; grid-row: 1 / span 2; font: 500 1.6rem/1 var(--font-mono); color: var(--accent); }
+.fold[open] > summary::after { content: "\2212"; }
+.fold > summary:hover { background: var(--raised); }
+.fold-title { font: 700 var(--t-lg)/1.25 var(--font-display); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.fold-teaser { color: var(--muted); font-size: var(--t-sm); }
+.fold-badge { font: 600 0.75rem/1 var(--font-body); padding: 4px 8px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+.fold[open] > summary { border-bottom: 1px solid var(--line); border-radius: 10px 10px 0 0; }
+.fold-body { padding: clamp(24px, 4vw, 48px) clamp(16px, 3vw, 32px); border-top: 0 !important; background: transparent; border-radius: 0 0 10px 10px; }
+.fold-body.section { padding-block: clamp(24px, 4vw, 48px); }
+.fold-body.calc-feature { padding-block: clamp(24px, 4vw, 48px); }
+.fold-body .wrap { padding-inline: 0; }
+@media (max-width: 800px) { .fold-grid { grid-template-columns: minmax(0, 1fr); } }
