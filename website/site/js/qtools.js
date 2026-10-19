@@ -153,13 +153,26 @@
     y = Math.max(b.t, Math.min(y, b.b - h));
     return { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
   }
-  // The question moves out from under the window, to whichever side of it has more room.
+  // The question moves out from under the window, to whichever side of it has more room. It moves once, when a drag
+  // or resize ends, not on every step of it, and it stays on its side unless that side gets cramped or the other side is clearly roomier.
+  var side = "", pads = "";
   function reflow(r) {
     var b = bounds(), left = r.x - b.l, right = b.r - (r.x + r.w), padL = 0, padR = 0;
-    if (right >= left) padL = Math.min(r.x + r.w + GAP - b.l, b.r - b.l - MIN_TEXT);
+    var pick = right >= left ? "right" : "left";
+    var kept = side === "right" ? right : left, other = side === "right" ? left : right;
+    if (side && pick !== side && kept >= 360 && kept >= other * 0.75) pick = side;
+    side = pick;
+    if (side === "right") padL = Math.min(r.x + r.w + GAP - b.l, b.r - b.l - MIN_TEXT);
     else padR = Math.min(b.r - r.x + GAP, b.r - b.l - MIN_TEXT);
-    root.style.setProperty("--qt-l", Math.max(0, padL) + "px");
-    root.style.setProperty("--qt-r", Math.max(0, padR) + "px");
+    setPads(Math.max(0, padL), Math.max(0, padR));
+  }
+  function setPads(l, r) {
+    var next = l + "," + r; if (next === pads) return;
+    var moved = !!pads; pads = next;
+    root.style.setProperty("--qt-l", l + "px");
+    root.style.setProperty("--qt-r", r + "px");
+    // fade the question in at its new place instead of sliding it, so the text rewraps once rather than every frame
+    if (moved && root.classList.contains("qt-motion")) { root.classList.remove("qt-settle"); void root.offsetWidth; root.classList.add("qt-settle"); }
   }
   function layout() {
     if (!el) return;
@@ -171,10 +184,10 @@
     if (open && !sheet) {
       var r = box();
       el.style.left = r.x + "px"; el.style.top = r.y + "px"; el.style.width = r.w + "px"; el.style.height = r.h + "px";
-      reflow(r);
+      if (!root.classList.contains("qt-resizing")) reflow(r);
     } else {
       el.style.left = el.style.top = el.style.width = el.style.height = "";
-      root.style.setProperty("--qt-l", "0px"); root.style.setProperty("--qt-r", "0px");
+      side = ""; setPads(0, 0);
     }
     marks();
   }

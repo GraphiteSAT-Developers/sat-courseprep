@@ -2233,9 +2233,11 @@ html[data-density="compact"] .lessons-page, html[data-density="compact"] .settin
 .qt-wait p { margin: 0 0 var(--s2); }
 /* the question reflows into the room beside the window (qtools.js sets --qt-l or --qt-r) */
 html.qt-open:not(.qt-sheet) .qt-shift { margin-left: var(--qt-l, 0px); margin-right: var(--qt-r, 0px); }
-html.qt-motion .qt-shift { transition: margin 0.22s ease, padding 0.22s ease; }
+html.qt-settle .qt-shift { animation: qt-settle 0.26s ease-out; }
+@keyframes qt-settle { from { opacity: 0.2; } }
+html.qt-resizing .qt { opacity: 0.94; }
 html.qt-resizing, html.qt-resizing * { user-select: none; -webkit-user-select: none; }
-html.qt-resizing .qt-shift, html.qt-resizing .qt iframe { transition: none; pointer-events: none; }
+html.qt-resizing .qt-shift, html.qt-resizing .qt iframe { pointer-events: none; }
 html.qt-pressing .qt iframe { pointer-events: none; }
 html.qt-open:not(.qt-sheet) .exam-body.qt-shift { margin: 0; padding-left: var(--qt-l, 0px); padding-right: var(--qt-r, 0px); }
 /* the tabs on the right edge */
