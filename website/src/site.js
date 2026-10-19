@@ -1389,6 +1389,7 @@
       var today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       var days = Math.round((new Date(test0.getFullYear(), test0.getMonth(), test0.getDate()) - today0) / 86400000);
       if (isFinite(days)) dl.textContent = String(Math.max(days, 0));
+      if (isFinite(days) && $("#chip-days-left")) $("#chip-days-left").textContent = String(Math.max(days, 0));
       $all("li", queue).forEach(bindReview);
       var savedGoal = store.get("graphite_goal");
       if (savedGoal) applyGoal(savedGoal);
@@ -1498,4 +1499,60 @@
     window.addEventListener("hashchange", function () { openFor(location.hash, true); });
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { openFor(location.hash, true); });
     else openFor(location.hash, true);
+  })();
+
+  // Opening or closing a fold-out card glides instead of jumping. The card grows from its old box into its new
+  // one, the cards around it slide to their new places, and the grid's height follows, so whatever sits below
+  // moves along with it. A closing card stays open (and readable) until it has shrunk, then folds.
+  (function () {
+    if (!Element.prototype.animate) return;
+    var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+    var MS = 380, EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
+    function box(n) { return n.getBoundingClientRect(); }
+    function px(n) { return Math.round(n * 10) / 10 + "px"; }
+    document.addEventListener("click", function (e) {
+      var sum = e.target.closest && e.target.closest("details.fold > summary");
+      if (!sum || (reduce && reduce.matches)) return;
+      var card = sum.parentNode, grid = card.parentNode;
+      e.preventDefault();
+      if (card._finish) card._finish();  // a click mid-way finishes the last move first
+      var cards = Array.prototype.filter.call(grid.children, function (n) { return n.getClientRects().length; });
+      var opening = !card.open, i = cards.indexOf(card);
+      var h0 = grid.offsetHeight, before = cards.map(box);
+      card.open = opening;                // lay out the end state to measure it...
+      var h1 = grid.offsetHeight, after = cards.map(box);
+      if (!opening) card.open = true;     // ...but a closing card keeps its content until it has shrunk
+      var big = opening ? after[i] : before[i], small = opening ? before[i] : after[i];
+      var dx = small.left - big.left, dy = small.top - big.top, dw = big.width - small.width, dh = big.height - small.height;
+      var r = getComputedStyle(card).borderTopLeftRadius;
+      var shut = { transform: "translate(" + px(dx) + "," + px(dy) + ")", clipPath: "inset(0 " + px(dw) + " " + px(dh) + " 0 round " + r + ")" };
+      var full = { transform: "none", clipPath: "inset(0 0 0 0 round " + r + ")" };
+      var opt = { duration: MS, easing: EASE, fill: opening ? "none" : "forwards" };
+      function kf(a, b) { return opening ? [a, b] : [b, a]; }
+      var anims = [card.animate(kf(shut, full), opt), grid.animate([{ height: h0 + "px" }, { height: h1 + "px" }], opt)];
+      cards.forEach(function (n, k) {
+        if (n === card) return;
+        var mx = before[k].left - after[k].left, my = before[k].top - after[k].top;
+        if (!mx && !my) return;
+        // Opening, the page is already laid out at the end, so each card slides in from where it was. Closing, it's
+        // still laid out at the start, so each card slides out to where it will be.
+        anims.push(n.animate(kf({ transform: "translate(" + px(opening ? mx : -mx) + "," + px(opening ? my : -my) + ")" }, { transform: "none" }), opt));
+      });
+      try {  // the + rides along the card's growing edge and turns into a ×
+        anims.push(sum.animate(kf({ transform: "translateX(" + px(-dw) + ") rotate(0deg)" }, { transform: "translateX(0) rotate(45deg)" }),
+          { duration: MS, easing: EASE, fill: opt.fill, pseudoElement: "::after" }));
+      } catch (err) { /* no pseudo-element animations in this browser */ }
+      Array.prototype.forEach.call(card.children, function (n) {
+        if (n === sum) return;
+        anims.push(n.animate(opening ? [{ opacity: 0 }, { opacity: 0, offset: 0.2 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0, offset: 0.6 }, { opacity: 0 }],
+          { duration: MS, easing: "ease", fill: opt.fill }));
+      });
+      function finish() {
+        card._finish = null;
+        if (!opening) card.open = false;
+        anims.forEach(function (a) { a.cancel(); });
+      }
+      card._finish = finish;
+      anims[0].onfinish = finish;
+    });
   })();

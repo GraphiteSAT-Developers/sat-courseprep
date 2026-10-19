@@ -703,7 +703,7 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
   .res-body { padding-left: 0; }
 }
 /* Live dashboard: hide the built-in sample until the student's own data has loaded. */
-.live .dash:not(.is-ready) .kpis, .live .dash:not(.is-ready) .dash-grid, .live .dash:not(.is-ready) .sample-note:not(.is-error) { visibility: hidden; }
+.live .dash:not(.is-ready) .kpis, .live .dash:not(.is-ready) .dash-folds, .live .dash:not(.is-ready) .sample-note:not(.is-error) { visibility: hidden; }
 
 /* Practice hub: one progress strip, then the two ways to practice. */
 .pr-lede { margin-top: calc(var(--s4) * -1); }

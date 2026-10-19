@@ -54,8 +54,46 @@
       var shown = Array.prototype.filter.call(f.children, function (c) { return !c.classList.contains("is-user-hidden"); }).length;
       f.classList.toggle("is-single", shown < 2);  // one section alone takes the full width
     });
-    var grid = document.querySelector(".dash-grid"); if (grid) grid.hidden = true;
+    var grid = document.getElementById("dash-folds"); if (grid) grid.hidden = true;
   }
   apply();
   document.addEventListener("graphite:prefs", function (e) { apply(e.detail); });
+})();
+
+/* The fold-out cards: each closed card's summary line is read from the section inside it, so it stays right as
+   the dashboard fills in (live data, the preview's sample student, a locked feature). A card shows only while its
+   section does: "Play and earn" appears once its data arrives. */
+(function () {
+  "use strict";
+  function txt(sel, root) { var n = (root || document).querySelector(sel); return n ? n.textContent.replace(/\s+/g, " ").trim() : ""; }
+  var TEASE = {
+    today: function () { return txt("#today-meta"); },
+    play: function (p) { var r = txt(".dash-play-xp strong", p); return (r ? r + ". " : "") + "Speed round, lessons, Level up and focus timer"; },
+    scores: function () { var n = txt("#kpi-latest"); return /\d/.test(n) ? "Latest " + n + " · " + txt("#scores-meta") : txt("#scores-meta"); },
+    domains: function (p) { var f = p.querySelectorAll(".bar-name .chip").length; return f ? f + (f === 1 ? " area" : " areas") + " marked Focus" : txt("#domains-meta"); },
+    review: function (p) { var due = p.querySelectorAll(".due-now").length; return txt("#review-count") + (due ? " · " + due + " due today" : ""); },
+    plan: function (p) {
+      var now = p.querySelector(".weeks .is-now span:last-child"), w = now ? now.cloneNode(true) : null;
+      if (w) Array.prototype.forEach.call(w.querySelectorAll(".now-tag"), function (t) { t.remove(); });
+      return txt("#plan-meta") + (w ? " · this week: " + w.textContent.trim() : "");
+    },
+    account: function () { return "Your plan, weekly goal and parent access"; }
+  };
+  Array.prototype.forEach.call(document.querySelectorAll(".dash-fold"), function (card) {
+    var k = card.getAttribute("data-dash"), panel = card.querySelector(".panel"), title = card.querySelector(".fold-title"),
+        tease = card.querySelector(".fold-teaser"), busy = false;
+    if (!panel) return;
+    function sync() {
+      if (busy) return; busy = true;
+      card.hidden = panel.hidden;
+      var h = txt("h2", panel); if (h) title.textContent = h;
+      var lock = panel.querySelector(".lock-card strong");
+      tease.textContent = lock ? lock.textContent : TEASE[k] ? TEASE[k](panel) : "";
+      busy = false;
+    }
+    sync();
+    new MutationObserver(sync).observe(panel, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["hidden"] });
+    // The numbers in Scores and Today's set come from the summary row above the cards.
+    if (k === "scores") new MutationObserver(sync).observe(document.querySelector(".kpis") || panel, { subtree: true, childList: true, characterData: true });
+  });
 })();
