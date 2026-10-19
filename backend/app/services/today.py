@@ -50,7 +50,7 @@ def start(user, today):
                     (user["id"],), one=True)
     if not attempt:
         return None
-    keys = {t["name"]: t["key"] for t in bank.topics()}
+    keys = {t["name"]: t["key"] for t in bank.topics("math") + bank.topics("rw")}
     domains = [d for d in json.loads(attempt["results"])["by_domain"] if d["domain"] in keys]
     if not domains:
         return None

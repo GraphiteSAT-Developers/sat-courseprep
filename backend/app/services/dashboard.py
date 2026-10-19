@@ -109,6 +109,12 @@ def build(user, today=None):
         if missed_skill.get(d):
             why = f"{missed_skill[d]}. {why}"
         today_items.append({"domain": d, "count": n, "why": why})
+    # The weakest Reading and Writing domain gets a set too, so every day covers both sections.
+    for d in rw_measured[:1]:
+        why = f"{domain_pct[d]}% on your last Reading and Writing test"
+        if missed_skill.get(d):
+            why = f"{missed_skill[d]}. {why}"
+        today_items.append({"domain": d, "count": 4, "why": why})
 
     monday = today - timedelta(days=today.weekday())
     since = datetime(monday.year, monday.month, monday.day, tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

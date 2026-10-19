@@ -208,6 +208,18 @@ class RWRoutesTest(unittest.TestCase):
         board = self.get("/api/speed/board?scope=nation&section=rw").json
         self.assertEqual(board["section"], "rw")
 
+    def test_study_plan_has_a_reading_and_writing_drill_each_week(self):
+        d = self.post("/api/plan/diagnostic", {}).json["diagnostic"]
+        self.post(f"/api/plan/diagnostic/{d['id']}/submit", {"answers": {}, "sure": {}})
+        plan = self.get("/api/plan").json["plan"]
+        study = [w for w in plan["weeks"] if w["phase"] != "test"]
+        for w in study:
+            rw = [t for t in w["tasks"] if t["key"] == f"w{w['n']}-rw"]
+            self.assertEqual(len(rw), 1, w["n"])
+            self.assertEqual(bank.section_of(rw[0]["skill"]["domain"]), "rw")
+        s = self.post("/api/plan/tasks", {"week": 0, "task": "w1-rw"}).json["session"]
+        self.assertTrue(s["questions"] and all(q["section"] == "rw" for q in s["questions"]))
+
     def test_home_sample_comes_from_both_sections(self):
         seen = set()
         for _ in range(40):

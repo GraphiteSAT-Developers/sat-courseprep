@@ -579,9 +579,6 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .sys { display: grid; gap: var(--s1); justify-items: center; margin-block: var(--s2) var(--s4); }
 .frac { display: inline-grid; vertical-align: middle; text-align: center; line-height: 1.15; margin-inline: 2px; font-size: 0.9em; }
 .frac > span:first-child { border-bottom: 1px solid currentColor; padding-inline: 2px; }
-.spr-help details { background: var(--x-bar); border-radius: var(--radius); padding: var(--s3) var(--s4); font-size: var(--t-sm); }
-.spr-help summary { cursor: pointer; font-weight: 700; }
-.spr-help ul { margin: var(--s3) 0 0; padding-left: 1.2em; display: grid; gap: var(--s1); color: var(--x-muted); }
 
 .mc { display: grid; gap: var(--s3); }
 .mc-row { display: flex; align-items: center; gap: var(--s3); position: relative; }
@@ -2801,9 +2798,44 @@ html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-laun
 .sub-cancel-offer p { flex: 1 1 280px; }
 
 /* ---------- Reading and Writing questions ---------- */
-/* Laid out like a Math question: one column, the passage first, then the question and choices. */
+/* Two panes, like the real test: the passage (or a grid-in question's entry directions) on the left, the question
+   on the right, and a divider that can be dragged or nudged. Multiple-choice Math stays in one column. */
 .exam.is-rw #calc-toggle, .exam.is-rw #ref-open { display: none; }
-.q-passage { padding-bottom: var(--s5); border-bottom: 2px dashed var(--x-line); }
+.q-wrap.is-split { max-width: 1280px; grid-template-columns: minmax(0, var(--left, 1fr)) 28px minmax(0, var(--right, 1fr)); column-gap: var(--s4); align-items: start; }
+.q-wrap.is-split > .q-passage { grid-column: 1; grid-row: 1 / span 8; position: sticky; top: 0; max-height: calc(100dvh - 210px); overflow-y: auto; padding-right: var(--s3); }
+.q-wrap.is-split > .q-divider { grid-column: 2; grid-row: 1 / span 8; align-self: stretch; }
+.q-wrap.is-split > :not(.q-passage):not(.q-divider) { grid-column: 3; }
+.q-divider { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--s2); padding-top: var(--s2); cursor: col-resize; touch-action: none; min-height: 240px; }
+.q-divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; transform: translateX(-50%); background: var(--x-line); border-radius: 2px; }
+.q-divider:focus-visible::before, .q-divider:hover::before { background: var(--x-sel); }
+.q-divider-btn { position: relative; z-index: 1; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--x-control); background: var(--x-bg); color: var(--x-text); cursor: pointer; padding: 0; }
+.q-divider-btn svg { width: 12px; height: 12px; }
+.q-divider-btn:hover { border-color: var(--x-text); }
+.q-divider-grip { position: relative; z-index: 1; width: 10px; height: 34px; border-radius: 5px; background: var(--x-control); }
+@media (max-width: 860px) {
+  .q-wrap.is-split { grid-template-columns: minmax(0, 1fr); }
+  .q-wrap.is-split > .q-passage, .q-wrap.is-split > :not(.q-passage):not(.q-divider) { grid-column: 1; grid-row: auto; }
+  .q-wrap.is-split > .q-passage { position: static; max-height: none; padding: 0 0 var(--s5); border-bottom: 2px dashed var(--x-line); }
+  .q-wrap.is-split > .q-divider { display: none; }
+}
+/* Annotate: highlighted words and their notes. */
+mark.anno { background: rgba(242, 193, 78, .38); color: inherit; border-radius: 2px; cursor: pointer; }
+mark.anno.has-note { border-bottom: 2px dotted var(--x-sel); }
+mark.anno:focus-visible { outline: 2px solid var(--x-sel); }
+.exam[data-view="light"] mark.anno { background: #fde68a; }
+.anno-pop { position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 88px; z-index: 40; width: min(440px, calc(100vw - 32px)); display: grid; gap: var(--s3); padding: var(--s4); background: var(--x-bar); color: var(--x-text); border: 1px solid var(--x-line); border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.35); }
+.anno-head { display: flex; align-items: center; justify-content: space-between; }
+.anno-head h2 { margin: 0; font-size: var(--t-md); }
+.anno-quote { margin: 0; font-family: var(--font-display); font-style: italic; color: var(--x-muted); }
+.anno-pop textarea { width: 100%; font: inherit; padding: var(--s2) var(--s3); border-radius: var(--radius); border: 1px solid var(--x-control); background: var(--x-bg); color: var(--x-text); resize: vertical; }
+.anno-actions { display: flex; justify-content: flex-end; gap: var(--s2); }
+/* Grid-in entry directions, in the left pane. */
+.spr-dir summary { cursor: pointer; font-weight: 700; font-family: var(--font-body); }
+.spr-dir ul { margin: var(--s3) 0; padding-left: 1.2em; display: grid; gap: var(--s2); font-family: var(--font-body); font-size: var(--t-sm); }
+.spr-examples { border-collapse: collapse; font-family: var(--font-body); font-size: var(--t-sm); width: 100%; }
+.spr-examples caption { text-align: left; font-weight: 700; padding-bottom: var(--s2); }
+.spr-examples th, .spr-examples td { border: 1px solid var(--x-line); padding: var(--s2); text-align: left; vertical-align: top; }
+.spr-examples thead th { background: var(--x-bar); }
 .q-passage, .rw-passage { font-family: var(--font-display); font-size: 1.125rem; line-height: 1.75; color: var(--x-text, var(--text)); }
 .q-passage p, .rw-passage p { margin: 0 0 var(--s3); }
 .q-passage > :last-child, .rw-passage > :last-child { margin-bottom: 0; }

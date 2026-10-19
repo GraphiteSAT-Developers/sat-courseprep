@@ -174,9 +174,17 @@
     $("mark-btn").setAttribute("aria-pressed", String(!!S.marked[i]));
     $("mark-btn").classList.toggle("on", !!S.marked[i]);
     $("elim-toggle").hidden = q.type !== "mc";
-    $("spr-help").hidden = q.type !== "spr";
-    $("q-passage").hidden = !q.passage;
-    $("q-passage").innerHTML = q.passage || "";
+    // Two panes, like the real test: a Reading and Writing passage, or a grid-in question's entry directions, on the
+    // left; the question on the right. Multiple-choice Math stays in one column.
+    var split = !!q.passage || q.type === "spr";
+    $("q-view").classList.toggle("is-split", split);
+    $("q-divider").hidden = !split;
+    $("q-passage").hidden = !split;
+    if (q.passage) { $("q-passage").innerHTML = q.passage; paintNotes(i); }
+    else if (split) {
+      $("q-passage").innerHTML = $("spr-directions").innerHTML;
+      if (window.matchMedia("(max-width: 860px)").matches) $("q-passage").querySelector("details").open = false;
+    } else $("q-passage").innerHTML = "";
     $("q-stem").innerHTML = q.passage ? q.prompt : q.stem;
     var box = $("q-answer"); box.innerHTML = "";
     var locked = !!checked[i];
@@ -322,6 +330,108 @@
   }
   function focusChoice(k) { var b = $("q-answer").querySelectorAll(".mc-choice")[k]; if (b) b.focus(); }
 
+  /* ---------- annotate: highlight words in a passage and leave a note (Reading and Writing) ----------
+     Notes are kept per question as character offsets into the passage text: S.notes[i] = [{s, e, note}]. */
+  var passageBox = $("q-passage"), annoAt = null, lastSel = null;
+  $("annotate-btn").hidden = !RW;
+  function textOffset(node, offset) {
+    var r = document.createRange(); r.selectNodeContents(passageBox); r.setEnd(node, offset);
+    return r.toString().length;
+  }
+  function wrapRange(s, e, k, note) {
+    var walker = document.createTreeWalker(passageBox, NodeFilter.SHOW_TEXT), pos = 0, n, parts = [];
+    while ((n = walker.nextNode())) {
+      var len = n.nodeValue.length, a = Math.max(s, pos), b = Math.min(e, pos + len);
+      // Text inside a graph (SVG) or the screen-reader copy of its data can't hold a highlight.
+      if (a < b && !n.parentNode.closest("svg, .visually-hidden")) parts.push([n, a - pos, b - pos]);
+      pos += len;
+    }
+    parts.forEach(function (p) {
+      var node = p[0];
+      if (p[2] < node.nodeValue.length) node.splitText(p[2]);
+      if (p[1] > 0) node = node.splitText(p[1]);
+      var m = document.createElement("mark");
+      m.className = "anno" + (note ? " has-note" : ""); m.setAttribute("data-k", String(k)); m.tabIndex = 0;
+      m.setAttribute("aria-label", note ? "Highlight with a note: " + note : "Highlighted text");
+      if (note) m.title = note;
+      node.parentNode.insertBefore(m, node); m.appendChild(node);
+    });
+  }
+  function paintNotes(i) { (S.notes && S.notes[i] || []).forEach(function (n, k) { wrapRange(n.s, n.e, k, n.note); }); }
+  function repaint() { var q = Q[S.cur]; if (q.passage) { passageBox.innerHTML = q.passage; paintNotes(S.cur); } }
+  document.addEventListener("selectionchange", function () {
+    var sel = window.getSelection();
+    if (!sel.rangeCount || sel.isCollapsed) return;
+    var r = sel.getRangeAt(0);
+    if (!passageBox.contains(r.commonAncestorContainer)) return;
+    lastSel = { s: textOffset(r.startContainer, r.startOffset), e: textOffset(r.endContainer, r.endOffset), at: S.cur };
+  });
+  function openNote(k) {
+    var n = S.notes[S.cur][k];
+    annoAt = k;
+    var text = passageBox.textContent.slice(n.s, n.e).replace(/\s+/g, " ").trim();
+    $("anno-quote").textContent = "\u201C" + (text.length > 140 ? text.slice(0, 140) + "\u2026" : text) + "\u201D";
+    $("anno-text").value = n.note || "";
+    $("anno-pop").hidden = false;
+    $("anno-text").focus();
+  }
+  function closeNote() { $("anno-pop").hidden = true; annoAt = null; }
+  $("annotate-btn").addEventListener("click", function () {
+    var sel = lastSel && lastSel.at === S.cur && lastSel.e > lastSel.s ? lastSel : null;
+    if (!sel || !Q[S.cur].passage) { toast("Select words in the passage first, then press Annotate."); return; }
+    S.notes = S.notes || {};
+    var list = S.notes[S.cur] = S.notes[S.cur] || [];
+    var hit = list.map(function (n, k) { return n.s < sel.e && sel.s < n.e ? k : -1; }).filter(function (k) { return k >= 0; })[0];
+    if (hit === undefined) { list.push({ s: sel.s, e: sel.e, note: "" }); hit = list.length - 1; save(); repaint(); }
+    window.getSelection().removeAllRanges(); lastSel = null;
+    openNote(hit);
+  });
+  passageBox.addEventListener("click", function (e) {
+    var m = e.target.closest("mark.anno"); if (m) openNote(Number(m.getAttribute("data-k")));
+  });
+  passageBox.addEventListener("keydown", function (e) {
+    var m = e.target.closest && e.target.closest("mark.anno");
+    if (m && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openNote(Number(m.getAttribute("data-k"))); }
+  });
+  $("anno-save").addEventListener("click", function () {
+    if (annoAt === null) return;
+    S.notes[S.cur][annoAt].note = $("anno-text").value.trim().slice(0, 500);
+    save(); repaint(); closeNote();
+  });
+  $("anno-delete").addEventListener("click", function () {
+    if (annoAt === null) return;
+    S.notes[S.cur].splice(annoAt, 1);
+    save(); repaint(); closeNote();
+  });
+  $("anno-close").addEventListener("click", closeNote);
+
+  /* ---------- the divider between the panes: drag it, use the arrow keys, or press a side's button to widen it ---------- */
+  var SPLIT_KEY = "graphite_split";
+  var leftShare = 50;
+  try { leftShare = Number(localStorage.getItem(SPLIT_KEY)) || 50; } catch (e) { /* storage blocked */ }
+  function setSplit(v) {
+    leftShare = Math.max(25, Math.min(75, Math.round(v)));
+    $("q-view").style.setProperty("--left", leftShare + "fr"); $("q-view").style.setProperty("--right", (100 - leftShare) + "fr");
+    $("q-divider").setAttribute("aria-valuenow", String(leftShare));
+    try { localStorage.setItem(SPLIT_KEY, String(leftShare)); } catch (e) { /* storage blocked */ }
+  }
+  setSplit(leftShare);
+  $("widen-left").addEventListener("click", function () { setSplit(leftShare >= 70 ? 50 : 70); });
+  $("widen-right").addEventListener("click", function () { setSplit(leftShare <= 30 ? 50 : 30); });
+  $("q-divider").addEventListener("keydown", function (e) {
+    if (e.target !== $("q-divider")) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); setSplit(leftShare - 5); }
+    if (e.key === "ArrowRight") { e.preventDefault(); setSplit(leftShare + 5); }
+  });
+  $("q-divider").addEventListener("pointerdown", function (e) {
+    if (e.target.closest("button")) return;
+    e.preventDefault();
+    var box = $("q-view").getBoundingClientRect();
+    function move(ev) { setSplit((ev.clientX - box.left) / box.width * 100); }
+    function up() { document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); }
+    document.addEventListener("pointermove", move); document.addEventListener("pointerup", up);
+  });
+
   /* ---------- navigator & review ---------- */
   function buildGrid(el, closeAfter) {
     el.innerHTML = "";
@@ -367,7 +477,7 @@
     $("q-area").scrollTop = 0;
     tutorRules(); tutorContext();
   }
-  function goTo(i) { S.cur = Math.max(0, Math.min(N - 1, i)); showPage("q"); renderNav(); $("q-area").focus({ preventScroll: true }); }
+  function goTo(i) { closeNote(); S.cur = Math.max(0, Math.min(N - 1, i)); showPage("q"); renderNav(); $("q-area").focus({ preventScroll: true }); }
 
   /* ---------- submit & results ---------- */
   function submit(auto) {
@@ -574,7 +684,8 @@
   });
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    if (!$("done-dialog").hidden) closeDialog($("done-dialog"));
+    if (!$("anno-pop").hidden) { closeNote(); $("annotate-btn").focus(); }
+    else if (!$("done-dialog").hidden) closeDialog($("done-dialog"));
     else if (!$("dir-dialog").hidden) closeDialog($("dir-dialog"));
     else if (!$("ref-dialog").hidden) closeDialog($("ref-dialog"));
     else if (!$("nav-pop").hidden) { closeNav(); $("nav-toggle").focus(); }

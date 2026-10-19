@@ -200,7 +200,7 @@
   }
   function taskLine(plan, wi, t, primary) {
     var st = taskState(plan, t);
-    var what = t.kind === "drill" ? "Skill drill · 10 questions" : (t.kind === "quiz" ? "Quiz on this week's topics · 10 questions" : "Timed Math module · 35 minutes");
+    var what = /-rw$/.test(t.key) ? "Reading and Writing drill · 10 questions" : t.kind === "drill" ? "Skill drill · 10 questions" : (t.kind === "quiz" ? "Quiz on this week's topics · 10 questions" : "Timed Math module · 35 minutes");
     var done = st && st.done ? '<span class="pl-check">Done' + (st.submitted && st.total ? " · " + st.correct + "/" + st.total : "") + "</span>" : "";
     return '<li class="' + (st && st.done ? "is-done" : "") + '"><div><strong>' + esc(t.kind === "drill" ? "Drill: " + t.title : t.title) + "</strong>" +
       '<span class="fine">' + what + "</span></div>" + done + taskButton(plan, wi, t, primary) + "</li>";
@@ -219,8 +219,9 @@
       '<p class="pl-diff"><span class="chip">' + esc(w.difficulty_label) + "</span>" + (w.review ? " <span class=\"fine\">Plus a review of " + esc(w.review.name) + "</span>" : "") + "</p></div>" +
       '<ul class="pl-tasks">' + w.tasks.map(function (t, i) { return taskLine(plan, now, t, i === firstOpen); }).join("") + "</ul>";
     if (w.checklist) html += '<ul class="pl-checklist">' + w.checklist.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>";
-    if (w.rw_focus) html += '<p class="fine pl-rw">Reading and Writing focus: <strong>' + esc(w.rw_focus) + "</strong>. " +
-      (RW_KEYS[w.rw_focus] ? '<button class="btn btn-quiet" type="button" data-rw-domain="' + RW_KEYS[w.rw_focus] + '">Practice ' + esc(w.rw_focus) + "</button>" : "") + "</p>";
+    if (w.rw_focus) html += '<p class="fine pl-rw">Reading and Writing focus: <strong>' + esc(w.rw_focus) + "</strong>" +
+      (w.tasks.some(function (t) { return t.key === "w" + w.n + "-rw"; }) ? ". Its drill is in the list above." :
+       RW_KEYS[w.rw_focus] ? '. <button class="btn btn-quiet" type="button" data-rw-domain="' + RW_KEYS[w.rw_focus] + '">Practice ' + esc(w.rw_focus) + "</button>" : "") + "</p>";
     $("pl-now").innerHTML = html;
 
     $("pl-weeks").innerHTML = weeks.map(function (wk, i) {

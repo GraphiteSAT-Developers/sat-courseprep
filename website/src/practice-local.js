@@ -403,6 +403,10 @@
       var tasks = [{ key: "w" + n + "-drill-1", kind: "drill", title: focus[0].name, skill: focus[0], count: 10 }];
       if (hours >= 2) tasks.push({ key: "w" + n + "-drill-2", kind: "drill", title: focus[1].name, skill: focus[1], count: 10 });
       tasks.push({ key: "w" + n + "-quiz", kind: "quiz", title: "Week " + n + " quiz", count: 10 });
+      // Reading and Writing gets a drill too: the week's focus domain, one of its skills in turn (studyplan.rw_skill).
+      var rwd = BANK.rw_topics.filter(function (t) { return t.name === rwOrder[w % rwOrder.length]; })[0];
+      var rws = rwd.skills[Math.floor(w / rwOrder.length) % rwd.skills.length];
+      tasks.push({ key: "w" + n + "-rw", kind: "drill", title: rws.name, skill: { domain: rwd.key, skill: rws.key, name: rws.name }, count: 10 });
       if (phase !== "foundation" && (phase === "sharpen" || w % 2 === 1)) tasks.push({ key: "w" + n + "-test", kind: "test", title: "Math practice test" });
       weeks.push({ n: n, week_of: isoDate(addDays(monday, 7 * w)), phase: phase, phase_label: DG.phases[phase], difficulty: d, mix: mix,
         difficulty_label: mixLabel(mix), focus: focus, review: review ? ref(review) : null, rw_focus: rwOrder[w % rwOrder.length], tasks: tasks });
@@ -678,7 +682,7 @@
     var latest = tests.length ? tests[tests.length - 1].result : null, byDom = {};
     if (latest) latest.by_domain.forEach(function (d) { byDom[d.domain] = Math.round(d.right / d.total * 100); });
     var measured = BANK.topics.map(function (t) { return t.name; }).filter(function (n) { return byDom[n] != null && byDom[n] < 100; }).sort(function (a, b) { return byDom[a] - byDom[b]; }).slice(0, 3);
-    var domains = BANK.topics.map(function (t) { return { name: t.name, pct: byDom[t.name] == null ? null : byDom[t.name], focus: measured.indexOf(t.name) >= 0 }; });
+    var domains = BANK.topics.concat(BANK.rw_topics || []).map(function (t) { return { name: t.name, section: BANK.topics.indexOf(t) > -1 ? "Math" : "Reading and Writing", pct: byDom[t.name] == null ? null : byDom[t.name], focus: measured.indexOf(t.name) >= 0 }; });
     var dsub = Object.keys(st.diagnostics || {}).map(function (k) { return st.diagnostics[k]; }).filter(function (d) { return d.submitted_at; }).sort(function (a, b) { return a.id - b.id; }).pop();
     var diagnostic = dsub ? { at: dsub.submitted_at, correct: dsub.results.correct, total: dsub.results.total, strengths: dsub.results.strengths || [], focus: dsub.results.focus || [] } : null;
     var plan = null, prow = st.plans && st.plans.length ? st.plans[st.plans.length - 1] : null;
