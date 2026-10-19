@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=000397135c">
-<script src="/js/site.js?v=74a7d8e2a8" defer></script><script src="/js/qtools.js?v=6c2201876b" defer></script><script src="/js/tutor.js?v=5bb8ec7d44" defer></script><script src="/js/effects.js?v=22b28feeaa" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=3d1218eaa9">
+<script src="/js/site.js?v=d7d0a0c9fb" defer></script><script src="/js/qtools.js?v=6c2201876b" defer></script><script src="/js/tutor.js?v=c38d5ce9c3" defer></script><script src="/js/effects.js?v=22b28feeaa" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -75,19 +75,24 @@
     <div id="tu-body">
       <div class="tu-cols" data-subject-show="math">
         <section class="panel tu-chat-panel" aria-labelledby="tu-chat-title">
-          <div class="panel-head"><h2 id="tu-chat-title">Conversation</h2><span class="chip chip-quiet">Coming soon</span></div>
+          <div class="panel-head"><h2 id="tu-chat-title">Conversation</h2><span class="chip chip-quiet" id="tu-status">Coming soon</span></div>
           <div class="tu-about" id="tu-about" hidden></div>
-          <div class="tu-chat" aria-live="polite">
+          <div class="tu-chat" id="tu-chat" aria-live="polite">
             <div class="qt-msg"><p>Hi! Tell me what you're stuck on. If you've tried it already, say what you got, and I'll start from there.</p></div>
           </div>
-          <div class="tu-starts" role="group" aria-label="Ways to start">
-            <button type="button" class="qt-ask" disabled>Explain a topic</button>
-            <button type="button" class="qt-ask" disabled>Check my work</button>
-            <button type="button" class="qt-ask" disabled>Quiz me on what I missed</button>
-            <button type="button" class="qt-ask" disabled>Show me the Desmos way</button>
-            <button type="button" class="qt-ask" disabled>Plan my week</button>
+          <div class="tu-starts" id="tu-starts" role="group" aria-label="Ways to start">
+            <button type="button" class="qt-ask" disabled data-ask="Can you explain this topic to me? ">Explain a topic</button>
+            <button type="button" class="qt-ask" disabled data-ask="Can you check my work? Here's the question and what I did: ">Check my work</button>
+            <button type="button" class="qt-ask" disabled data-send="Quiz me on the kind of questions I've been missing, one at a time.">Quiz me on what I missed</button>
+            <button type="button" class="qt-ask" disabled data-ask="Show me the Desmos way to solve this: ">Show me the Desmos way</button>
+            <button type="button" class="qt-ask" disabled data-send="Help me plan my SAT study for this week.">Plan my week</button>
           </div>
-          <div class="qt-input tu-input" role="note"><span>The message box goes here.</span><span class="fine">Coming soon</span></div>
+          <div class="qt-input tu-input" id="tu-soon" role="note"><span>The message box goes here.</span><span class="fine">Coming soon</span></div>
+          <form class="tu-form" id="tu-form" hidden>
+            <label class="visually-hidden" for="tu-text">Message the tutor</label>
+            <textarea id="tu-text" rows="2" maxlength="4000" placeholder="Ask about a question, a lesson or a Desmos move"></textarea>
+            <button type="submit" class="btn btn-primary" id="tu-send">Send</button>
+          </form>
           <p class="fine qt-note">The tutor is an automated helper. It can make mistakes, so check its work. Your answers are always graded separately.</p>
         </section>
 

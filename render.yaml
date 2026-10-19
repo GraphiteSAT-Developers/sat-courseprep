@@ -40,6 +40,12 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      - key: QWEN_API_KEY      # the AI tutor (Alibaba Cloud Model Studio key, or your own Qwen server's key)
+        sync: false
+      - key: QWEN_BASE_URL     # only for your own Qwen server, e.g. https://qwen.example.com/v1
+        sync: false
+      - key: QWEN_MODEL        # defaults to qwen-plus
+        sync: false
 
   # Daily study reminders (Settings > Study > Daily reminder). Runs once an hour and emails students whose
   # reminder time it is. Render bills cron jobs by the minute they run; delete this service to skip reminders.

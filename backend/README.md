@@ -114,6 +114,8 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `GET /api/focus`, `POST /api/focus/start`, `POST /api/focus/<id>/finish` | Focus timer | Yes |
 | `GET /api/lessons`, `GET /api/lessons/<id>`, `POST /api/lessons/<id>/complete` | Lessons and recall checks | Yes |
 | `GET /api/me/prefs`, `PATCH /api/me/prefs` | Dashboard layout, practice defaults and drawn avatar: `{"dashboard": {...}, "study": {...}, "avatar": {...}}`. Look settings go through `PATCH /api/me/appearance` | Yes |
+| `GET /api/tutor` | Whether the tutor is connected, and how many questions are left today | Yes |
+| `POST /api/tutor/chat` | Ask the tutor: `{"messages": [{"role": "user", "content"}...], "context": {"title", "detail"}}`. Returns `{"reply", "lock"}` | Yes |
 | `GET /api/health` | Health check for the host | No |
 
 ## Folder layout
@@ -260,6 +262,26 @@ No products need to be made in Stripe: the server creates each price from `plans
 
 On your own computer, Stripe can't reach `127.0.0.1` for webhooks. Checkout still works, because the plan is also started when the parent comes back from Stripe. To test webhooks locally, use the Stripe CLI: `stripe listen --forward-to localhost:8000/api/stripe/webhook`.
 
+## Connect the tutor (Qwen)
+
+The tutor page's message box sends the conversation to `POST /api/tutor/chat`, and the server asks Qwen through its OpenAI-compatible chat API (`app/services/qwen.py`, no extra packages). The key stays on the server; the browser never talks to Qwen. Until one of the settings below is set, the tutor page says "Coming soon".
+
+**Qwen in the cloud (Alibaba Cloud Model Studio).** Easiest when the site is hosted.
+
+1. Make an account at Alibaba Cloud Model Studio and create an API key (it starts with `sk-`).
+2. Set `QWEN_API_KEY` to it (in `backend/.env` on your computer, or in Render or Railway's environment settings). Leave `QWEN_BASE_URL` unset: the server uses the international endpoint, `https://dashscope-intl.aliyuncs.com/compatible-mode/v1`. Accounts in mainland China set `QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1`.
+3. Optionally set `QWEN_MODEL` (the default is `qwen-plus`; `qwen-turbo` is cheaper, `qwen-max` stronger).
+4. Restart the server and open the Tutor page.
+
+**Your own Qwen server.** Anything that serves the OpenAI-compatible API works. Set `QWEN_BASE_URL` to its `/v1` address and `QWEN_MODEL` to the model name it serves. `QWEN_API_KEY` is optional and only sent if set.
+
+- Ollama on your computer: `ollama pull qwen3:8b`, then `QWEN_BASE_URL=http://localhost:11434/v1` and `QWEN_MODEL=qwen3:8b`.
+- vLLM on a GPU server: `vllm serve Qwen/Qwen3-8B --api-key some-secret`, then `QWEN_BASE_URL=http://your-gpu-box:8000/v1`, `QWEN_MODEL=Qwen/Qwen3-8B` and `QWEN_API_KEY=some-secret`.
+
+A hosted site can't reach `localhost` on your computer, so for the hosted site the Qwen server needs a public HTTPS address, and it should require a key. Replies that start with Qwen3's `<think>...</think>` reasoning have it removed before the student sees them. `QWEN_TIMEOUT` (seconds, default 60) sets how long to wait for an answer.
+
+Limits: each answered question counts toward the plan's `ai_tutor_per_day` in `app/services/plans.py` (5 a day on Free, 50 on No. 2, unlimited above), and every plan is capped at 8 questions a minute so a stuck page can't run up the bill. Failed answers don't count. The conversation isn't saved on the server; the page sends it with each question (the last 20 messages, 16,000 characters at most), and the system prompt in `app/services/tutor.py` sets how the tutor teaches.
+
 ## Not built yet
 
 - Plan limits (see `LIMITS` in `app/services/plans.py`)
@@ -267,4 +289,4 @@ On your own computer, Stripe can't reach `127.0.0.1` for webhooks. Checkout stil
 - Sending the weekly progress email to parents
 - An admin page to see leads and students (for now, query the `leads` and `users` tables)
 - Reading and Writing practice tests, lessons, levels and speed rounds (each page has a "coming soon" preview under its Reading and Writing switch)
-- The tutor's answers: the tutor page and the Tutor tab show a placeholder where the message box goes. Before launch, every claim about the tutor on the home page (it's on every question, it knows what you missed this week, hints before answers) has to be true
+- The Tutor tab next to the calculator still shows a placeholder; the tutor page itself works once Qwen is connected (see "Connect the tutor"). Before launch, every claim about the tutor on the home page (it's on every question, it knows what you missed this week, hints before answers) has to be true

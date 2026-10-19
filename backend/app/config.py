@@ -53,6 +53,14 @@ class Config:
     STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
     STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 
+    # The AI tutor (services/qwen.py). It turns on when QWEN_API_KEY or QWEN_BASE_URL is set. Without a base URL it
+    # uses Alibaba Cloud Model Studio (DashScope); point QWEN_BASE_URL at any OpenAI-compatible server to use your
+    # own Qwen instead, for example Ollama (http://localhost:11434/v1) or vLLM (http://your-gpu-box:8000/v1).
+    QWEN_API_KEY = os.environ.get("QWEN_API_KEY", "")
+    QWEN_BASE_URL = os.environ.get("QWEN_BASE_URL", "").rstrip("/")
+    QWEN_MODEL = os.environ.get("QWEN_MODEL", "qwen-plus")
+    QWEN_TIMEOUT = int(os.environ.get("QWEN_TIMEOUT", "60"))
+
     # Requests bigger than this are refused before they're read (profile photos are the largest thing sent).
     MAX_CONTENT_LENGTH = 9 * 1024 * 1024
 

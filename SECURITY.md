@@ -6,7 +6,7 @@ deploy. `backend/tests/test_security.py` checks most of this automatically, and 
 
 | Item | Status | How |
 | --- | --- | --- |
-| Hide API keys | Done | Every key (Stripe, email, Turnstile, database) is an environment variable read by the server (`backend/app/config.py`). The browser never gets one. A test fails the build if anything secret-looking appears in `website/site/`. |
+| Hide API keys | Done | Every key (Stripe, Qwen, email, Turnstile, database) is an environment variable read by the server (`backend/app/config.py`). The browser never gets one. A test fails the build if anything secret-looking appears in `website/site/`. |
 | Purge git secrets | Done | The whole history was scanned (all 62+ commits): nothing to purge. Only placeholders like `sk_test_...` and fake test keys appear. `.gitignore` blocks `.env`, keys and database files, and gitleaks scans every push. |
 | Use public DB key | Not needed | That's for sites where the browser talks to the database directly (Supabase, Firebase). Here the browser only talks to the Flask server; `DATABASE_URL` never leaves it. |
 | Enable row level security | Done the server way | Same reason: there's no public database access for row-level security to guard. Every query is scoped to the signed-in account on the server (`WHERE user_id = ?`), and the tests try to reach another student's sets, rounds, focus sessions, review items and parent pages. |

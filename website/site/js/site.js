@@ -422,6 +422,10 @@
     '<path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   function lockText(lock) {
     if (lock.reason) return { title: lock.reason, text: lock.name + " " + (/s$/.test(lock.name) ? "are" : "is") + " locked until your plan is paid. Paying unlocks everything right away.", cta: "Fix payment" };
+    if (lock.period === "day" && lock.limit) {
+      return { title: "You've used today's " + lock.name.toLowerCase(),
+               text: "Your plan includes " + lock.limit + " a day. " + lock.need_name + " includes more, or come back tomorrow.", cta: "See plans" };
+    }
     if (lock.period && lock.limit) {
       return { title: "You've used this " + lock.period + "'s " + lock.name.toLowerCase(),
                text: "Your plan includes " + lock.limit + " a " + lock.period + ". " + lock.need_name + " includes more, or wait until next " + lock.period + ".", cta: "See plans" };

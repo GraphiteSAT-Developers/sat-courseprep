@@ -2251,7 +2251,16 @@ html.qt-motion .qt-launch { transition: right 0.22s ease; }
 .tu-chat-panel { min-height: 520px; grid-template-rows: auto auto 1fr auto auto auto; }
 .tu-about { display: grid; gap: 2px; padding: var(--s3); border-radius: 12px; background: var(--raised); }
 .tu-about .label { margin: 0; }
-.tu-chat { display: flex; flex-direction: column; justify-content: flex-end; gap: var(--s3); min-height: 200px; }
+.tu-chat { display: flex; flex-direction: column; gap: var(--s3); min-height: 200px; max-height: 60vh; overflow-y: auto; }
+.tu-chat > :first-child { margin-top: auto; }
+.tu-chat .qt-msg p + p { margin-top: var(--s2); }
+.tu-chat .qt-msg.is-me { align-self: flex-end; border-radius: 14px 14px 4px 14px; background: var(--accent); color: var(--accent-ink); }
+.tu-chat .qt-msg.is-wait { color: var(--muted); }
+.tu-chat .qt-msg.is-err { color: var(--err); }
+.qt-ask:not(:disabled) { color: var(--text); cursor: pointer; }
+.qt-ask:not(:disabled):hover { border-color: var(--accent); }
+.tu-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s2); align-items: end; }
+.tu-form textarea { min-height: 56px; }
 .tu-starts { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .tu-misses, .tu-ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
 .tu-misses button { width: 100%; display: grid; gap: 2px; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: 12px; background: none; color: var(--text); font: inherit; cursor: pointer; }

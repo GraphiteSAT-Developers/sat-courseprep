@@ -27,6 +27,7 @@ FEATURES = {
     "score_history": ("score_history", "Score history and skill breakdown", None),
     "parent_dashboard": ("parent_dashboard", "The parent dashboard", None),
     "lessons": ("all_lessons", "Every lesson", None),  # the free plan gets lessons.FREE_LESSONS only
+    "tutor": ("ai_tutor_per_day", "Tutor questions", "day"),
 }
 
 
@@ -48,14 +49,21 @@ def standing(student_id):
 
 def _since(period, today=None):
     today = today or datetime.now(timezone.utc).date()
-    start = today - timedelta(days=today.weekday()) if period == "week" else today.replace(day=1)
+    if period == "day":
+        start = today
+    else:
+        start = today - timedelta(days=today.weekday()) if period == "week" else today.replace(day=1)
     return datetime(start.year, start.month, start.day, tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def used(student_id, feature, today=None):
-    """How many of a counted feature the student has started this week or month."""
+    """How many of a counted feature the student has started today, this week or this month."""
     period = FEATURES[feature][2]
     since = _since(period, today)
+    if feature == "tutor":
+        # One event per answered question (routes/tutor.py). rate_events keeps a day, which covers today.
+        row = query("SELECT COUNT(*) AS n FROM rate_events WHERE bucket = ? AND at >= ?", (f"tutor:{student_id}", since), one=True)
+        return row["n"]
     if feature == "practice_set":
         # Practice sets the student starts: topics and today's sets. Plan tasks, Level up and review count elsewhere.
         row = query("SELECT COUNT(*) AS n FROM practice_sessions WHERE user_id = ? AND mode = 'topic' AND created_at >= ?",
@@ -111,7 +119,7 @@ def message(st):
     if st["reason"]:
         return f"{st['reason']}, so {st['name'].lower()} {'are' if st['name'].endswith('s') else 'is'} locked until it's paid. Fix it on your subscription page."
     if st["period"] and st["limit"]:
-        each = "this week" if st["period"] == "week" else "this month"
+        each = {"day": "today", "week": "this week", "month": "this month"}[st["period"]]
         return (f"You've used all {st['limit']} of your {st['name'].lower()} {each}. "
                 f"{st['need_name']} includes more.")
     return f"{st['name']} {'come' if st['name'].endswith('s') else 'comes'} with the {st['need_name']} plan and up."
