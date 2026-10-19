@@ -1,5 +1,7 @@
 """Rewards, speed rounds, leaderboards, focus sessions and lessons. Run from the backend folder: python -m unittest discover tests"""
 import json
+import random
+import unittest
 from datetime import date, timedelta
 
 from app.db import execute, query
@@ -326,3 +328,12 @@ class PlayTest(PracticeTest):
         self.post("/api/auth/register", {"name": "Pat Lee", "email": "pat@home.org", "password": "password123", "role": "parent"})
         if self.client.get("/api/me").json["user"]["role"] == "parent":
             self.assertEqual(self.client.get("/api/game").status_code, 403)
+
+
+class NicknameTest(unittest.TestCase):
+    def test_every_suggested_nickname_can_be_saved(self):
+        # Some word pairs are too long ("Electric Protractor 42" is 22 characters), so they're never suggested.
+        rng = random.Random(7)
+        for _ in range(2000):
+            for nick in speed.roll_nicknames(rng=rng):
+                self.assertLessEqual(len(nick), speed.NICK_MAX, nick)
