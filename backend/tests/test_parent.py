@@ -160,7 +160,7 @@ class ParentTest(unittest.TestCase):
     def test_parent_sees_every_plan_with_monthly_prices(self):
         plans = self.parent.get("/api/parent").json["plans"]
         self.assertEqual([p["key"] for p in plans], ["free", "no2", "sharpened", "masterstroke"])
-        self.assertEqual([p["name"] for p in plans], ["Scratch Paper", "No. 2", "Sharpened", "Masterstroke"])
+        self.assertEqual([p["name"] for p in plans], ["Scratch Paper", "No. 2", "Sharpened", "Mechanical"])
         sharp = plans[2]
         self.assertEqual(sharp["per_month_cents"], {"week": 4329, "month": 3900, "year": 2900})
         self.assertEqual(sharp["savings"]["year"], {"percent": 26, "per_year_cents": 12000})

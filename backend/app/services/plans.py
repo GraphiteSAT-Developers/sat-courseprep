@@ -67,7 +67,7 @@ PLANS = {
         ],
     },
     "masterstroke": {
-        "name": "Masterstroke",
+        "name": "Mechanical",
         "tagline": "Our most hands-on plan, with a coach in your corner.",
         "blurb": "Everything in Sharpened, plus a weekly 1-on-1 check-in with a human coach and priority support.",
         "badge": "Best results",
@@ -83,7 +83,7 @@ PLANS = {
     },
 }
 
-# The "Compare every feature" table on the home page, in plan order (free, No. 2, Sharpened, Masterstroke).
+# The "Compare every feature" table on the home page, in plan order (free, No. 2, Sharpened, Mechanical).
 # True shows a check mark, False a dash, and text shows as written.
 COMPARE = [
     ("Practice", [

@@ -178,16 +178,16 @@ Every plan, price and feature list lives in `app/services/plans.py`. The home pa
 | Scratch Paper (free) | $0 | $0 | $0 |
 | No. 2 | $4.99 ($21.62/month) | $19 | $180 ($15/month, 21% off) |
 | Sharpened | $9.99 ($43.29/month) | $39 | $348 ($29/month, 26% off) |
-| Masterstroke | $34.99 ($151.62/month) | $129 | $1,188 ($99/month, 23% off) |
+| Mechanical | $34.99 ($151.62/month) | $129 | $1,188 ($99/month, 23% off) |
 
 Prices are always shown per month. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, and `app/services/access.py` enforces it:
 
 - Free: the diagnostic, 1 practice set a week, answers without step-by-step explanations, and 3 starter lessons (`lessons.FREE_LESSONS`: Desmos hacks, Active recall, Solve any linear equation). No mock tests, study plan, review queue, Level up, score history or parent progress.
 - No. 2: every lesson, unlimited practice sets, explanations, the study plan and review queue, 2 mock tests a month.
-- Sharpened and Masterstroke: everything, including unlimited mock tests, Level up, score history and the parent dashboard with weekly emails (sent Sunday evenings by the `graphite-weekly-reports` cron job in `render.yaml`, or `flask --app wsgi send-weekly-reports` from the backend folder).
+- Sharpened and Mechanical: everything, including unlimited mock tests, Level up, score history and the parent dashboard with weekly emails (sent Sunday evenings by the `graphite-weekly-reports` cron job in `render.yaml`, or `flask --app wsgi send-weekly-reports` from the backend folder).
 - A plan that isn't paid counts as free: a failed payment (Stripe marks it `past_due`) or a pause locks the paid features until it's paid or resumed. A canceled plan keeps working until the end of the time paid for.
 
-Locked features show what unlocks them, and requests for them answer `402` with `code: "plan_required"`. Students manage their own plan on the standalone **Subscription** page (`subscription.html`), and anything locked sends them there with the plan that unlocks it already picked (switch, pause, cancel, undo, fix a failed payment); parents can do the same on the parent dashboard, and either can pay at checkout. Set `PLAN_LIMITS=false` in `backend/.env` to turn every lock off. The test account starts on the free plan; switch it to any plan on the Subscription page (no card is charged while Stripe isn't connected). Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
+Locked features show what unlocks them, and requests for them answer `402` with `code: "plan_required"`. Students manage their own plan on the standalone **Subscription** page (`subscription.html`), and anything locked sends them there with the plan that unlocks it already picked (switch, pause, cancel, undo, fix a failed payment); parents can do the same on the parent dashboard, and either can pay at checkout. Set `PLAN_LIMITS=false` in `backend/.env` to turn every lock off. The test account starts on the free plan; switch it to any plan on the Subscription page (no card is charged while Stripe isn't connected). Mechanical promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
 
 ## Mock tests
 
