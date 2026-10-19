@@ -1208,7 +1208,7 @@
       var next = items.filter(function (i) { return !i.done; })[0];
       var src = d.today.source || (items.length ? "domains" : "none");
       if (src === "none") {
-        $("#up-next-title").textContent = "Your 10-question diagnostic";
+        $("#up-next-title").innerHTML = 'Your <span class="nowrap">10-question</span> diagnostic';
         $("#up-next-meta").textContent = "About 15 minutes · builds your study plan";
         $("#up-next-start").textContent = "Start the diagnostic";
         $("#hello-sub").textContent = "Let's find out where you're strong and where the easy points are.";

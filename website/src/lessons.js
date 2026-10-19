@@ -558,7 +558,7 @@
     var g = K.Graph(s.window), fixed = (s.fixed || []).map(function (c) { return K.compile(c); }), mine = null;
     var wrap = document.createElement("div"); wrap.className = "lk-wrap";
     wrap.innerHTML = '<div class="lk-visual" id="lk-visual"></div><div class="lk-controls"><label class="lk-type" for="lk-expr"><span>y =</span>' +
-      '<input id="lk-expr" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-no-filter maxlength="' + K.MAX_LEN + '" placeholder="like 2x + 1 or x^2 - 4"></label>' +
+      '<input id="lk-expr" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-no-filter maxlength="' + K.MAX_LEN + '" placeholder="like 2x + 1"></label>' +
       '<p class="fine lk-hint" id="lk-hint" aria-live="polite">Use ^ for powers, like x^2.' + (s.forbid ? " No brackets this time." : "") + "</p></div>";
     box.appendChild(wrap);
     var chk = checkButton(); chk.disabled = true; box.appendChild(chk);

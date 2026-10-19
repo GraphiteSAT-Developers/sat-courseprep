@@ -66,6 +66,7 @@
                     '<button type="button" data-open="tutor" aria-controls="qt">' + ICON.tutor + "<span>Tutor</span></button>";
       l.addEventListener("click", function (e) { var b = e.target.closest("[data-open]"); if (b) toggle(b.getAttribute("data-open")); });
       D.body.appendChild(l);
+      root.classList.add("qt-has-launch");
     }
     D.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && !el.hidden && el.contains(D.activeElement)) { close(); }
