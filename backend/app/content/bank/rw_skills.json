@@ -7,84 +7,138 @@
     "expression-ideas": "Expression of Ideas"
   },
   "questionDistribution": {
-    "information-ideas": {"share": 0.26, "min": 12, "max": 14},
-    "craft-structure": {"share": 0.28, "min": 13, "max": 15},
-    "expression-ideas": {"share": 0.20, "min": 8, "max": 12},
-    "conventions": {"share": 0.26, "min": 11, "max": 15}
+    "information-ideas": {
+      "share": 0.26,
+      "min": 12,
+      "max": 14
+    },
+    "craft-structure": {
+      "share": 0.28,
+      "min": 13,
+      "max": 15
+    },
+    "expression-ideas": {
+      "share": 0.2,
+      "min": 8,
+      "max": 12
+    },
+    "conventions": {
+      "share": 0.26,
+      "min": 11,
+      "max": 15
+    }
   },
-  "module": {"questions": 27, "minutes": 32},
+  "module": {
+    "questions": 27,
+    "minutes": 32
+  },
   "skills": [
     {
-      "code": "wic", "domain": "craft-structure", "name": "Words in context", "perModule": 4,
+      "code": "wic",
+      "domain": "craft-structure",
+      "name": "Words in context",
+      "perModule": 4,
       "testingPoints": [
         "Determine the meaning of a high-utility academic word or phrase in context.",
         "Use the most logical and precise word or phrase in a given context.",
         "Recognize a less common meaning of a familiar word as it is used in a text."
       ],
-      "tip": "Cover the choices and predict a word for the blank from the clues around it: a contrast word (although, but, yet) flips the meaning, and a colon or semicolon often restates it. Then pick the choice closest to your prediction, and check its precise meaning, not just its general tone."
+      "tip": "Cover the choices and predict a word for the blank from the clues around it: a contrast word (although, but, yet) flips the meaning, and a colon or semicolon often restates it. Then pick the choice closest to your prediction, and check its precise meaning, not just its general tone.",
+      "trap": "Picking a word that sounds right in tone but doesn't mean exactly what the clue requires, or missing a contrast word that flips the meaning."
     },
     {
-      "code": "tsp", "domain": "craft-structure", "name": "Text structure and purpose", "perModule": 2,
+      "code": "tsp",
+      "domain": "craft-structure",
+      "name": "Text structure and purpose",
+      "perModule": 2,
       "testingPoints": [
         "Analyze the overall structure of a text.",
         "Determine the main purpose of a text.",
         "Determine how a specific part of a text (such as an underlined sentence) functions in the text as a whole."
       ],
-      "tip": "Describe what each sentence does in a few words (gives a claim, adds an example, turns with 'however') before reading the choices. A right answer matches every part of the text in order; a wrong one usually describes only one sentence or adds something the text never does."
+      "tip": "Describe what each sentence does in a few words (gives a claim, adds an example, turns with 'however') before reading the choices. A right answer matches every part of the text in order; a wrong one usually describes only one sentence or adds something the text never does.",
+      "trap": "Choosing an answer that describes only one sentence, or one that adds a job (like arguing or comparing) the text never does."
     },
     {
-      "code": "ctc", "domain": "craft-structure", "name": "Cross-text connections", "perModule": 1,
+      "code": "ctc",
+      "domain": "craft-structure",
+      "name": "Cross-text connections",
+      "perModule": 1,
       "testingPoints": [
         "Draw a reasonable connection between two topically related texts, such as how the author of one text would respond to a claim in the other.",
         "Identify points of agreement and disagreement between two texts."
       ],
-      "tip": "Sum up each text in one line, then ask how the second author would react to the first. Most answers are partial: the second author agrees with part of Text 1, adds a factor, or shows the first claim is too broad. Watch out for choices that make the response more extreme than the text."
+      "tip": "Sum up each text in one line, then ask how the second author would react to the first. Most answers are partial: the second author agrees with part of Text 1, adds a factor, or shows the first claim is too broad. Watch out for choices that make the response more extreme than the text.",
+      "trap": "Choosing a response that's more extreme than Text 2, like a flat rejection when the author only adds a limit or another cause."
     },
     {
-      "code": "cid", "domain": "information-ideas", "name": "Central ideas and details", "perModule": 2,
+      "code": "cid",
+      "domain": "information-ideas",
+      "name": "Central ideas and details",
+      "perModule": 2,
       "testingPoints": [
         "Determine the central idea of a text.",
         "Locate and interpret important details in a text.",
         "Understand what a literary text says about its characters and events."
       ],
-      "tip": "The main idea covers the whole text, not one detail. Look for a turn word like 'but,' 'however' or 'instead': the author's real point usually comes right after it. Reject choices that are too narrow, too broad, or that compare things the text never compares."
+      "tip": "The main idea covers the whole text, not one detail. Look for a turn word like 'but,' 'however' or 'instead': the author's real point usually comes right after it. Reject choices that are too narrow, too broad, or that compare things the text never compares.",
+      "trap": "Choosing a detail that's true but too narrow, or a broad claim the text never makes."
     },
     {
-      "code": "coet", "domain": "information-ideas", "name": "Command of evidence: textual", "perModule": 2,
+      "code": "coet",
+      "domain": "information-ideas",
+      "name": "Command of evidence: textual",
+      "perModule": 2,
       "testingPoints": [
         "Determine which textual evidence best supports, weakens, or illustrates a claim or hypothesis.",
         "Identify the quotation that most effectively illustrates a claim about a literary text."
       ],
-      "tip": "Restate the exact claim first, including every part of it. The right finding or quotation proves that claim directly. A choice can be true and still be wrong if it's about a related topic instead of the claim itself."
+      "tip": "Restate the exact claim first, including every part of it. The right finding or quotation proves that claim directly. A choice can be true and still be wrong if it's about a related topic instead of the claim itself.",
+      "trap": "Choosing evidence that's about the topic but doesn't prove the exact claim, or that supports only one part of it."
     },
     {
-      "code": "coeq", "domain": "information-ideas", "name": "Command of evidence: quantitative", "perModule": 1,
+      "code": "coeq",
+      "domain": "information-ideas",
+      "name": "Command of evidence: quantitative",
+      "perModule": 1,
       "testingPoints": [
         "Use data from a table or graph to support, illustrate, or complete a claim.",
         "Accurately read and compare values across categories and over time."
       ],
-      "tip": "Read the question's claim before the table or graph, then find the exact numbers it needs. Check that the choice is accurate AND relevant: many wrong choices report the data correctly but answer a different question, such as a different year or group."
+      "tip": "Read the question's claim before the table or graph, then find the exact numbers it needs. Check that the choice is accurate AND relevant: many wrong choices report the data correctly but answer a different question, such as a different year or group.",
+      "trap": "Choosing a statement that reads the data correctly but uses the wrong group, year, or comparison for the claim."
     },
     {
-      "code": "inf", "domain": "information-ideas", "name": "Inferences", "perModule": 2,
+      "code": "inf",
+      "domain": "information-ideas",
+      "name": "Inferences",
+      "perModule": 2,
       "testingPoints": [
         "Draw a reasonable inference from explicit and implicit information in a text.",
         "Complete a text with the most logical conclusion based on the evidence it presents."
       ],
-      "tip": "The right completion follows from the text without adding new facts. Ask: if everything in the passage is true, which choice must also be true? Watch for choices that go too far ('always,' 'proves,' 'all') when the text supports only a careful conclusion."
+      "tip": "The right completion follows from the text without adding new facts. Ask: if everything in the passage is true, which choice must also be true? Watch for choices that go too far ('always,' 'proves,' 'all') when the text supports only a careful conclusion.",
+      "trap": "Choosing a completion that goes too far, with words like always, proves, or all, or that adds facts the text doesn't give."
     },
     {
-      "code": "bnd", "domain": "conventions", "name": "Boundaries", "perModule": 4,
+      "code": "bnd",
+      "domain": "conventions",
+      "name": "Boundaries",
+      "perModule": 4,
       "testingPoints": [
         "Use punctuation correctly to link or separate independent clauses (period, semicolon, colon, comma with a coordinating conjunction, dash).",
         "Punctuate supplements and nonessential elements consistently (matching commas, dashes, or parentheses).",
         "Avoid punctuation between essential sentence parts, such as a subject and its verb or a verb and its object.",
         "Punctuate lists, including lists whose items contain commas."
       ],
-      "tip": "Find the subject and verb on each side of the blank. Two complete sentences need a period, a semicolon, a colon, a dash, or a comma plus and/but/so. A comma alone between them is a comma splice. Nothing goes between a subject and its verb, and a pair of commas or dashes must match."
+      "tip": "Find the subject and verb on each side of the blank. Two complete sentences need a period, a semicolon, a colon, a dash, or a comma plus and/but/so. A comma alone between them is a comma splice. Nothing goes between a subject and its verb, and a pair of commas or dashes must match.",
+      "trap": "Joining two complete sentences with only a comma (a comma splice), or putting a comma between a subject and its verb."
     },
     {
-      "code": "fss", "domain": "conventions", "name": "Form, structure, and sense", "perModule": 3,
+      "code": "fss",
+      "domain": "conventions",
+      "name": "Form, structure, and sense",
+      "perModule": 3,
       "testingPoints": [
         "Make subjects and verbs agree, including across interrupting phrases and in inverted sentences.",
         "Make pronouns agree with their antecedents and use the correct case.",
@@ -92,21 +146,30 @@
         "Use plural and possessive nouns correctly.",
         "Place modifiers so they describe the right word, and keep comparisons and series parallel."
       ],
-      "tip": "Cross out the phrases between a subject and its verb to see what has to agree. Check pronouns against the noun they replace, check tense against time words like 'yesterday' or 'since,' and make sure an introductory phrase is followed by the thing it describes."
+      "tip": "Cross out the phrases between a subject and its verb to see what has to agree. Check pronouns against the noun they replace, check tense against time words like 'yesterday' or 'since,' and make sure an introductory phrase is followed by the thing it describes.",
+      "trap": "Making the verb agree with the noun right before it instead of the real subject, which is often several words earlier."
     },
     {
-      "code": "tr", "domain": "expression-ideas", "name": "Transitions", "perModule": 3,
+      "code": "tr",
+      "domain": "expression-ideas",
+      "name": "Transitions",
+      "perModule": 3,
       "testingPoints": [
         "Determine the most effective transition word or phrase to signal the logical relationship between ideas (contrast, cause and effect, example, addition, sequence, emphasis)."
       ],
-      "tip": "Ignore the choices at first. Read the sentence before and after the blank and name the relationship: same direction (in addition, for example), opposite direction (however, by contrast), or cause and effect (therefore, as a result). Choices that mean the same thing as each other are usually both wrong."
+      "tip": "Ignore the choices at first. Read the sentence before and after the blank and name the relationship: same direction (in addition, for example), opposite direction (however, by contrast), or cause and effect (therefore, as a result). Choices that mean the same thing as each other are usually both wrong.",
+      "trap": "Picking a transition from the wrong family, like a 'for example' word when the second sentence actually contrasts with the first."
     },
     {
-      "code": "rs", "domain": "expression-ideas", "name": "Rhetorical synthesis", "perModule": 3,
+      "code": "rs",
+      "domain": "expression-ideas",
+      "name": "Rhetorical synthesis",
+      "perModule": 3,
       "testingPoints": [
         "Strategically use information from notes to accomplish a specific rhetorical goal, such as emphasizing, contrasting, introducing, or explaining."
       ],
-      "tip": "Read the goal in the question first; you barely need the notes. The right choice does exactly what the goal asks (a contrast shows two different things, an introduction names who or what it is). Every choice is accurate, so judge them only on the goal."
+      "tip": "Read the goal in the question first; you barely need the notes. The right choice does exactly what the goal asks (a contrast shows two different things, an introduction names who or what it is). Every choice is accurate, so judge them only on the goal.",
+      "trap": "Choosing a sentence that's accurate to the notes but doesn't do what the goal asks, like describing one thing when the goal is a contrast."
     }
   ]
 }

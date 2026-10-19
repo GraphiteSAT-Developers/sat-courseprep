@@ -2,8 +2,6 @@
 done-list cookies for both sections. Run from the backend folder: python -m unittest discover tests"""
 import json
 import shutil
-import subprocess
-import sys
 import tempfile
 import unittest
 from collections import Counter
@@ -17,9 +15,19 @@ BACKEND = Path(__file__).resolve().parent.parent
 
 
 class BankTest(unittest.TestCase):
-    def test_compiled_bank_matches_sources(self):
-        r = subprocess.run([sys.executable, str(BACKEND / "compile_rw.py"), "--check"], capture_output=True, text=True)
-        self.assertEqual(r.returncode, 0, r.stderr)
+    def test_items_file_has_math_then_reading_and_writing(self):
+        raws = [json.loads(l) for l in (BACKEND / "app/content/bank/items.jsonl").read_text().splitlines() if l.strip()]
+        sections = [r.get("section", "math") for r in raws]
+        self.assertEqual(sections, ["math"] * 1000 + ["rw"] * 500)  # new questions go at the end (donelist numbers them in order)
+        for r in raws[1000:]:
+            self.assertEqual(r["format"], "mc", r["id"])
+            self.assertEqual(len(r["choices"]), 4, r["id"])
+            self.assertEqual(len(set(r["choices"])), 4, r["id"])
+            self.assertIn(r["answerIndex"], range(4), r["id"])
+            self.assertTrue(r["passage"] and r["stem"] and r["byHand"], r["id"])
+            self.assertIn(r["skill"], {s["name"] for s in bank.rw_meta()["skills"]}, r["id"])
+            text = json.dumps(r)
+            self.assertEqual(text.count("[u]"), text.count("[/u]"), r["id"])
 
     def test_five_hundred_questions_cover_every_skill(self):
         rw = [q for q in bank.all_items().values() if q["section"] == "rw"]
@@ -45,7 +53,8 @@ class BankTest(unittest.TestCase):
             self.assertEqual(len(q["choices"]), 4)
             self.assertIn(q["prompt"], q["stem"])
             self.assertNotIn("[u]", q["stem"])
-            self.assertIn("Strategy", q["explain_html"])
+            for heading in ("Best approach", "Work it out", "Why the other choices are tempting", "Common trap"):
+                self.assertIn(heading, q["explain_html"], q["id"])
             if q["skill_key"] == "command-of-evidence-quantitative":
                 self.assertRegex(q["passage"], r"rw-(table|graph)")
             if q["skill_key"] == "cross-text-connections":
@@ -199,10 +208,27 @@ class RWRoutesTest(unittest.TestCase):
         board = self.get("/api/speed/board?scope=nation&section=rw").json
         self.assertEqual(board["section"], "rw")
 
-    def test_home_sample_is_math(self):
-        for _ in range(10):
+    def test_home_sample_comes_from_both_sections(self):
+        seen = set()
+        for _ in range(40):
             q = self.get("/api/sample").json["question"]
-            self.assertEqual(q["section"], "math")
+            seen.add(q["section"])
+            r = self.post("/api/sample/check", {"id": q["id"], "answer": bank.all_items()[q["id"]]["answer"]})
+            self.assertTrue(r.json["correct"])
+        self.assertEqual(seen, {"math", "rw"})
+
+    def test_diagnostic_reading_and_writing_comes_from_the_bank(self):
+        d = self.post("/api/plan/diagnostic", {}).json["diagnostic"]
+        rw = [q for q in d["questions"] if q["section"] == "Reading and Writing"]
+        self.assertEqual(len(rw), 4)
+        items = bank.all_items()
+        for q in rw:
+            self.assertEqual(items[q["id"]]["section"], "rw")
+            self.assertTrue(q["passage"])
+        answers = {str(i): items[q["id"]]["answer"] for i, q in enumerate(d["questions"]) if q["section"] == "Reading and Writing"}
+        r = self.post(f"/api/plan/diagnostic/{d['id']}/submit", {"answers": answers, "sure": {k: True for k in answers}})
+        self.assertEqual(r.status_code, 201, r.json)
+        self.assertEqual(self.cookie("rw"), {q["id"] for q in rw})  # bank questions go on the done list
 
 
 if __name__ == "__main__":

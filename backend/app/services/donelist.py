@@ -11,7 +11,7 @@ questions come off the list (in the database and, on the same response, in the c
 student starts over.
 
 The cookie is "1.<user id>.<bits>": bit n is set when the nth question of that section's bank
-(in file order, items.jsonl or rw_items.jsonl) is done, as unpadded base64url, so all 1,000 Math
+(in items.jsonl order) is done, as unpadded base64url, so all 1,000 Math
 questions fit in about 170 characters. On the next request, questions in the cookie that the
 database doesn't have yet (say, finished in another tab before a reload) are added to the list.
 A cookie for a different user id is ignored, so a shared computer can't mix two students' lists.

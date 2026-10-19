@@ -6,9 +6,17 @@ items.jsonl comes from the item pipeline on the scaffold-course-site branch
 the question as HTML, its answer key, and a full explanation that walks
 through the Desmos route and the by-hand route.
 
-rw_items.jsonl is compiled from rw_src/ by backend/compile_rw.py. Each Reading and Writing
-item becomes the same shape as a Math item (multiple choice, with "section": "rw"), plus its
-passage as HTML so the test page can show it on the left, like Bluebook.
+Reading and Writing items are in the same file, after the Math ones, with the same fields
+plus "section": "rw" and "passage". They are all multiple choice ("format": "mc"):
+  stem       the question ("Which choice best states the main idea of the text?")
+  passage    what the student reads, as blocks: {"kind": "intro" | "p" | "text1" | "text2", ...},
+             {"kind": "notes", "items": [...]}, {"kind": "table" | "graph", "caption"/"title", "header", "rows"}
+  byHand     the worked explanation, like Math's: sentences that explain the answer, then
+             "Distractors: " and one note per wrong choice, separated by semicolons
+Text can use [u]underlined[/u], [i]italics[/i] and ______ for a blank. The skill's strategy
+and common trap come from rw_skills.json, the way Math's Desmos tips come from techniques.json.
+Add new questions at the end of the file: the done-list cookies (services/donelist.py) number
+each section's questions in file order.
 
 Nothing here touches the database, so website/build.py can import it to
 build the offline preview from the same source.
@@ -450,6 +458,9 @@ def all_items():
         if not line.strip():
             continue
         raw = json.loads(line)
+        if raw.get("section") == "rw":
+            items[raw["id"]] = rw_item(raw)
+            continue
         q = {
             "id": raw["id"],
             "section": "math",
@@ -469,7 +480,6 @@ def all_items():
             q["keys"] = [[a["num"], a["den"]] for a in raw["answers"]]
             q["answer_text"] = " or ".join(fraction_text(Fraction(n, d)) for n, d in q["keys"])
         items[q["id"]] = q
-    items.update(rw_items())
     return items
 
 
@@ -702,35 +712,40 @@ def rw_passage_html(blocks):
 
 
 def rw_explanation_html(raw, skill):
+    """The worked explanation for a Reading and Writing item, in the same sections as a Math one:
+    the answer, the best approach, the steps, why the other choices are tempting, and the common trap."""
     k = raw["answerIndex"]
-    return (
-        '<div class="xp"><p class="xp-answer"><span class="label">Answer</span> '
-        f"<strong>{LETTERS[k]}. {_rw_inline(raw['choices'][k])}</strong></p>"
-        f'<section class="xp-sec xp-hand"><h4>Why this is the answer</h4><p>{_rw_inline(raw["explanation"])}</p></section>'
-        f'<section class="xp-sec xp-route"><h4>Strategy: {html.escape(skill["name"])}</h4><p>{html.escape(skill["tip"])}</p></section></div>')
+    text, _, tail = raw["byHand"].partition("Distractors:")
+    steps = [s.strip() for s in STEP_SPLIT.split(text.strip()) if s.strip()]
+    distractors = [d.strip() for d in tail.split(";") if d.strip()]
+    parts = ['<div class="xp">',
+             f'<p class="xp-answer"><span class="label">Answer</span> <strong>{LETTERS[k]}. {_rw_inline(raw["choices"][k])}</strong></p>',
+             f'<section class="xp-sec xp-route"><h4>Best approach</h4><p>{html.escape(skill["tip"])}</p></section>',
+             '<section class="xp-sec xp-hand"><h4>Work it out</h4><ol class="xp-steps">'
+             + "".join(f"<li>{_rw_inline(s)}</li>" for s in steps) + "</ol></section>"]
+    if distractors:
+        lis = "".join(f"<li>{_rw_inline(_sentence(d))}{'' if d[-1] in '.!?\"' else '.'}</li>" for d in distractors)
+        parts.append(f'<section class="xp-sec xp-wrong"><h4>Why the other choices are tempting</h4><ul>{lis}</ul></section>')
+    parts.append(f'<section class="xp-sec xp-wrong"><h4>Common trap</h4><ul><li>{html.escape(skill["trap"])}</li></ul></section>')
+    parts.append("</div>")
+    return "".join(parts)
 
 
-@lru_cache(maxsize=None)
+def rw_item(raw):
+    """One Reading and Writing item, ready to serve, in the same shape as a Math item."""
+    skill = rw_skill(raw["skill"])
+    passage = rw_passage_html(raw["passage"])
+    prompt = _rw_inline(raw["stem"])
+    return {
+        "id": raw["id"], "section": "rw", "domain_key": raw["domain"], "domain": rw_meta()["domains"][raw["domain"]],
+        "skill": raw["skill"], "skill_key": slug(raw["skill"]), "difficulty": raw["difficulty"], "type": "mc",
+        "passage": passage, "prompt": prompt,
+        "stem": f'<div class="rw-passage">{passage}</div><p class="rw-prompt">{prompt}</p>',
+        "choices": [_rw_inline(c) for c in raw["choices"]], "answer": raw["answerIndex"],
+        "explain_html": rw_explanation_html(raw, skill),
+    }
+
+
 def rw_items():
-    """Every Reading and Writing question, ready to serve: {id: question}, in the same shape as Math items."""
-    m = rw_meta()
-    items = {}
-    path = BANK_DIR / "rw_items.jsonl"
-    if not path.exists():
-        return items
-    for line in path.read_text().splitlines():
-        if not line.strip():
-            continue
-        raw = json.loads(line)
-        skill = rw_skill(raw["skill"])
-        passage = rw_passage_html(raw["blocks"])
-        prompt = _rw_inline(raw["prompt"])
-        items[raw["id"]] = {
-            "id": raw["id"], "section": "rw", "domain_key": raw["domain"], "domain": m["domains"][raw["domain"]],
-            "skill": raw["skill"], "skill_key": slug(raw["skill"]), "difficulty": raw["difficulty"], "type": "mc",
-            "passage": passage, "prompt": prompt,
-            "stem": f'<div class="rw-passage">{passage}</div><p class="rw-prompt">{prompt}</p>',
-            "choices": [_rw_inline(c) for c in raw["choices"]], "answer": raw["answerIndex"],
-            "explain_html": rw_explanation_html(raw, skill),
-        }
-    return items
+    """Every Reading and Writing question, ready to serve: {id: question}."""
+    return {k: q for k, q in all_items().items() if q["section"] == "rw"}

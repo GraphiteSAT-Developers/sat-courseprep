@@ -56,7 +56,7 @@ class PracticeTest(unittest.TestCase):
         self.assertEqual(sum(q["section"] == "math" for q in items.values()), 1000)
         for q in items.values():
             if q["section"] == "rw":
-                self.assertIn("Why this is the answer", q["explain_html"], q["id"])
+                self.assertIn("Work it out", q["explain_html"], q["id"])
                 continue
             self.assertIn("Solve it by hand", q["explain_html"], q["id"])
             self.assertNotRegex(q["explain_html"], r"\bT\d+\b", q["id"])

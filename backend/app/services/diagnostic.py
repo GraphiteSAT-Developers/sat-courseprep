@@ -2,8 +2,12 @@
 
 Math slots cover all four domains at medium and hard difficulty, so the result says both
 where a student is weak and how hard their practice should start. Reading and Writing draws
-one question per domain from content/diagnostic/rw.json. Each answer also carries the
-student's confidence: a lucky guess shouldn't count as a strength.
+one medium question per domain from the same question bank, from questions the student hasn't
+done when possible. Each answer also carries the student's confidence: a lucky guess shouldn't
+count as a strength.
+
+content/diagnostic/rw.json holds the questions the diagnostic used before Reading and Writing
+joined the bank. It's only read to grade diagnostics that were started with them.
 
 No database access here, so website/build.py can reuse it for the offline preview.
 """
@@ -25,7 +29,8 @@ STRONG, WEAK = 0.75, 0.45
 
 
 @lru_cache(maxsize=None)
-def rw_items():
+def legacy_rw_items():
+    """The old diagnostic-only Reading and Writing questions, for diagnostics started before the bank had them."""
     items = {}
     for raw in json.loads(RW_FILE.read_text())["items"]:
         q = dict(raw, type="mc", section="Reading and Writing", difficulty="medium")
@@ -40,7 +45,11 @@ def rw_items():
 
 
 def item(item_id):
-    return rw_items().get(item_id) or bank.all_items()[item_id]
+    return bank.all_items().get(item_id) or legacy_rw_items()[item_id]
+
+
+def is_rw(q):
+    return q.get("section") in ("rw", "Reading and Writing")
 
 
 def pick(seen, rng):
@@ -55,15 +64,19 @@ def pick(seen, rng):
         used_skills.add(q["skill_key"])
         ids.append(q["id"])
     for domain in RW_DOMAINS:
-        ids.append(rng.choice(sorted(i for i, q in rw_items().items() if q["domain"] == domain)))
+        pool = [q["id"] for q in items.values() if q["section"] == "rw" and q["domain"] == domain and q["difficulty"] == "medium"]
+        fresh = [i for i in pool if i not in seen] or pool
+        ids.append(rng.choice(sorted(fresh)))
     return ids
 
 
 def public_question(item_id):
     q = item(item_id)
-    section = "Reading and Writing" if q.get("section") == "Reading and Writing" else "Math"
+    section = "Reading and Writing" if is_rw(q) else "Math"
     out = {"id": q["id"], "section": section, "domain": q["domain"], "skill": q["skill"],
            "type": q["type"], "stem": q["stem"]}
+    if q.get("passage"):
+        out["passage"], out["prompt"] = q["passage"], q["prompt"]
     if q["type"] == "mc":
         out["choices"] = q["choices"]
     return out
@@ -71,7 +84,7 @@ def public_question(item_id):
 
 def clean_answer(item_id, value):
     q = item(item_id)
-    if q.get("section") == "Reading and Writing":
+    if is_rw(q):
         return value if isinstance(value, int) and not isinstance(value, bool) and 0 <= value < len(q["choices"]) else None
     return bank.clean_answer(q, value)
 
@@ -82,9 +95,9 @@ def grade(item_ids, answers, sure):
     math_points = math_weight = 0.0
     for i, item_id in enumerate(item_ids):
         q = item(item_id)
-        rw = q.get("section") == "Reading and Writing"
+        rw = is_rw(q)
         answer = answers.get(i)
-        if rw:
+        if rw and q["section"] == "Reading and Writing":  # an old diagnostic-only question
             ok = answer is not None and answer == q["answer"]
             g = {"index": i, "id": item_id, "type": "mc", "domain": q["domain"], "skill": q["skill"], "stem": q["stem"],
                  "choices": q["choices"], "answer_index": q["answer"], "answer": bank.LETTERS[q["answer"]],

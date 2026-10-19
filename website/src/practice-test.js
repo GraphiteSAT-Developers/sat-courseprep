@@ -45,7 +45,7 @@
   function boot(T, user) {
   if (!T) return;
   var Q = T.questions, N = Q.length, LETTERS = "ABCD";
-  // Reading and Writing: every question has a passage, shown on the left like Bluebook. No calculator or reference sheet.
+  // Reading and Writing: every question has a passage, shown above the question like a Math question's stem. No calculator or reference sheet.
   var RW = N > 0 && Q.every(function (q) { return q.section === "rw"; });
   var SECTION = RW ? "Reading and Writing" : "Math";
   root.classList.toggle("is-rw", RW);

@@ -809,7 +809,7 @@
         nextBtn.disabled = true;
         api("/api/sample").then(function (r) {
           current = r.question;
-          $("#qmeta").textContent = "Math · " + current.domain; $("#qnum").textContent = "Try one";
+          $("#qmeta").textContent = (current.section === "rw" ? "Reading and Writing · " : "Math · ") + current.domain; $("#qnum").textContent = "Try one";
           $("#qstem").innerHTML = current.stem;
           fs.innerHTML = '<legend class="visually-hidden">Answer choices</legend>';
           current.choices.forEach(function (c, i) {

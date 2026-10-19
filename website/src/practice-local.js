@@ -300,22 +300,26 @@
       var list = fresh.length ? fresh : cands, q = list[Math.floor(Math.random() * list.length)];
       used[q.skill_key] = 1; ids.push(q.id);
     });
-    DG.rw_domains.forEach(function (d) {
-      var c = (BANK.rw || []).filter(function (q) { return q.domain === d; });
-      ids.push(c[Math.floor(Math.random() * c.length)].id);
+    DG.rw_domains.forEach(function (d) {  // one medium Reading and Writing question per domain, from the bank
+      var cands = BANK.items.filter(function (q) { return q.section === "rw" && q.domain === d && q.difficulty === "medium"; });
+      var fresh = cands.filter(function (q) { return !st.seen[q.id]; }), list = fresh.length ? fresh : cands;
+      ids.push(list[Math.floor(Math.random() * list.length)].id);
     });
     return ids;
   }
+  // Reading and Writing: bank questions (section "rw"), or the old diagnostic-only ones (section "Reading and Writing").
+  function isRw(q) { return q.section === "rw" || q.section === "Reading and Writing"; }
   function publicDiagQ(id) {
-    var q = itemAny(id), o = { id: id, section: q.section === "Reading and Writing" ? q.section : "Math", domain: q.domain, skill: q.skill, type: q.type, stem: q.stem };
+    var q = itemAny(id), o = { id: id, section: isRw(q) ? "Reading and Writing" : "Math", domain: q.domain, skill: q.skill, type: q.type, stem: q.stem };
+    if (q.passage) { o.passage = q.passage; o.prompt = q.prompt; }
     if (q.type === "mc") o.choices = q.choices;
     return o;
   }
   function gradeDiagnostic(ids, answers, sure) {
     var questions = [], byDom = {}, order = [], pts = 0, wt = 0;
     ids.forEach(function (id, i) {
-      var q = itemAny(id), rw = q.section === "Reading and Writing", a = answers[i], g;
-      if (rw) {
+      var q = itemAny(id), rw = isRw(q), a = answers[i], g;
+      if (q.section === "Reading and Writing") {
         g = { index: i, id: id, type: "mc", domain: q.domain, skill: q.skill, stem: q.stem, choices: q.choices, answer_index: q.answer,
           answer: LETTERS[q.answer], answered: a !== undefined, correct: a === q.answer, your_answer: a !== undefined ? LETTERS[a] : null, explain_html: q.explain_html };
       } else {
@@ -504,7 +508,7 @@
       Object.keys((data && data.answers) || {}).forEach(function (k) {
         var i = Number(k), id = d.item_ids[i]; if (!id) return;
         var q = itemAny(id), v = data.answers[k];
-        var a = q.section === "Reading and Writing" ? (typeof v === "number" && v >= 0 && v < 4 ? v : null) : cleanAnswer(q, v);
+        var a = isRw(q) ? (typeof v === "number" && v >= 0 && v < 4 ? v : null) : cleanAnswer(q, v);
         if (a !== null) { answers[i] = a; sure[i] = data.sure && data.sure[k] === true; }
       });
       d.results = gradeDiagnostic(d.item_ids, answers, sure); d.submitted_at = now();

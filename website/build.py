@@ -241,7 +241,7 @@ def bank_js():
         "rw_test": {"questions": sum(bank.rw_module_mix().values()), "minutes": bank.RW_MODULE_MINUTES},
         "topic_counts": [5, 10, 15, 20],
         "rw": [{k: q[k] for k in ("id", "section", "domain", "skill", "type", "stem", "choices", "answer", "explain_html")}
-               for q in diagnostic.rw_items().values()],
+               for q in diagnostic.legacy_rw_items().values()],
         "diagnostic": {"math_slots": diagnostic.MATH_SLOTS, "rw_domains": diagnostic.RW_DOMAINS,
                        "weight": diagnostic.DIFFICULTY_WEIGHT, "sure": diagnostic.SURE, "guess": diagnostic.GUESS,
                        "strong": diagnostic.STRONG, "weak": diagnostic.WEAK, "phases": studyplan.PHASES,

@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 
 from ..db import execute, now_iso, query, set_clause
 from ..security import ApiError, body, clean_date, current_user, login_required, public_user
-from ..services import access, diagnostic, practice, studyplan
+from ..services import access, bank, diagnostic, practice, studyplan
 
 bp = Blueprint("plan", __name__, url_prefix="/api/plan")
 
@@ -121,7 +121,9 @@ def submit_diagnostic(diag_id):
     execute("UPDATE diagnostics SET submitted_at = ?, answers = ?, results = ? WHERE id = ?",
             (stamp, json.dumps({"answers": answers, "sure": sure}), json.dumps(results), diag_id))
     # Math questions answered here count as done, like any practice question.
-    practice.mark_seen(user["id"], [ids[i] for i in answers if not ids[i].startswith("rw-")])
+    # Bank questions (Math and Reading and Writing) go on the done list; the old diagnostic-only ones aren't in the bank.
+    items = bank.all_items()
+    practice.mark_seen(user["id"], [ids[i] for i in answers if ids[i] in items])
     plan_id, plan = _save_plan(user, diag_id, results, _today())
     return jsonify({"results": results, "plan": dict(plan, id=plan_id, current_week=studyplan.current_week(plan, _today()), tasks={}),
                     "access": access.public_state(access.state(user["id"], "study_plan"))}), 201

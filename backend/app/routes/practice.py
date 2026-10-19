@@ -145,11 +145,19 @@ sample_bp = Blueprint("sample", __name__, url_prefix="/api/sample")
 SAMPLE_DIFFICULTIES = ("easy", "medium")
 
 
+SAMPLE_LONG = {"cross-text-connections", "command-of-evidence-quantitative"}  # two texts or a table: too long for the home page card
+
+
+def sample_ok(q):
+    return q["type"] == "mc" and q["difficulty"] in SAMPLE_DIFFICULTIES and q["skill_key"] not in SAMPLE_LONG
+
+
 @sample_bp.get("")
 def sample():
-    """A random easy or medium multiple-choice Math question from the bank, without its answer."""
-    pool = [q for q in bank.all_items().values()
-            if q["section"] == "math" and q["type"] == "mc" and q["difficulty"] in SAMPLE_DIFFICULTIES]
+    """A random easy or medium multiple-choice question from the bank, without its answer: Math or
+    Reading and Writing, half the time each."""
+    section = random.choice(list(bank.SECTIONS))
+    pool = [q for q in bank.all_items().values() if q["section"] == section and sample_ok(q)]
     return jsonify({"question": bank.public_question(random.choice(pool))})
 
 
@@ -157,7 +165,7 @@ def sample():
 def sample_check():
     data = body()
     q = bank.all_items().get(str(data.get("id") or ""))
-    if not q or q["section"] != "math" or q["type"] != "mc" or q["difficulty"] not in SAMPLE_DIFFICULTIES:
+    if not q or not sample_ok(q):
         raise ApiError(404, "That question isn't available.")
     answer = bank.clean_answer(q, data.get("answer"))
     if answer is None:

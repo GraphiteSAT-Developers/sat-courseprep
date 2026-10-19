@@ -2801,16 +2801,9 @@ html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-laun
 .sub-cancel-offer p { flex: 1 1 280px; }
 
 /* ---------- Reading and Writing questions ---------- */
-/* Like Bluebook: the passage on the left, the question and choices on the right, a divider between. */
-.exam.is-rw .q-wrap { max-width: 1180px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s7); align-items: start; }
-.exam.is-rw .q-wrap > .q-passage { grid-column: 1; grid-row: 1 / span 6; position: sticky; top: 0; padding-right: var(--s6); border-right: 3px solid var(--x-line); }
-.exam.is-rw .q-wrap > :not(.q-passage) { grid-column: 2; }
+/* Laid out like a Math question: one column, the passage first, then the question and choices. */
 .exam.is-rw #calc-toggle, .exam.is-rw #ref-open { display: none; }
-@media (max-width: 860px) {
-  .exam.is-rw .q-wrap { grid-template-columns: minmax(0, 1fr); }
-  .exam.is-rw .q-wrap > .q-passage, .exam.is-rw .q-wrap > :not(.q-passage) { grid-column: 1; grid-row: auto; }
-  .exam.is-rw .q-wrap > .q-passage { position: static; padding: 0 0 var(--s5); border-right: 0; border-bottom: 3px solid var(--x-line); }
-}
+.q-passage { padding-bottom: var(--s5); border-bottom: 2px dashed var(--x-line); }
 .q-passage, .rw-passage { font-family: var(--font-display); font-size: 1.125rem; line-height: 1.75; color: var(--x-text, var(--text)); }
 .q-passage p, .rw-passage p { margin: 0 0 var(--s3); }
 .q-passage > :last-child, .rw-passage > :last-child { margin-bottom: 0; }
@@ -2843,5 +2836,6 @@ html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-laun
 .rw-legend { list-style: none; margin: 0 0 var(--s2); padding: 0; display: flex; flex-wrap: wrap; gap: var(--s4); font-size: var(--t-sm); }
 .rw-legend li { display: inline-flex; align-items: center; gap: var(--s2); }
 .rw-legend .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
-.res-stem .rw-passage, .sp-stem .rw-passage { font-size: 1rem; }
+.res-stem .rw-passage, .sp-stem .rw-passage, .qcard-stem .rw-passage { font-size: 1rem; }
+.qcard-stem .rw-prompt { font-size: 1rem; }
 .pr-done { font-weight: 600; font-size: var(--t-xs); color: var(--muted); margin-left: var(--s1); white-space: nowrap; }
