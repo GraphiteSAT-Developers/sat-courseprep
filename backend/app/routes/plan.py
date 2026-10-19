@@ -80,7 +80,7 @@ def start_diagnostic():
     user = _update_profile(current_user(), body())
     diag = query("SELECT * FROM diagnostics WHERE user_id = ? AND submitted_at IS NULL ORDER BY id DESC LIMIT 1", (user["id"],), one=True)
     if not diag:
-        ids = diagnostic.pick(practice.seen_ids(user["id"]), random)
+        ids = diagnostic.pick(practice.taken_ids(user["id"]), random)
         diag = execute("INSERT INTO diagnostics (user_id, item_ids, created_at) VALUES (?, ?, ?) RETURNING id",
                        (user["id"], json.dumps(ids), now_iso()))
         diag = query("SELECT * FROM diagnostics WHERE id = ?", (diag["id"],), one=True)
