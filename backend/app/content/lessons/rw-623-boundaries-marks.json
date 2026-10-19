@@ -1,0 +1,132 @@
+{
+  "id": "rw-boundaries-marks",
+  "order": 623,
+  "domain": "conventions",
+  "skill": "boundaries",
+  "title": "Colons, dashes, and extra info",
+  "minutes": 7,
+  "format": "cold-open",
+  "hook": "A colon needs a complete sentence before it. Extra information comes in matching pairs. Learn those two rules and most of these questions fall.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "Cold open, try it now. 'The expedition packed three essentials ______ rope, a stove, and a satellite phone.'",
+      "choices": [
+        ":",
+        ";",
+        "nothing"
+      ],
+      "answer": 0,
+      "why": "A complete sentence introduces a list, so a colon fits. A semicolon would need a full sentence after it.",
+      "cold": true
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each sentence.",
+      "buckets": [
+        "Correct",
+        "Error"
+      ],
+      "cards": [
+        {
+          "text": "She brought two tools: a hammer and a level.",
+          "bucket": 0
+        },
+        {
+          "text": "She brought: a hammer and a level.",
+          "bucket": 1
+        },
+        {
+          "text": "He had one goal: to finish the marathon.",
+          "bucket": 0
+        },
+        {
+          "text": "The recipe includes: flour, sugar, and eggs.",
+          "bucket": 1
+        }
+      ],
+      "why": "A colon must follow a complete sentence. 'She brought' and 'The recipe includes' aren't complete without their objects."
+    },
+    {
+      "type": "spot",
+      "prompt": "Tap the sentence with the error.",
+      "lines": [
+        "The author, a former nurse, writes about hospitals.",
+        "The author a former nurse, writes about hospitals.",
+        "Poet Joy Harjo grew up in Oklahoma.",
+        "My sister, who lives in Ohio, visited in May."
+      ],
+      "wrong": 1,
+      "why": "A former nurse is extra information, so it needs commas on both sides. The second sentence is missing the first comma."
+    },
+    {
+      "type": "build",
+      "prompt": "Build the correct punctuation: 'The museum's newest exhibit ___ a collection of early radios ___ opens on Friday.'",
+      "tiles": [
+        "a dash",
+        "a comma",
+        "a colon",
+        "a second dash"
+      ],
+      "answers": [
+        [
+          0,
+          3
+        ]
+      ],
+      "why": "Extra information is set off by a matching pair. A dash must be closed with a dash, not a comma."
+    },
+    {
+      "type": "recall",
+      "prompt": "Why is 'Poet Joy Harjo grew up in Oklahoma' correct without commas?",
+      "answer": "Poet is a title directly before the name, so the name is essential and takes no commas."
+    },
+    {
+      "type": "predict",
+      "prompt": "Rematch. 'Researchers tracked one variable above all others ______ the water's temperature.'",
+      "choices": [
+        ":",
+        ",",
+        "; and"
+      ],
+      "answer": 0,
+      "why": "A complete sentence leads into the item it names, so a colon fits.",
+      "rematch": true
+    }
+  ],
+  "keys": [
+    "A colon needs a complete sentence before it.",
+    "Extra information goes in matching pairs: two commas or two dashes.",
+    "Titles like poet or author right before a name take no commas."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "'The kit includes ___ a map, a flashlight, and a compass.' What goes in the blank?",
+      "choices": [
+        "nothing",
+        "a colon",
+        "a semicolon"
+      ],
+      "answer": 0,
+      "why": "'The kit includes' isn't a complete sentence, so no colon."
+    },
+    {
+      "type": "predict",
+      "prompt": "'The bridge, built in 1932 ___ still carries traffic.'",
+      "choices": [
+        ",",
+        "a dash",
+        "nothing"
+      ],
+      "answer": 0,
+      "why": "The pair opened with a comma, so it closes with one."
+    },
+    {
+      "type": "recall",
+      "prompt": "What must come before a colon?",
+      "answer": "A complete sentence (an independent clause)."
+    }
+  ],
+  "tex": true
+}

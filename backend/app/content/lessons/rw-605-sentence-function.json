@@ -1,0 +1,133 @@
+{
+  "id": "rw-sentence-function",
+  "order": 605,
+  "domain": "craft-structure",
+  "skill": "text-structure-and-purpose",
+  "title": "Why is this sentence here?",
+  "minutes": 7,
+  "format": "teach",
+  "intro": "Jordan answered five questions about what one sentence does in a text. Grade the work and find the slips.",
+  "hook": "Every sentence has a job: it sets up, supports, turns, or concludes. Name the job before you read the choices.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "What should you name before reading the choices on a 'function of the underlined sentence' question?",
+      "answer": "What the sentence does for the text, in your own words: does it introduce, give an example, contrast, explain, or conclude?"
+    },
+    {
+      "type": "spot",
+      "prompt": "Text: 'Most hummingbirds migrate south in winter. Anna's hummingbirds, however, often stay in California all year. Backyard feeders may help explain why.' Question: what does the second sentence do? Tap Jordan's mistake.",
+      "lines": [
+        "The first sentence states a general pattern.",
+        "The second sentence begins with however, so it signals a contrast.",
+        "So the second sentence gives an example that supports the first.",
+        "The third sentence offers a possible reason for the exception."
+      ],
+      "wrong": 2,
+      "why": "However marks an exception, not support. The second sentence presents a case that breaks the pattern."
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each sentence by the job it most likely does in a short science text.",
+      "buckets": [
+        "Sets up",
+        "Supports",
+        "Turns"
+      ],
+      "cards": [
+        {
+          "text": "Researchers have long assumed that octopuses live alone.",
+          "bucket": 0
+        },
+        {
+          "text": "In one bay, divers counted fifteen octopuses sharing a single site.",
+          "bucket": 1
+        },
+        {
+          "text": "Yet new footage suggests some species gather in groups.",
+          "bucket": 2
+        },
+        {
+          "text": "For decades, the view went largely unquestioned.",
+          "bucket": 0
+        }
+      ],
+      "why": "Assumptions set up. Evidence supports. Words like yet introduce the turn."
+    },
+    {
+      "type": "predict",
+      "prompt": "'The violinist practiced the same eight bars for an entire afternoon. That evening, the passage she had struggled with sounded effortless.' The first sentence mainly:",
+      "choices": [
+        "describes the effort behind the result in the second sentence",
+        "criticizes the violinist's methods",
+        "explains why the concert was cancelled"
+      ],
+      "answer": 0,
+      "why": "The first sentence shows the work; the second shows the payoff."
+    },
+    {
+      "type": "spot",
+      "prompt": "Jordan's answers to the next four questions. Tap the one with a choice that is too broad.",
+      "lines": [
+        "The sentence introduces the topic of the text.",
+        "The sentence gives an example of the claim made earlier.",
+        "The sentence summarizes the history of all scientific research.",
+        "The sentence presents a finding that complicates the earlier view."
+      ],
+      "wrong": 2,
+      "why": "One sentence in a short text can't summarize all of science. Choices that are bigger than the text are wrong."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each signal word to the job it usually marks.",
+      "left": [
+        "for instance",
+        "however",
+        "therefore",
+        "in addition"
+      ],
+      "right": [
+        "an example",
+        "a contrast",
+        "a conclusion",
+        "more of the same support"
+      ],
+      "why": "Signal words are clues to a sentence's function, so circle them first."
+    }
+  ],
+  "keys": [
+    "Name the sentence's job in your own words: set up, support, turn, explain, or conclude.",
+    "Signal words like however and for instance give the job away.",
+    "Reject choices that are bigger than the text or that misread the direction."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "A sentence that starts with 'For example' most likely:",
+      "choices": [
+        "supports the claim before it",
+        "disagrees with the claim before it",
+        "ends the text"
+      ],
+      "answer": 0,
+      "why": "Examples support a claim."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which choice is the usual trap on function questions?",
+      "choices": [
+        "one that's too broad for the text",
+        "one that names the sentence's job",
+        "one that uses the text's topic"
+      ],
+      "answer": 0,
+      "why": "Answers that overreach describe a text that isn't there."
+    },
+    {
+      "type": "recall",
+      "prompt": "Name four jobs a sentence can do in a text.",
+      "answer": "Set up a topic or view, support it with an example, turn to a contrast, or conclude."
+    }
+  ],
+  "tex": true
+}

@@ -1,0 +1,130 @@
+{
+  "id": "rw-inferences-research",
+  "order": 618,
+  "domain": "information-ideas",
+  "skill": "inferences",
+  "title": "Finish the researcher's logic",
+  "minutes": 6,
+  "format": "timed",
+  "seconds": 45,
+  "hook": "Research inferences follow a pattern: a finding, a twist, and a conclusion that stays inside both.",
+  "steps": [
+    {
+      "type": "sort",
+      "prompt": "Sort each completion for: 'Trees near streetlights kept their leaves two weeks longer than trees in dark parks. The researchers suggested that ______'",
+      "buckets": [
+        "Supported",
+        "Goes too far"
+      ],
+      "cards": [
+        {
+          "text": "light at night may delay leaf drop",
+          "bucket": 0
+        },
+        {
+          "text": "streetlights damage all city trees",
+          "bucket": 1
+        },
+        {
+          "text": "something about the lit areas affected when leaves fell",
+          "bucket": 0
+        },
+        {
+          "text": "parks should remove their trees",
+          "bucket": 1
+        }
+      ],
+      "why": "The finding links light and later leaf drop. Damage and park policy go beyond it."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Students who sat near windows scored higher. But the window seats were chosen by students who arrived first, and early arrivers already had higher grades. So the window seats ______'",
+      "choices": [
+        "may not have caused the higher scores",
+        "lowered other students' scores",
+        "should be given to everyone"
+      ],
+      "answer": 0,
+      "why": "Early arrivers explain the scores too, so the cause is uncertain."
+    },
+    {
+      "type": "recall",
+      "prompt": "When a text gives a second explanation for a result, what does the right completion usually say?",
+      "answer": "That the first explanation may not be the cause, or that the result may be due to something else."
+    },
+    {
+      "type": "predict",
+      "prompt": "'A fossil shows a dinosaur with feathers on its arms. Its bones were too heavy for flight. This suggests that the feathers ______'",
+      "choices": [
+        "likely served a purpose other than flight",
+        "made the dinosaur fly",
+        "were added after it died"
+      ],
+      "answer": 0,
+      "why": "Feathers plus no flight means another use. Careful, and inside the facts."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each finding to the conclusion it supports.",
+      "left": [
+        "A drug helped mice but was never tested in people.",
+        "Two groups differed in age as well as diet.",
+        "Results matched in three separate labs.",
+        "Only ten plants were tested."
+      ],
+      "right": [
+        "It may not work the same in humans.",
+        "Age, not diet, could explain the gap.",
+        "The finding is likely reliable.",
+        "The result may not hold for a larger sample."
+      ],
+      "why": "Each conclusion stays inside what the finding allows."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Ravens solved the puzzle box faster after watching another raven open it. Ravens that watched a raven fail did no better than those that watched nothing. This suggests ravens ______'",
+      "choices": [
+        "learn from seeing others succeed",
+        "cannot solve puzzles alone",
+        "prefer working in groups"
+      ],
+      "answer": 0,
+      "why": "Watching success helped; watching failure didn't. The other choices aren't tested."
+    }
+  ],
+  "keys": [
+    "Research inferences: finding, twist, careful conclusion.",
+    "A second explanation means the first cause is uncertain.",
+    "Small samples, animal tests, and mixed groups limit what you can conclude."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "A study tested a treatment only on rats. The safest conclusion is that it:",
+      "choices": [
+        "may not work the same way in people",
+        "works in people",
+        "is dangerous"
+      ],
+      "answer": 0,
+      "why": "Stay inside the evidence."
+    },
+    {
+      "type": "predict",
+      "prompt": "Two groups differ in more than one way. The difference in results:",
+      "choices": [
+        "may come from another difference between the groups",
+        "must come from the factor studied",
+        "is meaningless"
+      ],
+      "answer": 0,
+      "why": "Another explanation is possible."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the shape of most research inference texts?",
+      "answer": "A finding, a twist or limit, then a careful conclusion that stays within both."
+    }
+  ],
+  "tex": true
+}

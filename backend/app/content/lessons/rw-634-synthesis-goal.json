@@ -1,0 +1,130 @@
+{
+  "id": "rw-synthesis-goal",
+  "order": 634,
+  "domain": "expression-ideas",
+  "skill": "rhetorical-synthesis",
+  "title": "Read the goal, ignore the notes",
+  "minutes": 6,
+  "format": "lives",
+  "hook": "On note questions, the goal in the question decides the answer. Every choice is accurate; only one does the job.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "Which part of a rhetorical synthesis question should you read first?",
+      "answer": "The question's goal (for example, 'emphasize a difference' or 'introduce the study to a new audience'). The notes come second."
+    },
+    {
+      "type": "sort",
+      "prompt": "Notes: Cassini orbited Saturn from 2004 to 2017. It found liquid methane lakes on the moon Titan. It discovered water jets on the moon Enceladus. Sort each sentence by the goal it fits.",
+      "buckets": [
+        "Emphasize a similarity",
+        "Emphasize a difference"
+      ],
+      "cards": [
+        {
+          "text": "Both Titan and Enceladus revealed liquids to Cassini.",
+          "bucket": 0
+        },
+        {
+          "text": "Titan's lakes are methane, while Enceladus sprays water.",
+          "bucket": 1
+        },
+        {
+          "text": "Like Titan, Enceladus surprised scientists with what Cassini found.",
+          "bucket": 0
+        },
+        {
+          "text": "Unlike Enceladus's water, Titan's liquid is methane.",
+          "bucket": 1
+        }
+      ],
+      "why": "Similarity words: both, like. Difference words: while, unlike."
+    },
+    {
+      "type": "predict",
+      "prompt": "Goal: introduce Cassini to an audience unfamiliar with it. Which choice does that?",
+      "choices": [
+        "Cassini, a spacecraft that orbited Saturn from 2004 to 2017, studied the planet's moons.",
+        "Cassini found methane lakes on Titan.",
+        "Enceladus has water jets."
+      ],
+      "answer": 0,
+      "why": "An audience unfamiliar with Cassini needs to know what it is. Only the first choice says so."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each goal to the words the right answer is likely to contain.",
+      "left": [
+        "Present a result",
+        "Make a generalization",
+        "Give a specific example",
+        "Explain a method"
+      ],
+      "right": [
+        "found, showed",
+        "in general, often",
+        "for instance, one case",
+        "by measuring, using"
+      ],
+      "why": "The goal's verb points to the language the answer will use."
+    },
+    {
+      "type": "predict",
+      "prompt": "Notes: A study tracked 400 gardeners. Those who gardened weekly reported less stress. Goal: present the study's finding. Which choice does that?",
+      "choices": [
+        "Gardeners who worked weekly reported less stress, a study of 400 gardeners found.",
+        "A study tracked 400 gardeners.",
+        "Gardening is popular in many countries."
+      ],
+      "answer": 0,
+      "why": "A finding is a result. The second choice describes the study but not what it found."
+    },
+    {
+      "type": "spot",
+      "prompt": "Goal: emphasize the age of the Great Wall. Tap the sentence that misses the goal.",
+      "lines": [
+        "Parts of the Great Wall date back more than two thousand years.",
+        "The Great Wall's oldest sections were built in the seventh century BCE.",
+        "The Great Wall stretches thousands of miles across northern China.",
+        "Some of the wall's earliest stretches are over two millennia old."
+      ],
+      "wrong": 2,
+      "why": "Length isn't age. It's true, but it doesn't do the job the goal asks for."
+    }
+  ],
+  "keys": [
+    "Read the goal first; the notes are only a source.",
+    "Every choice is accurate. Pick the one that does the job.",
+    "Similarity: both, like. Difference: while, unlike. Audience new to a topic: explain what it is."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Goal: emphasize a difference. Which word belongs in the answer?",
+      "choices": [
+        "unlike",
+        "both",
+        "also"
+      ],
+      "answer": 0,
+      "why": "Unlike signals a difference."
+    },
+    {
+      "type": "predict",
+      "prompt": "On rhetorical synthesis questions, the wrong choices are usually:",
+      "choices": [
+        "accurate but off the goal",
+        "factually wrong",
+        "too short"
+      ],
+      "answer": 0,
+      "why": "They use the notes but miss the goal."
+    },
+    {
+      "type": "recall",
+      "prompt": "What should you read first on a notes question?",
+      "answer": "The goal in the question."
+    }
+  ],
+  "tex": true
+}

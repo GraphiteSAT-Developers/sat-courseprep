@@ -1,0 +1,142 @@
+{
+  "id": "rw-transitions-relationship",
+  "order": 633,
+  "domain": "expression-ideas",
+  "skill": "transitions",
+  "title": "Name the relationship first",
+  "minutes": 6,
+  "format": "story",
+  "intro": "Priya is editing her lab report the night before it's due. Every paragraph is missing one transition.",
+  "hook": "Before you look at the choices, say how the two sentences connect: same direction, opposite, cause, example, or time.",
+  "steps": [
+    {
+      "type": "order",
+      "prompt": "Priya's method. Put the steps in order.",
+      "items": [
+        "Read the sentence before the blank",
+        "Read the sentence after it",
+        "Name the relationship in one word",
+        "Pick the transition that matches it"
+      ],
+      "why": "Both sentences first, then the relationship, then the choices. Reading choices first makes them all sound fine."
+    },
+    {
+      "type": "sort",
+      "prompt": "Paragraph 1. Sort each transition by the relationship it signals.",
+      "buckets": [
+        "Contrast",
+        "Cause and effect",
+        "Addition"
+      ],
+      "cards": [
+        {
+          "text": "nevertheless",
+          "bucket": 0
+        },
+        {
+          "text": "consequently",
+          "bucket": 1
+        },
+        {
+          "text": "moreover",
+          "bucket": 2
+        },
+        {
+          "text": "on the other hand",
+          "bucket": 0
+        },
+        {
+          "text": "thus",
+          "bucket": 1
+        },
+        {
+          "text": "furthermore",
+          "bucket": 2
+        }
+      ],
+      "why": "Knowing the family of a transition lets you eliminate choices that mean the same thing."
+    },
+    {
+      "type": "predict",
+      "prompt": "Paragraph 2: 'We expected the seeds in the dark to fail. ______, they sprouted at the same rate as the others.'",
+      "choices": [
+        "Surprisingly",
+        "Similarly",
+        "For example"
+      ],
+      "answer": 0,
+      "why": "Expected to fail, then sprouted: the result went against expectations."
+    },
+    {
+      "type": "flash",
+      "prompt": "Read fast. Then: which word is the odd one out?",
+      "show": [
+        "however",
+        "nevertheless",
+        "still",
+        "consequently",
+        "in contrast"
+      ],
+      "seconds": 6,
+      "choices": [
+        "however",
+        "still",
+        "consequently",
+        "in contrast"
+      ],
+      "answer": 2,
+      "why": "Consequently signals a result. All the others signal a contrast."
+    },
+    {
+      "type": "predict",
+      "prompt": "Paragraph 3: 'The first trial used tap water. ______, the second trial used distilled water.'",
+      "choices": [
+        "In contrast",
+        "Therefore",
+        "In other words"
+      ],
+      "answer": 0,
+      "why": "Two trials set side by side with a difference: contrast. Nothing causes anything here."
+    },
+    {
+      "type": "recall",
+      "prompt": "If two answer choices mean the same thing, what does that tell you?",
+      "answer": "Neither can be right, because a question has only one correct answer. Eliminate both."
+    }
+  ],
+  "keys": [
+    "Read both sentences, name the relationship, then pick.",
+    "Learn transition families: contrast, cause, addition, example, time.",
+    "Two choices from the same family cancel each other out."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "'The trail was steep. ______, the hikers reached the top by noon.'",
+      "choices": [
+        "Nevertheless",
+        "Therefore",
+        "For instance"
+      ],
+      "answer": 0,
+      "why": "Steep would slow them, yet they made it: contrast."
+    },
+    {
+      "type": "predict",
+      "prompt": "Consequently belongs to which family?",
+      "choices": [
+        "cause and effect",
+        "contrast",
+        "example"
+      ],
+      "answer": 0,
+      "why": "It signals a result."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the first step on a transition question?",
+      "answer": "Read the sentences on both sides and name how they relate, before looking at the choices."
+    }
+  ],
+  "tex": true
+}

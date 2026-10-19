@@ -1,0 +1,133 @@
+{
+  "id": "rw-details-in-literature",
+  "order": 615,
+  "domain": "information-ideas",
+  "skill": "central-ideas-and-details",
+  "title": "What does the text say?",
+  "minutes": 7,
+  "format": "story",
+  "intro": "Maya is reading a short story for class, one passage at a time. Each passage comes with a question about what it actually says.",
+  "hook": "Detail questions reward the student who points to a line. If you can't put your finger on it, it isn't the answer.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "What's the first thing to do on a 'based on the text' detail question?",
+      "answer": "Find the line in the text that answers it, before looking at the choices."
+    },
+    {
+      "type": "predict",
+      "prompt": "Passage 1: 'Grandmother kept the letters in a tin that once held peppermints. She never opened it, but every spring she dusted it and set it back on the shelf.' According to the text, Grandmother:",
+      "choices": [
+        "read the letters each spring",
+        "cared for the tin without opening it",
+        "bought the tin for the letters"
+      ],
+      "answer": 1,
+      "why": "Never opened it, but dusted it every spring. The other choices contradict the text or add facts."
+    },
+    {
+      "type": "spot",
+      "prompt": "Passage 2: 'Theo pretended to study the map, though he had known the way since morning.' Maya wrote four notes. Tap the one the text doesn't support.",
+      "lines": [
+        "Theo already knew the route.",
+        "Theo was looking at a map.",
+        "Theo was lost and needed the map.",
+        "Theo's interest in the map was partly an act."
+      ],
+      "wrong": 2,
+      "why": "The text says he had known the way since morning, so he wasn't lost."
+    },
+    {
+      "type": "sort",
+      "prompt": "Passage 3: 'The orchard was quiet now. Where the pickers had laughed in August, only wind moved through the bare rows.' Sort each statement.",
+      "buckets": [
+        "Stated or clearly shown",
+        "Not in the text"
+      ],
+      "cards": [
+        {
+          "text": "The orchard was busier in August.",
+          "bucket": 0
+        },
+        {
+          "text": "The trees had no fruit left.",
+          "bucket": 0
+        },
+        {
+          "text": "The pickers had moved to another farm.",
+          "bucket": 1
+        },
+        {
+          "text": "The orchard would be sold.",
+          "bucket": 1
+        }
+      ],
+      "why": "Laughing pickers and bare rows show a busy summer and an empty fall. Where the pickers went is never said."
+    },
+    {
+      "type": "predict",
+      "prompt": "Passage 4: 'Even after the applause ended, Lena stayed at the piano, her hands still resting on the keys.' Which choice best describes the main idea of the passage?",
+      "choices": [
+        "Lena is reluctant to leave the moment of the performance.",
+        "Lena forgot the music.",
+        "The audience disliked the concert."
+      ],
+      "answer": 0,
+      "why": "Staying after the applause shows she doesn't want the moment to end. Nothing suggests she forgot or that the audience was unhappy."
+    },
+    {
+      "type": "flash",
+      "prompt": "Read fast. Then: which detail was NOT in the passage?",
+      "show": [
+        "a peppermint tin",
+        "a map studied since morning",
+        "bare orchard rows",
+        "hands resting on piano keys"
+      ],
+      "seconds": 7,
+      "choices": [
+        "a peppermint tin",
+        "a letter in a drawer",
+        "bare orchard rows",
+        "a map"
+      ],
+      "answer": 1,
+      "why": "Grandmother's letters were in a tin, never a drawer. Detail questions hinge on exactly this kind of slip."
+    }
+  ],
+  "keys": [
+    "Point to the line that answers the question before reading choices.",
+    "A choice that's true in real life but not stated is wrong.",
+    "In stories, actions show feelings: staying after applause, dusting an unopened tin."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "A choice sounds reasonable, but you can't find the line that supports it. You should:",
+      "choices": [
+        "eliminate it",
+        "pick it",
+        "pick it if it's the longest"
+      ],
+      "answer": 0,
+      "why": "No line, no answer."
+    },
+    {
+      "type": "predict",
+      "prompt": "In literary passages, a character's feelings are usually shown through:",
+      "choices": [
+        "actions and details",
+        "the title",
+        "the author's biography"
+      ],
+      "answer": 0,
+      "why": "Look at what the character does."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the rule for detail questions?",
+      "answer": "The answer must be stated or clearly shown in the text, and you should be able to point to it."
+    }
+  ],
+  "tex": true
+}
