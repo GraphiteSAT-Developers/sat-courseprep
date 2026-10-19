@@ -78,7 +78,7 @@ def load_pages():
 JSONLD = {
     "@context": "https://schema.org", "@type": "EducationalOrganization",
     "name": "Graphite SAT", "url": SITE + "/", "logo": SITE + "/apple-touch-icon.png",
-    "email": "hello@graphiteprep.com", "telephone": "+1-954-555-0142",
+    "email": "hello@graphiteprep.com",
     "description": "AI SAT tutoring for high school students.",
 }
 
@@ -517,7 +517,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /market.html\nDisallow: /tutor.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /market.html\nDisallow: /tutor.html\nDisallow: /subscription.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT", "short_name": "Graphite SAT", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",

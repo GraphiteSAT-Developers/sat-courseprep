@@ -55,7 +55,9 @@ def page(path):
     response = send_from_directory(site, path)
     if path.endswith(".html"):
         response.headers["Cache-Control"] = "no-cache"
+    elif request.args.get("v"):
+        # The build puts a hash of the file in ?v=, so a changed file has a new address and this one never changes.
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     else:
-        response.cache_control.max_age = 3600
-        response.cache_control.public = True
+        response.headers["Cache-Control"] = "public, max-age=3600"
     return response

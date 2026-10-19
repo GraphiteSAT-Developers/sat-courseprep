@@ -378,6 +378,13 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
   .cookie-actions { justify-content: stretch; }
   .cookie-actions .btn { flex: 1 1 140px; }
 }
+@media (max-width: 480px) {
+  /* On a phone the banner covered the main button: drop the heading (still read out) and fit the buttons on one row. */
+  .cookie-banner { padding-block: var(--s3) calc(var(--s3) + env(safe-area-inset-bottom, 0px)); }
+  .cookie-inner { gap: var(--s3); }
+  .cookie-inner h2 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .cookie-actions .btn { flex: 1 1 0; min-height: 44px; padding-inline: var(--s2); font-size: var(--t-sm); white-space: normal; line-height: 1.2; }
+}
 
 /* Legal pages */
 .doc-head { padding-block: var(--s8) var(--s6); display: grid; gap: var(--s4); }
@@ -390,7 +397,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px
 .doc h2 { font-size: var(--t-lg); margin-top: var(--s6); scroll-margin-top: 92px; }
 .doc h2:first-child { margin-top: 0; }
 .doc ul { margin: 0; padding-left: 1.2em; display: grid; gap: var(--s2); }
-.doc p, .doc li { color: #d7dade; }
+.doc p, .doc li { color: var(--text); }  /* a fixed light gray here was unreadable on the paper theme */
 @media (max-width: 860px) {
   .doc-grid { grid-template-columns: minmax(0, 1fr); gap: var(--s6); }
   .toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s5); }
@@ -543,6 +550,7 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .exam-top { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--s4); padding: var(--s2) max(16px, env(safe-area-inset-right, 0px)) var(--s2) max(16px, env(safe-area-inset-left, 0px)); background: var(--x-bar); border-bottom: 2px dashed var(--x-line); min-height: 64px; }
 .exam-top-left { display: grid; gap: 2px; min-width: 0; }
 .exam-title { font: 700 var(--t-md)/1.25 var(--font-body); letter-spacing: 0; }
+.exam.is-results .exam-timer { visibility: hidden; }
 .exam-link { justify-self: start; background: none; border: 0; padding: 0; color: var(--x-text); font: 700 var(--t-sm) var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .exam-timer { display: grid; justify-items: center; gap: 2px; }
 .timer-num { font: 600 1.35rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
@@ -679,6 +687,11 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
   .exam-top-left { grid-area: title; }
   .exam-tools { grid-area: tools; }
   .exam-timer { grid-area: timer; grid-auto-flow: column; align-items: center; gap: var(--s3); }
+  .exam.is-results .exam-timer { display: none; }
+}
+@media (max-width: 420px) {
+  /* Keep the title on one line so the bar doesn't take a fifth of a small phone's screen. */
+  .exam-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 @media (max-width: 560px) {
   .tool { min-width: 52px; padding-inline: var(--s1); }
@@ -1243,7 +1256,9 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .lv-go { min-height: 36px; justify-self: start; padding: 0 var(--s4); }
 .lv-rung.is-passed { border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
 .lv-rung.is-current { border: 2px solid var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
-.lv-rung.is-locked { opacity: 0.55; }
+/* Dim the number and meter, not the words: faded text under 4.5:1 is hard to read. */
+.lv-rung.is-locked { border-style: dashed; }
+.lv-rung.is-locked .lv-num, .lv-rung.is-locked .lv-meter { opacity: 0.55; }
 .lv-rung.is-locked .lv-meter { filter: grayscale(1); }
 .lv-lock { position: absolute; top: var(--s4); right: var(--s4); width: 16px; height: 16px; color: var(--muted); }
 
@@ -2116,7 +2131,8 @@ html[data-density="compact"] .lessons-page, html[data-density="compact"] .settin
 .mk-chg.is-up { color: var(--up); } .mk-chg.is-down { color: var(--down); }
 .mk-detail { scroll-margin-top: 88px; }
 .mk-detail:focus { outline: none; }
-.mk-d-top { display: flex; gap: var(--s4); align-items: center; }
+.mk-d-top { display: flex; flex-wrap: wrap; gap: var(--s4); align-items: center; }
+.mk-d-top > div { min-width: 0; }
 .mk-d-top h2 { overflow-wrap: anywhere; }
 .mk-d-top .label { margin: 0; }
 .mk-d-price { display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap; }
@@ -2249,9 +2265,11 @@ html[data-density="compact"] .lessons-page, html[data-density="compact"] .settin
 .qt-wait p { margin: 0 0 var(--s2); }
 /* the question reflows into the room beside the window (qtools.js sets --qt-l or --qt-r) */
 html.qt-open:not(.qt-sheet) .qt-shift { margin-left: var(--qt-l, 0px); margin-right: var(--qt-r, 0px); }
-html.qt-motion .qt-shift { transition: margin 0.22s ease, padding 0.22s ease; }
+html.qt-settle .qt-shift { animation: qt-settle 0.26s ease-out; }
+@keyframes qt-settle { from { opacity: 0.2; } }
+html.qt-resizing .qt { opacity: 0.94; }
 html.qt-resizing, html.qt-resizing * { user-select: none; -webkit-user-select: none; }
-html.qt-resizing .qt-shift, html.qt-resizing .qt iframe { transition: none; pointer-events: none; }
+html.qt-resizing .qt-shift, html.qt-resizing .qt iframe { pointer-events: none; }
 html.qt-pressing .qt iframe { pointer-events: none; }
 html.qt-open:not(.qt-sheet) .exam-body.qt-shift { margin: 0; padding-left: var(--qt-l, 0px); padding-right: var(--qt-r, 0px); }
 /* the tabs on the right edge */
