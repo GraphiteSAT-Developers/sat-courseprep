@@ -9,8 +9,10 @@
      top       the bar the window stays below (default: the site header)
      bottom    a bar the window stays above (the practice test's question bar)
      launcher  show the Calculator / Tutor tabs on the right edge (pages with their own buttons turn it off)
+     calc      the name the calculator saves its work under (default: the page's file name, so each page keeps its own)
    Then GraphiteTools.open("calc" | "tutor"), .toggle(tab), .close(), .context({ title, detail }) and
-   .tutorAllowed(bool, why) for timed tests, where the tutor waits until the test is submitted. */
+   .tutorAllowed(bool, why) for timed tests, where the tutor waits until the test is submitted, and .resetCalc()
+   to start the calculator blank, as each new test attempt does. */
 (function () {
   "use strict";
   var D = document, root = D.documentElement;
@@ -84,10 +86,22 @@
     var light = root.getAttribute("data-theme") === "light" || (opts && opts.light && opts.light());
     try { var b = f.contentDocument.getElementById(light ? "thLight" : "thDark"); if (b) b.click(); } catch (e) { /* other origin */ }
   }
+  function calcName() {
+    var n = (opts && opts.calc) || (location.pathname.split("/").pop() || "index").replace(/\.html$/, "");
+    return n.replace(/[^a-z0-9-]/gi, "") || "page";
+  }
+  // The calculator saves under "graphite-calc-v1-" + its name (calculator_html() in build.py).
+  function resetCalc() {
+    var f = el && el.querySelector(".qt-calc iframe");
+    if (f) { f.remove(); built = false; }
+    try { localStorage.removeItem("graphite-calc-v1-" + calcName()); } catch (e) { /* storage blocked */ }
+    if (f && !el.hidden && tab === "calc") buildCalc();
+  }
   function buildCalc() {
     if (built) return; built = true;
     var f = D.createElement("iframe");
     f.title = "Graphing calculator";
+    f.dataset.calc = calcName();
     f.addEventListener("load", function () { var l = el.querySelector(".qt-loading"); if (l) l.remove(); theme(); });
     if (window.TOPLINE_SRC_B64) f.srcdoc = calcSource(); else f.src = "calculator.html";
     D.getElementById("qt-calc").appendChild(f);
@@ -274,7 +288,7 @@
       });
       return window.GraphiteTools;
     },
-    open: open, close: close, toggle: toggle, layout: layout, theme: theme,
+    open: open, close: close, toggle: toggle, layout: layout, theme: theme, resetCalc: resetCalc,
     isOpen: function () { return !!(el && !el.hidden); },
     // Pages that only sometimes show math questions (the diagnostic) turn the tools on and off.
     available: function (yes) {

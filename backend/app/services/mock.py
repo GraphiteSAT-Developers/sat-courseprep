@@ -6,8 +6,9 @@ Module 1, an easier one otherwise. Both modules use questions the student has ne
 Module 2 never repeats Module 1. Every question in a mock goes on the done list, answered or not,
 so the next mock test is all new questions too.
 
-On test day the 10-minute break comes between Reading and Writing and Math. A Math mock can start
-with that break (the student can end it early), so the timing feels the same as the real thing.
+A mock test can include a 10-minute break between Module 1 and Module 2 (the student can end it early).
+On test day the break comes between the two sections, Reading and Writing and then Math; here it splits
+the section so a student practices coming back from a break mid-test.
 Reading and Writing mocks are listed as coming soon.
 
 Each module is an ordinary practice session (services/practice.py) tagged mock:<mock id>:<module>.
@@ -97,7 +98,7 @@ def get(user_id, mock_id):
 def create(user_id, section="math", with_break=True, rng=random):
     stamp = now_iso()
     row = execute("INSERT INTO mock_tests (user_id, section, status, with_break, created_at) VALUES (?, ?, ?, ?, ?) RETURNING id",
-                  (user_id, section, "break" if with_break else "module1", 1 if with_break else 0, stamp))
+                  (user_id, section, "module1", 1 if with_break else 0, stamp))
     mock_id = row["id"]
     ids = build_module(user_id, MIX["m1"], rng=rng)
     s = practice.save_session(user_id, "test", "Math: Module 1", ids, SECTIONS[section]["minutes"], plan_task=tag(mock_id, 1))
@@ -125,7 +126,7 @@ def break_action(user_id, m, action):
     if action == "start" and not m["break_started_at"]:
         execute("UPDATE mock_tests SET break_started_at = ? WHERE id = ?", (now_iso(), m["id"]))
     elif action == "end" or break_left(m) == 0:
-        execute("UPDATE mock_tests SET break_ended_at = ?, status = 'module1' WHERE id = ?", (now_iso(), m["id"]))
+        execute("UPDATE mock_tests SET break_ended_at = ?, status = 'module2' WHERE id = ?", (now_iso(), m["id"]))
     return get(user_id, m["id"])
 
 
@@ -173,8 +174,9 @@ def after_module(user_id, session, result, rng=random):
         route = "harder" if result["correct"] >= ROUTE_AT else "easier"
         ids2 = build_module(user_id, MIX[route], exclude=ids, rng=rng)
         s2 = practice.save_session(user_id, "test", "Math: Module 2", ids2, SECTIONS[m["section"]]["minutes"], plan_task=tag(mock_id, 2))
-        execute("UPDATE mock_tests SET m2_session = ?, route = ?, m1_correct = ?, status = 'module2' WHERE id = ?",
-                (s2["id"], route, result["correct"], mock_id))
+        # The break comes now, between the modules; Module 2 starts when it ends.
+        execute("UPDATE mock_tests SET m2_session = ?, route = ?, m1_correct = ?, status = ? WHERE id = ?",
+                (s2["id"], route, result["correct"], "break" if m["with_break"] else "module2", mock_id))
         return dict(result, mock={"id": mock_id, "module": 1, "next_session": s2["id"]})
     # Module 2: grade the whole section together and save it as one practice test.
     s1 = practice.get(user_id, m["m1_session"])

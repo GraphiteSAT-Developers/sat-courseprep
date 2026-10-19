@@ -30,6 +30,11 @@
     var next = r.next_at ? num(r.next_at - s.xp) + " XP to " + esc(r.next_name) : "Top rank";
     var st = s.streak || { days: 0, today: false };
     var streakNote = st.days ? (st.today ? "Done for today" : "Earn XP today to keep it") : "Earn XP today to start one";
+    // The weekly streak freeze: one missed day a week is covered on its own.
+    var yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    var y = yesterday.getFullYear() + "-" + ("0" + (yesterday.getMonth() + 1)).slice(-2) + "-" + ("0" + yesterday.getDate()).slice(-2);
+    if (st.days && (st.frozen || []).indexOf(y) > -1) streakNote = "Freeze covered yesterday. " + streakNote;
+    else if (st.days && st.freeze_ready) streakNote += ". Freeze ready";
     el.innerHTML =
       '<div class="hud-rank"><span class="hud-medal" aria-hidden="true">' + r.n + "</span>" +
         '<div><span class="hud-k">Rank ' + r.n + " of " + r.of + "</span><strong>" + esc(r.name) + "</strong></div></div>" +

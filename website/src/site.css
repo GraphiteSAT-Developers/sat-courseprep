@@ -14,10 +14,11 @@
   --ok: #8fdca6;
   --err: #ff9b93;
 
-  --font-display: "Lexend", "Nunito", "Segoe UI", Roboto, Arial, sans-serif;
-  --font-body: "Nunito", "Segoe UI", Roboto, Arial, sans-serif;
-  /* Labels and numbers use the body font with even-width digits; true monospace is only for Desmos keystrokes. */
-  --font-mono: "Nunito", "Segoe UI", Roboto, Arial, sans-serif;
+  /* The same type as the public pages: Newsreader headlines, IBM Plex Sans text. Labels and numbers use the
+     body font with even-width digits; true monospace is only for Desmos keystrokes. */
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
   --font-code: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px; --s9: 104px;
@@ -2667,7 +2668,7 @@ html.qt-open:not(.qt-sheet) .exam-body.qt-shift { margin: 0; padding-left: var(-
 .st-panel .seg.st-font-seg { grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); }
 .st-font-seg label { display: grid; gap: 2px; place-items: center; min-height: 64px !important; font-weight: 700; }
 .st-panel .seg .st-aa { display: block; font-size: 1.45rem; line-height: 1; font-weight: 700; }
-.st-font-default { font-family: "Nunito", "Segoe UI", Roboto, Arial, sans-serif; }
+.st-font-default { font-family: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif; }
 .st-font-mono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace; }
 @media (max-width: 560px) {
   .st-panel .seg.st-font-seg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -2809,3 +2810,7 @@ html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-laun
 .sub-test { border-style: dashed; }
 .sub-test-row { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .sub-test-row:empty { display: none; }
+
+/* Subscription page: the one offer shown before canceling */
+.sub-cancel-offer { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s4); padding: var(--s4); border: 1px solid var(--line); border-radius: var(--radius); background: var(--raised); }
+.sub-cancel-offer p { flex: 1 1 280px; }

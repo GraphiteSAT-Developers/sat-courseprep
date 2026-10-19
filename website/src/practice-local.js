@@ -578,12 +578,17 @@
     var t = iso10(today);
     if (sub.status === "canceled" && sub.renews_on && sub.renews_on < t) sub = { plan: "free", interval: null, status: "active", renews_on: null, paused_until: null };
     if (sub.status === "paused" && sub.paused_until && sub.paused_until < t) { sub.status = "active"; sub.paused_until = null; }
+    if (sub.status === "trial" && sub.renews_on && sub.renews_on < t) {
+      billEvent(f, "trial_end", "The free " + (planInfo(sub.plan) || {}).name + " trial ended. Back on the free " + planInfo("free").name + " plan; nothing was charged.");
+      sub = { plan: "free", interval: null, status: "active", renews_on: null, paused_until: null };
+    }
     f.sub = sub;
     var p = planInfo(sub.plan) || planInfo("free");
     sub.plan = p.key;
     var iv = WORDS[sub.interval] ? sub.interval : null, price = iv ? p.cents[iv] : 0;
     return { plan: p.key, plan_name: p.name, interval: iv, status: sub.status, renews_on: sub.renews_on, paused_until: sub.paused_until,
-      price_cents: price, price_label: priceLabel(p, iv) };
+      price_cents: price, price_label: sub.status === "trial" ? "Free trial" : priceLabel(p, iv),
+      trial_available: p.key === "free" && !(f.billing || []).some(function (b) { return b.kind === "trial"; }) };
   }
   function billEvent(f, kind, detail, amount) {
     if (amount) detail += " No card was charged: payments aren't connected yet.";
@@ -705,8 +710,9 @@
         billEvent(f, "change", planInfo(plan).name + ", billed " + WORDS[iv] + " at " + money(price) + ". Renews " + niceDay(renews) + ".", price);
       }
     } else {
-      var ok = { pause: sub.plan !== "free" && sub.status === "active", cancel: sub.plan !== "free" && sub.status !== "canceled", resume: sub.status !== "active" }[act];
+      var ok = { pause: sub.plan !== "free" && sub.status === "active", cancel: sub.plan !== "free" && sub.status !== "canceled", resume: sub.status === "paused" || sub.status === "canceled" }[act];
       if (!ok) return fail(409, "That change doesn't apply to the current plan.");
+      var wasTrial = !f.sub.interval;
       if (act === "pause") {
         var until = new Date(today); until.setDate(until.getDate() + PB.pause_days);
         var nr = parseDate(f.sub.renews_on); nr.setDate(nr.getDate() + PB.pause_days);
@@ -714,10 +720,11 @@
         billEvent(f, "pause", "Paused until " + niceDay(f.sub.paused_until) + ". The next bill moves to " + niceDay(f.sub.renews_on) + ".");
       } else if (act === "cancel") {
         f.sub.status = "canceled"; f.sub.paused_until = null;
-        billEvent(f, "cancel", "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free " + planInfo("free").name + " plan.");
+        billEvent(f, "cancel", wasTrial ? "Trial canceled. It stays on until " + niceDay(f.sub.renews_on) + ", then the plan is free. Nothing is charged."
+          : "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free " + planInfo("free").name + " plan.");
       } else {
-        var was = f.sub.status; f.sub.status = "active"; f.sub.paused_until = null;
-        billEvent(f, "resume", was === "paused" ? "Resumed." : "Cancellation undone. Renews " + niceDay(f.sub.renews_on) + ".");
+        var was = f.sub.status; f.sub.status = wasTrial ? "trial" : "active"; f.sub.paused_until = null;
+        billEvent(f, "resume", was === "paused" ? "Resumed." : wasTrial ? "Trial back on. It ends " + niceDay(f.sub.renews_on) + "." : "Cancellation undone. Renews " + niceDay(f.sub.renews_on) + ".");
       }
     }
     var fresh = subOut(f, today); saveFam(f);
@@ -789,7 +796,7 @@
     var f = fam(), today = todayDate(), sub = subOut(f, today), act = path.split("/").pop();
     function out() {
       var x = subOut(f, today); saveFam(f);
-      return { subscription: x, billing: f.billing || [], access: accessSummary(), plans: PB.plans, payments_live: false, pause_days: PB.pause_days,
+      return { subscription: x, billing: f.billing || [], access: accessSummary(), plans: PB.plans, payments_live: false, pause_days: PB.pause_days, trial: PB.trial,
         payer: x.plan === "free" ? null : { you: true, role: "student", name: "You" }, has_card: false, test_account: true };
     }
     if (act === "test") {
@@ -824,9 +831,17 @@
       billEvent(f, "change", planInfo(plan).name + ", billed " + WORDS[iv] + " at " + money(price) + ". Renews " + niceDay(renews) + ".", price);
       return Promise.resolve(out());
     }
-    var ok = { pause: sub.plan !== "free" && sub.status === "active", cancel: sub.plan !== "free" && sub.status !== "canceled", resume: sub.status === "paused" || sub.status === "canceled" }[act];
+    var ok = { pause: sub.plan !== "free" && sub.status === "active", cancel: sub.plan !== "free" && sub.status !== "canceled", resume: sub.status === "paused" || sub.status === "canceled",
+               trial: sub.trial_available }[act];
     if (ok === undefined) return fail(404, "Unknown plan action.");
     if (!ok) return fail(409, "That change doesn't apply to the current plan.");
+    if (act === "trial") {
+      var ends = new Date(today); ends.setDate(ends.getDate() + PB.trial.days);
+      f.sub = { plan: PB.trial.plan, interval: null, status: "trial", renews_on: iso10(ends), paused_until: null };
+      billEvent(f, "trial", "Started a free " + PB.trial.days + "-day " + PB.trial.plan_name + " trial. No card. It ends " + niceDay(f.sub.renews_on) + ", then the plan goes back to free by itself.");
+      return Promise.resolve(out());
+    }
+    var wasTrial = !f.sub.interval;
     if (act === "pause") {
       var until = new Date(today); until.setDate(until.getDate() + PB.pause_days);
       var nr = parseDate(f.sub.renews_on); nr.setDate(nr.getDate() + PB.pause_days);
@@ -834,10 +849,11 @@
       billEvent(f, "pause", "Paused until " + niceDay(f.sub.paused_until) + ". The next bill moves to " + niceDay(f.sub.renews_on) + ".");
     } else if (act === "cancel") {
       f.sub.status = "canceled"; f.sub.paused_until = null;
-      billEvent(f, "cancel", "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free " + planInfo("free").name + " plan.");
+      billEvent(f, "cancel", wasTrial ? "Trial canceled. It stays on until " + niceDay(f.sub.renews_on) + ", then the plan is free. Nothing is charged."
+        : "Canceled. " + sub.plan_name + " stays on until " + niceDay(f.sub.renews_on) + ", then the plan returns to the free " + planInfo("free").name + " plan.");
     } else {
-      var was = f.sub.status; f.sub.status = "active"; f.sub.paused_until = null;
-      billEvent(f, "resume", was === "paused" ? "Resumed." : "Cancellation undone. Renews " + niceDay(f.sub.renews_on) + ".");
+      var was = f.sub.status; f.sub.status = wasTrial ? "trial" : "active"; f.sub.paused_until = null;
+      billEvent(f, "resume", was === "paused" ? "Resumed." : wasTrial ? "Trial back on. It ends " + niceDay(f.sub.renews_on) + "." : "Cancellation undone. Renews " + niceDay(f.sub.renews_on) + ".");
     }
     return Promise.resolve(out());
   }
@@ -887,7 +903,7 @@
   function mockFor(st, s) {
     var t = mockTag(s.plan_task), m = t && st.mocks && st.mocks[t.id];
     if (!m) return null;
-    if (m.status === "break" && m.break_started_at && breakLeft(m) === 0) { m.break_ended_at = now(); m.status = "module1"; save(st); }
+    if (m.status === "break" && m.break_started_at && breakLeft(m) === 0) { m.break_ended_at = now(); m.status = "module2"; save(st); }
     return Object.assign(mockPublic(m), { module: t.module, modules: 2 });
   }
   function rawAnswers(res) {
@@ -903,7 +919,7 @@
       if (!m.m2_session) {
         m.route = res.correct >= MK.route_at ? "harder" : "easier";
         var s2 = newSession(st, "test", "Math: Module 2", buildModule(st, MK.mix[m.route], s.item_ids), MK.sections[m.section].minutes, { plan_task: "mock:" + m.id + ":2" });
-        m.m2_session = s2.id; m.m1_correct = res.correct; m.status = "module2";
+        m.m2_session = s2.id; m.m1_correct = res.correct; m.status = m.with_break ? "break" : "module2";  // the break comes between the modules
       }
       save(st);
       return Object.assign(res, { mock: { id: m.id, module: 1, next_session: m.m2_session } });
@@ -940,7 +956,7 @@
       if (!MK.sections[sec].ready) { var e = new Error(MK.sections[sec].name + " mock tests are coming soon."); e.status = 409; e.data = { code: "coming_soon" }; return Promise.reject(e); }
       var lock = requireAccess("mock_test", st); if (lock) return lock;
       var id = (st.nextMock = (st.nextMock || 0) + 1);
-      var m = { id: id, section: sec, status: data.with_break === false ? "module1" : "break", with_break: data.with_break !== false, created_at: now() };
+      var m = { id: id, section: sec, status: "module1", with_break: data.with_break !== false, created_at: now() };
       st.mocks[id] = m;
       var s1 = newSession(st, "test", "Math: Module 1", buildModule(st, MK.mix.m1), MK.sections[sec].minutes, { plan_task: "mock:" + id + ":1" });
       m.m1_session = s1.id; save(st);
@@ -951,7 +967,7 @@
     if (mm[2]) {
       if (mk.status === "break") {
         if (data.action === "start" && !mk.break_started_at) mk.break_started_at = now();
-        else if (data.action === "end" || breakLeft(mk) === 0) { mk.break_ended_at = now(); mk.status = "module1"; }
+        else if (data.action === "end" || breakLeft(mk) === 0) { mk.break_ended_at = now(); mk.status = "module2"; }
         save(st);
       }
     }
