@@ -1,0 +1,134 @@
+{
+  "id": "rw-text-structure",
+  "order": 602,
+  "domain": "craft-structure",
+  "skill": "text-structure-and-purpose",
+  "title": "Label each sentence's job",
+  "minutes": 7,
+  "format": "case",
+  "intro": "A short text is a case file. Each sentence is doing a job, and your clue is the word at its start.",
+  "hook": "Name what every sentence does (claim, example, turn, result) and the structure question answers itself.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "Clue 1. A text says: 'Many people assume deserts are lifeless. In fact, the Sonoran Desert has more than 2,000 plant species.' What job does 'In fact' signal?",
+      "choices": [
+        "Giving a result of the first idea",
+        "Adding an example of the first idea",
+        "Correcting the idea before it"
+      ],
+      "answer": 2,
+      "why": "In fact introduces a correction: the second sentence pushes back on the assumption."
+    },
+    {
+      "type": "sort",
+      "prompt": "Clue 2. Sort each sentence opener by the job it usually does.",
+      "buckets": [
+        "Adds support",
+        "Turns or contrasts",
+        "Concludes"
+      ],
+      "cards": [
+        {
+          "text": "For example,",
+          "bucket": 0
+        },
+        {
+          "text": "However,",
+          "bucket": 1
+        },
+        {
+          "text": "As a result,",
+          "bucket": 2
+        },
+        {
+          "text": "Yet",
+          "bucket": 1
+        },
+        {
+          "text": "Specifically,",
+          "bucket": 0
+        },
+        {
+          "text": "Thus,",
+          "bucket": 2
+        }
+      ],
+      "why": "Openers are labels. Read them and you know the sentence's job before you read the rest."
+    },
+    {
+      "type": "order",
+      "prompt": "Clue 3. Put these sentences in the order a 'challenge the common view' text uses.",
+      "items": [
+        "States what people usually believe",
+        "Turns with 'but' or 'however'",
+        "Gives the new evidence",
+        "Ends with what the evidence means"
+      ],
+      "why": "Belief, turn, evidence, conclusion. Many SAT texts follow this shape."
+    },
+    {
+      "type": "predict",
+      "prompt": "Clue 4. 'Some birds use tools. [New Caledonian crows bend twigs into hooks.] Scientists once thought only primates made tools.' The bracketed sentence's job is to:",
+      "choices": [
+        "explain why scientists study primates",
+        "give a specific example of the claim before it",
+        "challenge the claim before it"
+      ],
+      "answer": 1,
+      "why": "It follows a general claim and makes it concrete: an example."
+    },
+    {
+      "type": "spot",
+      "prompt": "Clue 5. A student described a text's structure. Tap the line that goes wrong.",
+      "lines": [
+        "The text opens with the view that the printing press caused a sudden revolution.",
+        "Then it adds details: scribes kept copying by hand for decades.",
+        "Finally, it argues that printing never changed European culture.",
+        "So the structure is: a view, then details that qualify it, then a balanced restatement."
+      ],
+      "wrong": 2,
+      "why": "The text said printing transformed culture gradually, not that it never changed it. A structure answer has to match every part, including the ending."
+    },
+    {
+      "type": "recall",
+      "prompt": "Case closed: what's the fastest way to answer 'Which choice best describes the function of the underlined sentence?'",
+      "answer": "Read the sentences before and after it, name the underlined sentence's job in a few words (example, turn, evidence, result), then find the choice that says the same thing."
+    }
+  ],
+  "keys": [
+    "Every sentence has a job: claim, example, turn, evidence, or conclusion.",
+    "Openers like however, for example, and as a result label the job.",
+    "A structure answer must match the whole text in order, including how it ends."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "A sentence that begins with 'However' usually:",
+      "choices": [
+        "adds an example",
+        "turns against the idea before it",
+        "restates the main idea"
+      ],
+      "answer": 1,
+      "why": "However signals a contrast."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Since about 2009, however, the number has grown again' comes after a description of decline. Its job:",
+      "choices": [
+        "gives more evidence of decline",
+        "explains the cause of decline",
+        "marks a shift to a recovery"
+      ],
+      "answer": 2,
+      "why": "However plus 'grown again' shifts from decline to recovery."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's a common SAT text shape for challenging a belief?",
+      "answer": "Belief, then a turn, then new evidence, then what it means."
+    }
+  ],
+  "tex": true
+}

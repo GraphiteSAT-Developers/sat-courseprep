@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Kalam:wght@400;700&family=Nunito:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=484a97ab6a"><link rel="stylesheet" href="/vendor/katex/katex.min.css">
-<script src="/js/site.js?v=26f8652687" defer></script><script src="/vendor/katex/katex.min.js" defer></script><script src="/js/game-ui.js?v=96114da63e" defer></script><script src="/js/qtools.js?v=68752ceb0f" defer></script><script src="/js/practice-test.js?v=cca3bf8f7c" defer></script><script src="/js/integrity.js?v=195fddb0f1" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=26edcb51e5"><link rel="stylesheet" href="/vendor/katex/katex.min.css">
+<script src="/js/site.js?v=a8d6d79827" defer></script><script src="/vendor/katex/katex.min.js" defer></script><script src="/js/game-ui.js?v=96114da63e" defer></script><script src="/js/qtools.js?v=68752ceb0f" defer></script><script src="/js/practice-test.js?v=7dfdfd3879" defer></script><script src="/js/integrity.js?v=195fddb0f1" defer></script>
 </head>
 <body>
 <div class="exam" id="exam" data-view="graphite">
@@ -41,6 +41,11 @@
       <button class="exam-pill" type="button" id="timer-toggle" aria-pressed="false">Hide</button>
     </div>
     <div class="exam-tools">
+      <button class="tool" type="button" id="annotate-btn" hidden aria-describedby="annotate-hint">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4.5l5 5L10 19H5v-5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12.5 6.5l5 5" stroke="currentColor" stroke-width="1.8"/><path d="M4 21.5h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" opacity=".55"/></svg>
+        <span>Annotate</span>
+      </button>
+      <span class="visually-hidden" id="annotate-hint">Select words in the passage first, then press Annotate to highlight them and add a note.</span>
       <button class="tool" type="button" id="calc-toggle" aria-pressed="false" aria-controls="qt" data-qt-toggle="calc">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="8" y="6" width="8" height="3.5" rx=".6" fill="currentColor"/><circle cx="9" cy="13.5" r="1.1" fill="currentColor"/><circle cx="12" cy="13.5" r="1.1" fill="currentColor"/><circle cx="15" cy="13.5" r="1.1" fill="currentColor"/><circle cx="9" cy="17.3" r="1.1" fill="currentColor"/><circle cx="12" cy="17.3" r="1.1" fill="currentColor"/><circle cx="15" cy="17.3" r="1.1" fill="currentColor"/></svg>
         <span>Calculator</span>
@@ -71,6 +76,12 @@
 
     <main class="q-area" id="q-area" tabindex="-1">
       <section class="q-wrap" id="q-view" aria-live="polite">
+        <div class="q-passage" id="q-passage" hidden></div>
+        <div class="q-divider" id="q-divider" role="separator" aria-orientation="vertical" aria-label="Resize the passage and question panes" aria-valuemin="25" aria-valuemax="75" aria-valuenow="50" tabindex="0" hidden>
+          <button type="button" class="q-divider-btn" id="widen-left" aria-label="Widen the left pane"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M8 2L4 6l4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+          <span class="q-divider-grip" aria-hidden="true"></span>
+          <button type="button" class="q-divider-btn" id="widen-right" aria-label="Widen the right pane"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+        </div>
         <div class="q-head">
           <span class="q-num" id="q-num">1</span>
           <button class="mark" type="button" id="mark-btn" aria-pressed="false">
@@ -79,26 +90,36 @@
           </button>
           <button class="elim-toggle" type="button" id="elim-toggle" aria-pressed="false" title="Cross out answer choices"><s>ABC</s><span class="visually-hidden"> Cross out answer choices</span></button>
         </div>
-        <div class="spr-help" id="spr-help" hidden>
-          <details>
-            <summary>Student-produced response directions</summary>
+        <!-- Student-produced response questions show these directions in the left pane. -->
+        <template id="spr-directions">
+          <details class="spr-dir" open>
+            <summary>How to enter your answer</summary>
             <ul>
-              <li>Enter one answer, even if more than one is correct.</li>
-              <li>You can enter up to 5 characters for a positive answer and up to 6 for a negative answer, including the negative sign.</li>
-              <li>If an answer is a fraction that doesn't fit, enter the decimal equivalent.</li>
-              <li>Don't enter symbols such as a percent sign, comma or dollar sign.</li>
-              <li>Mixed numbers like 3½ should be entered as 3.5 or 7/2.</li>
+              <li>Type one answer. If more than one value works, any one of them counts.</li>
+              <li>A positive answer can use up to 5 characters. A negative answer gets a sixth for the minus sign.</li>
+              <li>Fractions and decimals both work. If a fraction won't fit, type the decimal and fill every space: 2/3 is .6666 or .6667, not .67.</li>
+              <li>Write a mixed number as an improper fraction or a decimal: 2 1/4 is 9/4 or 2.25.</li>
+              <li>Leave out units and symbols such as $, % and commas.</li>
             </ul>
+            <table class="spr-examples">
+              <caption>Examples</caption>
+              <thead><tr><th scope="col">Answer</th><th scope="col">Counts</th><th scope="col">Doesn't count</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">4.5</th><td>4.5, 9/2</td><td>4 1/2</td></tr>
+                <tr><th scope="row">5/9</th><td>5/9, .5555, .5556, 0.555, 0.556</td><td>.55, 0.56</td></tr>
+                <tr><th scope="row">−3/8</th><td>-3/8, -.375, -0.375</td><td>-.37, 3/-8</td></tr>
+              </tbody>
+            </table>
           </details>
-        </div>
+        </template>
         <div class="q-stem" id="q-stem"></div>
         <div class="q-answer" id="q-answer"></div>
         <div class="q-check" id="q-check" aria-live="polite" hidden></div>
       </section>
 
       <section class="review-page" id="review-view" hidden aria-labelledby="review-title">
-        <h2 id="review-title">Check your work</h2>
-        <p>On test day, you can't move on to the next module until time expires or you submit. Select a question to go back to it.</p>
+        <h2 id="review-title">Review your answers</h2>
+        <p>Pick any question to go back to it. On the real test, once a module is submitted or its time runs out, you can't return to it.</p>
         <div class="review-card">
           <div class="review-card-head"><strong id="review-heading">Section 2, Module 1: Math Questions</strong><span class="nav-legend"><span><i class="lg lg-cur"></i>Current</span><span><i class="lg lg-un"></i>Unanswered</span><span><i class="lg lg-mark"></i>For review</span></span></div>
           <div class="q-grid" id="review-grid"></div>
@@ -161,6 +182,17 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+  <section class="anno-pop" id="anno-pop" role="dialog" aria-labelledby="anno-title" hidden>
+    <div class="anno-head"><h2 id="anno-title">Note</h2><button class="exam-pill" type="button" id="anno-close">Close</button></div>
+    <p class="anno-quote" id="anno-quote"></p>
+    <label class="visually-hidden" for="anno-text">Your note</label>
+    <textarea id="anno-text" rows="3" maxlength="500" placeholder="Add a note (optional)"></textarea>
+    <div class="anno-actions">
+      <button class="btn btn-quiet" type="button" id="anno-delete">Remove highlight</button>
+      <button class="btn btn-primary" type="button" id="anno-save">Save</button>
+    </div>
+  </section>
+
   <div class="overlay" id="start-overlay" role="dialog" aria-modal="true" aria-labelledby="start-title">
     <div class="dialog">
       <p class="label">Practice test 4</p>
@@ -219,13 +251,20 @@
   <div class="overlay" id="dir-dialog" role="dialog" aria-modal="true" aria-labelledby="dir-title" hidden>
     <div class="dialog">
       <h2 id="dir-title">Directions</h2>
-      <p>These questions cover algebra, advanced math, problem-solving and data analysis, and geometry and trigonometry. You can use the calculator on every question.</p>
+      <div id="dir-rw" hidden>
+        <p>Every question here comes with something short to read: a passage, two related passages, a student's notes, or a table or graph. Read it, then answer using only what it says or shows.</p>
+        <p>Each question has four choices and one best answer. Select words in a passage and press Annotate to highlight them or leave yourself a note.</p>
+      </div>
+      <div id="dir-math">
+      <p>This section covers algebra, advanced math, problem solving and data analysis, and geometry and trigonometry. The calculator works on every question, and the reference sheet has the common formulas.</p>
+      <p>Unless a question tells you otherwise, assume that:</p>
       <ul>
-        <li>Variables and expressions stand for real numbers unless a question says otherwise.</li>
-        <li>Figures are drawn to scale and lie in a plane unless a question says otherwise.</li>
-        <li>A function's domain is all real numbers for which its value is a real number, unless a question says otherwise.</li>
-        <li>Multiple-choice questions have one correct answer. For student-produced response questions, type your answer in the box.</li>
+        <li>every number and variable is a real number;</li>
+        <li>figures are flat and drawn to scale;</li>
+        <li>a function can take any real input that gives a real output.</li>
       </ul>
+      <p>Multiple-choice questions have one right answer. For the rest, type your answer in the box; the left side of the screen shows how to enter it.</p>
+      </div>
       <div class="dialog-actions"><button class="btn btn-primary" type="button" data-close>Close</button></div>
     </div>
   </div>

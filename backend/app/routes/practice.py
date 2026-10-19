@@ -2,7 +2,7 @@
 import json
 import random
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 from ..security import ApiError, body, current_user, login_required
 from ..services import access, bank, levels
@@ -24,7 +24,10 @@ def _session_or_404(session_id):
 @bp.get("")
 @login_required
 def overview():
-    out = service.overview(current_user()["id"])
+    section = request.args.get("section", "math")
+    if section not in bank.SECTIONS:
+        raise ApiError(400, "Pick Math or Reading and Writing.", "section")
+    out = service.overview(current_user()["id"], section)
     out["access"] = access.public_state(access.state(current_user()["id"], "practice_set"))
     return jsonify(out)
 
@@ -36,8 +39,11 @@ def create():
     mode = data.get("mode")
     user_id = current_user()["id"]
     if mode == "test":
+        section = data.get("section", "math")
+        if section not in bank.SECTIONS:
+            raise ApiError(400, "Pick Math or Reading and Writing.", "section")
         access.require(current_user(), "mock_test")
-        session = service.create(user_id, "test")
+        session = service.create(user_id, "test", section=section)
     elif mode == "topic":
         domain, skill = data.get("domain"), data.get("skill") or None
         if not isinstance(domain, str) or not service.topic_title(domain, skill if isinstance(skill, str) else None):
@@ -139,10 +145,19 @@ sample_bp = Blueprint("sample", __name__, url_prefix="/api/sample")
 SAMPLE_DIFFICULTIES = ("easy", "medium")
 
 
+SAMPLE_LONG = {"cross-text-connections", "command-of-evidence-quantitative"}  # two texts or a table: too long for the home page card
+
+
+def sample_ok(q):
+    return q["type"] == "mc" and q["difficulty"] in SAMPLE_DIFFICULTIES and q["skill_key"] not in SAMPLE_LONG
+
+
 @sample_bp.get("")
 def sample():
-    """A random easy or medium multiple-choice question from the bank, without its answer."""
-    pool = [q for q in bank.all_items().values() if q["type"] == "mc" and q["difficulty"] in SAMPLE_DIFFICULTIES]
+    """A random easy or medium multiple-choice question from the bank, without its answer: Math or
+    Reading and Writing, half the time each."""
+    section = random.choice(list(bank.SECTIONS))
+    pool = [q for q in bank.all_items().values() if q["section"] == section and sample_ok(q)]
     return jsonify({"question": bank.public_question(random.choice(pool))})
 
 
@@ -150,7 +165,7 @@ def sample():
 def sample_check():
     data = body()
     q = bank.all_items().get(str(data.get("id") or ""))
-    if not q or q["type"] != "mc" or q["difficulty"] not in SAMPLE_DIFFICULTIES:
+    if not q or not sample_ok(q):
         raise ApiError(404, "That question isn't available.")
     answer = bank.clean_answer(q, data.get("answer"))
     if answer is None:

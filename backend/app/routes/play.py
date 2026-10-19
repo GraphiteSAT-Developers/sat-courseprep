@@ -74,17 +74,24 @@ def game_equip():
 speed_bp = Blueprint("speed", __name__, url_prefix="/api/speed")
 
 
+def _section(value):
+    section = value or "math"
+    if section not in speed.SECTIONS:
+        raise ApiError(400, "Pick Math or Reading and Writing.", "section")
+    return section
+
+
 @speed_bp.get("")
 @login_required
 def speed_overview():
-    return jsonify(speed.overview(_student()))
+    return jsonify(speed.overview(_student(), section=_section(request.args.get("section"))))
 
 
 @speed_bp.post("/start")
 @login_required
 def speed_start():
     user = _student()
-    return jsonify({"run": speed.public(speed.start(user))}), 201
+    return jsonify({"run": speed.public(speed.start(user, section=_section(body().get("section"))))}), 201
 
 
 def _run(run_id):
@@ -138,7 +145,7 @@ def speed_board():
     period = request.args.get("period", "today")
     if scope not in ("state", "nation") or period not in ("today", "week"):
         raise ApiError(400, "Pick a leaderboard.")
-    return jsonify(speed.board(_student(), scope, period))
+    return jsonify(speed.board(_student(), scope, period, section=_section(request.args.get("section"))))
 
 
 @speed_bp.get("/nicknames")

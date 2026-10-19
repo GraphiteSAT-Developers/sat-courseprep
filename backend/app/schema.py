@@ -429,12 +429,16 @@ MIGRATIONS = [
         )""",
         "CREATE INDEX idx_consent_visitor ON consent_log (visitor_id, id)",
     ]),
+    (16, "Speed rounds for Reading and Writing: each run belongs to a section", [
+        "ALTER TABLE speed_runs ADD COLUMN section TEXT NOT NULL DEFAULT 'math'",
+        "CREATE INDEX idx_speed_section ON speed_runs (section, day, ranked)",
+    ]),
     # The paper look (the home page's) becomes every page's default theme. New accounts are created with it
     # (routes/auth.py); accounts still on the old default move to it. The other themes stay in Settings.
-    (16, "Paper is the default theme", [
+    (17, "Paper is the default theme", [
         "UPDATE users SET theme = 'paper' WHERE theme = 'dark'",
     ]),
-    # (17, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    # (18, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

@@ -1,0 +1,124 @@
+{
+  "id": "rw-evidence-textual",
+  "order": 612,
+  "domain": "information-ideas",
+  "skill": "command-of-evidence-textual",
+  "title": "Prove the exact claim",
+  "minutes": 7,
+  "format": "lives",
+  "hook": "Restate the claim in your own words, then pick the evidence that proves that claim, not just the topic.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "Before reading the choices on a 'which finding would most directly support' question, what should you write down?",
+      "answer": "The exact claim or hypothesis, with every part of it."
+    },
+    {
+      "type": "predict",
+      "prompt": "Claim: city crows are bolder around people because they've learned humans are mostly harmless. Which finding supports it?",
+      "choices": [
+        "City crows let people come much closer before flying off than rural crows do.",
+        "City crows eat more kinds of food.",
+        "Rural crows nest higher in trees."
+      ],
+      "answer": 0,
+      "why": "Only the first choice is about boldness toward people. The others are true-sounding but off the claim."
+    },
+    {
+      "type": "sort",
+      "prompt": "Claim: music does not make tomato plants grow faster. Sort each finding.",
+      "buckets": [
+        "Supports",
+        "Weakens",
+        "Irrelevant"
+      ],
+      "cards": [
+        {
+          "text": "Plants with and without music grew to the same height.",
+          "bucket": 0
+        },
+        {
+          "text": "Plants that heard music grew taller.",
+          "bucket": 1
+        },
+        {
+          "text": "Plants without music needed more water.",
+          "bucket": 2
+        },
+        {
+          "text": "Plants that heard music made more flowers.",
+          "bucket": 2
+        }
+      ],
+      "why": "Supporting evidence matches the claim exactly. Water use and flowers aren't about growth speed."
+    },
+    {
+      "type": "predict",
+      "prompt": "Claim: the poem portrays the sea as calm and comforting. Which quotation illustrates it?",
+      "choices": [
+        "'The gulls cry out above the breaking wall'",
+        "'Far off, the storm clouds gather'",
+        "'The water folds itself like a blanket on a bed'"
+      ],
+      "answer": 2,
+      "why": "A blanket is calm and comforting. The other lines are about noise and storms."
+    },
+    {
+      "type": "predict",
+      "prompt": "Hypothesis: a valley was carved by a glacier (glaciers leave U-shaped valleys with flat floors). Which finding weakens it?",
+      "choices": [
+        "The valley has a broad, flat floor.",
+        "The valley is in a cold region.",
+        "The valley is narrow and V-shaped."
+      ],
+      "answer": 2,
+      "why": "A V shape points to a river, which weakens the glacier idea."
+    },
+    {
+      "type": "predict",
+      "prompt": "Claim: soldiers' letters show deep homesickness. Best support?",
+      "choices": [
+        "'The food is poor, but there is plenty.'",
+        "'Not an hour goes by that I do not think of you all at home.'",
+        "'We marched twenty miles today.'"
+      ],
+      "answer": 1,
+      "why": "Only the first quotation expresses longing for home."
+    }
+  ],
+  "keys": [
+    "Write down the exact claim, every part of it.",
+    "The right evidence proves the claim itself, not just the topic.",
+    "To weaken a claim, look for evidence that points to a different explanation."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Claim: older dogs can still learn new tasks. Which finding supports it?",
+      "choices": [
+        "Older dogs sleep more.",
+        "Older dogs learned new tasks, though more slowly.",
+        "Younger dogs learned faster."
+      ],
+      "answer": 1,
+      "why": "It shows older dogs learning, which is the claim."
+    },
+    {
+      "type": "predict",
+      "prompt": "A finding can be true and still be the wrong answer when:",
+      "choices": [
+        "it's about the topic but not the claim",
+        "it uses numbers",
+        "it comes from a study"
+      ],
+      "answer": 0,
+      "why": "Relevance to the exact claim is what counts."
+    },
+    {
+      "type": "recall",
+      "prompt": "What makes evidence 'weaken' a hypothesis?",
+      "answer": "It points the other way or offers a different explanation for the result."
+    }
+  ],
+  "tex": true
+}

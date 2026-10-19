@@ -13,6 +13,7 @@ from .routes import BLUEPRINTS
 from . import testaccount
 from .schema import migrate
 from .security import ApiError, check_same_origin, current_user, error_response, prune_events, write_flood
+from .services import donelist
 
 CSP = ("default-src 'self'; script-src 'self' https://plausible.io https://www.googletagmanager.com https://challenges.cloudflare.com; "
        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; "
@@ -69,6 +70,8 @@ def create_app(overrides=None):
                 raise ApiError(403, "Parent accounts see their student's progress on the parent dashboard.", code="parent_account")
             if user and user["role"] != "parent" and request.path.startswith("/api/parent"):
                 raise ApiError(403, "The parent dashboard is for parent accounts.", code="student_account")
+            if user and user["role"] != "parent" and donelist.wanted(request.path):
+                donelist.absorb(user["id"], request.cookies)  # questions the browser's done-list cookies have
 
     @app.cli.command("analytics-report")
     def analytics_report():
@@ -88,6 +91,15 @@ def create_app(overrides=None):
         if request.path.startswith("/api/") and request.method not in ("GET", "HEAD", "OPTIONS") and request.path not in WEBHOOKS:
             from .services import history
             history.after(resp)
+        return resp
+
+    @app.after_request
+    def done_cookies(resp):
+        """Practice responses carry the student's done list, one cookie per section (services/donelist.py)."""
+        if request.path.startswith("/api/") and donelist.wanted(request.path) and resp.status_code < 500:
+            user = current_user()
+            if user and user["role"] != "parent":
+                donelist.attach(resp, user["id"], app.config["SESSION_COOKIE_SECURE"])
         return resp
 
     @app.after_request

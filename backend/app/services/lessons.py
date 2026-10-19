@@ -49,7 +49,9 @@ GROUPS = {
         "inequalities": "Inequalities", "functions": "Functions", "circles": "Circles", "exact": "Exact answers",
         "trig": "Trig", "choices": "Answer choices", "strategy": "Desmos or by hand"}},
 }
-GROUP_ORDER = {"memory": 0, "algebra": 1, "advanced-math": 2, "psda": 3, "geometry-trig": 4, "desmos": 5}
+GROUP_ORDER = {"memory": 0, "algebra": 1, "advanced-math": 2, "psda": 3, "geometry-trig": 4, "desmos": 5,
+               # Reading and Writing, in the order its questions come on test day.
+               "craft-structure": 6, "information-ideas": 7, "conventions": 8, "expression-ideas": 9}
 STEP_TYPES = {"recall", "predict", "fill", "order", "spot", "slider", "plot", "graph", "sort", "match", "line", "build",
               "grid", "flash"}
 FORMATS = {
@@ -74,7 +76,7 @@ RECALL_PASS = 2 / 3  # share of recall questions to get right
 @lru_cache(maxsize=1)
 def all_lessons():
     out = []
-    skills = {d["key"]: {s["key"] for s in d["skills"]} for d in bank.topics()}
+    skills = {d["key"]: {s["key"] for s in d["skills"]} for d in bank.topics("math") + bank.topics("rw")}
     for f in sorted(FOLDER.glob("*.json")):
         lesson = json.loads(f.read_text(encoding="utf-8"))
         for step in lesson["steps"] + lesson["recall"]:
@@ -109,7 +111,7 @@ def topic_names():
         names[key] = g["name"]
         for k, v in g["skills"].items():
             names[f"{key}/{k}"] = v
-    for d in bank.topics():
+    for d in bank.topics("math") + bank.topics("rw"):
         names[d["key"]] = d["name"]
         for s in d["skills"]:
             names[f"{d['key']}/{s['key']}"] = s["name"]
@@ -150,6 +152,7 @@ def overview(user_id, today=None):
     items = []
     for l in all_lessons():
         items.append({"id": l["id"], "title": l["title"], "hook": l["hook"], "minutes": l["minutes"], "domain": l["domain"],
+                      "section": section(l),
                       "domain_name": names.get(l["domain"], l["domain"]), "skill": l["skill"],
                       "skill_name": names.get(f"{l['domain']}/{l['skill']}", l["skill"]), "steps": len(l["steps"]),
                       "progress": status(rows.get(l["id"]), today),
@@ -166,16 +169,25 @@ def overview(user_id, today=None):
             "mastered": sum(1 for i in items if i["progress"]["mastered"])}
 
 
+def section(l):
+    """'rw' for a Reading and Writing lesson; 'math' for the rest (Math skills, memory, the Desmos course)."""
+    return "rw" if bank.section_of(l["domain"]) == "rw" else "math"
+
+
 def must_start_first(user_id, lesson_id):
-    """The Desmos hacks lesson opens first for everyone. Until it's finished, other lessons stay locked."""
+    """The Desmos hacks lesson opens first for every Math lesson. Until it's finished, other Math lessons stay locked.
+    Reading and Writing lessons don't use Desmos, so they're open from the start."""
     if lesson_id == START_LESSON or lesson(START_LESSON) is None:
+        return False
+    found = lesson(lesson_id)
+    if found and section(found) == "rw":
         return False
     return query("SELECT 1 FROM lesson_progress WHERE user_id = ? AND lesson_id = ?", (user_id, START_LESSON), one=True) is None
 
 
 def public(l, row=None, today=None):
     names = topic_names()
-    return dict(l, domain_name=names.get(l["domain"], l["domain"]), format_rule=FORMATS[l.get("format", "classic")],
+    return dict(l, section=section(l), domain_name=names.get(l["domain"], l["domain"]), format_rule=FORMATS[l.get("format", "classic")],
                 skill_name=names.get(f"{l['domain']}/{l['skill']}", l["skill"]),
                 progress=status(row, today or date.today()), recall_days=list(RECALL_DAYS))
 

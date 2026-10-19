@@ -116,7 +116,7 @@ class ParentTest(unittest.TestCase):
         self.assertEqual(o["minutes_week"], 10)
         self.assertEqual(s["activity"][0]["kind"], "Topic practice")
         self.assertEqual((s["activity"][0]["correct"], s["activity"][0]["total"]), (5, 5))
-        self.assertEqual(len(s["levels"]), 5)
+        self.assertEqual(len(s["levels"]), 10)  # five Math tracks and five Reading and Writing tracks
         self.assertFalse(any("hasn't" in a["text"] for a in s["alerts"]))
 
     def test_settings(self):

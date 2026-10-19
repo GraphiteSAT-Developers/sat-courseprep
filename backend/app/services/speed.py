@@ -1,5 +1,8 @@
 """Speed round: the same 10 quick questions for everyone each day, timed by the server.
 
+There are two rounds a day, one for Math and one for Reading and Writing, each with its own
+ranked run and its own leaderboards.
+
 The first round a student starts each day is their ranked run; later rounds that day are for practice.
 Time runs on the server from the moment the questions are sent until the last answer arrives, and each
 miss adds PENALTY_MS. Leaderboards show today's runs and the best run of each student this week, for
@@ -47,7 +50,13 @@ NOUNS = ["Parabola", "Vertex", "Tangent", "Radius", "Integer", "Fraction", "Slop
 
 # ---------- nicknames ----------
 def roll_nicknames(n=3, rng=random):
-    return [f"{rng.choice(ADJECTIVES)} {rng.choice(NOUNS)} {rng.randint(10, 99)}" for _ in range(n)]
+    """Suggested nicknames, each short enough to save (NICK_MAX characters)."""
+    out = []
+    while len(out) < n:
+        nick = f"{rng.choice(ADJECTIVES)} {rng.choice(NOUNS)} {rng.randint(10, 99)}"
+        if len(nick) <= NICK_MAX:
+            out.append(nick)
+    return out
 
 
 NICK_MIN, NICK_MAX = 3, 20
@@ -92,15 +101,22 @@ def _salt():
     return hashlib.sha256(f"speed:{key}".encode()).hexdigest()[:16]
 
 
-def day_items(day):
-    """Today's 10 questions: quick multiple choice, easy and medium, picked the same way for everyone."""
+def day_items(day, section="math"):
+    """Today's 10 questions for a section: quick multiple choice, easy and medium, picked the same way for everyone.
+    Reading and Writing leaves out the longer two-text and data questions so a round stays quick."""
+    domains = DOMAINS if section == "math" else RW_DOMAINS
     pool = sorted(q["id"] for q in bank.all_items().values()
-                  if q["type"] == "mc" and q["difficulty"] in ("easy", "medium") and q["domain_key"] in DOMAINS)
-    rng = random.Random(f"{day}:{_salt()}")
+                  if q["type"] == "mc" and q["difficulty"] in ("easy", "medium") and q["domain_key"] in domains
+                  and q["skill_key"] not in RW_SLOW_SKILLS)
+    seed = f"{day}:{_salt()}" if section == "math" else f"{day}:{section}:{_salt()}"
+    rng = random.Random(seed)
     return rng.sample(pool, SIZE)
 
 
 DOMAINS = {"algebra", "advanced-math", "psda", "geometry-trig"}
+RW_DOMAINS = {"craft-structure", "information-ideas", "conventions", "expression-ideas"}
+RW_SLOW_SKILLS = {"cross-text-connections", "command-of-evidence-quantitative"}
+SECTIONS = ("math", "rw")
 
 
 def now_ms():
@@ -116,7 +132,7 @@ def public(run, now=None):
     items = bank.all_items()
     ids = json.loads(run["item_ids"])
     answers = {int(k): v for k, v in json.loads(run["answers"]).items()}
-    out = {"id": run["id"], "day": run["day"], "ranked": bool(run["ranked"]), "total": run["total"],
+    out = {"id": run["id"], "day": run["day"], "section": run.get("section") or "math", "ranked": bool(run["ranked"]), "total": run["total"],
            "questions": [bank.public_question(items[i]) for i in ids],
            "answered": {str(i): {"answer": a, "correct": bank.graded_question(items[ids[i]], i, a)["correct"],
                                  "answer_index": bank.graded_question(items[ids[i]], i, a)["answer_index"]}
@@ -134,20 +150,21 @@ def result_of(run):
             "score_ms": run["score_ms"], "ranked": bool(run["ranked"])}
 
 
-def start(user, today=None):
-    """Picks up today's unfinished run if there is one, else starts a new one."""
+def start(user, today=None, section="math"):
+    """Picks up today's unfinished run in this section if there is one, else starts a new one."""
     day = (today or date.today()).isoformat()
     t = now_ms()
-    open_run = query("SELECT * FROM speed_runs WHERE user_id = ? AND day = ? AND finished_ms IS NULL ORDER BY id DESC LIMIT 1",
-                     (user["id"], day), one=True)
+    open_run = query("SELECT * FROM speed_runs WHERE user_id = ? AND day = ? AND section = ? AND finished_ms IS NULL "
+                     "ORDER BY id DESC LIMIT 1", (user["id"], day, section), one=True)
     if open_run and t - open_run["started_ms"] < MAX_MS:
         return open_run
     if open_run:
         finish(user["id"], open_run, open_run["started_ms"] + MAX_MS)
-    ranked = not query("SELECT 1 FROM speed_runs WHERE user_id = ? AND day = ? AND ranked = 1", (user["id"], day), one=True)
-    row = execute("INSERT INTO speed_runs (user_id, day, item_ids, answers, started_ms, total, ranked, state, created_at) "
-                  "VALUES (?, ?, ?, '{}', ?, ?, ?, ?, ?) RETURNING id",
-                  (user["id"], day, json.dumps(day_items(day)), t, SIZE, 1 if ranked else 0, user["state"], now_iso()))
+    ranked = not query("SELECT 1 FROM speed_runs WHERE user_id = ? AND day = ? AND section = ? AND ranked = 1",
+                       (user["id"], day, section), one=True)
+    row = execute("INSERT INTO speed_runs (user_id, day, section, item_ids, answers, started_ms, total, ranked, state, created_at) "
+                  "VALUES (?, ?, ?, ?, '{}', ?, ?, ?, ?, ?) RETURNING id",
+                  (user["id"], day, section, json.dumps(day_items(day, section)), t, SIZE, 1 if ranked else 0, user["state"], now_iso()))
     return get(user["id"], row["id"])
 
 
@@ -204,16 +221,16 @@ def _week_start(day):
     return day - timedelta(days=day.weekday())
 
 
-def board(viewer, scope="state", period="today", today=None):
-    """Top runs, best per student. scope: state or nation. period: today or week (Monday to now)."""
+def board(viewer, scope="state", period="today", today=None, section="math"):
+    """Top runs in one section, best per student. scope: state or nation. period: today or week (Monday to now)."""
     today = today or date.today()
     since = today if period == "today" else _week_start(today)
     state = viewer["state"] if scope == "state" else None
     if scope == "state" and not state:
-        return {"scope": scope, "period": period, "needs_state": True, "rows": [], "you": None}
+        return {"scope": scope, "period": period, "section": section, "needs_state": True, "rows": [], "you": None}
     sql = ("SELECT r.user_id, MIN(r.score_ms) AS score_ms FROM speed_runs r JOIN users u ON u.id = r.user_id "
-           "WHERE r.ranked = 1 AND r.finished_ms IS NOT NULL AND r.day >= ? AND r.day <= ?")
-    params = [since.isoformat(), today.isoformat()]
+           "WHERE r.ranked = 1 AND r.finished_ms IS NOT NULL AND r.section = ? AND r.day >= ? AND r.day <= ?")
+    params = [section, since.isoformat(), today.isoformat()]
     if state:
         sql += " AND u.state = ?"
         params.append(state)
@@ -227,7 +244,7 @@ def board(viewer, scope="state", period="today", today=None):
             users[u["id"]] = u
     shown = sorted((uid for uid, u in users.items() if u["board_opt_in"] and u["nickname"]),
                    key=lambda uid: (best_by_user[uid], uid))
-    detail = _run_details(best_by_user, since, today)
+    detail = _run_details(best_by_user, since, today, section)
     rows = []
     for i, uid in enumerate(shown[:BOARD_SIZE]):
         u = users[uid]
@@ -239,30 +256,32 @@ def board(viewer, scope="state", period="today", today=None):
         visible = bool(viewer["board_opt_in"] and viewer["nickname"])
         place = (shown.index(viewer["id"]) + 1) if visible else 1 + sum(1 for uid in shown if best_by_user[uid] < mine)
         you = dict(detail[viewer["id"]], rank=place, visible=visible, of=len(shown) + (0 if visible else 1))
-    return {"scope": scope, "period": period, "state": state, "state_name": STATE_NAMES.get(state) if state else None,
+    return {"scope": scope, "period": period, "section": section, "state": state, "state_name": STATE_NAMES.get(state) if state else None,
             "rows": rows, "you": you, "players": len(shown)}
 
 
-def _run_details(best_by_user, since, today):
+def _run_details(best_by_user, since, today, section="math"):
     """The run behind each student's best score: correct answers and raw time."""
     out = {}
     for uid, score in best_by_user.items():
         r = query("SELECT correct, total, started_ms, finished_ms, score_ms, day FROM speed_runs WHERE user_id = ? "
-                  "AND ranked = 1 AND score_ms = ? AND day >= ? AND day <= ? ORDER BY id LIMIT 1",
-                  (uid, score, since.isoformat(), today.isoformat()), one=True)
+                  "AND ranked = 1 AND section = ? AND score_ms = ? AND day >= ? AND day <= ? ORDER BY id LIMIT 1",
+                  (uid, section, score, since.isoformat(), today.isoformat()), one=True)
         out[uid] = {"score_ms": r["score_ms"], "raw_ms": r["finished_ms"] - r["started_ms"], "correct": r["correct"],
                     "total": r["total"], "day": r["day"]}
     return out
 
 
-def overview(user, today=None):
+def overview(user, today=None, section="math"):
     today = today or date.today()
     day = today.isoformat()
-    ranked = query("SELECT * FROM speed_runs WHERE user_id = ? AND day = ? AND ranked = 1", (user["id"], day), one=True)
-    best = query("SELECT MIN(score_ms) AS s FROM speed_runs WHERE user_id = ? AND ranked = 1 AND finished_ms IS NOT NULL",
-                 (user["id"],), one=True)["s"]
-    runs = query("SELECT * FROM speed_runs WHERE user_id = ? AND finished_ms IS NOT NULL ORDER BY id DESC LIMIT 5", (user["id"],))
-    return {"day": day, "size": SIZE, "penalty_ms": PENALTY_MS, "max_ms": MAX_MS,
+    ranked = query("SELECT * FROM speed_runs WHERE user_id = ? AND day = ? AND section = ? AND ranked = 1",
+                   (user["id"], day, section), one=True)
+    best = query("SELECT MIN(score_ms) AS s FROM speed_runs WHERE user_id = ? AND section = ? AND ranked = 1 AND finished_ms IS NOT NULL",
+                 (user["id"], section), one=True)["s"]
+    runs = query("SELECT * FROM speed_runs WHERE user_id = ? AND section = ? AND finished_ms IS NOT NULL ORDER BY id DESC LIMIT 5",
+                 (user["id"], section))
+    return {"day": day, "section": section, "size": SIZE, "penalty_ms": PENALTY_MS, "max_ms": MAX_MS,
             "ranked_today": None if not ranked else (result_of(ranked) if ranked["finished_ms"] is not None else {"open": True}),
             "personal_best_ms": best,
             "recent": [dict(result_of(r), day=r["day"]) for r in runs],
