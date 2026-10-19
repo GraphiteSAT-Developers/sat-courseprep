@@ -42,6 +42,7 @@
 
     <main class="q-area" id="q-area" tabindex="-1">
       <section class="q-wrap" id="q-view" aria-live="polite">
+        <div class="q-passage" id="q-passage" hidden></div>
         <div class="q-head">
           <span class="q-num" id="q-num">1</span>
           <button class="mark" type="button" id="mark-btn" aria-pressed="false">
@@ -190,6 +191,11 @@
   <div class="overlay" id="dir-dialog" role="dialog" aria-modal="true" aria-labelledby="dir-title" hidden>
     <div class="dialog">
       <h2 id="dir-title">Directions</h2>
+      <div id="dir-rw" hidden>
+        <p>The questions in this section address a number of important reading and writing skills. Each question includes one or more passages, which may include a table or graph. Read each passage and question carefully, and then choose the best answer to the question based on the passage(s).</p>
+        <p>All questions in this section are multiple-choice with four answer choices. Each question has a single best answer.</p>
+      </div>
+      <div id="dir-math">
       <p>These questions cover algebra, advanced math, problem-solving and data analysis, and geometry and trigonometry. You can use the calculator on every question.</p>
       <ul>
         <li>Variables and expressions stand for real numbers unless a question says otherwise.</li>
@@ -197,6 +203,7 @@
         <li>A function's domain is all real numbers for which its value is a real number, unless a question says otherwise.</li>
         <li>Multiple-choice questions have one correct answer. For student-produced response questions, type your answer in the box.</li>
       </ul>
+      </div>
       <div class="dialog-actions"><button class="btn btn-primary" type="button" data-close>Close</button></div>
     </div>
   </div>

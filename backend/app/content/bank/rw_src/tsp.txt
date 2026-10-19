@@ -1,0 +1,361 @@
+## tsp easy
+P: Every spring, thousands of toads in one English village cross a busy road to reach the pond where they breed. [u]For years, many of them were struck by cars.[/u] Then volunteers began carrying the toads across in buckets on rainy evenings, and the number killed each year dropped sharply.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+*A: It describes a problem that the volunteers' efforts later addressed.
+A: It explains why the toads breed in the pond.
+A: It suggests that the village should build a new road.
+A: It describes how the volunteers carried the toads.
+X: The underlined sentence presents the danger the toads faced, and the next sentence describes how volunteers reduced it, so A is right. It doesn't explain the breeding site (B), propose a road (C), or describe the volunteers' method (D), which comes afterward.
+
+## tsp easy
+P: Most people think of honey as a simple sweet food. But honey has an unusual property: it almost never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that were thousands of years old and still safe to eat. Honey's low moisture and natural acidity make it very hard for bacteria to grow.
+Q: Which choice best describes the overall structure of the text?
+A: It describes how honey is made and then explains how bees store it.
+*A: It introduces a surprising quality of honey, gives an example of it, and then explains its cause.
+A: It compares honey with other foods and argues that honey is healthier.
+A: It presents a debate among archaeologists and then resolves it.
+X: The text states that honey almost never spoils (a surprising quality), gives the example of honey found in tombs, and then explains why (low moisture and acidity), so B is right. It doesn't describe how honey is made (A), compare it with other foods (C), or present a debate (D).
+
+## tsp easy
+P: The city of Seoul once had a highway running over a buried stream called Cheonggyecheon. In 2003, city leaders tore down the highway and uncovered the stream. Today, the area is a park where residents walk along the water, and summer temperatures there are several degrees cooler than on nearby streets.
+Q: Which choice best states the main purpose of the text?
+A: To argue that all cities should remove their highways
+A: To explain why Seoul built a highway over the stream
+*A: To describe how a highway in Seoul was replaced with a stream park and the benefits that followed
+A: To compare traffic in Seoul with traffic in other cities
+X: The text tells how Seoul removed a highway, uncovered a stream, and gained a cooler park, so C states its purpose. It doesn't argue for all cities (A), explain the highway's construction (B), or compare traffic (D).
+
+## tsp easy
+P: Chess players often memorize the first moves of many games, called openings. [u]Some grandmasters have studied thousands of these sequences.[/u] However, experts say that understanding why a move is good matters more than memorizing it, because opponents frequently play unexpected moves that take a game into unfamiliar territory.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It explains why opponents often make unexpected moves.
+*A: It emphasizes how much effort some players put into memorizing openings.
+A: It argues that memorizing openings is the most important chess skill.
+A: It describes the rules for how a chess game begins.
+X: The sentence illustrates the scale of memorization (thousands of sequences), setting up the "However" that follows, so B is right. It doesn't explain opponents' moves (A). C contradicts the experts' view. D isn't what the sentence does.
+
+## tsp easy
+P: Many people believe that goldfish have a memory span of only a few seconds. Experiments tell a different story. Researchers have trained goldfish to push levers for food and found that the fish remembered the task months later.
+Q: Which choice best describes the overall structure of the text?
+A: It describes an experiment and then lists questions it raised.
+A: It explains how goldfish are trained and then gives advice for pet owners.
+A: It describes two experiments that reached opposite conclusions.
+*A: It presents a common belief and then gives evidence that contradicts it.
+X: The text opens with the belief that goldfish forget within seconds, then reports experiments showing they remember for months, so D is right. It doesn't list questions (A), give advice (B), or describe opposing experiments (C).
+
+## tsp easy
+P: The town of Riverside used to throw away tons of food scraps every week. In 2019, it began collecting the scraps separately and turning them into compost. [u]Local farmers now buy the compost to enrich their fields.[/u]
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It explains why the town once threw away food scraps.
+A: It describes a problem with the town's compost program.
+A: It suggests that farmers produced most of the town's food waste.
+*A: It shows one benefit of the town's composting program.
+X: The underlined sentence shows a positive result of the composting program (farmers buy the compost), so D is right. It doesn't explain past waste (A), describe a problem (B), or blame farmers for the waste (C).
+
+## tsp easy
+P: In 1928, scientist Alexander Fleming returned from vacation to find mold growing in one of his dishes of bacteria. He noticed that the bacteria near the mold had died. Curious, he studied the mold and discovered that it produced a substance that killed bacteria. That substance, penicillin, became one of the first antibiotics.
+Q: Which choice best states the main purpose of the text?
+*A: To recount how an accidental observation led to an important discovery
+A: To explain why scientists should take vacations
+A: To describe the different kinds of mold that grow in laboratories
+A: To argue that penicillin is the best antibiotic available today
+X: The text tells how Fleming noticed mold killing bacteria by chance and went on to discover penicillin, so A states its purpose. B misreads a detail. C and D make claims the text doesn't make.
+
+## tsp easy
+P: Some birds use tools. [u]New Caledonian crows, for example, bend twigs into hooks to pull insects out of holes in trees.[/u] Scientists once believed that only humans and a few other primates could make tools, but birds like these have challenged that idea.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It describes where New Caledonian crows build their nests.
+*A: It gives a specific example of a bird using a tool.
+A: It explains why scientists study primates.
+A: It argues that crows are smarter than primates.
+X: The underlined sentence follows the claim that some birds use tools and offers a specific case, so B is right. It isn't about nests (A) or why scientists study primates (C), and it makes no comparison of intelligence (D).
+
+## tsp easy
+P: Every year, a small library in rural Maine lends out more than books. Patrons can borrow fishing rods, snowshoes, telescopes, and even cake pans. The library's director says the goal is to give residents access to things they might use only a few times a year and not want to buy.
+Q: Which choice best describes the overall structure of the text?
+A: It describes a problem that a library faces and then proposes a solution.
+A: It compares a rural library with libraries in large cities.
+*A: It introduces an unusual library practice, gives examples, and explains its purpose.
+A: It lists the most popular books at a library and explains why residents enjoy them.
+X: The text says the library lends more than books, lists examples (fishing rods, snowshoes, and so on), and gives the director's explanation, so C is right. It doesn't present a problem (A), compare libraries (B), or discuss books (D).
+
+## tsp easy
+P: Many people assume that the color of an egg's shell says something about its nutrition. In fact, shell color depends mainly on the breed of the hen that laid it. A brown egg and a white egg from hens raised on the same diet are nutritionally almost identical.
+Q: Which choice best states the main purpose of the text?
+A: To recommend that people buy brown eggs instead of white eggs
+A: To explain how hens of different breeds are raised
+A: To describe how the color of eggshells has changed over time
+*A: To correct a common belief about eggshell color
+X: The text states a common assumption and then explains that shell color reflects breed, not nutrition, so D is right. It makes no recommendation (A), doesn't explain how hens are raised (B), and doesn't discuss change over time (C).
+
+## tsp easy
+P: Glass frogs, found in Central and South American rainforests, have skin on their bellies that is almost completely transparent. [u]Looking at a glass frog from below, an observer can see its heart beating.[/u] Researchers think the see-through skin may help the frogs blend in with the leaves where they rest during the day.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+*A: It illustrates how transparent the frogs' skin is.
+A: It suggests that glass frogs are in danger of extinction.
+A: It explains how glass frogs find food.
+A: It challenges the researchers' explanation of the frogs' skin.
+X: The underlined sentence shows just how see-through the skin is (one can see the heart beating), so A is right. It doesn't concern food (C), extinction (B), or disagreement with the researchers (D).
+
+## tsp easy
+P: Before refrigerators were common, many households used iceboxes. Every few days, an "iceman" delivered a large block of ice, which was placed in a compartment at the top of the box. As the ice slowly melted, it kept food in the compartments below cool.
+Q: Which choice best states the main purpose of the text?
+*A: To describe how food was kept cold before refrigerators were widespread
+A: To argue that iceboxes worked better than modern refrigerators
+A: To explain how ice was harvested from lakes in winter
+A: To describe the daily life of the people who delivered ice
+X: The text explains how iceboxes and ice deliveries kept food cool before refrigerators, so A states its purpose. It makes no comparison of effectiveness (B), says nothing about harvesting ice (C), and mentions the iceman only as part of how iceboxes worked (D).
+
+## tsp easy
+P: Some people say that you can't teach an old dog new tricks. [u]Researchers at a university in Vienna decided to test this saying.[/u] They found that older dogs did learn new tasks, though more slowly than younger dogs, and that they remembered what they learned just as well.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It explains why older dogs learn more slowly than younger dogs.
+A: It argues that the common saying is accurate.
+A: It describes the results of a study on dogs' memories.
+*A: It introduces a study that examined a common saying.
+X: The underlined sentence moves from the saying to the research that tested it, introducing the study whose results follow, so D is right. It doesn't explain slower learning (A), give results (C), or argue that the saying is true (B).
+
+## tsp medium
+P: Many historians have portrayed the Erie Canal, completed in 1825, as an engineering triumph that transformed New York's economy. Historian Carol Sheriff accepts this view but adds a complication. [u]She shows that the canal also brought unwelcome changes to many towns along its route, including crowded docks, rising land prices, and conflicts over who should pay for repairs.[/u] For many residents, Sheriff argues, progress was a mixed blessing.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It challenges the claim that the canal was an engineering achievement.
+*A: It presents evidence of the complication that Sheriff adds to the common view.
+A: It explains why the canal was completed in 1825.
+A: It describes the economic benefits that the canal brought to New York.
+X: Sheriff "accepts this view but adds a complication"; the underlined sentence lists the unwelcome changes that make up that complication, so B is right. A contradicts her acceptance of the common view. C and D describe things the sentence doesn't address.
+
+## tsp medium
+P: Bioluminescence, the production of light by living things, is rare on land but common in the deep ocean, where sunlight doesn't reach. Some deep-sea fish use glowing lures to attract prey. Others flash light to startle predators. Still others, such as certain shrimp, release clouds of glowing fluid, like a squid releasing ink, to escape. In the darkness of the deep sea, light has become a tool for survival in many different ways.
+Q: Which choice best describes the overall structure of the text?
+A: It describes a problem facing deep-sea animals and then proposes several solutions.
+A: It explains how bioluminescence works chemically and then describes where it is found.
+*A: It introduces a phenomenon, gives several examples of how animals use it, and then states a general conclusion.
+A: It compares bioluminescence on land with bioluminescence in the ocean and argues that one is more useful.
+X: The text introduces bioluminescence, gives examples (lures, flashes, glowing clouds), and concludes that light is a survival tool in many ways, so C is right. A misdescribes the examples as solutions to a problem. B is wrong because the text never explains the chemistry. D overstates a single brief comparison.
+
+## tsp medium
+I: The following text is adapted from a 1912 short story.
+P: The house at the end of Linden Street had been empty for so long that the children of the neighborhood had invented a dozen histories for it. [u]Some said a sea captain had died there; others insisted it was haunted by a woman in a gray dress.[/u] When at last a moving truck pulled up one summer morning, every child on the street found a reason to walk past.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It reveals the true history of the house at the end of the street.
+A: It explains why the new family chose to move into the house.
+A: It suggests that the children were afraid to walk past the house.
+*A: It gives examples of the stories the children had made up about the house.
+X: The previous sentence says the children "invented a dozen histories" for the house; the underlined sentence gives two of them, so D is right. A is wrong because the stories are invented. B isn't addressed. C is contradicted by the children's eagerness to walk past.
+
+## tsp medium
+P: Researchers have long known that sleep helps people remember what they have learned, but the reason has been unclear. Neuroscientist Jamal Reid's team recorded brain activity in volunteers who learned a sequence of finger movements before napping. During the nap, the same brain regions that had been active during learning became active again, in the same order. [u]Volunteers whose brains showed the most replay improved the most when they practiced the task after waking.[/u]
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It describes a limitation of Reid's study.
+A: It explains why the volunteers learned a sequence of finger movements.
+A: It suggests that the volunteers did not sleep long enough to benefit from the nap.
+*A: It presents a finding that links the brain replay during sleep with improved performance.
+X: The text describes brain regions replaying during sleep; the underlined sentence connects the amount of replay to improvement after waking, which supports replay as the reason sleep helps memory. D is right. The sentence doesn't describe a limitation (A), explain the choice of task (B), or suggest the nap was too short (C).
+
+## tsp medium
+P: Economists usually assume that people make decisions by weighing costs and benefits. But behavioral economist Ruth Feldman points out that many people who sign up for gym memberships rarely use them, paying for months of visits they never make. Feldman argues that people often overestimate how disciplined their future selves will be, a pattern that standard economic models struggle to explain.
+Q: Which choice best states the main purpose of the text?
+*A: To present an example that challenges a standard economic assumption and an explanation for it
+A: To argue that gym memberships should be less expensive
+A: To describe how economists calculate the costs and benefits of decisions
+A: To explain why exercise is beneficial for people's health
+X: The text states the usual assumption, offers the gym example that doesn't fit it, and gives Feldman's explanation, so A states its purpose. B and D aren't the text's focus. C misreads the opening sentence, which states an assumption rather than describing a method.
+
+## tsp medium
+P: When the city of Linton planned a new light-rail line, officials expected most riders to be commuters. Surveys after the line opened showed something different. [u]More than half of riders were traveling for errands, shopping, or social visits rather than for work.[/u] Planners have since used the findings to adjust train schedules, adding more service on weekends and in the evenings.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+*A: It specifies the survey finding that differed from officials' expectations.
+A: It explains why officials expected most riders to be commuters.
+A: It describes a problem with the way the surveys were conducted.
+A: It argues that the light-rail line should not have been built.
+X: The previous sentence says the surveys showed "something different"; the underlined sentence specifies what (most riders weren't commuting), so A is right. B, C, and D describe things the sentence doesn't do.
+
+## tsp medium
+P: The violin makers of Cremona, Italy, including Antonio Stradivari, produced instruments in the 1600s and 1700s that are still prized for their sound. Many theories have tried to explain their quality: special varnishes, chemical treatments of the wood, or even unusually cold weather that produced denser trees. Yet in blind tests, some professional violinists have been unable to tell the old instruments from the best modern ones, and many have preferred the modern ones.
+Q: Which choice best describes the overall structure of the text?
+A: It describes how violins are made and then explains why modern violins are better.
+A: It presents a single theory about Cremona violins and then supports it with evidence.
+A: It recounts the life of Stradivari and then describes his influence on later violin makers.
+*A: It introduces famous instruments, lists theories for their quality, and then presents evidence that complicates the assumption behind those theories.
+X: The text introduces the Cremona violins, lists several theories for their quality, and then describes blind tests that question whether the old violins are really superior, so D is right. A misdescribes the text, which doesn't explain how violins are made. B is wrong because the text lists several theories. C is wrong because it isn't a biography.
+
+## tsp medium
+P: Coffee plants produce caffeine, which is toxic to many insects in high doses. Yet scientists have found that coffee flowers contain small amounts of caffeine in their nectar. [u]Rather than driving pollinators away, these low doses seem to improve bees' memory of the flowers' scent, making the bees more likely to return.[/u]
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+*A: It explains a surprising effect of the caffeine found in coffee nectar.
+A: It describes how caffeine harms insects that eat coffee leaves.
+A: It argues that bees prefer coffee flowers to all other flowers.
+A: It describes how scientists measured caffeine levels in nectar.
+X: The text sets up a puzzle (caffeine is toxic to insects, yet it appears in nectar), and the underlined sentence resolves it with a surprising benefit: improved memory in bees. A is right. B describes the earlier point about toxicity. C overstates. D isn't discussed.
+
+## tsp medium
+P: In 1977, Wangari Maathai founded the Green Belt Movement in Kenya, encouraging rural women to plant trees. The trees provided firewood and fruit and helped prevent soil erosion. But the movement did more than plant trees: by organizing women into groups, it gave them experience in leadership and a stronger voice in their communities. Maathai later became the first African woman to receive the Nobel Peace Prize.
+Q: Which choice best states the main purpose of the text?
+A: To explain the causes of soil erosion in Kenya
+A: To describe the process of planting and caring for trees
+*A: To describe a movement and its environmental and social effects
+A: To compare the Green Belt Movement with other environmental groups
+X: The text describes the Green Belt Movement and its effects, both environmental (firewood, fruit, soil) and social (leadership and a stronger voice for women), so C states its purpose. A and B take up details the text doesn't develop. D makes a comparison the text never makes.
+
+## tsp medium
+P: Many people picture the Sahara as an endless sea of sand dunes. [u]In fact, dunes cover only about a quarter of the desert.[/u] Much of the rest consists of rocky plateaus, gravel plains, and mountains, some of which receive snow in winter.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It explains how sand dunes form in the desert.
+A: It supports the common image of the Sahara described in the first sentence.
+*A: It begins to correct a common misconception about the Sahara.
+A: It describes the mountains of the Sahara.
+X: The first sentence gives a common image; the underlined sentence ("In fact...") starts to correct it, and the last sentence continues the correction. C is right. A isn't discussed. B is the opposite. D describes the following sentence.
+
+## tsp medium
+P: Historians often describe the invention of the printing press as a sudden revolution. But printed books did not replace handwritten ones overnight. For decades after Gutenberg's press appeared in the 1450s, scribes continued to copy texts by hand, and some wealthy readers preferred handwritten books, which they saw as more elegant. Printing transformed European culture, but it did so gradually.
+Q: Which choice best describes the overall structure of the text?
+A: It describes Gutenberg's invention and then explains how the press worked.
+*A: It presents a common view, offers details that qualify it, and then restates the point in a more balanced form.
+A: It compares printed books with handwritten books and argues that handwritten books were superior.
+A: It lists several inventions of the 1450s and ranks them by importance.
+X: The text presents the "sudden revolution" view, offers evidence that the change was slower, and concludes that printing transformed culture "gradually," so B is right. A misdescribes the text, which doesn't explain how the press worked. C confuses some readers' preference with the author's argument. D isn't what the text does.
+
+## tsp medium
+P: The Japanese art of kintsugi repairs broken pottery with lacquer mixed with powdered gold. [u]Rather than hiding the cracks, the gold makes them shine.[/u] Practitioners see the repaired object as more beautiful for having been broken, a philosophy that treats damage as part of an object's history rather than something to disguise.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It explains how lacquer and gold are mixed together.
+*A: It highlights how kintsugi differs from repairs that try to make damage invisible.
+A: It argues that gold is the strongest material for repairing pottery.
+A: It describes the history of kintsugi in Japan.
+X: The underlined sentence contrasts kintsugi with hiding cracks, preparing for the philosophy that damage is part of an object's history. B is right. The sentence doesn't explain the mixing process (A), claim gold is strongest (C), or give a history (D).
+
+## tsp medium
+P: Coral reefs cover less than one percent of the ocean floor, yet they support about a quarter of all known marine species. Scientists sometimes call them "rainforests of the sea." Reefs also protect coastlines from storms and provide food and income for hundreds of millions of people. Rising ocean temperatures, however, now threaten many reefs worldwide.
+Q: Which choice best states the main purpose of the text?
+*A: To explain the importance of coral reefs and note a threat they face
+A: To describe how coral reefs form over time
+A: To compare coral reefs with rainforests on land
+A: To propose ways to protect coral reefs from rising temperatures
+X: Most of the text describes why reefs matter (species, coastline protection, food and income), and the last sentence names a threat, so A is right. B isn't discussed. C overstates a single nickname. D is wrong because no solutions are proposed.
+
+## tsp hard
+P: Anthropologists studying hunter-gatherer groups have often emphasized how much time people spend searching for food. Anthropologist Ama Boateng's research with one group in the Kalahari offers a different picture. [u]She found that adults spent, on average, fewer than twenty hours a week on activities related to finding and preparing food, and devoted much of the remaining time to storytelling, music, and visiting relatives.[/u] Boateng cautions, however, that her findings come from a single year with unusually plentiful rainfall.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It explains why earlier anthropologists emphasized time spent searching for food.
+*A: It presents the findings behind Boateng's different picture of hunter-gatherer life.
+A: It describes the limitation that Boateng acknowledges in her research.
+A: It argues that all hunter-gatherer groups spend little time searching for food.
+X: The text says Boateng "offers a different picture"; the underlined sentence gives the specific findings that make up that picture. B is right. A misreads the sentence's focus. C describes the final sentence. D overgeneralizes; Boateng studied one group and notes a limitation.
+
+## tsp hard
+P: For centuries, scholars assumed that the Inca, who left no known written texts, had no system for recording information. That assumption has been challenged by the study of khipu, bundles of knotted strings. Researchers have shown that many khipu recorded numbers, such as census figures and tax records, using knots in different positions. Some scholars now argue that certain khipu may also have recorded words or narratives, though no one has yet deciphered them.
+Q: Which choice best describes the overall structure of the text?
+A: It describes how khipu were made and then compares them with written texts from other cultures.
+A: It presents two competing theories about khipu and argues that one is correct.
+*A: It describes a long-held assumption, presents evidence against it, and then notes a further possibility that remains unconfirmed.
+A: It explains how researchers deciphered khipu and then describes what the khipu say.
+X: The text gives the assumption that the Inca had no recording system, presents evidence that khipu recorded numbers, and ends with the unconfirmed idea that some may record words. C is right. A and B misdescribe the text, which doesn't explain how khipu were made, compare them with written texts, or argue for one theory. D contradicts the statement that no one has deciphered the possible word-recording khipu.
+
+## tsp hard
+I: The following text is adapted from a novel. Ilse, a young singer, is listening to a concert.
+P: Ilse had heard the symphony described as melancholy, and she had come prepared to be sad. But as the music went on, she felt instead a kind of fierce happiness, as if someone had opened a window in a room she had not known was stuffy. [u]She did not know whether the critics had been wrong or whether she had simply heard a different symphony from the one they had heard.[/u]
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It reveals that Ilse agrees with the critics' description of the symphony.
+A: It explains why the critics described the symphony as melancholy.
+*A: It shows Ilse reflecting on the gap between others' descriptions of the music and her own experience of it.
+A: It suggests that Ilse plans to become a music critic.
+X: Ilse expected sadness but felt "fierce happiness"; the underlined sentence shows her wondering about the difference between the critics' view and her own response. C is right. A contradicts her experience. B is wrong because the sentence doesn't explain the critics' view. D isn't suggested.
+
+## tsp hard
+P: It is tempting to conclude that the ancient city of Cahokia, near present-day St. Louis, was abandoned because its residents exhausted local forests and caused severe flooding. Archaeologist Caitlin Rankin tested this idea by examining soil layers near the city's mounds. She found no evidence of the erosion and flood deposits that widespread deforestation would have produced. [u]Rankin's findings do not explain why Cahokia's population declined, but they make one popular explanation less likely.[/u]
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+*A: It clarifies the limits and significance of Rankin's findings.
+A: It presents a new explanation for why Cahokia was abandoned.
+A: It describes the method Rankin used to examine the soil.
+A: It argues that the city's residents did not cut down any trees.
+X: The underlined sentence notes what Rankin's findings don't do (explain the decline) and what they do (make one explanation less likely), so it clarifies their limits and significance (A). B is wrong because it offers no new explanation. C describes the earlier sentence. D overstates; the findings argue against widespread deforestation, not any tree cutting.
+
+## tsp hard
+P: Many studies have found that people who own dogs tend to be more physically active than people who don't. Some have concluded that owning a dog causes people to exercise more. Epidemiologist Tove Lind points out a problem with that conclusion: people who already enjoy exercise may be more likely to get dogs in the first place. To address this, Lind's team compared the same people's activity levels before and after they acquired dogs.
+Q: Which choice best states the main purpose of the text?
+A: To argue that dog owners are healthier than people who own other pets
+A: To describe the benefits of walking for people's health
+A: To explain why people who enjoy exercise choose to get dogs
+*A: To describe a possible flaw in a conclusion and how researchers designed a study to address it
+X: The text presents a conclusion (dogs cause exercise), identifies an alternative explanation (active people get dogs), and describes a study designed to test it, so D is right. The other choices take up details or claims the text doesn't develop.
+
+## tsp hard
+P: Some critics have described the fictional poet Rosa Ibarra's early work as simple, even naive, pointing to its short lines and plain vocabulary. [u]Yet those same features allowed Ibarra to pack her poems with double meanings: a single plain word, placed at the end of a short line, often reads one way on its own and another way when the next line begins.[/u] What looks like simplicity, in other words, is often a deliberate kind of compression.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It provides an example of the naive quality that the critics identify in Ibarra's early work.
+*A: It presents a different interpretation of the features that the critics point to.
+A: It explains why Ibarra later abandoned short lines and plain vocabulary.
+A: It describes the influence of other poets on Ibarra's early work.
+X: The critics see short lines and plain words as naive; the underlined sentence ("Yet...") argues those same features create double meanings, offering a different interpretation. B is right. A reverses the sentence's role. C and D introduce topics the text never addresses.
+
+## tsp hard
+P: The planet Venus rotates so slowly that a single day there lasts longer than its year. Stranger still, it rotates in the opposite direction from most planets, so the Sun rises in the west. Scientists have proposed several explanations: a collision with a large object early in Venus's history, or the gradual effect of tides in its thick atmosphere. Neither explanation has been confirmed, and Venus's unusual spin remains an open question.
+Q: Which choice best describes the overall structure of the text?
+A: It describes Venus's atmosphere and then explains how it affects the planet's temperature.
+*A: It describes unusual features of Venus's rotation, presents possible explanations, and notes that the question is unresolved.
+A: It compares Venus with Earth and argues that the two planets formed in the same way.
+A: It presents a theory about Venus's rotation and then gives evidence confirming it.
+X: The text describes Venus's slow, reversed rotation, offers two possible explanations, and states that neither is confirmed. B is right. A focuses on temperature, which the text doesn't discuss. C makes a comparison the text doesn't make. D contradicts "Neither explanation has been confirmed."
+
+## tsp hard
+P: In the 1850s, many London doctors believed that cholera spread through "bad air." Physician John Snow suspected contaminated water instead. [u]When an outbreak struck the Soho neighborhood in 1854, he marked each death on a map and found that the deaths clustered around a single public water pump on Broad Street.[/u] After the pump's handle was removed, new cases in the area declined, though historians note that the outbreak was already fading by then.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It describes the "bad air" theory that most London doctors believed.
+A: It explains why the outbreak was already fading when the pump's handle was removed.
+*A: It describes the evidence Snow gathered to support his suspicion.
+A: It argues that Snow's map proved the bad-air theory wrong beyond any doubt.
+X: The text gives Snow's suspicion that water spread cholera; the underlined sentence describes how he gathered evidence, mapping deaths that clustered around one pump. C is right. A describes the opposing theory, B describes the last sentence's qualification, and D overstates; the final sentence adds a note of caution.
+
+## tsp hard
+P: Some economists predicted that the spread of online shopping would wipe out small independent bookstores. For a time, the prediction seemed accurate: the number of such stores in the United States fell sharply in the 1990s and early 2000s. [u]Since about 2009, however, the number has grown again.[/u] Sociologist Ryan Raffaelli attributes the recovery to bookstores' emphasis on community, curation, and events, things that online retailers struggle to provide.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It provides additional evidence for the economists' prediction.
+*A: It marks a shift from describing the decline of bookstores to describing a recovery.
+A: It explains why online shopping became popular in the 1990s.
+A: It identifies the cause of the bookstores' recovery.
+X: The text first describes the decline; the underlined sentence ("however") introduces a rebound, and the next sentence explains it. B is right. A is the opposite of the sentence's role. C isn't discussed. D describes the last sentence.
+
+## tsp hard
+P: Plant biologist Monica Gagliano trained pea seedlings in a Y-shaped maze, pairing a light source with the breeze from a small fan. Later, when only the fan was present, many seedlings grew toward the branch with the fan, as if expecting light. [u]Gagliano interpreted this as a form of associative learning, but other researchers who attempted to repeat the experiment did not find the same effect.[/u] The question of whether plants can learn in this way remains unsettled.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It explains how the seedlings detected the fan's breeze.
+A: It describes the design of Gagliano's maze experiment.
+A: It provides further evidence that plants can learn by association.
+*A: It presents Gagliano's interpretation along with a reason to question it.
+X: The underlined sentence gives Gagliano's interpretation (associative learning) and notes that others failed to repeat the result, which prepares for the final sentence's statement that the question is unsettled. D is right. A and B describe details the sentence doesn't address. C ignores the failed replications.
+
+## tsp hard
+P: Historians of science sometimes describe Gregor Mendel, whose experiments with pea plants laid the foundation for genetics, as a lone genius whose work was ignored for decades. The first part of that description is misleading. Mendel worked within a network of plant breeders and scientists, corresponded with leading botanists, and built on earlier studies of hybrid plants. His results did go largely unrecognized until 1900, but the idea that he worked in isolation obscures the scientific community that shaped his questions.
+Q: Which choice best states the main purpose of the text?
+A: To argue that Mendel's experiments were less important than historians claim
+A: To explain how Mendel conducted his experiments with pea plants
+*A: To challenge part of a common portrayal of Mendel while accepting another part
+A: To describe the reasons Mendel's work was ignored until 1900
+X: The text says the "lone genius" part of the description is misleading while agreeing that his work went unrecognized until 1900, so it challenges one part and accepts another. C is right. A misreads the text, which doesn't downplay his experiments. B and D describe topics the text doesn't develop.
+
+## tsp medium
+P: The fictional scientist Omar Haddad spent ten years recording the calls of a single family of elephants. [u]At first, he could not tell one elephant's rumble from another's.[/u] By the end of the study, however, he could identify each adult by voice alone, and he had found that the elephants seemed to use distinct calls when greeting particular family members.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+A: It explains why Haddad chose to study elephants rather than other animals.
+A: It suggests that Haddad's study produced no useful results.
+A: It describes the equipment Haddad used to record the elephants' calls.
+*A: It establishes Haddad's starting point, which contrasts with what he could do by the end of the study.
+X: The underlined sentence shows that Haddad couldn't distinguish the calls at first, setting up the contrast ("however") with his later ability to identify each adult by voice. D is right. A and C aren't discussed, and B contradicts the findings described.
+
+## tsp hard
+P: Scholars once treated the letters of the eighteenth-century writer Elizabeth Ward, a fictional figure, as private documents of interest only to her biographers. Literary historian Grace Liu argues that this view misunderstands how such letters worked. [u]Ward's letters were often read aloud to guests, copied by friends, and passed from household to household, so that a single letter might reach dozens of readers.[/u] For Liu, the letters were a form of publication in their own right.
+Q: Which choice best describes the function of the underlined sentence in the text as a whole?
+*A: It provides evidence for Liu's claim that the letters were not truly private documents.
+A: It explains why Ward's biographers found her letters valuable.
+A: It describes the topics Ward most often wrote about in her letters.
+A: It acknowledges a weakness in Liu's argument about Ward's letters.
+X: Liu argues that treating the letters as private "misunderstands how such letters worked"; the underlined sentence shows that the letters were read aloud, copied, and widely shared, which supports her view that they were a form of publication. A is right. B reflects the older view. C isn't discussed. D is wrong because the sentence strengthens her argument.
+
+## tsp hard
+P: It has often been claimed that people in the Middle Ages believed the Earth was flat. Historians of science have found little support for this claim. Medieval scholars widely accepted that the Earth was a sphere, a view inherited from ancient Greek writers, and popular texts of the time described a round Earth as well. The myth of a flat-Earth Middle Ages, historians suggest, was largely popularized by writers in the 1800s who wanted to portray the medieval period as an age of ignorance.
+Q: Which choice best describes the overall structure of the text?
+A: It describes medieval beliefs about the Earth and then explains how those beliefs changed over time.
+A: It compares ancient Greek ideas about the Earth with medieval ideas and argues that the Greeks were more accurate.
+*A: It presents a common claim, offers evidence against it, and then suggests how the claim came to be widely believed.
+A: It explains how medieval scholars measured the Earth and then describes the instruments they used.
+X: The text presents the flat-Earth claim, gives evidence that medieval people knew the Earth was round, and explains that the myth came from nineteenth-century writers. C is right. A wrongly suggests the beliefs changed. B and D describe comparisons and methods the text doesn't discuss.

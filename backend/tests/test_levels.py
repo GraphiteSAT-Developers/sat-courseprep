@@ -28,7 +28,9 @@ class LevelsTest(PracticeTest):
     def test_overview_starts_at_level_one(self):
         t = self.overview()
         self.assertEqual(list(t)[0], "mixed")
-        self.assertEqual(len(t), 1 + len(bank.topics()))
+        # All of Math and each Math domain, then the same for Reading and Writing.
+        self.assertEqual(len(t), 1 + len(bank.topics()) + 1 + len(bank.topics("rw")))
+        self.assertEqual(list(t)[1 + len(bank.topics())], "rw-mixed")
         lv = t["algebra"]["levels"]
         self.assertEqual(len(lv), levels.LEVELS)
         self.assertEqual([x["status"] for x in lv[:2]], ["open", "locked"])

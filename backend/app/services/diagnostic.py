@@ -61,7 +61,8 @@ def pick(seen, rng):
 
 def public_question(item_id):
     q = item(item_id)
-    out = {"id": q["id"], "section": q.get("section", "Math"), "domain": q["domain"], "skill": q["skill"],
+    section = "Reading and Writing" if q.get("section") == "Reading and Writing" else "Math"
+    out = {"id": q["id"], "section": section, "domain": q["domain"], "skill": q["skill"],
            "type": q["type"], "stem": q["stem"]}
     if q["type"] == "mc":
         out["choices"] = q["choices"]

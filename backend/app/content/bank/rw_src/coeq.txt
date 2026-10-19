@@ -1,0 +1,438 @@
+## coeq easy
+T: Books Checked Out at Elm Street Library, by Month
+| Month | Fiction | Nonfiction |
+| January | 1,240 | 860 |
+| February | 1,105 | 910 |
+| March | 1,320 | 1,015 |
+| April | 1,180 | 1,090 |
+P: A librarian at Elm Street Library noticed that nonfiction books were becoming more popular. In each month from January to April, more nonfiction books were checked out than in the month before. In April, for example, ______
+Q: Which choice most effectively uses data from the table to complete the example?
+A: 1,180 fiction books were checked out, fewer than in March.
+*A: 1,090 nonfiction books were checked out, compared with 1,015 in March.
+A: more fiction books than nonfiction books were checked out.
+A: 860 nonfiction books were checked out, the lowest of any month.
+X: The example should show nonfiction checkouts rising in April compared with the month before. B gives April's nonfiction total (1,090) and compares it with March's (1,015). A concerns fiction. C is true but doesn't show nonfiction growth. D describes January, not April.
+
+## coeq easy
+G: Average Daily Visitors to Three City Parks | Visitors per day
+| Park | Visitors |
+| Riverside | 1,800 |
+| Hilltop | 950 |
+| Oakwood | 2,400 |
+P: The city's parks department surveyed three parks to decide where to add new benches. The department chose the park with the most average daily visitors, which was ______
+Q: Which choice most effectively uses data from the graph to complete the text?
+A: Riverside, with about 1,800 visitors per day.
+A: Hilltop, with about 950 visitors per day.
+*A: Oakwood, with about 2,400 visitors per day.
+A: Riverside and Hilltop combined, with about 2,750 visitors per day.
+X: The department chose the single park with the most daily visitors. The graph shows Oakwood is highest at about 2,400, so C is right. A and B name parks with fewer visitors, and D combines two parks instead of naming one.
+
+## coeq easy
+T: Hours of Sleep and Average Quiz Score for 120 Students
+| Hours of sleep | Average quiz score (out of 20) |
+| Fewer than 6 | 12.4 |
+| 6 to 7 | 14.8 |
+| 7 to 8 | 16.1 |
+| More than 8 | 16.5 |
+P: A health teacher claims that students who sleep more tend to score higher on quizzes.
+Q: Which choice most effectively uses data from the table to support the teacher's claim?
+*A: Students who slept fewer than 6 hours averaged 12.4, while those who slept more than 8 hours averaged 16.5.
+A: Students who slept 7 to 8 hours averaged 16.1 on the quiz.
+A: The quiz was scored out of 20 points.
+A: Students who slept 6 to 7 hours averaged a score below 15.
+X: The claim compares more sleep with higher scores, so it needs a comparison across sleep groups. A compares the least-sleep group (12.4) with the most-sleep group (16.5). B and D give only one group's score, and C describes the quiz itself.
+
+## coeq easy
+T: Seeds Sprouted After Two Weeks
+| Soil type | Seeds planted | Seeds sprouted |
+| Sandy | 50 | 18 |
+| Clay | 50 | 26 |
+| Loam | 50 | 41 |
+P: A student planted 50 bean seeds in each of three soil types and counted how many sprouted after two weeks. The student concluded that loam was the best soil for sprouting bean seeds, since ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+A: 50 seeds were planted in each type of soil.
+A: more seeds sprouted in clay than in sandy soil.
+A: only 18 seeds sprouted in sandy soil.
+*A: 41 of the seeds planted in loam sprouted, more than in either other soil.
+X: To support the conclusion that loam is best, the data must show loam outperformed both other soils. D does that (41 versus 26 and 18). A describes the setup, B compares the other two soils, and C gives only the sandy-soil result.
+
+## coeq easy
+G: Percentage of Households with Internet Access in Country Z | Percent of households
+| Year | Percent |
+| 2000 | 22 |
+| 2005 | 41 |
+| 2010 | 63 |
+| 2015 | 79 |
+| 2020 | 88 |
+P: Internet access in Country Z expanded rapidly in the early twenty-first century. Between 2000 and 2020, the percentage of households with internet access ______
+Q: Which choice most effectively uses data from the graph to complete the text?
+A: stayed at about 22 percent.
+A: fell from 88 percent to 22 percent.
+*A: rose from 22 percent to 88 percent.
+A: rose from 41 percent to 63 percent.
+X: The text describes the change from 2000 to 2020. The graph shows 22 percent in 2000 and 88 percent in 2020, so C is right. A ignores the change, B reverses it, and D describes only 2005 to 2010.
+
+## coeq easy
+T: Results of a Survey on Preferred Lunch Options (300 Students)
+| Option | Number of students |
+| Salad bar | 72 |
+| Hot meal | 135 |
+| Sandwiches | 93 |
+P: The student council surveyed 300 students about their preferred lunch option. The council reported that the hot meal was the most popular choice, ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+A: since 72 students preferred the salad bar.
+A: since every student surveyed chose one of the three options.
+A: since 93 students preferred sandwiches over the salad bar.
+*A: since 135 of the 300 students chose it, more than chose either other option.
+X: Calling the hot meal most popular requires showing it got more votes than each other option. D gives its total (135) and makes that comparison. A and C give totals for other options, and B doesn't address popularity.
+
+## coeq easy
+T: Average Monthly Rainfall in Two Cities (millimeters)
+| Month | Port Alma | Desert Springs |
+| June | 85 | 4 |
+| July | 110 | 2 |
+| August | 96 | 7 |
+P: A geography class compared summer rainfall in two cities. They found that in every summer month shown, Port Alma received far more rain than Desert Springs. In July, for instance, ______
+Q: Which choice most effectively uses data from the table to complete the example?
+A: Desert Springs received 7 millimeters of rain.
+A: Port Alma received 85 millimeters of rain.
+*A: Port Alma received 110 millimeters of rain, while Desert Springs received only 2.
+A: both cities received more rain than in June.
+X: The example should give July data showing Port Alma received far more rain than Desert Springs. C compares the two cities in July (110 versus 2). A and B give August and June figures for only one city. D is false for Desert Springs, which got less rain in July (2) than in June (4).
+
+## coeq easy
+G: Number of Monarch Butterflies Counted at a Nature Reserve | Butterflies counted
+| Year | Count |
+| 2018 | 3,400 |
+| 2019 | 2,900 |
+| 2020 | 2,100 |
+| 2021 | 1,600 |
+P: Volunteers at a nature reserve have counted monarch butterflies every fall since 2018. The counts suggest that the reserve's monarch population is declining: ______
+Q: Which choice most effectively uses data from the graph to complete the text?
+*A: the count fell every year, from 3,400 in 2018 to 1,600 in 2021.
+A: 2,900 butterflies were counted in 2019.
+A: the count was higher in 2020 than in 2021.
+A: more than 1,000 butterflies were counted every year.
+X: The text claims the population is declining, so the best support shows the drop across the years. A shows a fall each year from 3,400 to 1,600. B gives a single year. C compares only two years. D doesn't show a decline.
+
+## coeq medium
+T: Average Commute Time and Method in Four Cities (minutes)
+| City | Car | Public transit | Bicycle |
+| Carlton | 28 | 41 | 22 |
+| Marlow | 34 | 30 | 25 |
+| Penhurst | 22 | 45 | 19 |
+| Westbrook | 31 | 29 | 27 |
+P: Urban planner Dana Liu notes that in some cities, public transit is the faster choice for commuters compared with driving. She points to Marlow and Westbrook as examples, where ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+A: bicycle commutes are shorter than car commutes.
+*A: the average public transit commute is shorter than the average car commute.
+A: the average car commute is more than 30 minutes.
+A: public transit commutes are longer than bicycle commutes.
+X: Liu's point is that transit can beat driving. In Marlow (30 versus 34) and Westbrook (29 versus 31), the average transit commute is shorter than the car commute, so B is right. A and D compare bicycles, which isn't her point. C is true but doesn't compare transit with driving.
+
+## coeq medium
+G: Percentage of Seedlings Surviving One Year, by Planting Method | Percent surviving
+| Region | Direct seeding | Nursery seedlings |
+| North slope | 31 | 68 |
+| South slope | 18 | 54 |
+| Valley | 44 | 72 |
+P: A forestry team tested two methods of replanting burned land: scattering seeds directly on the ground or planting young trees raised in a nursery. The team concluded that nursery seedlings survived better than direct seeding in every region tested, though survival also varied by location. For example, on the south slope, ______
+Q: Which choice most effectively uses data from the graph to complete the example?
+A: 18 percent of directly seeded trees survived, compared with 31 percent on the north slope.
+A: survival rates were lower than in the valley for both methods.
+A: nursery seedlings had a survival rate of 72 percent.
+*A: 54 percent of nursery seedlings survived, compared with only 18 percent of directly seeded trees.
+X: The example should show, for the south slope, that nursery seedlings survived better than direct seeding. D compares the two methods there (54 versus 18 percent). A compares regions, not methods. B compares the south slope with the valley. C gives the valley's rate.
+
+## coeq medium
+T: Species Observed at Four Wetland Sites
+| Site | Bird species | Amphibian species | Area (hectares) |
+| Site 1 | 42 | 6 | 12 |
+| Site 2 | 37 | 9 | 30 |
+| Site 3 | 55 | 11 | 18 |
+| Site 4 | 29 | 4 | 25 |
+P: Ecologist Tariq Aziz argues that a wetland's size does not reliably predict how many species it supports. He notes that Site 3 had the most bird and amphibian species even though ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+A: Site 1 had fewer amphibian species than Site 2.
+A: it covered 18 hectares, more than Site 1.
+*A: it was smaller than both Site 2 and Site 4.
+A: Site 4 had the fewest bird species of any site.
+X: Aziz argues size doesn't predict species counts, so the completion should contrast Site 3's high species counts with its relatively small size. Site 3 (18 hectares) was smaller than Sites 2 (30) and 4 (25), so C is right. B emphasizes that Site 3 was larger than another site, which wouldn't support his point. A and D don't address Site 3's size.
+
+## coeq medium
+T: Share of Electricity Generated from Wind in Country R (percent)
+| Year | Share from wind |
+| 2012 | 4 |
+| 2014 | 7 |
+| 2016 | 11 |
+| 2018 | 16 |
+| 2020 | 22 |
+P: An energy analyst writes that wind power in Country R grew steadily during the 2010s and that its share of electricity more than quintupled between 2012 and 2020.
+Q: Which choice most effectively uses data from the table to support the analyst's claim?
+A: Wind generated 11 percent of Country R's electricity in 2016.
+A: Wind's share increased from 16 percent in 2018 to 22 percent in 2020.
+*A: Wind's share rose in every year shown, from 4 percent in 2012 to 22 percent in 2020.
+A: Wind generated more electricity in 2014 than in 2012.
+X: The claim has two parts: steady growth, and a more than fivefold increase from 2012 to 2020. C shows growth in every year shown and the rise from 4 to 22 percent (more than five times 4). A gives one year, B covers only the last two years, and D covers only the first two.
+
+## coeq medium
+G: Average Number of Words Recalled After Studying a List | Words recalled (out of 30)
+| Study method | Immediately | After one week |
+| Rereading | 18 | 7 |
+| Self-testing | 17 | 14 |
+P: Psychologists compared two study methods. Students who reread a word list remembered slightly more words when tested immediately, but students who tested themselves remembered far more a week later. The researchers concluded that self-testing produces more lasting learning, since after one week, ______
+Q: Which choice most effectively uses data from the graph to complete the statement?
+A: students who reread the list recalled 18 words.
+*A: self-testers recalled 14 words on average, while rereaders recalled only 7.
+A: self-testers recalled 17 words, almost as many as rereaders.
+A: both groups recalled fewer words than they had immediately after studying.
+X: The conclusion is about lasting learning, so it needs the one-week results comparing the groups. B gives them: 14 for self-testers versus 7 for rereaders. A and C give immediate results. D is true but doesn't show which method lasted better.
+
+## coeq medium
+T: Survey of 500 Adults: Main Source of News
+| Age group | Social media (%) | Television (%) | Print or websites (%) |
+| 18–29 | 52 | 18 | 30 |
+| 30–49 | 37 | 29 | 34 |
+| 50–64 | 21 | 45 | 34 |
+| 65 and older | 9 | 61 | 30 |
+P: A media researcher observed that the role of social media as a news source differed sharply across age groups, while the share relying on print or websites was fairly similar for all ages. For example, ______
+Q: Which choice most effectively uses data from the table to illustrate the researcher's observation?
+A: 61 percent of adults 65 and older relied mainly on television, compared with 18 percent of adults aged 18–29.
+*A: 52 percent of adults aged 18–29 relied mainly on social media, compared with 9 percent of those 65 and older, while print or websites ranged only from 30 to 34 percent across groups.
+A: adults aged 30–49 were about equally likely to rely on social media and on print or websites.
+A: adults aged 50–64 relied on television more than on any other source.
+X: The observation has two parts: big differences in social media use and similar shares for print or websites. B covers both. A concerns television. C compares two sources within one group. D also concerns television.
+
+## coeq medium
+T: Average Height (cm) of Sunflowers Grown Under Different Light Conditions
+| Week | Full sun | Partial shade | Full shade |
+| 2 | 14 | 12 | 9 |
+| 4 | 38 | 29 | 17 |
+| 6 | 71 | 50 | 24 |
+| 8 | 104 | 68 | 30 |
+P: A student hypothesized that sunflowers grown with more light would not only be taller but would also grow faster over time, so that the difference between conditions would widen each week.
+Q: Which choice most effectively uses data from the table to support the student's hypothesis?
+*A: The gap in height between full sun and full shade grew from 5 centimeters at week 2 to 74 centimeters at week 8.
+A: At week 2, sunflowers in full shade averaged 9 centimeters, compared with 14 in full sun.
+A: At week 8, sunflowers in full sun averaged 104 centimeters.
+A: Sunflowers in partial shade grew taller every week.
+X: The hypothesis predicts a widening difference between conditions. A shows the gap between full sun and full shade growing from 5 cm (14 − 9) to 74 cm (104 − 30). C gives one measurement, B gives only the first week, and D describes one condition without a comparison.
+
+## coeq medium
+G: Average Price of One Kilogram of Coffee Beans at Market | US dollars
+| Year | Price |
+| 2016 | 3.10 |
+| 2017 | 2.85 |
+| 2018 | 2.60 |
+| 2019 | 2.70 |
+| 2020 | 3.40 |
+P: A coffee cooperative's report states that after falling for two consecutive years, the market price of coffee beans began to recover, eventually exceeding its 2016 level.
+Q: Which choice most effectively uses data from the graph to support the report's statement?
+A: The price was $3.10 per kilogram in 2016 and $2.85 in 2017.
+A: The price was higher in 2019 than in 2018.
+A: The price was lowest in 2018.
+*A: The price fell from $3.10 in 2016 to $2.60 in 2018, then rose to $3.40 by 2020.
+X: The statement describes two years of decline, a recovery, and a final price above 2016's. D covers all of that: down from $3.10 to $2.60, then up to $3.40. A shows only the first drop. B shows only part of the recovery. C gives only the low point.
+
+## coeq medium
+T: Number of Bee Visits to Flowers in One Hour
+| Flower color | Honeybees | Bumblebees |
+| Blue | 46 | 31 |
+| Yellow | 38 | 12 |
+| White | 21 | 9 |
+| Red | 4 | 15 |
+P: A biology student claims that bumblebees are more attracted to red flowers than honeybees are.
+Q: Which choice most effectively uses data from the table to support the student's claim?
+A: Honeybees visited blue flowers 46 times, more than any other color.
+*A: Bumblebees visited red flowers 15 times, while honeybees visited them only 4 times.
+A: Bumblebees visited blue flowers more than red flowers.
+A: Honeybees visited yellow flowers 38 times.
+X: The claim compares the two kinds of bees' visits to red flowers. B gives that comparison: 15 bumblebee visits versus 4 honeybee visits. A and D concern only honeybees and other colors. C compares bumblebee visits across colors, which would seem to weaken the claim rather than support it.
+
+## coeq medium
+T: Library Program Attendance Before and After Moving Programs to Evenings
+| Program | Average attendance (afternoons) | Average attendance (evenings) |
+| Book club | 14 | 22 |
+| Coding class | 9 | 25 |
+| Craft workshop | 18 | 16 |
+| Film night | 30 | 41 |
+P: After a library moved most of its programs from afternoons to evenings, attendance rose for most programs, though not for all of them. The ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+A: film night drew the most people in both time slots, with 30 in the afternoon and 41 in the evening.
+A: coding class's attendance nearly tripled, rising from 9 to 25.
+*A: craft workshop, for example, averaged 18 people in the afternoon but only 16 in the evening.
+A: book club grew from 14 people to 22 people.
+X: The final sentence follows "though not for all of them," so it should give an example of a program whose attendance didn't rise. The craft workshop fell from 18 to 16, so C is right. A, B, and D all describe programs that grew.
+
+## coeq medium
+G: Average Lifespan in Captivity and in the Wild | Years
+| Species | In the wild | In captivity |
+| Gray wolf | 6 | 14 |
+| Orca | 46 | 15 |
+| African elephant | 56 | 17 |
+| Red fox | 3 | 12 |
+P: A zoologist explains that animals don't always live longer in captivity, even with veterinary care and steady food. Some large, wide-ranging species, she notes, have far shorter lives in captivity than in the wild, as the ______
+Q: Which choice most effectively uses data from the graph to complete the text?
+A: gray wolf shows, living about 14 years in captivity and 6 in the wild.
+*A: African elephant shows, living about 56 years in the wild but only about 17 in captivity.
+A: red fox shows, living about 3 years in the wild.
+A: orca and gray wolf show, both living about 15 years in captivity.
+X: The completion needs a large, wide-ranging species that lives far less in captivity. The African elephant lives about 56 years in the wild but 17 in captivity, so B is right. A and C describe animals that live longer in captivity. D doesn't compare captivity with the wild.
+
+## coeq hard
+T: Rates of a Plant Disease in Three Orchards Before and After Pruning Program (percent of trees infected)
+| Orchard | 2019 (before) | 2021 (after) |
+| North | 34 | 12 |
+| East | 28 | 26 |
+| South | 41 | 15 |
+P: An agricultural scientist introduced a pruning program to reduce a plant disease in three orchards. The East orchard, however, began the program a year later than the others. The scientist concluded that the program was likely effective, noting that infection rates fell sharply in the orchards that followed it for the full two years, whereas ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+A: the South orchard had the highest infection rate before the program began.
+A: the North orchard's infection rate fell from 34 percent to 12 percent.
+*A: the rate in the East orchard, which had less time in the program, barely changed, going from 28 percent to 26 percent.
+A: all three orchards had infection rates below 30 percent in 2021.
+X: "Whereas" signals a contrast with the orchards that had the full program, so the completion should describe the East orchard, which started late. Its rate barely changed (28 to 26 percent), which C states. A and B describe orchards that had the full program. D is true, but it doesn't make the contrast the scientist draws.
+
+## coeq hard
+T: Average Test Scores by Number of Practice Sessions Attended
+| Sessions attended | Number of students | Average score (out of 100) |
+| 0 | 40 | 68 |
+| 1–2 | 55 | 71 |
+| 3–4 | 38 | 79 |
+| 5 or more | 17 | 80 |
+P: A tutoring center reports that students who attended more practice sessions tended to score higher, but that the gains leveled off: attending five or more sessions was associated with little improvement over attending three or four.
+Q: Which choice most effectively uses data from the table to support both parts of the center's report?
+A: Students who attended 0 sessions averaged 68, and students who attended 1–2 sessions averaged 71.
+A: Only 17 students attended five or more sessions, the fewest of any group.
+*A: Average scores rose from 68 with no sessions to 79 with three or four, but only to 80 with five or more.
+A: Students who attended 3–4 sessions averaged 79, which was 11 points higher than students who attended none.
+X: The report makes two points: scores rise with more sessions, and the gain levels off after three or four. C supports both, rising from 68 to 79 and then only to 80. A and D show only the increase. B concerns how many students were in a group.
+
+## coeq hard
+G: Percentage of Respondents Who Trust Local and National News | Percent who trust
+| Year | Local news | National news |
+| 2008 | 72 | 60 |
+| 2012 | 70 | 51 |
+| 2016 | 69 | 42 |
+| 2020 | 66 | 36 |
+P: A journalism professor argues that while trust in news has fallen overall, the decline has been concentrated in national news, with trust in local news remaining comparatively stable.
+Q: Which choice most effectively uses data from the graph to support the professor's argument?
+A: In 2008, 72 percent of respondents trusted local news, and 60 percent trusted national news.
+A: Trust in national news fell by 9 percentage points between 2008 and 2012.
+A: Trust in local news was higher than trust in national news in every year shown.
+*A: From 2008 to 2020, trust in national news fell from 60 percent to 36 percent, while trust in local news fell only from 72 percent to 66 percent.
+X: The argument contrasts a large drop in trust in national news with relative stability for local news. D gives both changes: a 24-point drop for national news and a 6-point drop for local news. A gives only one year. C compares levels, not changes. B covers only national news over four years.
+
+## coeq hard
+T: Nesting Success of Sea Turtles on Two Beaches
+| Beach | Nests | Nests with hatchlings | Artificial lights nearby? |
+| Coral Bay | 120 | 96 | No |
+| Harbor Point | 115 | 58 | Yes |
+P: Conservationists suspect that bright lights from buildings disorient sea turtle hatchlings and reduce nesting success. Comparing two beaches with a similar number of nests, they found that ______
+Q: Which choice most effectively uses data from the table to support the conservationists' suspicion?
+*A: about 80 percent of nests at Coral Bay, which has no artificial lights nearby, produced hatchlings, compared with about 50 percent at Harbor Point, which does.
+A: Harbor Point, which has artificial lights nearby, had 58 nests with hatchlings.
+A: Coral Bay had 120 nests, slightly more than Harbor Point's 115.
+A: both beaches had more than 100 nests in the season studied.
+X: To support the suspicion, the data should show lower success where there are lights. A compares success rates: 96 of 120 (80 percent) at the unlit beach versus 58 of 115 (about 50 percent) at the lit beach. C and D compare nest counts. B gives Harbor Point's results without a comparison.
+
+## coeq hard
+T: Sales of a Phone Model, by Region (thousands of units)
+| Region | Quarter 1 | Quarter 2 | Quarter 3 |
+| North | 42 | 48 | 55 |
+| South | 60 | 58 | 51 |
+| East | 35 | 41 | 47 |
+| West | 50 | 50 | 49 |
+P: A company analyst claims that the phone model's sales grew in some regions and declined in others between Quarter 1 and Quarter 3, so overall sales changed little. She notes that growth in the North and East was largely offset by declines elsewhere: ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+*A: sales in the South fell from 60,000 to 51,000 units, and sales in the West dipped from 50,000 to 49,000.
+A: the South had the highest sales of any region in Quarter 1.
+A: sales in the North grew from 42,000 to 55,000 units.
+A: sales in the East grew in every quarter shown.
+X: After the colon, the analyst should name the declines that offset growth in the North and East. A describes the drops in the South and West. C and D describe growth regions. B gives a single quarter's ranking, not a decline.
+
+## coeq hard
+T: Percentage of Participants Who Completed a Twelve-Week Exercise Program
+| Group | Started program | Completed (%) |
+| Exercised alone | 80 | 45 |
+| Exercised with a partner | 80 | 70 |
+| Exercised in a class | 80 | 66 |
+P: A health researcher claims that exercising with other people, whether with a partner or in a class, makes people more likely to stick with an exercise program than exercising alone.
+Q: Which choice most effectively uses data from the table to support the researcher's claim?
+*A: Both participants who exercised with a partner (70 percent) and those in a class (66 percent) completed the program at higher rates than those who exercised alone (45 percent).
+A: Participants who exercised with a partner were slightly more likely to finish than those in a class.
+A: 70 percent of participants who exercised with a partner completed the program.
+A: Each group began with 80 participants.
+X: The claim compares both social options with exercising alone. A compares partner and class completion rates with the rate for those exercising alone. C gives one group. B compares the two social groups to each other. D describes the setup.
+
+## coeq hard
+G: Average Annual Snowfall at a Mountain Weather Station | Centimeters
+| Decade | Snowfall |
+| 1970s | 410 |
+| 1980s | 395 |
+| 1990s | 362 |
+| 2000s | 330 |
+| 2010s | 284 |
+P: A climatologist notes that snowfall at a mountain weather station has decreased in every decade since the 1970s and that the decline has accelerated: the drop from the 2000s to the 2010s was ______
+Q: Which choice most effectively uses data from the graph to complete the statement?
+A: about 15 centimeters, the same as the drop from the 1970s to the 1980s.
+*A: about 46 centimeters, larger than the drop between any two earlier decades shown.
+A: about 284 centimeters, the lowest snowfall recorded.
+A: about 126 centimeters, the total decline since the 1970s.
+X: Acceleration means the most recent drop is the largest. From the 2000s (330) to the 2010s (284) the drop was 46 cm, larger than the earlier drops of 15, 33, and 32 cm, so B is right. A has the wrong value. C confuses the 2010s total with the drop. D gives the total decline since the 1970s, not the most recent drop.
+
+## coeq hard
+T: Reading Scores Before and After a Summer Reading Program
+| Group | Students | Average score in June | Average score in September |
+| Joined program | 64 | 72 | 76 |
+| Did not join | 70 | 74 | 71 |
+P: Educators often worry that students' reading skills slip over the summer. A school district found that students who joined its summer reading program ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+*A: improved their average score from 72 to 76, while students who did not join saw their average fall from 74 to 71.
+A: outnumbered the students who did not join the program.
+A: started the summer with lower average scores than students who did not join.
+A: had an average September score of 76.
+X: The context is summer learning loss, so the completion should show that program students avoided the slip that others experienced. A shows program students improving while others declined. C and D are true but don't make that comparison. B is false (64 versus 70).
+
+## coeq hard
+T: Pollinator Visits per Hour in Three Garden Plots
+| Plot | Native plants (%) | Bee visits | Butterfly visits |
+| A | 20 | 14 | 3 |
+| B | 50 | 31 | 9 |
+| C | 80 | 52 | 18 |
+P: A gardener hypothesizes that increasing the percentage of native plants in a plot will increase visits from both bees and butterflies.
+Q: Which choice most effectively uses data from the table to support the gardener's hypothesis?
+A: Plot C, with 80 percent native plants, received 52 bee visits per hour.
+A: Plot B received more bee visits than butterfly visits.
+A: Plot A received the fewest butterfly visits of any plot.
+*A: As the share of native plants rose from 20 to 80 percent, bee visits rose from 14 to 52 and butterfly visits rose from 3 to 18.
+X: The hypothesis links more native plants to more visits from both bees and butterflies. D shows both increasing across plots as the share of native plants rises. A gives one plot's bee visits. B compares bees and butterflies within one plot. C gives one plot's butterfly visits.
+
+## coeq hard
+T: Wildfire Area Burned and Prescribed Burns in Region Q
+| Period | Acres treated with prescribed burns (per year) | Acres burned by wildfire (per year) |
+| 2000–2004 | 2,000 | 41,000 |
+| 2005–2009 | 9,000 | 33,000 |
+| 2010–2014 | 18,000 | 22,000 |
+| 2015–2019 | 26,000 | 17,000 |
+P: Forest managers in Region Q began expanding prescribed burns, small fires set on purpose to clear dry brush, in the early 2000s. A report argues that the program may have reduced wildfire damage, though it cautions that other factors, such as weather, could also have played a role. The report notes that ______
+Q: Which choice most effectively uses data from the table to support the report's argument?
+A: prescribed burns treated 2,000 acres per year in the early 2000s.
+A: wildfires burned 22,000 acres per year from 2010 to 2014.
+A: the area burned by wildfire was always larger than the area treated with prescribed burns.
+*A: as prescribed burns increased from 2,000 to 26,000 acres per year, the area burned by wildfire fell from 41,000 to 17,000 acres per year.
+X: The report argues that prescribed burns may have reduced wildfire damage, so the evidence should show wildfire area falling as burns increased. D shows that pattern. A and B each give one value. C is false for 2015–2019, when treated acres (26,000) exceeded burned acres (17,000).
+
+## coeq easy
+T: Average Temperature Inside Three Types of Bird Boxes on a Summer Afternoon
+| Box material | Average inside temperature (°C) |
+| Thin metal | 41 |
+| Plastic | 36 |
+| Thick wood | 29 |
+P: Volunteers who build bird boxes for a wildlife group wanted to know which material keeps the boxes coolest in summer. They placed boxes made of three materials in the same sunny spot and measured the temperature inside. They recommended thick wood, since the wooden boxes ______
+Q: Which choice most effectively uses data from the table to complete the statement?
+*A: averaged 29°C inside, cooler than both the plastic (36°C) and thin metal (41°C) boxes.
+A: were the most expensive material the group tested.
+A: were warmer inside than the thin metal boxes.
+A: reached an average of 36°C, the same as the plastic boxes.
+X: The volunteers wanted the coolest material, so the completion should show that wood was cooler than both alternatives. A does that. D gives the plastic boxes' temperature. B introduces cost, which the table doesn't show. C reverses the data.

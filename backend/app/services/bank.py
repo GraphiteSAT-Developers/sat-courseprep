@@ -1,9 +1,14 @@
-"""The question bank: 1,000 original SAT Math questions from app/content/bank/.
+"""The question bank: 1,000 original SAT Math questions and 500 original Reading and Writing
+questions, from app/content/bank/.
 
 items.jsonl comes from the item pipeline on the scaffold-course-site branch
 (data/items.jsonl). This module turns each item into what the site shows:
 the question as HTML, its answer key, and a full explanation that walks
 through the Desmos route and the by-hand route.
+
+rw_items.jsonl is compiled from rw_src/ by backend/compile_rw.py. Each Reading and Writing
+item becomes the same shape as a Math item (multiple choice, with "section": "rw"), plus its
+passage as HTML so the test page can show it on the left, like Bluebook.
 
 Nothing here touches the database, so website/build.py can import it to
 build the offline preview from the same source.
@@ -18,12 +23,14 @@ from pathlib import Path
 BANK_DIR = Path(__file__).resolve().parent.parent / "content" / "bank"
 
 LETTERS = "ABCD"
+SECTIONS = {"math": "Math", "rw": "Reading and Writing"}
 DIFFICULTY_ORDER = {"easy": 0, "medium": 1, "hard": 2}
 
 # Questions per domain in one practice module (the real test draws 13–15 Algebra and
 # Advanced Math and 5–7 of the other two per 44 questions, so about half that per module).
 MODULE_MIX = {"algebra": 8, "advanced-math": 8, "psda": 3, "geometry-trig": 3}
 MODULE_MINUTES = 35
+RW_MODULE_MINUTES = 32  # Reading and Writing: 27 questions in 32 minutes per module
 
 ROUTE_ADVICE = {
     "desmos-primary": "Desmos is the fastest route here. Graph it, read the answer, then sanity-check it.",
@@ -445,6 +452,7 @@ def all_items():
         raw = json.loads(line)
         q = {
             "id": raw["id"],
+            "section": "math",
             "domain_key": raw["domain"],
             "domain": names[raw["domain"]],
             "skill": raw["skill"],
@@ -461,15 +469,18 @@ def all_items():
             q["keys"] = [[a["num"], a["den"]] for a in raw["answers"]]
             q["answer_text"] = " or ".join(fraction_text(Fraction(n, d)) for n, d in q["keys"])
         items[q["id"]] = q
+    items.update(rw_items())
     return items
 
 
 @lru_cache(maxsize=None)
-def topics():
-    """Domains in test order, each with its skills, as listed in skills.json."""
-    skills, _ = meta()
+def topics(section="math"):
+    """One section's domains in test order, each with its skills, as listed in skills.json (rw_skills.json)."""
+    skills = meta()[0] if section == "math" else rw_meta()
     counts = {}
     for q in all_items().values():
+        if q["section"] != section:
+            continue
         counts.setdefault(q["domain_key"], {}).setdefault(q["skill"], 0)
         counts[q["domain_key"]][q["skill"]] += 1
     out = []
@@ -481,10 +492,25 @@ def topics():
     return out
 
 
-def pool(domain=None, skill=None):
-    """Item ids for a topic: one skill, one domain, or the whole bank."""
+def pool(domain=None, skill=None, section=None):
+    """Item ids for a topic: one skill, one domain, a whole section, or the whole bank."""
     return [q["id"] for q in all_items().values()
-            if (not domain or q["domain_key"] == domain) and (not skill or q["skill_key"] == skill)]
+            if (not domain or q["domain_key"] == domain) and (not skill or q["skill_key"] == skill)
+            and (not section or q["section"] == section)]
+
+
+def section_of(domain):
+    """'math' or 'rw' for a domain key, or None if there's no such domain."""
+    for section in SECTIONS:
+        if any(d["key"] == domain for d in topics(section)):
+            return section
+    return None
+
+
+def section_of_items(item_ids):
+    """The section a set of questions comes from ('rw' only if every one is Reading and Writing)."""
+    items = all_items()
+    return "rw" if item_ids and all(items[i]["section"] == "rw" for i in item_ids if i in items) else "math"
 
 
 # ---------- grading ----------
@@ -498,8 +524,9 @@ def is_correct(q, answer):
 
 
 def public_question(q):
-    """The question as the student sees it before answering."""
-    out = {k: q[k] for k in ("id", "domain", "skill", "difficulty", "type", "stem") if k in q}
+    """The question as the student sees it before answering. Reading and Writing questions also
+    carry their passage and question separately, for the test page's two panes."""
+    out = {k: q[k] for k in ("id", "section", "domain", "skill", "difficulty", "type", "stem", "passage", "prompt") if k in q}
     if q["type"] == "mc":
         out["choices"] = q["choices"]
     return out
@@ -509,7 +536,7 @@ def graded_question(q, index, answer):
     ok = is_correct(q, answer)
     answered = answer is not None and answer != ""
     item = {
-        "index": index, "id": q["id"], "type": q["type"], "domain": q["domain"], "skill": q["skill"],
+        "index": index, "id": q["id"], "section": q["section"], "type": q["type"], "domain": q["domain"], "skill": q["skill"],
         "difficulty": q["difficulty"], "stem": q["stem"], "correct": ok, "answered": answered,
         "your_answer": (LETTERS[answer] if q["type"] == "mc" else str(answer)) if answered else None,
         "answer": LETTERS[q["answer"]] if q["type"] == "mc" else q["answer_text"],
@@ -552,3 +579,158 @@ def grade(item_ids, answers):
         questions.append(g)
     return {"correct": correct, "total": len(item_ids), "multiple_choice": mc, "student_produced": spr,
             "by_domain": list(by_domain.values()), "questions": questions}
+
+
+# ---------- Reading and Writing ----------
+
+@lru_cache(maxsize=None)
+def rw_meta():
+    """rw_skills.json: the Reading and Writing domains, skills, testing points and strategy tips."""
+    return json.loads((BANK_DIR / "rw_skills.json").read_text())
+
+
+def rw_skill(name):
+    return next(s for s in rw_meta()["skills"] if s["name"] == name)
+
+
+@lru_cache(maxsize=None)
+def rw_module_mix():
+    """Questions per skill in one Reading and Writing module: {skill key: n}, in Bluebook's order."""
+    return {slug(s["name"]): s["perModule"] for s in rw_meta()["skills"]}
+
+
+RW_ORDER = {}  # skill key: position in a module (Craft and Structure first, Expression of Ideas last)
+
+
+def rw_sort_key(q):
+    """How a Reading and Writing module is ordered: by question type as on test day, easiest first within each."""
+    if not RW_ORDER:
+        RW_ORDER.update({k: i for i, k in enumerate(rw_module_mix())})
+    return RW_ORDER.get(q["skill_key"], 99), DIFFICULTY_ORDER[q["difficulty"]]
+
+
+def _rw_inline(text):
+    """Escaped text with [u], [i] and the ______ blank as HTML."""
+    out = html.escape(text, quote=False)
+    out = re.sub(r"\[u\](.*?)\[/u\]", r"<u>\1</u>", out)
+    out = re.sub(r"\[i\](.*?)\[/i\]", r"<i>\1</i>", out)
+    return re.sub(r"_{4,}", '<span class="rw-blank" role="img" aria-label="blank">______</span>', out)
+
+
+def _number(v):
+    return float(v.replace(",", ""))
+
+
+def _nice_max(v):
+    """A round top for a graph's axis, a little above the largest value."""
+    if v <= 0:
+        return 1
+    mag = 10 ** (len(str(int(v))) - 1)
+    for step in (1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10):
+        top = step * mag
+        if top >= v * 1.05:
+            return top
+    return 10 * mag
+
+
+def rw_graph_svg(g):
+    """A bar graph (one or more series) as inline SVG, with the same data as a hidden table for screen readers."""
+    header, rows = g["header"], g["rows"]
+    series = header[1:]
+    values = [[_number(v) for v in r[1:]] for r in rows]
+    top = _nice_max(max(max(v) for v in values))
+    W, H, L, R, T, B = 520, 270, 58, 12, 14, 52
+    pw, ph = W - L - R, H - T - B
+    group = pw / len(rows)
+    bar = min(46, group * 0.7 / len(series))
+    parts = [f'<svg class="rw-chart" viewBox="0 0 {W} {H}" role="img" aria-hidden="true" focusable="false">']
+    for k in range(5):
+        val = top * k / 4
+        y = T + ph - ph * k / 4
+        label = f"{val:,.2f}".rstrip("0").rstrip(".")
+        parts.append(f'<line class="grid" x1="{L}" y1="{y:.1f}" x2="{W - R}" y2="{y:.1f}"/>'
+                     f'<text class="tick" x="{L - 6}" y="{y + 4:.1f}" text-anchor="end">{label}</text>')
+    for i, (r, vals) in enumerate(zip(rows, values)):
+        x0 = L + group * i + (group - bar * len(series)) / 2
+        for j, v in enumerate(vals):
+            h = ph * v / top
+            x, y = x0 + bar * j, T + ph - h
+            parts.append(f'<rect class="bar s{j}" x="{x:.1f}" y="{y:.1f}" width="{bar - 3:.1f}" height="{h:.1f}"/>'
+                         f'<text class="val" x="{x + (bar - 3) / 2:.1f}" y="{y - 4:.1f}" text-anchor="middle">{html.escape(r[j + 1])}</text>')
+        parts.append(f'<text class="cat" x="{L + group * i + group / 2:.1f}" y="{T + ph + 18}" text-anchor="middle">{html.escape(r[0])}</text>')
+    parts.append(f'<line class="axis" x1="{L}" y1="{T + ph}" x2="{W - R}" y2="{T + ph}"/>')
+    parts.append(f'<text class="axis-label" x="14" y="{T + ph / 2:.1f}" transform="rotate(-90 14 {T + ph / 2:.1f})" text-anchor="middle">'
+                 f'{html.escape(g["label"])}</text>')
+    parts.append("</svg>")
+    legend = ""
+    if len(series) > 1:
+        legend = '<ul class="rw-legend" aria-hidden="true">' + "".join(
+            f'<li><span class="sw s{j}"></span>{html.escape(name)}</li>' for j, name in enumerate(series)) + "</ul>"
+    table = rw_table_html({"caption": g["title"], "header": header, "rows": rows}, hidden=True)
+    return (f'<figure class="rw-graph"><figcaption>{html.escape(g["title"])}</figcaption>{legend}{"".join(parts)}'
+            f'{table}</figure>')
+
+
+def rw_table_html(t, hidden=False):
+    head = "".join(f'<th scope="col">{html.escape(h)}</th>' for h in t["header"])
+    body = "".join("<tr>" + "".join((f'<th scope="row">{html.escape(c)}</th>' if k == 0 else f"<td>{html.escape(c)}</td>")
+                                    for k, c in enumerate(r)) + "</tr>" for r in t["rows"])
+    cls = "rw-table visually-hidden" if hidden else "rw-table"
+    return (f'<div class="rw-table-wrap"><table class="{cls}"><caption>{html.escape(t["caption"])}</caption>'
+            f"<thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>")
+
+
+def rw_passage_html(blocks):
+    out = []
+    for b in blocks:
+        kind = b["kind"]
+        if kind == "intro":
+            out.append(f'<p class="rw-intro">{_rw_inline(b["text"])}</p>')
+        elif kind == "p":
+            out.extend(f"<p>{_rw_inline(p)}</p>" for p in b["paras"])
+        elif kind in ("text1", "text2"):
+            label = "Text 1" if kind == "text1" else "Text 2"
+            paras = "".join(f"<p>{_rw_inline(p)}</p>" for p in b["paras"])
+            out.append(f'<div class="rw-text"><p class="rw-text-label">{label}</p>{paras}</div>')
+        elif kind == "notes":
+            out.append('<ul class="rw-notes">' + "".join(f"<li>{_rw_inline(n)}</li>" for n in b["items"]) + "</ul>")
+        elif kind == "table":
+            out.append(rw_table_html(b))
+        elif kind == "graph":
+            out.append(rw_graph_svg(b))
+    return "".join(out)
+
+
+def rw_explanation_html(raw, skill):
+    k = raw["answerIndex"]
+    return (
+        '<div class="xp"><p class="xp-answer"><span class="label">Answer</span> '
+        f"<strong>{LETTERS[k]}. {_rw_inline(raw['choices'][k])}</strong></p>"
+        f'<section class="xp-sec xp-hand"><h4>Why this is the answer</h4><p>{_rw_inline(raw["explanation"])}</p></section>'
+        f'<section class="xp-sec xp-route"><h4>Strategy: {html.escape(skill["name"])}</h4><p>{html.escape(skill["tip"])}</p></section></div>')
+
+
+@lru_cache(maxsize=None)
+def rw_items():
+    """Every Reading and Writing question, ready to serve: {id: question}, in the same shape as Math items."""
+    m = rw_meta()
+    items = {}
+    path = BANK_DIR / "rw_items.jsonl"
+    if not path.exists():
+        return items
+    for line in path.read_text().splitlines():
+        if not line.strip():
+            continue
+        raw = json.loads(line)
+        skill = rw_skill(raw["skill"])
+        passage = rw_passage_html(raw["blocks"])
+        prompt = _rw_inline(raw["prompt"])
+        items[raw["id"]] = {
+            "id": raw["id"], "section": "rw", "domain_key": raw["domain"], "domain": m["domains"][raw["domain"]],
+            "skill": raw["skill"], "skill_key": slug(raw["skill"]), "difficulty": raw["difficulty"], "type": "mc",
+            "passage": passage, "prompt": prompt,
+            "stem": f'<div class="rw-passage">{passage}</div><p class="rw-prompt">{prompt}</p>',
+            "choices": [_rw_inline(c) for c in raw["choices"]], "answer": raw["answerIndex"],
+            "explain_html": rw_explanation_html(raw, skill),
+        }
+    return items

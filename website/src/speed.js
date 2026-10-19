@@ -1,4 +1,5 @@
-/* Graphite SAT speed round: ten quick questions on the server's clock, then the leaderboards.
+/* Graphite SAT speed round: ten quick questions on the server's clock, then the leaderboards. Math and Reading and
+   Writing each have their own daily round and leaderboard; the Math | Reading and Writing switch (site.js) picks one.
    Live: /api/speed. Preview: the same requests go to play-local.js. */
 (function () {
   "use strict";
@@ -23,6 +24,7 @@
     var s = Math.floor(ms / 1000), m = Math.floor(s / 60), out = m + ":" + String(s % 60).padStart(2, "0");
     return tenths === false ? out : out + "." + Math.floor((ms % 1000) / 100);
   }
+  function section() { return document.documentElement.getAttribute("data-subject") === "rw" ? "rw" : "math"; }
   function longDay(iso) { var p = iso.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }); }
   // Calculator and tutor (qtools.js). The tutor waits until the round is over, since the clock is running.
   var tools = window.GraphiteTools && window.GraphiteTools.mount({});
@@ -39,6 +41,7 @@
     var o = info;
     $("sp-day").textContent = longDay(o.day);
     $("sp-size").textContent = String(o.size);
+    $("sp-subject-name").textContent = section() === "rw" ? "Reading and Writing" : "Math";
     $("sp-penalty").textContent = String(Math.round(o.penalty_ms / 1000));
     var t = o.ranked_today;
     $("sp-today").textContent = !t ? "Not played yet" : t.open ? "In progress" : clock(t.score_ms) + " (" + t.correct + " of " + t.total + " right)";
@@ -52,14 +55,14 @@
     show("sp-intro");
   }
   function load() {
-    return call("/api/speed").then(function (o) { info = o; $("sp-loading").hidden = true; renderIntro(); loadBoard(); });
+    return call("/api/speed?section=" + section()).then(function (o) { info = o; $("sp-loading").hidden = true; renderIntro(); loadBoard(); });
   }
 
   /* ---------- during ---------- */
   function begin() {
     showError("");
     var btn = $("sp-start"); btn.disabled = true;
-    call("/api/speed/start", {}).then(function (r) {
+    call("/api/speed/start", { section: section() }).then(function (r) {
       btn.disabled = false;
       run = r.run;
       cur = 0;
@@ -146,7 +149,7 @@
     show("sp-done");
     $("sp-done").focus();
     if (reward) R.show(reward);
-    call("/api/speed").then(function (o) { info = o; });
+    call("/api/speed?section=" + section()).then(function (o) { info = o; });
     loadBoard().then(function (b) {
       var you = b && b.you;
       $("sp-done-place").textContent = !res.ranked ? "Practice" : you ? "#" + you.rank + (b.scope === "state" && b.state_name ? " in " + b.state_name : " nationwide") + (you.visible ? "" : " (hidden)") : "–";
@@ -161,7 +164,7 @@
   function loadBoard() {
     var sc = scope();
     if (sc === "state" && info && !info.board_profile.state) { $("sp-scope-nation").checked = true; sc = "nation"; }
-    return call("/api/speed/board?scope=" + sc + "&period=" + period()).then(function (b) { drawBoard(b); return b; })
+    return call("/api/speed/board?scope=" + sc + "&period=" + period() + "&section=" + section()).then(function (b) { drawBoard(b); return b; })
       .catch(function (err) { failed(err, "We couldn't load the leaderboard."); });
   }
   function drawBoard(b) {
@@ -191,6 +194,12 @@
     });
   });
 
+  // Switching subjects loads that subject's round and leaderboard (not in the middle of a round).
+  document.addEventListener("graphite:subject", function () {
+    if (!info || !$("sp-play").hidden) return;
+    $("sp-loading").hidden = false;
+    load().catch(function (err) { failed(err, "We couldn't load today's round. Check your connection and refresh the page."); });
+  });
   load().catch(function (err) {
     if (err && err.status === 401) { signIn(); return; }
     $("sp-loading").textContent = err && err.status === 403 ? "Speed rounds are for student accounts." : "We couldn't load today's round. Check your connection and refresh the page.";

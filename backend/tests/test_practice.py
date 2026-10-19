@@ -52,8 +52,12 @@ class PracticeTest(unittest.TestCase):
 
     def test_bank_loads_with_explanations(self):
         items = bank.all_items()
-        self.assertEqual(len(items), 1000)
+        self.assertEqual(len(items), 1500)
+        self.assertEqual(sum(q["section"] == "math" for q in items.values()), 1000)
         for q in items.values():
+            if q["section"] == "rw":
+                self.assertIn("Why this is the answer", q["explain_html"], q["id"])
+                continue
             self.assertIn("Solve it by hand", q["explain_html"], q["id"])
             self.assertNotRegex(q["explain_html"], r"\bT\d+\b", q["id"])
 

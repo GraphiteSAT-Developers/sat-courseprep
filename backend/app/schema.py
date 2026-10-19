@@ -429,7 +429,11 @@ MIGRATIONS = [
         )""",
         "CREATE INDEX idx_consent_visitor ON consent_log (visitor_id, id)",
     ]),
-    # (16, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (16, "Speed rounds for Reading and Writing: each run belongs to a section", [
+        "ALTER TABLE speed_runs ADD COLUMN section TEXT NOT NULL DEFAULT 'math'",
+        "CREATE INDEX idx_speed_section ON speed_runs (section, day, ranked)",
+    ]),
+    # (17, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

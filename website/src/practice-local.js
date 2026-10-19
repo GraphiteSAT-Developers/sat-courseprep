@@ -1,7 +1,8 @@
 /* Graphite SAT practice, preview mode only.
    The live site sends these requests to the backend (backend/app/routes/practice.py). In the static preview there
    is no server, so this file answers the same requests in the browser from GRAPHITE_BANK (bank.js, built from the
-   backend's question bank) and keeps the done list in localStorage. The rules match services/practice.py. */
+   backend's question bank) and keeps the done list in two cookies, one per section, in the same format the server
+   writes (services/donelist.py). The rules match services/practice.py. */
 (function () {
   "use strict";
   var BANK = window.GRAPHITE_BANK;
@@ -10,20 +11,69 @@
   var byId = {};
   BANK.items.forEach(function (q) { byId[q.id] = q; });
 
+  /* ---------- the done list: a cookie per section ----------
+     Bit n of graphite_done_math (or graphite_done_rw) is set when the nth question of that section's bank is done.
+     The value is "1.<user id>.<base64url bits>", like the server's, so the two never disagree about the format. */
+  var DONE = { math: "graphite_done_math", rw: "graphite_done_rw" }, DONE_ORDER = { math: [], rw: [] }, DONE_POS = {};
+  var DONE_USER = "0";  // the preview has no accounts
+  BANK.items.forEach(function (q) { var sec = q.section || "math"; DONE_POS[q.id] = DONE_ORDER[sec].length; DONE_ORDER[sec].push(q.id); });
+  function readCookie(name) {
+    var m = new RegExp("(?:^|; )" + name + "=([^;]*)").exec(document.cookie || "");
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function decodeDone(value, sec, into) {
+    var p = String(value || "").split(".");
+    if (p.length !== 3 || p[0] !== "1" || p[1] !== DONE_USER) return false;
+    var bin;
+    try { bin = atob(p[2].replace(/-/g, "+").replace(/_/g, "/") + "===".slice((p[2].length + 3) % 4)); } catch (e) { return false; }
+    for (var n = 0; n < DONE_ORDER[sec].length && n < bin.length * 8; n++) if (bin.charCodeAt(n >> 3) >> (n & 7) & 1) into[DONE_ORDER[sec][n]] = 1;
+    return true;
+  }
+  function encodeDone(seen, sec) {
+    var bytes = []; for (var k = 0; k < Math.ceil(DONE_ORDER[sec].length / 8); k++) bytes.push(0);
+    Object.keys(seen).forEach(function (id) { var n = DONE_POS[id]; if (n != null && DONE_ORDER[sec][n] === id) bytes[n >> 3] |= 1 << (n & 7); });
+    var bin = bytes.map(function (b) { return String.fromCharCode(b); }).join("");
+    return "1." + DONE_USER + "." + btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function readDone() {
+    var seen = {}, any = false;
+    Object.keys(DONE).forEach(function (sec) { any = decodeDone(readCookie(DONE[sec]), sec, seen) || any; });
+    return any ? seen : null;
+  }
+  function writeDone(seen) {
+    Object.keys(DONE).forEach(function (sec) {
+      document.cookie = DONE[sec] + "=" + encodeDone(seen, sec) + "; Max-Age=34560000; Path=/; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : "");
+    });
+  }
+
   function load() {
     var s = null;
     try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) { /* storage blocked */ }
-    if (s && s.sessions) { s.completed = s.completed || {}; return s; }
-    return { seen: {}, sessions: {}, completed: {}, nextId: 1 };
+    if (!(s && s.sessions)) s = { seen: {}, sessions: {}, completed: {}, nextId: 1 };
+    s.completed = s.completed || {};
+    var fromCookies = readDone();  // the cookies are the done list; localStorage is the fallback where cookies are off
+    if (fromCookies) s.seen = fromCookies;
+    return s;
   }
-  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage blocked */ } }
+  function save(s) {
+    try { writeDone(s.seen); } catch (e) { /* cookies blocked */ }
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { /* storage blocked */ }
+  }
   function fail(status, message) { var e = new Error(message); e.status = status; return Promise.reject(e); }
   function now() { return new Date().toISOString().replace(/\.\d+Z$/, "Z"); }
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 
-  function pool(domain, skill) {
-    return BANK.items.filter(function (q) { return (!domain || q.domain_key === domain) && (!skill || q.skill_key === skill); })
-      .map(function (q) { return q.id; });
+  function pool(domain, skill, section) {
+    return BANK.items.filter(function (q) {
+      return (!domain || q.domain_key === domain) && (!skill || q.skill_key === skill) && (!section || (q.section || "math") === section);
+    }).map(function (q) { return q.id; });
+  }
+  function topicsFor(section) { return section === "rw" ? BANK.rw_topics : BANK.topics; }
+  function sectionOf(ids) { return ids.length && ids.every(function (id) { return byId[id] && byId[id].section === "rw"; }) ? "rw" : "math"; }
+  var RW_ORDER = {}; (BANK.rw_order || []).forEach(function (k, i) { RW_ORDER[k] = i; });
+  function rwSort(a, b) {
+    var qa = byId[a], qb = byId[b];
+    return (RW_ORDER[qa.skill_key] - RW_ORDER[qb.skill_key]) || (BANK.order[qa.difficulty] - BANK.order[qb.difficulty]);
   }
   // Up to n questions not yet done. Fewer left than n: just those (fill tops a practice test up with done ones).
   // Once every question in the pool is done, its list starts again.
@@ -44,8 +94,9 @@
     return Object.keys(keys).sort(function (a, b) { return (a.indexOf("skill:") ? 1 : 0) - (b.indexOf("skill:") ? 1 : 0) || (a < b ? -1 : 1); });
   }
   function topicTitle(domain, skill) {
-    for (var i = 0; i < BANK.topics.length; i++) {
-      var d = BANK.topics[i];
+    var all = BANK.topics.concat(BANK.rw_topics || []);
+    for (var i = 0; i < all.length; i++) {
+      var d = all[i];
       if (d.key !== domain) continue;
       if (!skill) return d.name;
       for (var k = 0; k < d.skills.length; k++) if (d.skills[k].key === skill) return d.skills[k].name;
@@ -90,7 +141,7 @@
   }
   function graded(q, i, a) {
     var answered = a !== undefined && a !== null && a !== "";
-    var out = { index: i, id: q.id, type: q.type, domain: q.domain, skill: q.skill, difficulty: q.difficulty, stem: q.stem,
+    var out = { index: i, id: q.id, section: q.section || "math", type: q.type, domain: q.domain, skill: q.skill, difficulty: q.difficulty, stem: q.stem,
       correct: isCorrect(q, a), answered: answered,
       your_answer: answered ? (q.type === "mc" ? LETTERS[a] : String(a)) : null,
       answer: q.type === "mc" ? LETTERS[q.answer] : q.answer_text, explain_html: q.explain_html };
@@ -98,7 +149,8 @@
     return out;
   }
   function publicQ(q) {
-    var o = { id: q.id, domain: q.domain, skill: q.skill, difficulty: q.difficulty, type: q.type, stem: q.stem };
+    var o = { id: q.id, section: q.section || "math", domain: q.domain, skill: q.skill, difficulty: q.difficulty, type: q.type, stem: q.stem };
+    if (q.passage) { o.passage = q.passage; o.prompt = q.prompt; }
     if (q.type === "mc") o.choices = q.choices;
     return o;
   }
@@ -115,9 +167,9 @@
   }
 
   /* ---------- requests ---------- */
-  function overview() {
+  function overview(section) {
     var st = load();
-    var domains = BANK.topics.map(function (d) {
+    var domains = topicsFor(section).map(function (d) {
       var skills = d.skills.map(function (sk) {
         var done = pool(d.key, sk.key).filter(function (id) { return st.seen[id]; }).length;
         return { key: sk.key, name: sk.name, total: sk.total, done: done };
@@ -127,19 +179,20 @@
     });
     var unfinished = Object.keys(st.sessions).map(function (k) { return st.sessions[k]; })
       .filter(function (s) { return !s.submitted_at; }).sort(function (a, b) { return b.id - a.id; }).slice(0, 5)
-      .map(function (s) { return { id: s.id, mode: s.mode, title: s.title, created_at: s.created_at, questions: s.item_ids.length, checked: Object.keys(s.checked).length }; });
-    return { total: BANK.items.length, done: domains.reduce(function (a, d) { return a + d.done; }, 0), domains: domains,
-      test: { questions: BANK.test.questions, minutes: BANK.test.minutes }, topic_counts: BANK.topic_counts, unfinished: unfinished };
+      .map(function (s) { return { id: s.id, mode: s.mode, title: s.title, created_at: s.created_at, section: sectionOf(s.item_ids), questions: s.item_ids.length, checked: Object.keys(s.checked).length }; });
+    var test = section === "rw" ? BANK.rw_test : BANK.test;
+    return { section: section, total: pool(null, null, section).length, done: domains.reduce(function (a, d) { return a + d.done; }, 0), domains: domains,
+      test: { questions: test.questions, minutes: test.minutes }, topic_counts: BANK.topic_counts, unfinished: unfinished };
   }
   function create(data) {
     var st = load(), ids, title, minutes = 0;
     var gate = data.mode === "test" ? requireAccess("mock_test", st) : data.mode === "topic" && topicTitle(data.domain, data.skill || null) ? requireAccess("practice_set", st) : null;
     if (gate) return gate;
     if (data.mode === "test") {
-      ids = [];
-      Object.keys(BANK.mix).forEach(function (d) { ids = ids.concat(draw(st, pool(d), BANK.mix[d], true)); });
-      ids = shuffle(ids).sort(function (a, b) { return BANK.order[byId[a].difficulty] - BANK.order[byId[b].difficulty]; });
-      title = "Math practice test"; minutes = BANK.test.minutes;
+      var sec = data.section === "rw" ? "rw" : "math";
+      ids = buildTest(st, sec);
+      title = sec === "rw" ? "Reading and Writing practice test" : "Math practice test";
+      minutes = sec === "rw" ? BANK.rw_test.minutes : BANK.test.minutes;
     } else if (data.mode === "topic") {
       title = topicTitle(data.domain, data.skill || null);
       if (!title) return fail(400, "Pick a topic to practice.");
@@ -206,7 +259,7 @@
     res.finished = markSeen(st, Object.keys(answers).map(function (k) { return s.item_ids[k]; }));
     var limit = s.minutes ? s.minutes * 60 + 120 : s.item_ids.length * 600;
     res.seconds_used = Math.max(0, Math.min(Number(data.seconds_used) || 0, limit));
-    res.practice_id = s.id; res.mode = s.mode; res.title = s.title; res.submitted_at = now();
+    res.practice_id = s.id; res.mode = s.mode; res.title = s.title; res.submitted_at = now(); res.section = sectionOf(s.item_ids);
     var tag = parseTag(s.plan_task);
     if (tag) {
       var before = lvProgress(st, tag.track).levels[tag.level];
@@ -230,8 +283,12 @@
     st.sessions[s.id] = s;
     return s;
   }
-  function buildTest(st) {
+  function buildTest(st, section) {
     var ids = [];
+    if (section === "rw") {
+      Object.keys(BANK.rw_mix).forEach(function (k) { ids = ids.concat(draw(st, pool(null, k, "rw"), BANK.rw_mix[k], true)); });
+      return shuffle(ids).sort(rwSort);
+    }
     Object.keys(BANK.mix).forEach(function (d) { ids = ids.concat(draw(st, pool(d), BANK.mix[d], true)); });
     return shuffle(ids).sort(function (a, b) { return BANK.order[byId[a].difficulty] - BANK.order[byId[b].difficulty]; });
   }
@@ -250,7 +307,7 @@
     return ids;
   }
   function publicDiagQ(id) {
-    var q = itemAny(id), o = { id: id, section: q.section || "Math", domain: q.domain, skill: q.skill, type: q.type, stem: q.stem };
+    var q = itemAny(id), o = { id: id, section: q.section === "Reading and Writing" ? q.section : "Math", domain: q.domain, skill: q.skill, type: q.type, stem: q.stem };
     if (q.type === "mc") o.choices = q.choices;
     return o;
   }
@@ -526,7 +583,7 @@
           return { n: r.n, tier: r.tier, mix: r.mix, mix_label: r.mix_label, status: x.passed ? "passed" : (r.n <= p.unlocked ? "open" : "locked"),
             best: x.best == null ? null : x.best, resume_id: x.open_id || null };
         });
-        return { key: t.key, name: t.name, unlocked: p.unlocked, levels: levels, all_passed: levels.every(function (l) { return l.status === "passed"; }) };
+        return { key: t.key, name: t.name, section: t.section || "math", unlocked: p.unlocked, levels: levels, all_passed: levels.every(function (l) { return l.status === "passed"; }) };
       }) });
     }
     if (path === "/api/levels/start") {
@@ -539,7 +596,7 @@
       var open = p.levels[n] && p.levels[n].open_id, s = open ? st.sessions[open] : null;
       if (!s) {
         s = newSession(st, "quiz", tr.name + " · Level " + n, bossLast(drawMix(st, tr.skills, LV.rungs[n - 1].mix)), 0,
-          { domain: tr.key === "mixed" ? null : tr.key, plan_task: "ladder:" + tr.key + ":" + n });
+          { domain: tr.key === "mixed" || tr.key === "rw-mixed" ? null : tr.key, plan_task: "ladder:" + tr.key + ":" + n });
         save(st);
       }
       return Promise.resolve({ session: publicSession(s) });
@@ -868,11 +925,11 @@
     return out;
   }
   var NEAR = { easy: ["medium", "hard"], medium: ["easy", "hard"], hard: ["medium", "easy"] };
-  function buildModule(st, mix, exclude) {
-    var ex = {}, picked = [];
+  function buildModule(st, mix, exclude, section) {
+    var ex = {}, picked = [], units = section === "rw" ? BANK.rw_mix : BANK.mix;
     (exclude || []).forEach(function (id) { ex[id] = 1; });
-    Object.keys(BANK.mix).forEach(function (domain) {
-      var want = split(BANK.mix[domain], mix), ids = pool(domain), fresh = { easy: [], medium: [], hard: [] };
+    Object.keys(units).forEach(function (unit) {
+      var want = split(units[unit], mix), ids = section === "rw" ? pool(null, unit, "rw") : pool(unit), fresh = { easy: [], medium: [], hard: [] };
       shuffle(ids.filter(function (id) { return !st.seen[id] && !ex[id] && picked.indexOf(id) < 0; })).forEach(function (id) { fresh[byId[id].difficulty].push(id); });
       Object.keys(want).forEach(function (lv) {
         var n = want[lv];
@@ -880,12 +937,13 @@
         if (n) picked = picked.concat(shuffle(ids.filter(function (id) { return picked.indexOf(id) < 0 && !ex[id]; })).slice(0, n));
       });
     });
+    if (section === "rw") return picked.sort(rwSort);
     return picked.sort(function (a, b) { return BANK.order[byId[a].difficulty] - BANK.order[byId[b].difficulty]; });
   }
-  function estimate(route, raw) {
-    var at = MK.route_at, score;
-    if (route === "harder") score = 400 + 400 * Math.max(0, raw - at) / (44 - at);
-    else { var top = at - 1 + 22; score = 200 + 410 * Math.min(raw, top) / top; }
+  function estimate(route, raw, section) {
+    var sc = MK.sections[section || "math"], at = sc.route_at, per = sc.questions, score;
+    if (route === "harder") score = 400 + 400 * Math.max(0, raw - at) / (2 * per - at);
+    else { var top = at - 1 + per; score = 200 + 410 * Math.min(raw, top) / top; }
     return Math.round(score / 10) * 10;
   }
   function breakLeft(m) {
@@ -897,7 +955,8 @@
     return { id: m.id, section: m.section, section_name: MK.sections[m.section].name, status: m.status, with_break: !!m.with_break,
       break_seconds: MK.break_seconds, break_left: breakLeft(m), break_started: !!m.break_started_at, m1_session: m.m1_session, m2_session: m.m2_session || null,
       score: m.score == null ? null : m.score, route: m.status === "done" ? m.route : null,
-      correct: m.status === "done" ? (m.m1_correct || 0) + (m.m2_correct || 0) : null, created_at: m.created_at, finished_at: m.finished_at || null };
+      correct: m.status === "done" ? (m.m1_correct || 0) + (m.m2_correct || 0) : null, total: 2 * MK.sections[m.section].questions,
+      created_at: m.created_at, finished_at: m.finished_at || null };
   }
   function mockTag(task) { var p = (task || "").split(":"); return p.length === 3 && p[0] === "mock" ? { id: Number(p[1]), module: Number(p[2]) } : null; }
   function mockFor(st, s) {
@@ -917,8 +976,8 @@
     markSeen(st, s.item_ids);
     if (t.module === 1) {
       if (!m.m2_session) {
-        m.route = res.correct >= MK.route_at ? "harder" : "easier";
-        var s2 = newSession(st, "test", "Math: Module 2", buildModule(st, MK.mix[m.route], s.item_ids), MK.sections[m.section].minutes, { plan_task: "mock:" + m.id + ":2" });
+        m.route = res.correct >= MK.sections[m.section].route_at ? "harder" : "easier";
+        var s2 = newSession(st, "test", MK.sections[m.section].name + ": Module 2", buildModule(st, MK.mix[m.route], s.item_ids, m.section), MK.sections[m.section].minutes, { plan_task: "mock:" + m.id + ":2" });
         m.m2_session = s2.id; m.m1_correct = res.correct; m.status = m.with_break ? "break" : "module2";  // the break comes between the modules
       }
       save(st);
@@ -935,8 +994,9 @@
       dom[q.domain].total++; if (g.correct) dom[q.domain].right++;
       c.questions.push(g);
     });
-    m.m2_correct = res.correct; m.score = estimate(m.route, c.correct); m.status = "done"; m.finished_at = now();
-    Object.assign(c, { seconds_used: (r1.seconds_used || 0) + (res.seconds_used || 0), mode: "mock", title: "Math mock test", submitted_at: m.finished_at,
+    m.m2_correct = res.correct; m.score = estimate(m.route, c.correct, m.section); m.status = "done"; m.finished_at = now();
+    Object.assign(c, { seconds_used: (r1.seconds_used || 0) + (res.seconds_used || 0), mode: "mock", title: MK.sections[m.section].name + " mock test",
+      section: m.section, submitted_at: m.finished_at,
       finished: res.finished || [], score: m.score, route: m.route,
       modules: [{ n: 1, correct: m.m1_correct, total: ids1.length }, { n: 2, correct: res.correct, total: s.item_ids.length, route: m.route }],
       mock: { id: m.id, module: 2, done: true } });
@@ -958,7 +1018,7 @@
       var id = (st.nextMock = (st.nextMock || 0) + 1);
       var m = { id: id, section: sec, status: "module1", with_break: data.with_break !== false, created_at: now() };
       st.mocks[id] = m;
-      var s1 = newSession(st, "test", "Math: Module 1", buildModule(st, MK.mix.m1), MK.sections[sec].minutes, { plan_task: "mock:" + id + ":1" });
+      var s1 = newSession(st, "test", MK.sections[sec].name + ": Module 1", buildModule(st, MK.mix.m1, [], sec), MK.sections[sec].minutes, { plan_task: "mock:" + id + ":1" });
       m.m1_session = s1.id; save(st);
       return Promise.resolve({ mock: mockPublic(m) });
     }
@@ -975,13 +1035,14 @@
   }
 
   function call(path, data, method) {
+    var query = path.split("?")[1] || "", section = /(?:^|&)section=rw(?:&|$)/.test(query) ? "rw" : "math";
     path = path.split("?")[0];
     if (path.indexOf("/api/parent") === 0) return parentCall(path, data, method);
     if (path.indexOf("/api/me/subscription") === 0) return subscriptionCall(path, data);
     if (path.indexOf("/api/mock-tests") === 0) return mockCall(path, data);
     if (path.indexOf("/api/levels") === 0) return levelsCall(path, data);
     if (path.indexOf("/api/plan") === 0) return planCall(path, data);
-    if (path === "/api/practice") { var ov = overview(); ov.access = accessState("practice_set"); return Promise.resolve(ov); }
+    if (path === "/api/practice") { var ov = overview(section); ov.access = accessState("practice_set"); return Promise.resolve(ov); }
     if (path === "/api/practice/sessions" && data) return create(data);
     var m = /^\/api\/practice\/sessions\/(\d+)(\/(check|submit))?$/.exec(path);
     if (!m) return fail(404, "Not found.");

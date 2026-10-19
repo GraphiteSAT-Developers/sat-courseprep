@@ -1,0 +1,332 @@
+## bnd easy
+P: Honeybees perform a "waggle dance" to tell other bees where to find ______ the direction and length of the dance show the location of the flowers.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: food, the
+*A: food. The
+A: food the
+A: food and the
+X: Each part ("Honeybees perform...food" and "the direction...flowers") is an independent clause, so they need to be separated properly. A period does that. A comma alone creates a comma splice, no punctuation creates a run-on sentence, and "and" without a comma before it is also not standard for joining these two long independent clauses.
+
+## bnd easy
+P: The marathon runner trained for months before the ______ she ran more than fifty miles each week.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: race, during that time,
+A: race during that time
+*A: race; during that time,
+A: race, during that time
+X: "The marathon runner trained for months before the race" and "during that time, she ran more than fifty miles each week" are independent clauses. A semicolon correctly joins them, and the comma after the introductory phrase "during that time" is appropriate. The other choices create comma splices or run-ons.
+
+## bnd easy
+P: The Statue of Liberty was a gift from France to the United ______ it was dedicated in 1886.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: States, it
+A: States it
+A: States, and, it
+*A: States, and it
+X: Two independent clauses can be joined by a comma and a coordinating conjunction ("and"). "States, and it" does this correctly. A comma alone is a comma splice, no punctuation is a run-on, and an extra comma after "and" is unnecessary.
+
+## bnd easy
+P: My grandmother grows three kinds of herbs in her ______ basil, mint, and rosemary.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: garden:
+A: garden;
+A: garden, and
+A: garden so
+X: A colon can introduce a list after an independent clause, so "garden:" is correct. A semicolon must join two independent clauses, but "basil, mint, and rosemary" isn't one. "And" and "so" create illogical or ungrammatical sentences.
+
+## bnd easy
+P: Mount Kilimanjaro, the tallest mountain in ______ rises about 5,895 meters above sea level.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: Africa;
+A: Africa
+*A: Africa,
+A: Africa:
+X: "The tallest mountain in Africa" is a nonessential phrase that describes Mount Kilimanjaro, set off by a comma before it. A matching comma is needed after it. A semicolon or colon would wrongly separate the subject from its verb, and leaving out the comma leaves the phrase unclosed.
+
+## bnd easy
+P: The students in Ms. Lee's chemistry class ______ an experiment to measure how quickly different metals rust.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: designed,
+A: designed;
+A: designed:
+*A: designed
+X: "Designed" is the verb, and "an experiment" is its object. No punctuation should separate a verb from its object, so "designed" with no punctuation is correct.
+
+## bnd easy
+P: After the storm ______ volunteers cleared fallen branches from the park's trails.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: passed;
+*A: passed,
+A: passed:
+A: passed.
+X: "After the storm passed" is an introductory dependent clause, which should be followed by a comma. A semicolon, colon, or period would separate it from the main clause it depends on, creating a fragment.
+
+## bnd easy
+P: The ancient city of Pompeii was buried by ash when Mount Vesuvius erupted in 79 ______ archaeologists have uncovered much of the city since the 1700s.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: CE,
+A: CE
+*A: CE;
+A: CE, and,
+X: The text contains two independent clauses. A semicolon joins them correctly. A comma alone creates a comma splice, no punctuation creates a run-on, and the comma after "and" is incorrect.
+
+## bnd easy
+P: The coach told the team that practice would start at 7:00 ______ and that anyone who arrived late would run extra laps.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: a.m.;
+A: a.m.:
+A: a.m.,
+*A: a.m.
+X: "That practice would start at 7:00 a.m." and "that anyone who arrived late would run extra laps" are two parallel clauses joined by "and." No punctuation is needed between them, so "a.m." alone is correct. A semicolon or colon would break the sentence incorrectly, and a comma before "and" isn't needed when it joins only two dependent clauses.
+
+## bnd easy
+P: Many birds migrate south for the ______ others, like cardinals, stay in the same area all year.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: winter, but
+A: winter
+A: winter, but,
+A: winter but,
+X: Two independent clauses joined with a coordinating conjunction need a comma before the conjunction: "winter, but." No punctuation creates a run-on, and placing a comma after "but" is incorrect.
+
+## bnd easy
+P: The bakery is known for its ______ which are made with fresh fruit from local farms.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: pies;
+A: pies.
+A: pies:
+*A: pies,
+X: "Which are made with fresh fruit from local farms" is a nonessential clause describing the pies. It should be set off with a comma. A semicolon, period, or colon would separate the dependent clause from the sentence, creating a fragment.
+
+## bnd easy
+P: The scientist asked a simple ______ why do some trees lose their leaves in autumn while others keep them?
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: question,
+*A: question:
+A: question
+A: question;
+X: A colon can introduce an explanation or elaboration, here the question itself, after an independent clause, so "question:" is correct. A comma or no punctuation creates a run-on, and a semicolon requires two independent clauses joined as equals, which doesn't fit introducing the question.
+
+## bnd easy
+P: Jazz musician Louis ______ was born in New Orleans in 1901.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: Armstrong
+A: Armstrong;
+A: Armstrong,
+A: Armstrong:
+X: "Jazz musician Louis Armstrong" is the subject, and "was born" is the verb. No punctuation should separate a subject from its verb. Because "Louis Armstrong" identifies which jazz musician, it's essential and takes no commas.
+
+## bnd easy
+P: The town library offers free classes in computer ______ cooking, and photography.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: skills;
+*A: skills,
+A: skills:
+A: skills
+X: The items in the list ("computer skills, cooking, and photography") should be separated by commas, so "skills," is correct. A semicolon or colon would break up the list incorrectly, and no punctuation runs the first two items together.
+
+## bnd easy
+P: The volcano had been quiet for ______ in 2010, it began releasing clouds of ash.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: centuries, then,
+A: centuries then
+A: centuries, then
+*A: centuries. Then,
+X: "The volcano had been quiet for centuries" and "then, in 2010, it began releasing clouds of ash" are independent clauses, and "then" isn't a conjunction, so a comma can't join them. A period separates the clauses correctly. The other choices create comma splices or a run-on.
+
+## bnd easy
+P: Sharks have existed for more than 400 million ______ they are older than trees.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: years, in fact,
+*A: years; in fact,
+A: years in fact
+A: years, in fact
+X: The text contains two independent clauses, the second beginning with "in fact." A semicolon before "in fact" joins the clauses, and a comma after "in fact" sets off the transitional phrase. A comma alone creates a comma splice, and no punctuation creates a run-on.
+
+## bnd easy
+P: When she was a child, Mae Jemison dreamed of traveling to ______ in 1992, she became the first African American woman in space.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: space,
+A: space
+*A: space.
+A: space, and,
+X: Two independent clauses need to be separated, so a period after "space" is correct. A comma alone creates a comma splice, no punctuation creates a run-on, and the comma after "and" is incorrect.
+
+## bnd easy
+P: The garden's oldest ______ a white oak planted in 1820, still produces acorns every fall.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: tree;
+A: tree
+A: tree:
+*A: tree,
+X: "A white oak planted in 1820" is a nonessential appositive describing "the garden's oldest tree" and must be set off by commas on both sides. A comma follows "1820," so a comma is needed after "tree."
+
+## bnd easy
+P: Ellen Ochoa became the first Hispanic woman to travel to space in ______ she later served as director of NASA's Johnson Space Center.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: 1993, and
+A: 1993 and,
+A: 1993,
+A: 1993
+X: Two independent clauses can be joined by a comma and a coordinating conjunction: "1993, and." The other choices misplace the comma, create a comma splice, or create a run-on.
+
+## bnd easy
+P: The recipe calls for two cups of ______ one cup of sugar, and three eggs.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: flour;
+A: flour:
+A: flour
+*A: flour,
+X: The items in the list should be separated by commas, so "flour," is correct. A semicolon or colon would interrupt the list, and no punctuation would run two items together.
+
+## bnd easy
+P: Coral reefs are sometimes called the "rainforests of the ______ because they support so many different species.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: sea",
+A: sea,"
+*A: sea"
+A: sea;"
+X: No punctuation is needed between the quoted phrase and "because," which begins a dependent clause that explains it. The closing quotation mark comes right after "sea." A comma or semicolon here would separate the sentence's main clause from its explanation.
+
+## bnd easy
+P: Some of the world's largest animals, such as blue whales and whale ______ feed mainly on tiny creatures like krill and plankton.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: sharks
+*A: sharks,
+A: sharks;
+A: sharks:
+X: "Such as blue whales and whale sharks" is a nonessential phrase set off by a comma before it, so a matching comma must follow it. A semicolon or colon would separate the subject from its verb, "feed," and no punctuation leaves the phrase unclosed.
+
+## bnd easy
+P: The bus was late this ______ many students arrived at school after the first bell.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: morning, as a result
+A: morning as a result,
+*A: morning; as a result,
+A: morning, as a result,
+X: The text has two independent clauses, the second beginning with the transition "as a result." A semicolon before it and a comma after it are correct. The other choices create comma splices or run-ons.
+
+## bnd medium
+P: The Rosetta Stone, discovered in Egypt in 1799, contains the same text in three ______ hieroglyphic, Demotic, and ancient Greek.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: scripts,
+*A: scripts:
+A: scripts;
+A: scripts
+X: The independent clause ending in "scripts" is followed by a list naming them. A colon correctly introduces it. A comma would be confusing, suggesting "scripts" is the first item. A semicolon requires an independent clause after it. No punctuation runs the list onto the clause.
+
+## bnd medium
+P: In her novel [i]Kindred[/i] (1979), Octavia Butler tells the story of ______ a Black woman from 1970s California who is pulled back in time to the antebellum South.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: Dana. A
+*A: Dana,
+A: Dana;
+A: Dana
+X: "A Black woman from 1970s California..." is a nonessential appositive that describes Dana, so it's set off by a comma. A period would turn the description into a fragment, a semicolon requires two independent clauses, and no punctuation runs the appositive onto the name.
+
+## bnd medium
+P: Researchers studying sleep have found that teenagers' internal clocks shift during ______ many teens naturally fall asleep and wake up later than younger children do.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: puberty, so
+A: puberty so,
+A: puberty,
+A: puberty
+X: The coordinating conjunction "so" joins two independent clauses and needs a comma before it: "puberty, so." The other choices misplace the comma, create a comma splice, or create a run-on.
+
+## bnd medium
+P: The fictional architect Lena Moreau designed the museum's ______ visitors enter through a garden that slopes gently downward to the main hall.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: entrance, as a result
+A: entrance
+A: entrance,
+*A: entrance:
+X: The second clause explains how the entrance was designed, and a colon can join two independent clauses when the second explains the first. "Entrance:" is correct. A comma alone creates a comma splice, "as a result" is illogical and still leaves a comma splice, and no punctuation creates a run-on.
+
+## bnd medium
+P: Many of Emily Dickinson's ______ published after her death in 1886, use dashes in unconventional ways.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: poems,
+A: poems;
+A: poems
+A: poems:
+X: "Published after her death in 1886" is a nonessential phrase set off by a comma after it, so a comma must also come before it. Without that comma, the phrase isn't properly set off. A semicolon or colon would separate the subject from its verb, "use."
+
+## bnd medium
+P: The fictional engineer Kofi Asante wanted to know whether solar panels would work in his ______ he installed a small test panel on the roof of his school.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: village, therefore,
+A: village therefore
+*A: village; therefore,
+A: village, therefore
+X: The text has two independent clauses, and "therefore" is a conjunctive adverb, not a conjunction. A semicolon before "therefore" and a comma after it are correct. The other choices create comma splices or run-ons.
+
+## bnd medium
+P: Japanese artist Katsushika Hokusai created thousands of works during his long ______ the most famous is [i]The Great Wave off Kanagawa[/i], a woodblock print from around 1831.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: career, of these works,
+*A: career; of these works,
+A: career of these works
+A: career, of these works
+X: The text has two independent clauses: "Japanese artist...career" and "of these works, the most famous is..." A semicolon joins them. A comma alone creates a comma splice, and no punctuation creates a run-on.
+
+## bnd medium
+P: The study's ______ surprised researchers, who had expected the new medication to be far more effective.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: results, which were modest,
+A: results which were modest
+A: results which were modest,
+A: results; which were modest,
+X: "Which were modest" is a nonessential clause interrupting the subject and verb, so it must be set off by commas on both sides. Only the choice with commas before and after does this. Leaving out the first comma (or both) fails to set off the clause, and a semicolon is incorrect here.
+
+## bnd medium
+P: The coastal town of Mystic, ______ was once a major center of shipbuilding.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: Connecticut,
+A: Connecticut
+A: Connecticut;
+A: Connecticut:
+X: When a city is followed by its state in the middle of a sentence, the state is set off by commas on both sides: "Mystic, Connecticut, was." A comma after "Connecticut" is needed. A semicolon or colon would separate the subject from its verb.
+
+## bnd medium
+P: The fictional historian Amina Diallo argues that the trade routes of West Africa connected a vast network of ______ goods and ideas moved between regions hundreds of miles apart.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: cities, along these routes
+A: cities, along these routes,
+A: cities along these routes
+*A: cities. Along these routes,
+X: There are two independent clauses: "The fictional historian...cities" and "along these routes, goods and ideas moved..." A period separates them, and a comma after the introductory phrase "Along these routes" is appropriate. The other choices create comma splices or run-ons.
+
+## bnd medium
+P: Scientists have identified a type of bacteria that can break down plastic ______ a discovery that could help reduce plastic pollution.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: bottles;
+A: bottles. A
+*A: bottles,
+A: bottles
+X: "A discovery that could help reduce plastic pollution" is a phrase that describes the whole preceding clause, so it's joined with a comma. A semicolon requires an independent clause after it. A period would make "A discovery..." a fragment. No punctuation runs the phrase onto "bottles."
+
+## bnd medium
+P: The poet's most famous ______ "The Road Not Taken," describes a traveler choosing between two paths in a forest.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: poem
+*A: poem,
+A: poem;
+A: poem:
+X: "The Road Not Taken" is a nonessential appositive: "the poet's most famous poem" already identifies a single poem. A comma follows the title, so a comma must come before it as well. A semicolon or colon would separate the subject from its verb.
+
+## bnd medium
+P: The fictional chef Rosa Ibarra rarely uses written ______ instead, she adjusts each dish by taste as she cooks.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: recipes,
+A: recipes
+*A: recipes;
+A: recipes, which
+X: "The fictional chef...recipes" and "instead, she adjusts each dish..." are independent clauses, and "instead" is a conjunctive adverb, not a conjunction. A semicolon joins the clauses. A comma alone is a comma splice, and no punctuation is a run-on. "Which" makes the second clause ungrammatical.
+
+## bnd medium
+P: The lighthouse keeper's ______ trimming the lamp's wick and polishing its lens, kept him busy from dusk until dawn.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: duties,
+A: duties
+A: duties;
+A: duties:
+X: "Trimming the lamp's wick and polishing its lens" is a nonessential phrase identifying the duties, set off by a comma after "lens." A matching comma is needed after "duties." A semicolon or colon would separate the subject from the verb "kept."

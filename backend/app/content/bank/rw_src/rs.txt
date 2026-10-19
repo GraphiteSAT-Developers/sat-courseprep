@@ -1,0 +1,332 @@
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: The Great Wall of China is a series of fortifications in northern China.
+N: Parts of the wall were built as early as the 7th century BCE.
+N: Most of the wall that stands today was built during the Ming dynasty (1368–1644).
+N: The Ming sections were built mainly of brick and stone.
+Q: The student wants to emphasize when most of the existing wall was built. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: The Great Wall of China is a series of fortifications in northern China.
+*A: Most of the Great Wall that stands today was built during the Ming dynasty, between 1368 and 1644.
+A: Parts of the Great Wall were built as early as the 7th century BCE.
+A: The Ming sections of the Great Wall were built mainly of brick and stone.
+X: The goal is to emphasize when most of the existing wall was built. B states that most of today's wall was built during the Ming dynasty and gives the dates. A describes the wall generally. C gives the date of early parts, not most of the wall. D describes materials, not timing.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: Maria Tallchief (1925–2013) was an American ballet dancer.
+N: She was a member of the Osage Nation.
+N: In 1947, she became the first prima ballerina of the New York City Ballet.
+N: She was known for her performance in [i]The Firebird[/i] (1949).
+Q: The student wants to introduce Maria Tallchief to an audience unfamiliar with her. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: In 1949, she performed in [i]The Firebird[/i].
+A: The New York City Ballet named its first prima ballerina in 1947.
+*A: Maria Tallchief, a member of the Osage Nation, was an American ballet dancer who became the New York City Ballet's first prima ballerina in 1947.
+A: The Osage Nation is a Native American tribe.
+X: An introduction should identify Tallchief and explain who she was. C names her, identifies her as an American ballet dancer and Osage Nation member, and gives her key achievement. A uses "she" without naming her. B doesn't mention her. D describes the Osage Nation, not Tallchief.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: Tardigrades are tiny animals, usually less than 1 millimeter long.
+N: They are sometimes called "water bears."
+N: They can survive extreme cold, extreme heat, and even the vacuum of space.
+N: They survive by entering a dried-out state called a tun.
+Q: The student wants to emphasize how tough tardigrades are. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Tardigrades, sometimes called "water bears," are usually less than 1 millimeter long.
+A: Tardigrades are tiny animals that are sometimes called "water bears."
+A: Tardigrades can enter a dried-out state called a tun.
+*A: Tardigrades can survive extreme cold, extreme heat, and even the vacuum of space.
+X: The goal is to emphasize toughness. D lists the extreme conditions tardigrades can survive. A and B focus on size and nickname. C names the dried-out state but doesn't show what it lets them survive.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: The Amazon River flows through South America.
+N: It carries more water than any other river in the world.
+N: The Nile River flows through northeastern Africa.
+N: The Nile is often considered the longest river in the world.
+Q: The student wants to contrast the two rivers. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+*A: While the Nile is often considered the world's longest river, the Amazon carries more water than any other.
+A: The Amazon River flows through South America, and it carries a great deal of water.
+A: Both the Amazon and the Nile are major rivers.
+A: The Nile River flows through northeastern Africa.
+X: To contrast the rivers, the sentence must show how they differ. A contrasts the Nile's length with the Amazon's volume. B and D describe only one river. C emphasizes a similarity.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: Frida Kahlo was a Mexican painter.
+N: She is known for her self-portraits.
+N: Many of her paintings feature bright colors and images from Mexican folk culture.
+N: She painted about 55 self-portraits.
+Q: The student wants to describe Kahlo's artistic style. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Frida Kahlo, a Mexican painter, painted about 55 self-portraits.
+*A: Kahlo's paintings often feature bright colors and images drawn from Mexican folk culture.
+A: Frida Kahlo was a Mexican painter.
+A: Kahlo is known for her self-portraits.
+X: Style refers to how an artist paints. B describes Kahlo's colors and imagery. A and D concern the number or type of her paintings, and C identifies her without describing her style.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: Honeybees live in colonies.
+N: A colony can contain up to 60,000 bees.
+N: Each colony has one queen.
+N: The queen can lay up to 2,000 eggs per day.
+Q: The student wants to emphasize how productive a queen bee can be. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Honeybees live in colonies that can contain up to 60,000 bees.
+A: Each honeybee colony has one queen.
+*A: A single queen honeybee can lay up to 2,000 eggs per day.
+A: Honeybee colonies contain one queen and many other bees.
+X: The goal is the queen's productivity. C gives her egg-laying rate. A gives colony size, and B and D note that each colony has one queen without showing her productivity.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: The Mariana Trench is in the western Pacific Ocean.
+N: It is the deepest known part of Earth's oceans.
+N: Its deepest point, the Challenger Deep, is about 10,900 meters (about 35,800 feet) below sea level.
+N: Mount Everest is about 8,849 meters tall.
+Q: The student wants to help readers understand how deep the Challenger Deep is by comparing it with something familiar. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: The Mariana Trench, in the western Pacific Ocean, is the deepest known part of Earth's oceans.
+A: Mount Everest is about 8,849 meters tall.
+A: The Challenger Deep is the deepest point of the Mariana Trench.
+*A: The Challenger Deep is about 10,900 meters deep, deep enough that Mount Everest, at about 8,849 meters tall, could fit inside with room to spare.
+X: The goal calls for a comparison with something familiar. D compares the depth with the height of Mount Everest. A and C describe the trench without a comparison, and B gives Everest's height without connecting it to the trench.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: The Wright brothers, Orville and Wilbur, were American inventors.
+N: On December 17, 1903, they made the first controlled, powered airplane flight.
+N: The flight took place near Kitty Hawk, North Carolina.
+N: The first flight lasted 12 seconds.
+Q: The student wants to emphasize how brief the first flight was. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+*A: The Wright brothers' first controlled, powered airplane flight lasted just 12 seconds.
+A: The Wright brothers flew near Kitty Hawk, North Carolina.
+A: Orville and Wilbur Wright were American inventors.
+A: On December 17, 1903, the Wright brothers made the first controlled, powered airplane flight.
+X: The goal is the flight's brevity. A gives its length: just 12 seconds. B gives the location, C identifies the brothers, and D gives the date without the length.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: Sloths are slow-moving mammals that live in Central and South American rainforests.
+N: They spend most of their lives hanging upside down in trees.
+N: Algae grow in their fur, giving it a greenish color.
+N: The greenish fur helps them blend in with leaves.
+Q: The student wants to explain how algae help sloths. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Sloths are slow-moving mammals that spend most of their lives hanging upside down in trees.
+A: Sloths live in the rainforests of Central and South America.
+*A: Algae growing in sloths' fur give it a greenish color that helps the animals blend in with leaves.
+A: Sloths have fur that sometimes contains algae.
+X: The goal is to explain how algae help. C explains that algae make the fur green, which helps sloths blend in. A and B don't mention algae. D mentions algae but not how they help.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: The first public library in the United States supported by taxes opened in Peterborough, New Hampshire, in 1833.
+N: The Boston Public Library opened in 1854.
+N: It was the first large public library in the US supported by a city.
+N: It was the first public library to let people borrow books to take home.
+Q: The student wants to emphasize what made the Boston Public Library unusual for its time. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: The Boston Public Library opened in 1854.
+*A: When it opened in 1854, the Boston Public Library was the first large city-supported public library in the US and the first to let people take books home.
+A: The first tax-supported public library in the US opened in Peterborough, New Hampshire.
+A: Public libraries in the US date back to at least 1833.
+X: The goal is what made the Boston library unusual. B gives both of its "firsts." A gives only its opening date. C and D concern a different library or libraries in general.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: Volcanoes form where magma rises to Earth's surface.
+N: Mauna Loa is a volcano in Hawaii.
+N: It is one of the largest volcanoes on Earth by volume.
+N: It erupted most recently in 2022.
+Q: The student wants to present a recent event involving Mauna Loa. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Mauna Loa, a volcano in Hawaii, is one of the largest on Earth by volume.
+A: Volcanoes such as Mauna Loa form where magma rises to Earth's surface.
+A: Mauna Loa is located in Hawaii.
+*A: Mauna Loa, one of the largest volcanoes on Earth, erupted in 2022.
+X: The goal is a recent event. D mentions the 2022 eruption. A and C describe its size and location, and B explains how volcanoes form.
+
+## rs easy
+P: While researching a topic, a student has taken the following notes:
+N: Composting turns food scraps and yard waste into soil.
+N: About 30 percent of household trash in the US is food scraps and yard waste.
+N: Compost adds nutrients to soil and helps it hold water.
+N: Composting reduces the amount of waste sent to landfills.
+Q: The student wants to explain two benefits of composting. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Composting turns food scraps and yard waste into soil.
+*A: Composting reduces the amount of waste sent to landfills, and the compost it produces adds nutrients to soil and helps it hold water.
+A: About 30 percent of household trash in the US is food scraps and yard waste.
+A: Many households in the US compost their food scraps.
+X: B names two benefits: less landfill waste and richer, moister soil. A describes the process. C gives a statistic about trash. D isn't in the notes.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: Ada Lovelace (1815–1852) was an English mathematician.
+N: She worked with Charles Babbage on his design for a mechanical computer, the Analytical Engine.
+N: In 1843, she published notes describing how the machine could calculate a sequence of numbers.
+N: Her notes are often considered the first published computer program.
+N: The Analytical Engine was never built.
+Q: The student wants to emphasize the significance of Lovelace's 1843 notes. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Ada Lovelace was an English mathematician who lived from 1815 to 1852.
+A: Lovelace worked with Charles Babbage, whose Analytical Engine was never built.
+*A: Lovelace's 1843 notes on the Analytical Engine are often considered the first published computer program.
+A: In 1843, Lovelace published notes about a machine designed by Charles Babbage.
+X: The goal is the significance of the notes. C explains that they're often considered the first published computer program. A and B give background. D mentions the notes but not their significance.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: Snow leopards live in the mountains of Central and South Asia.
+N: Their thick fur and wide paws help them survive in cold, snowy terrain.
+N: Cheetahs live mainly in the grasslands of Africa.
+N: Their long legs and light bodies make them the fastest land animals.
+N: Both are members of the cat family.
+Q: The student wants to emphasize that each animal's body suits its environment. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+*A: The snow leopard's thick fur and wide paws suit it to cold mountains, while the cheetah's long legs and light body suit it to running across open grasslands.
+A: Snow leopards and cheetahs are both members of the cat family, though they live on different continents.
+A: Cheetahs, which live mainly in African grasslands, are the fastest land animals.
+A: Snow leopards live in the mountains of Central and South Asia, and cheetahs live in Africa.
+X: The goal links each animal's body to its environment. A pairs the snow leopard's features with mountains and the cheetah's with grasslands. B and D give family and location without body features. C covers only the cheetah.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: The Harlem Renaissance was a cultural movement centered in New York City in the 1920s and 1930s.
+N: Langston Hughes was a leading poet of the movement.
+N: His poetry often drew on the rhythms of jazz and blues.
+N: His first collection, [i]The Weary Blues[/i], was published in 1926.
+Q: The student wants to describe a characteristic of Hughes's poetry. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Langston Hughes published his first collection, [i]The Weary Blues[/i], in 1926.
+A: The Harlem Renaissance was a cultural movement in 1920s and 1930s New York.
+A: Langston Hughes was a leading poet of the Harlem Renaissance.
+*A: Langston Hughes's poetry often drew on the rhythms of jazz and blues.
+X: The goal is a characteristic of the poetry itself. D describes its use of jazz and blues rhythms. A gives a publication fact, B describes the movement, and C identifies Hughes's role.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: In 2019, researchers measured microplastics in the air of a remote area of the French Pyrenees mountains.
+N: The nearest city was about 120 kilometers away.
+N: They found an average of 365 microplastic particles falling per square meter each day.
+N: Wind can carry microplastics long distances.
+Q: The student wants to emphasize that microplastic pollution can reach places far from its sources. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+*A: Even in a remote part of the Pyrenees mountains, about 120 kilometers from the nearest city, researchers found an average of 365 microplastic particles falling per square meter each day.
+A: In 2019, researchers measured microplastics in the air of the French Pyrenees.
+A: Wind can carry microplastics long distances.
+A: Researchers have studied microplastics in many parts of the world.
+X: The goal stresses that pollution reaches distant places. A shows microplastics falling in a remote area far from any city. B lacks the distance and the result. C states a general mechanism without evidence from the notes' study. D isn't in the notes.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: Scientists once believed that the platypus, an Australian mammal, couldn't be real.
+N: When a preserved specimen first arrived in Britain in 1799, some thought it was a hoax made by sewing parts of different animals together.
+N: The platypus has a duck-like bill, webbed feet, and a beaver-like tail.
+N: It is one of only a few mammals that lay eggs.
+Q: The student wants to explain why some scientists first doubted that the platypus was real. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: The platypus is one of only a few mammals that lay eggs.
+*A: With its duck-like bill, webbed feet, and beaver-like tail, the platypus seemed to some British scientists in 1799 to be a hoax sewn together from different animals.
+A: The platypus is a mammal found in Australia.
+A: A preserved platypus specimen arrived in Britain in 1799.
+X: The goal is to explain the doubt. B connects the platypus's odd combination of features to the suspicion that the specimen was sewn together. A, C, and D state facts without explaining the doubt.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: The Svalbard Global Seed Vault is located on a Norwegian island in the Arctic.
+N: It stores seeds from crops around the world.
+N: It holds more than 1 million seed samples.
+N: The seeds serve as a backup in case crops are lost to war, disaster, or disease.
+N: The vault is built into a mountain, where the permafrost keeps it cold.
+Q: The student wants to explain the vault's purpose. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: The Svalbard Global Seed Vault, located on a Norwegian island in the Arctic, is built into a mountain.
+A: The vault holds more than 1 million seed samples from around the world.
+A: Permafrost keeps the Svalbard Global Seed Vault cold.
+*A: The Svalbard Global Seed Vault stores seeds from crops worldwide as a backup in case crops are lost to war, disaster, or disease.
+X: The purpose is why the vault exists. D explains that it's a backup against crop loss. A and C describe its location and construction, and B gives its size.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: Wangari Maathai founded the Green Belt Movement in Kenya in 1977.
+N: The movement encouraged women to plant trees.
+N: More than 51 million trees have been planted through the movement.
+N: Maathai won the Nobel Peace Prize in 2004.
+Q: The student wants to emphasize the scale of the Green Belt Movement's achievements. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Wangari Maathai founded the Green Belt Movement in Kenya in 1977.
+A: The Green Belt Movement encouraged women in Kenya to plant trees.
+*A: More than 51 million trees have been planted through the Green Belt Movement.
+A: Wangari Maathai won the Nobel Peace Prize in 2004.
+X: The goal is the scale of the achievements. C gives the number of trees planted. A gives the founding. B describes the method. D is Maathai's personal honor, not a measure of the movement's scale.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: Phillis Wheatley was born in West Africa around 1753.
+N: She was kidnapped and enslaved as a child and brought to Boston.
+N: She learned to read and write English, Latin, and Greek.
+N: In 1773, she published [i]Poems on Various Subjects, Religious and Moral[/i].
+N: It was the first book of poetry published by an African American woman.
+Q: The student wants to emphasize the historical significance of Wheatley's 1773 book. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+*A: Phillis Wheatley's [i]Poems on Various Subjects, Religious and Moral[/i] (1773) was the first book of poetry published by an African American woman.
+A: Phillis Wheatley learned to read and write English, Latin, and Greek.
+A: Wheatley was born in West Africa around 1753 and was brought to Boston as a child.
+A: In 1773, Phillis Wheatley published a book of poems.
+X: The goal is the book's significance. A states that it was the first poetry book by an African American woman. B and C are biographical. D mentions the book but not its significance.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: Bats use echolocation to find food in the dark.
+N: They emit high-pitched sounds and listen for the echoes.
+N: Dolphins also use echolocation.
+N: Dolphins use it to find fish underwater.
+N: Bats live mainly on land and in the air, while dolphins live in water.
+Q: The student wants to emphasize a similarity between bats and dolphins. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Bats live mainly on land and in the air, while dolphins live in water.
+*A: Although they live in very different environments, both bats and dolphins use echolocation to find food.
+A: Bats emit high-pitched sounds and listen for the echoes.
+A: Dolphins use echolocation to find fish underwater.
+X: B emphasizes what bats and dolphins have in common: echolocation used to find food. A emphasizes a difference. C and D describe only one animal each.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: In 1955, Claudette Colvin, age 15, refused to give up her bus seat to a white passenger in Montgomery, Alabama.
+N: She was arrested.
+N: Nine months later, Rosa Parks did the same and was also arrested.
+N: Parks's arrest led to the Montgomery bus boycott.
+N: Colvin later served as a plaintiff in [i]Browder v. Gayle[/i], the case that ended bus segregation in Montgomery.
+Q: The student wants to point out that Colvin's protest came before Parks's. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Rosa Parks's arrest led to the Montgomery bus boycott.
+A: Claudette Colvin served as a plaintiff in [i]Browder v. Gayle[/i].
+A: Both Claudette Colvin and Rosa Parks were arrested in Montgomery, Alabama.
+*A: Nine months before Rosa Parks refused to give up her seat, 15-year-old Claudette Colvin did the same.
+X: The goal is the order of the two protests. D states that Colvin's came nine months before Parks's. A and B describe later events. C notes the arrests but not their order.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: Mangrove forests grow along tropical coastlines.
+N: Their roots slow incoming waves.
+N: A 2020 study estimated that mangroves prevent more than $65 billion in property damage from storms each year worldwide.
+N: Mangroves store large amounts of carbon in their soil.
+Q: The student wants to emphasize the economic value of mangroves. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+*A: Mangroves are estimated to prevent more than $65 billion in storm damage to property each year worldwide.
+A: Mangrove forests grow along tropical coastlines, where their roots slow incoming waves.
+A: Mangroves store large amounts of carbon in their soil.
+A: Mangroves are found in tropical regions around the world.
+X: The goal is economic value, and A gives a dollar figure for damage prevented. B explains how mangroves protect coasts without a value. C concerns carbon storage. D gives location.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: Gabriel García Márquez was a Colombian writer.
+N: His novel [i]One Hundred Years of Solitude[/i] was published in 1967.
+N: The novel has sold more than 50 million copies.
+N: It has been translated into more than 40 languages.
+N: He won the Nobel Prize in Literature in 1982.
+Q: The student wants to emphasize the novel's international reach. Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Gabriel García Márquez, a Colombian writer, won the Nobel Prize in Literature in 1982.
+A: [i]One Hundred Years of Solitude[/i] was published in 1967.
+*A: Translated into more than 40 languages, [i]One Hundred Years of Solitude[/i] has sold more than 50 million copies.
+A: Gabriel García Márquez wrote [i]One Hundred Years of Solitude[/i].
+X: International reach is best shown by translations and worldwide sales, which C combines. A concerns the author's prize, B the publication date, and D the authorship.
+
+## rs medium
+P: While researching a topic, a student has taken the following notes:
+N: The ancient city of Petra is in present-day Jordan.
+N: It was built by the Nabataeans more than 2,000 years ago.
+N: Many of its buildings were carved directly into rose-colored sandstone cliffs.
+N: It is sometimes called the "Rose City."
+N: It was named a UNESCO World Heritage Site in 1985.
+Q: The student wants to explain why Petra is called the "Rose City." Which choice most effectively uses relevant information from the notes to accomplish this goal?
+A: Petra, an ancient city in present-day Jordan, was named a UNESCO World Heritage Site in 1985.
+A: The Nabataeans built Petra more than 2,000 years ago.
+A: Petra is sometimes called the "Rose City."
+*A: Petra is called the "Rose City" because many of its buildings were carved into rose-colored sandstone cliffs.
+X: D explains the nickname by connecting it to the rose-colored cliffs. A and B give history. C states the nickname without explaining it.

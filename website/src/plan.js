@@ -219,7 +219,8 @@
       '<p class="pl-diff"><span class="chip">' + esc(w.difficulty_label) + "</span>" + (w.review ? " <span class=\"fine\">Plus a review of " + esc(w.review.name) + "</span>" : "") + "</p></div>" +
       '<ul class="pl-tasks">' + w.tasks.map(function (t, i) { return taskLine(plan, now, t, i === firstOpen); }).join("") + "</ul>";
     if (w.checklist) html += '<ul class="pl-checklist">' + w.checklist.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>";
-    if (w.rw_focus) html += '<p class="fine pl-rw">Reading and Writing focus: <strong>' + esc(w.rw_focus) + "</strong>. Practice for it is coming soon.</p>";
+    if (w.rw_focus) html += '<p class="fine pl-rw">Reading and Writing focus: <strong>' + esc(w.rw_focus) + "</strong>. " +
+      (RW_KEYS[w.rw_focus] ? '<button class="btn btn-quiet" type="button" data-rw-domain="' + RW_KEYS[w.rw_focus] + '">Practice ' + esc(w.rw_focus) + "</button>" : "") + "</p>";
     $("pl-now").innerHTML = html;
 
     $("pl-weeks").innerHTML = weeks.map(function (wk, i) {
@@ -232,7 +233,23 @@
     }).join("");
   }
 
+  // The week's Reading and Writing focus opens a 10-question set on that domain.
+  var RW_KEYS = { "Information and Ideas": "information-ideas", "Craft and Structure": "craft-structure",
+                  "Expression of Ideas": "expression-ideas", "Standard English Conventions": "conventions" };
   root.addEventListener("click", function (e) {
+    var rw = e.target.closest("button[data-rw-domain]");
+    if (rw && !busy) {
+      busy = true; showError("");
+      var was = rw.textContent; rw.disabled = true; rw.textContent = "Building…";
+      call("/api/practice/sessions", { mode: "topic", domain: rw.getAttribute("data-rw-domain"), count: 10 }).then(function (r) {
+        location.href = "practice-test.html?session=" + r.session.id;
+      }).catch(function (err) {
+        busy = false; rw.disabled = false; rw.textContent = was;
+        if (window.GraphiteLock && GraphiteLock.handle(err)) return;
+        showError(err && err.status ? err.message : "We couldn't start that set. Check your connection and try again.");
+      });
+      return;
+    }
     var b = e.target.closest("button[data-task]");
     if (!b || busy) return;
     busy = true; showError("");

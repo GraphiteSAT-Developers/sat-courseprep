@@ -15,6 +15,17 @@ SHORT = {"Algebra": "Math", "Advanced Math": "Math", "Problem-Solving and Data A
          "Geometry and Trigonometry": "Math"}
 
 
+def _section(attempt):
+    """'rw' for a Reading and Writing practice or mock test, else 'math'."""
+    try:
+        res = json.loads(attempt["results"])
+    except (TypeError, ValueError):
+        return "math"
+    if res.get("section"):
+        return res["section"]
+    return "rw" if res.get("questions") and all(q.get("section") == "rw" for q in res["questions"]) else "math"
+
+
 def _due_label(due_on, today):
     due = date.fromisoformat(due_on)
     delta = (due - today).days
@@ -66,24 +77,31 @@ def build(user, today=None):
     history = []
     for a in attempts:
         when = datetime.strptime(a["submitted_at"], "%Y-%m-%dT%H:%M:%SZ")
-        history.append({"id": a["id"], "test_id": a["test_id"], "date": when.date().isoformat(), "submitted_at": a["submitted_at"],
+        history.append({"id": a["id"], "test_id": a["test_id"], "section": _section(a), "date": when.date().isoformat(),
+                        "submitted_at": a["submitted_at"],
                         "label": f"{when.strftime('%b')} {when.day}", "correct": a["correct"], "total": a["total"],
                         "pct": round(a["correct"] / a["total"] * 100), "seconds_used": a["seconds_used"]})
 
-    latest = json.loads(attempts[-1]["results"]) if attempts else None
+    # Each domain's percent comes from the latest test that had it, so a Reading and Writing test
+    # doesn't hide the Math domains (or the other way around).
     domain_pct = {}
     missed_skill = {}
-    if latest:
-        for d in latest["by_domain"]:
+    for a in reversed(attempts):
+        res = json.loads(a["results"])
+        fresh = [d for d in res["by_domain"] if d["domain"] not in domain_pct]
+        for d in fresh:
             domain_pct[d["domain"]] = round(d["right"] / d["total"] * 100)
-        for q in latest["questions"]:
-            if not q["correct"]:
+        names = {d["domain"] for d in fresh}
+        for q in res["questions"]:
+            if not q["correct"] and q["domain"] in names:
                 missed_skill.setdefault(q["domain"], q.get("skill"))
 
     measured = sorted((d for d in MATH_DOMAINS if d in domain_pct and domain_pct[d] < 100), key=lambda d: domain_pct[d])
     focus = set(measured[:3])
     domains = [{"name": d, "section": "Math", "pct": domain_pct.get(d), "focus": d in focus} for d in MATH_DOMAINS]
-    domains += [{"name": d, "section": "Reading and Writing", "pct": None, "focus": False} for d in RW_DOMAINS]
+    rw_measured = sorted((d for d in RW_DOMAINS if d in domain_pct and domain_pct[d] < 100), key=lambda d: domain_pct[d])
+    domains += [{"name": d, "section": "Reading and Writing", "pct": domain_pct.get(d), "focus": d in rw_measured[:2]}
+                for d in RW_DOMAINS]
 
     today_items = []
     for d, n in zip(measured[:3], SET_SIZES):
@@ -113,13 +131,15 @@ def build(user, today=None):
     taken = {a["test_id"] for a in attempts}
     tests = [dict(summary(t), taken=t["id"] in taken) for t in all_tests().values()]
 
-    # The latest finished mock test's Math estimate, as a range: one test can be off by a few questions either way.
-    mock = query("SELECT score, finished_at FROM mock_tests WHERE user_id = ? AND status = 'done' AND score IS NOT NULL "
-                 "ORDER BY finished_at DESC LIMIT 1", (user["id"],), one=True)
-    math_estimate = None
-    if mock:
-        math_estimate = {"score": mock["score"], "low": max(200, mock["score"] - ESTIMATE_SPREAD),
-                         "high": min(800, mock["score"] + ESTIMATE_SPREAD), "at": mock["finished_at"]}
+    # The latest finished mock test's estimate in each section, as a range: one test can be off by a few questions either way.
+    estimates = {}
+    for section in ("math", "rw"):
+        mock = query("SELECT score, finished_at FROM mock_tests WHERE user_id = ? AND section = ? AND status = 'done' "
+                     "AND score IS NOT NULL ORDER BY finished_at DESC LIMIT 1", (user["id"], section), one=True)
+        if mock:
+            estimates[section] = {"score": mock["score"], "low": max(200, mock["score"] - ESTIMATE_SPREAD),
+                                  "high": min(800, mock["score"] + ESTIMATE_SPREAD), "at": mock["finished_at"]}
+    math_estimate = estimates.get("math")
 
     first = history[0] if history else None
     last = history[-1] if history else None
@@ -136,6 +156,7 @@ def build(user, today=None):
             "test_date": user["test_date"],
             "target_score": user["target_score"],
             "math_estimate": math_estimate,
+            "rw_estimate": estimates.get("rw"),
         },
         "history": history,
         "domains": domains,

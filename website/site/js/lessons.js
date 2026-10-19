@@ -50,9 +50,17 @@
     for (var i = 0; i < days.length; i++) out += '<i class="' + (i < p.stage ? "is-on" : "") + '"></i>';
     return '<span class="ls-stages" aria-label="' + p.stage + " of " + days.length + ' recall checks passed">' + out + "</span>";
   }
+  // The Math | Reading and Writing switch (site.js) picks which lessons show. Reading and Writing lessons
+  // don't wait for Desmos hacks.
+  function subject() { return document.documentElement.getAttribute("data-subject") === "rw" ? "rw" : "math"; }
+  var listData = null;
+  document.addEventListener("graphite:subject", function () { if (listData && !$("ls-list-view").hidden) renderList(listData); });
   function renderList(o) {
+    listData = o;
     $("ls-loading").hidden = true;
-    var locked = !!o.start_with;
+    var rw = subject() === "rw";
+    $("ls-lede-rw").hidden = !rw; $("ls-lede-math").hidden = rw;
+    var locked = !!o.start_with && !rw;
     $("ls-start").hidden = !locked;
     var due = o.lessons.filter(function (l) { return l.progress.due && !l.locked; });
     // The free plan opens a few starter lessons; the rest come with a paid plan (services/access.py).
@@ -78,9 +86,14 @@
         '<a class="btn btn-primary" href="lessons.html?lesson=' + encodeURIComponent(l.id) + '&amp;mode=recall">Start recall check</a></li>';
     }).join("");
     var groups = {}, order = [];
-    o.lessons.forEach(function (l) { if (!groups[l.domain]) { groups[l.domain] = []; order.push(l.domain); } groups[l.domain].push(l); });
+    o.lessons.filter(function (l) { return (l.section || "math") === subject(); })
+      .forEach(function (l) { if (!groups[l.domain]) { groups[l.domain] = []; order.push(l.domain); } groups[l.domain].push(l); });
     var ABOUT = { memory: "How to make anything you study stick, and how these lessons use it.",
-                  desmos: "The calculator you get on test day. Start with Desmos hacks, then the moves one at a time, and when doing it by hand is faster." };
+                  desmos: "The calculator you get on test day. Start with Desmos hacks, then the moves one at a time, and when doing it by hand is faster.",
+                  "craft-structure": "The first questions in every module: precise words, what a sentence is doing, and how two texts talk to each other.",
+                  "information-ideas": "Main ideas, the evidence that proves a claim (quotes, findings, tables and graphs), and what must be true.",
+                  "conventions": "Where sentences end, and making every subject, verb, pronoun and modifier agree.",
+                  "expression-ideas": "The last questions in every module: transitions and writing from a student's notes." };
     $("ls-jump").innerHTML = order.map(function (d) {
       var done = groups[d].filter(function (l) { return l.progress.done; }).length;
       return '<li><a href="#ls-sec-' + esc(d) + '">' + esc(groups[d][0].domain_name) + ' <span class="fine">' + done + "/" + groups[d].length + "</span></a></li>";
@@ -785,7 +798,7 @@
 
   function loadList(auto) {
     return call("/api/lessons").then(function (o) {
-      if (auto && o.start_with) { open(o.start_with); return; }  // first visit: Desmos hacks, straight away
+      if (auto && o.start_with && subject() !== "rw") { open(o.start_with); return; }  // first visit to Math lessons: Desmos hacks, straight away
       renderList(o);
     }).catch(function (err) {
       if (err && err.status === 401) { signIn(); return; }

@@ -1,0 +1,449 @@
+## fss easy
+P: The flowers in the community garden ______ every spring, attracting bees and butterflies from all over the neighborhood.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: blooms
+*A: bloom
+A: has bloomed
+A: is blooming
+X: The subject is "flowers," which is plural, so the verb must be plural: "bloom." "Blooms," "has bloomed," and "is blooming" are singular and agree with "garden," which is part of the prepositional phrase, not the subject.
+
+## fss easy
+P: Each of the students ______ responsible for bringing a notebook to class.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: is
+A: are
+A: were
+A: have been
+X: The subject is "Each," which is singular; "of the students" is a prepositional phrase. A singular subject takes a singular verb, so "is" is correct. "Are," "were," and "have been" are plural.
+
+## fss easy
+P: Yesterday, the fictional chef Maria Lopez ______ a new dish made with roasted squash and toasted pumpkin seeds.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: introduces
+A: will introduce
+*A: introduced
+A: is introducing
+X: "Yesterday" signals the past, so the past-tense verb "introduced" is correct. "Introduces" and "is introducing" are present tense, and "will introduce" is future tense.
+
+## fss easy
+P: The museum reopened after a long renovation, and ______ new galleries now display artwork from more than forty countries.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: it's
+*A: its
+A: their
+A: they're
+X: The blank needs a singular possessive pronoun referring to "the museum": "its." "It's" means "it is." "Their" and "they're" are plural and don't agree with "museum," and "they're" means "they are."
+
+## fss easy
+P: The team of scientists ______ that the new species of frog lives only on a single mountain in Peru.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: believe
+A: are believing
+A: have believed
+*A: believes
+X: The subject is "team," a singular collective noun, so the verb must be singular: "believes." "Of scientists" is a prepositional phrase. "Believe," "are believing," and "have believed" are plural.
+
+## fss easy
+P: The ______ uniforms were washed and folded before the championship game.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: players
+*A: players'
+A: player's
+A: players's
+X: The uniforms belong to more than one player, so the plural possessive "players'" is correct. "Players" isn't possessive, "player's" is singular possessive, and "players's" isn't a standard form.
+
+## fss easy
+P: My sister and ______ volunteered at the animal shelter last weekend.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: I
+A: me
+A: myself
+A: mine
+X: The blank is part of the subject ("My sister and ___ volunteered"), so the subject pronoun "I" is correct. "Me" is an object pronoun, "myself" is reflexive and needs an antecedent, and "mine" is possessive.
+
+## fss easy
+P: Every morning, the farmer ______ the cows, collects eggs from the hens, and waters the vegetable garden.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: feeding
+A: fed
+*A: feeds
+A: to feed
+X: The verbs in the series must be parallel: "feeds...collects...waters." All are present tense and singular. "Feeding" and "to feed" aren't finite verbs, and "fed" is past tense, which doesn't match "collects" and "waters."
+
+## fss easy
+P: When the fictional author Kenji Mori finished his first novel, he sent ______ to fifteen publishers.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: them
+*A: it
+A: they
+A: those
+X: The pronoun refers to "his first novel," which is singular, so "it" is correct. "Them," "they," and "those" are plural, and "they" is also a subject pronoun.
+
+## fss easy
+P: The children's ______ was full of colorful paintings of animals and trees.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: classroom's
+A: classrooms
+*A: classroom
+A: classrooms'
+X: The blank is the subject of the sentence and needs to be a simple singular noun to agree with "was": "classroom." "Classrooms" is plural and doesn't agree with "was," and the possessive forms aren't needed because nothing follows that belongs to the classroom.
+
+## fss easy
+P: The new bridge, which connects the two halves of the city, ______ more than 50,000 cars each day.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: carries
+A: carry
+A: are carrying
+A: have carried
+X: The subject is "bridge," which is singular; "which connects the two halves of the city" is a nonessential clause. A singular subject takes "carries." The other choices are plural.
+
+## fss easy
+P: By the time the guests arrived, the hosts ______ all the food for the party.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: prepare
+A: are preparing
+A: will prepare
+*A: had prepared
+X: The preparing was completed before another past event (the guests arriving), which calls for the past perfect "had prepared." "Prepare" and "are preparing" are present tense, and "will prepare" is future.
+
+## fss easy
+P: Neither the coach nor the players ______ expecting such a large crowd at the game.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: was
+*A: were
+A: is
+A: has been
+X: With "neither...nor," the verb agrees with the closer subject, "players," which is plural. "Were" is correct. "Was," "is," and "has been" are singular.
+
+## fss easy
+P: Lions live in groups called prides. A pride usually includes several females, ______ cubs, and one or more males.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: it's
+A: they're
+A: its
+*A: their
+X: The cubs belong to the females, which is plural, so the plural possessive pronoun "their" is correct. "It's" and "they're" are contractions, and "its" is singular.
+
+## fss easy
+P: The library ______ a summer reading program for children since 2005.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: has offered
+A: offer
+A: will offer
+A: offering
+X: "Since 2005" describes an action that started in the past and continues now, which calls for the present perfect "has offered." "Offer" doesn't agree with "library," "will offer" is future, and "offering" isn't a finite verb, so the sentence would have no main verb.
+
+## fss easy
+P: Hoping to see the comet, ______ stayed up past midnight with a pair of binoculars.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: the night sky was watched by my brother, who
+A: the binoculars were used by my brother, who
+*A: my brother
+A: the comet was seen when my brother
+X: The introductory phrase "Hoping to see the comet" must describe the person doing the hoping, so "my brother" must come right after the comma. The other choices place "the night sky," "the binoculars," or "the comet" there, making it seem that those things were hoping.
+
+## fss easy
+P: The ______ of the old houses on Elm Street were painted bright colors by their new owners.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: door's
+A: door
+A: doors'
+*A: doors
+X: The subject needs to be plural to agree with "were," and nothing follows it that belongs to it, so the plural noun "doors" is correct. "Door's" and "doors'" are possessive, and "door" is singular.
+
+## fss medium
+P: The collection of ancient coins, along with several rare manuscripts, ______ donated to the university library last year.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: were
+*A: was
+A: are
+A: have been
+X: The subject is "collection," which is singular; "of ancient coins" and "along with several rare manuscripts" don't change the subject's number. "Was" is correct. The other choices are plural, and "are" is also present tense.
+
+## fss medium
+P: The fictional biologist Ines Albrecht studies how octopuses use ______ arms to explore their surroundings.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: its
+A: it's
+*A: their
+A: they're
+X: The pronoun refers to "octopuses," which is plural, so the plural possessive "their" is correct. "Its" is singular, and "it's" and "they're" are contractions.
+
+## fss medium
+P: Walking through the forest at dawn, ______
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: the birdsong was heard by the hikers from every direction.
+*A: the hikers heard birdsong from every direction.
+A: birdsong came from every direction to the hikers.
+A: every direction was filled with birdsong for the hikers.
+X: The introductory phrase "Walking through the forest at dawn" must describe whoever is walking, so "the hikers" must come right after the comma. The other choices make it seem that the birdsong or "every direction" was walking.
+
+## fss medium
+P: The number of people who ride bicycles to work in the city ______ doubled over the past decade.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: has
+A: have
+A: are
+A: were
+X: "The number" is singular (unlike "a number of," which is plural), so the singular verb "has" is correct. "Have," "are," and "were" are plural, and "are" and "were" don't form a correct verb phrase with "doubled."
+
+## fss medium
+P: In the 1800s, many of the workers who built the transcontinental railroad ______ immigrants from China.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: was
+A: is
+*A: were
+A: are
+X: The subject is "many," which is plural, and "In the 1800s" signals the past, so the plural past-tense verb "were" is correct. "Was" is singular, and "is" and "are" are present tense.
+
+## fss medium
+P: Researchers in the fictional town of Bramford found that the town's two ______ water supply had become contaminated after the flood.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: school's
+A: schools
+*A: schools'
+A: schools's
+X: The water supply belongs to two schools, so the plural possessive "schools'" is correct. "School's" is singular possessive, "schools" isn't possessive, and "schools's" isn't a standard form.
+
+## fss medium
+P: To reduce waste, the fictional company Greenline ______ to use only recyclable packaging by 2030.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: have pledged
+*A: has pledged
+A: are pledging
+A: pledging
+X: "Greenline" is a single company, so it takes the singular "has pledged." "Have pledged" and "are pledging" are plural, and "pledging" isn't a finite verb, so the sentence would have no main verb.
+
+## fss medium
+P: The fictional novelist Clara Weld, along with her two sisters, ______ in a small cottage on the coast of Maine for most of her life.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: were living
+A: have lived
+A: live
+*A: lived
+X: The subject is "Clara Weld," which is singular; "along with her two sisters" doesn't make it plural. The context ("for most of her life") describes the past, so "lived" is correct. "Were living" and "have lived" are plural, and "live" is plural and present tense.
+
+## fss medium
+P: Of all the planets in our solar system, Jupiter has the most ______ it has at least 95 known moons.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: moons;
+A: moon's;
+A: moons';
+A: moon;
+X: The blank needs a plural noun ("most moons"), not a possessive, so "moons" is correct. "Moon's" and "moons'" are possessive, and "moon" is singular, which doesn't fit "the most."
+
+## fss medium
+P: The fictional scientist Omar Haddad recorded the calls of elephants for ten years, ______ that each adult in the family had its own distinctive voice.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: he discovered
+A: and he discovered,
+*A: discovering
+A: he discovers
+X: "Discovering that each adult..." is a participial phrase that describes the result of Haddad's recording, and it can follow the main clause after a comma. "He discovered" and "he discovers" create comma splices, and "and he discovered," places an incorrect comma before "that."
+
+## fss medium
+P: Many people believe that the Great Wall of China is visible from space with the naked eye, but astronauts have reported that ______ is very difficult to see without a telescope.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: they
+A: these
+A: those
+*A: it
+X: The pronoun refers to "the Great Wall of China," which is singular, so "it" is correct. "They," "these," and "those" are plural.
+
+## fss medium
+P: The fictional economist Laila Haddad's report, which includes data from twelve countries, ______ that small loans can help families start businesses.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: suggests
+A: suggest
+A: have suggested
+A: are suggesting
+X: The subject is "report," which is singular; "which includes data from twelve countries" is a nonessential clause. The singular verb "suggests" is correct. The other choices are plural.
+
+## fss medium
+P: After studying the fossil for months, the team concluded that the ancient bird could probably fly, although ______ wings were shorter than those of modern birds of the same size.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: their
+A: they're
+A: it's
+*A: its
+X: The pronoun refers to "the ancient bird," which is singular, so the singular possessive "its" is correct. "Their" is plural, and "it's" and "they're" are contractions.
+
+## fss medium
+P: The fictional poet Rosa Ibarra's collection [i]Salt and Lantern[/i] ______ poems about her childhood in a fishing village.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: containing
+A: to contain
+*A: contains
+A: having contained
+X: The sentence needs a finite main verb that agrees with "collection," so "contains" is correct. "Containing," "to contain," and "having contained" aren't finite verbs, which would leave the sentence without a main verb.
+
+## fss hard
+P: The fictional ecologist Ravi Menon, whose research on wolves and willow trees has been widely cited, ______ that predators can reshape entire landscapes.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: argue
+A: arguing
+A: have argued
+*A: argues
+X: The subject is "Ravi Menon," which is singular; the clause "whose research...cited" doesn't change that. The singular verb "argues" is correct. "Argue" and "have argued" are plural, and "arguing" isn't a finite verb.
+
+## fss hard
+P: Among the most important discoveries of the fictional archaeologist Diego Flores ______ a set of clay tablets recording trade between two ancient cities.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: was
+A: were
+A: are
+A: have been
+X: In this inverted sentence, the subject comes after the verb: "a set of clay tablets," and its head noun "set" is singular. The singular past-tense "was" is correct. "Were," "are," and "have been" are plural.
+
+## fss hard
+P: Originally designed to carry mail between cities, ______
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: engineers later adapted the small airplane to carry passengers.
+A: passengers were later carried by the small airplane.
+*A: the small airplane was later adapted to carry passengers.
+A: there was a later adaptation of the small airplane to carry passengers.
+X: The introductory phrase "Originally designed to carry mail between cities" describes the airplane, so "the small airplane" must come right after the comma. The other choices place "engineers," "passengers," or "there" in that position, creating dangling modifiers.
+
+## fss hard
+P: The fictional historian Amelia Cho examined letters written by women scientists in the 1800s, many of ______ described their work collecting and identifying plants.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: who
+*A: whom
+A: they
+A: them
+X: After the preposition "of," the object form "whom" is needed, and it refers back to the women scientists. "Who" is a subject form. "They" and "them" create a comma splice or an ungrammatical sentence because they can't introduce a dependent clause.
+
+## fss hard
+P: The fictional coral reef researcher Kenji Morita has found that when reefs recover from heat waves, the species that return are often different from the ones that ______ before.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: has lived there
+A: lives there
+A: will live there
+*A: had lived there
+X: "The ones" (the earlier species) is plural, and the living took place before the heat waves, earlier than other past events in the sentence, so "had lived there" is correct. "Has lived" and "lives" are singular, and "will live" is future.
+
+## fss hard
+P: Every one of the paintings in the exhibit ______ been restored by the museum's conservation team.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: have
+*A: has
+A: were
+A: are
+X: The subject is "Every one," which is singular; "of the paintings in the exhibit" is a prepositional phrase. The singular "has" is correct. "Have," "were," and "are" are plural.
+
+## fss hard
+P: The fictional architect Mei Tanaka believes that the city's new buildings should be designed not only to save energy but also ______ more green space for residents.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: providing
+A: they should provide
+*A: to provide
+A: the provision of
+X: "Not only...but also" requires parallel structure: "not only to save energy but also to provide." "Providing," "they should provide," and "the provision of" aren't parallel with "to save."
+
+## fss hard
+P: The fictional linguist Ama Owusu's research on Ghanaian communities shows that learning English did not cause residents to abandon ______ local languages.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: his or her
+A: its
+*A: their
+A: one's
+X: The pronoun refers to "residents," which is plural, so the plural possessive "their" is correct. "His or her" and "its" are singular, and "one's" is generic.
+
+## fss hard
+P: The fictional sculptor Hana Ito works mainly with driftwood; the pieces she finds on the beach near her studio, worn smooth by years of waves, ______ the shapes of her sculptures.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: suggests
+*A: suggest
+A: has suggested
+A: is suggesting
+X: The subject of the second clause is "pieces," which is plural; "she finds on the beach near her studio" and "worn smooth by years of waves" describe the pieces but don't change the subject. The plural verb "suggest" is correct. The other choices are singular, as if they agreed with "studio" instead of the true subject.
+
+## fss hard
+P: The measurements collected by the fictional astronomer Julia Park and her team ______ that the comet's orbit is longer than previously estimated.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: show
+A: shows
+A: has shown
+A: is showing
+X: The subject is "measurements," which is plural (not "team" or "Julia Park," which are part of the phrase describing the measurements), so the plural verb "show" is correct. "Shows," "has shown," and "is showing" are singular.
+
+## fss hard
+P: The fictional historian Leonard Mbeki argues that the port's decline, which began in 1869 and continued for decades, ______ largely by the opening of the Suez Canal.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: were caused
+A: causing
+A: have been caused
+*A: was caused
+X: The subject of the clause is "decline," which is singular, so the singular "was caused" is correct. "Were caused" and "have been caused" are plural, and "causing" isn't a finite verb.
+
+## fss hard
+P: The fictional novelist Sofia Reyes revises every line of dialogue many times, cutting and rearranging until the conversation ______ completely natural.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: sounds
+A: sound
+A: sounding
+A: have sounded
+X: The subject of the clause is "conversation," which is singular, so the present-tense singular "sounds" matches the rest of the sentence ("revises"). "Sound" and "have sounded" are plural, and "sounding" isn't a finite verb.
+
+## fss hard
+P: Unlike most spiders, ______ the same web for weeks, repairing small tears rather than spinning a new one.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: the web of the orb-weaver species is maintained
+A: maintenance of the web is done by orb-weaver species
+*A: some orb-weaver species maintain
+A: the orb-weaver species' web is maintained
+X: The comparison "Unlike most spiders" must be followed by something that can logically be compared with spiders: "some orb-weaver species." The other choices compare spiders with a web or with maintenance, which is illogical.
+
+## fss hard
+P: The committee, after reviewing dozens of proposals from residents, ______ to build a new library on the site of the old train station.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: has decided
+A: have decided
+A: deciding
+A: are deciding
+X: The subject is "committee," a singular collective noun, so "has decided" is correct. "After reviewing dozens of proposals from residents" separates the subject from the verb but doesn't change its number. "Have decided" and "are deciding" are plural, and "deciding" isn't a finite verb.
+
+## fss hard
+P: Researchers found that participants who were praised for their effort chose harder puzzles than ______ who were praised for being smart.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: them
+A: that
+A: the one
+*A: those
+X: The comparison is between two groups of participants, so a plural pronoun referring back to "participants" is needed: "those." "Them" is an object pronoun that can't be followed by "who" this way, and "that" and "the one" are singular, so they don't refer correctly to the plural "participants."
+
+## fss hard
+P: Neither the fictional engineer Priya Shah nor her colleagues ______ that their water filter would be adopted so quickly in rural villages.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: was expecting
+*A: had expected
+A: has expected
+A: expects
+X: With "neither...nor," the verb agrees with the closer subject, "colleagues," which is plural. The expecting happened before the filter's adoption, so the past perfect "had expected" is correct. "Was expecting," "has expected," and "expects" are singular.
+
+## fss hard
+P: The fictional critic Laura Benn praised the novel for ______ precise descriptions of small-town life.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: its'
+A: it's
+*A: its
+A: their
+X: The descriptions belong to "the novel," which is singular, so the possessive "its" is correct. "Its'" isn't a word, "it's" means "it is," and "their" is plural.
+
+## fss hard
+P: The success of the fictional town of Eastvale's free bus program, which tripled ridership among older residents, ______ other towns to consider similar programs.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+A: have encouraged
+A: encourage
+A: are encouraging
+*A: has encouraged
+X: The subject is "success," which is singular, so the singular "has encouraged" is correct. "Have encouraged," "encourage," and "are encouraging" are plural; "program," "Eastvale's," and "residents" are not the subject.
+
+## fss hard
+P: The fictional explorer Ana Lucero, who spent three winters in the Himalayas photographing snow leopards, ______ her images in a book published last spring.
+Q: Which choice completes the text so that it conforms to the conventions of Standard English?
+*A: collected
+A: collecting
+A: who collected
+A: having collected
+X: The sentence needs a finite main verb for the subject "Ana Lucero," so "collected" is correct. "Collecting" and "having collected" aren't finite verbs, and "who collected" adds another dependent clause, leaving the sentence without a main verb.

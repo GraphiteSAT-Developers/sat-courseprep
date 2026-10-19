@@ -285,14 +285,16 @@
     var a = h >>> 0;
     return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   }
-  function dayItems(day) {
-    var pool = BANK.items.filter(function (q) { return q.type === "mc" && (q.difficulty === "easy" || q.difficulty === "medium") && SP.domains.indexOf(q.domain_key) > -1; })
-      .map(function (q) { return q.id; }).sort();
-    var rnd = seeded("speed:" + day), out = [];
+  function dayItems(day, sec) {
+    var domains = sec === "rw" ? SP.rw_domains : SP.domains, slow = SP.rw_slow_skills || [];
+    var pool = BANK.items.filter(function (q) {
+      return q.type === "mc" && (q.difficulty === "easy" || q.difficulty === "medium") && domains.indexOf(q.domain_key) > -1 && slow.indexOf(q.skill_key) < 0;
+    }).map(function (q) { return q.id; }).sort();
+    var rnd = seeded("speed:" + (sec === "rw" ? "rw:" : "") + day), out = [];
     while (out.length < SP.size) { var id = pool[Math.floor(rnd() * pool.length)]; if (out.indexOf(id) < 0) out.push(id); }
     return out;
   }
-  function publicQ(q) { return { id: q.id, type: q.type, stem: q.stem, choices: q.choices, domain: q.domain, skill: q.skill, difficulty: q.difficulty }; }
+  function publicQ(q) { return { id: q.id, section: q.section || "math", type: q.type, stem: q.stem, choices: q.choices, domain: q.domain, skill: q.skill, difficulty: q.difficulty }; }
   function isRight(id, a) { return Number(a) === byId[id].answer; }
   function runResult(r) {
     return { correct: r.correct, total: r.total, raw_ms: r.finished_ms - r.started_ms, misses: r.total - r.correct, score_ms: r.score_ms, ranked: r.ranked };
@@ -300,7 +302,7 @@
   function runOut(r) {
     var ans = {};
     Object.keys(r.answers).forEach(function (k) { ans[k] = { answer: r.answers[k], correct: isRight(r.item_ids[k], r.answers[k]), answer_index: byId[r.item_ids[k]].answer }; });
-    var out = { id: r.id, day: r.day, ranked: r.ranked, total: r.total, questions: r.item_ids.map(function (id) { return publicQ(byId[id]); }),
+    var out = { id: r.id, day: r.day, section: r.section || "math", ranked: r.ranked, total: r.total, questions: r.item_ids.map(function (id) { return publicQ(byId[id]); }),
       answered: ans, elapsed_ms: Math.min(SP.max_ms, ms() - r.started_ms), finished: r.finished_ms != null, penalty_ms: SP.penalty_ms, max_ms: SP.max_ms };
     if (r.finished_ms != null) out.result = runResult(r);
     return out;
@@ -315,7 +317,9 @@
     if (correct === r.total && raw <= SP.lightning_ms) badges.push(earnBadge(s, "lightning"));
     return report(s, xpBefore, xp, coins, badges, st);
   }
-  function runsOf(s) { return Object.keys(s.runs).map(function (k) { return s.runs[k]; }); }
+  function runsOf(s, sec) {
+    return Object.keys(s.runs).map(function (k) { return s.runs[k]; }).filter(function (r) { return !sec || (r.section || "math") === sec; });
+  }
   function boardProfile(s) {
     var st = SP.states.filter(function (x) { return x.code === s.state; })[0];
     return { opt_in: !!s.opt_in, nickname: s.nickname, state: s.state, state_name: st ? st.name : null };
@@ -341,12 +345,12 @@
   function sampleAvatar(rnd) { var o = {}; Object.keys(AV).forEach(function (k) { o[k] = AV[k][Math.floor(rnd() * AV[k].length)]; }); return o; }
   function myAvatar() { var T = window.GraphiteTheme, a = T && T.prefs().avatar; return a && a.mode === "drawn" ? a.parts : null; }
   function weekStart(day) { var p = day.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return iso(d); }
-  function board(s, scope, period) {
+  function board(s, scope, period, sec) {
     var day = today(), since = period === "today" ? day : weekStart(day);
-    if (scope === "state" && !s.state) return { scope: scope, period: period, needs_state: true, rows: [], you: null };
-    var mine = runsOf(s).filter(function (r) { return r.ranked && r.finished_ms != null && r.day >= since && r.day <= day; })
+    if (scope === "state" && !s.state) return { scope: scope, period: period, section: sec, needs_state: true, rows: [], you: null };
+    var mine = runsOf(s, sec).filter(function (r) { return r.ranked && r.finished_ms != null && r.day >= since && r.day <= day; })
       .sort(function (a, b) { return a.score_ms - b.score_ms; })[0];
-    var people = samplePlayers(day, period).filter(function (p) { return scope === "nation" || p.state === s.state; });
+    var people = samplePlayers(day + (sec === "rw" ? ":rw" : ""), period).filter(function (p) { return scope === "nation" || p.state === s.state; });
     var visible = !!(s.opt_in && s.nickname);
     if (mine && visible) people.push({ you: true, nickname: s.nickname, state: s.state, title: s.title, frame: s.frame, avatar: myAvatar(), correct: mine.correct, total: mine.total, raw_ms: mine.finished_ms - mine.started_ms, score_ms: mine.score_ms });
     people.sort(function (a, b) { return a.score_ms - b.score_ms; });
@@ -357,26 +361,27 @@
       you = { rank: place, visible: visible, of: people.length + (visible ? 0 : 1), score_ms: mine.score_ms, raw_ms: mine.finished_ms - mine.started_ms, correct: mine.correct, total: mine.total, day: mine.day };
     }
     var stn = SP.states.filter(function (x) { return x.code === s.state; })[0];
-    return { scope: scope, period: period, state: scope === "state" ? s.state : null, state_name: scope === "state" && stn ? stn.name : null,
+    return { scope: scope, period: period, section: sec, state: scope === "state" ? s.state : null, state_name: scope === "state" && stn ? stn.name : null,
              rows: rows, you: you, players: people.length, sample: true };
   }
-  function speedCall(path, data, method) {
+  function speedCall(path, data, method, sec) {
     var s = load(), day = today(), m;
+    sec = (data && data.section === "rw") || sec === "rw" ? "rw" : "math";
     if (path === "/api/speed") {
-      var ranked = runsOf(s).filter(function (r) { return r.day === day && r.ranked; })[0];
-      var best = runsOf(s).filter(function (r) { return r.ranked && r.finished_ms != null; }).map(function (r) { return r.score_ms; }).sort(function (a, b) { return a - b; })[0];
-      return ok({ day: day, size: SP.size, penalty_ms: SP.penalty_ms, max_ms: SP.max_ms,
+      var ranked = runsOf(s, sec).filter(function (r) { return r.day === day && r.ranked; })[0];
+      var best = runsOf(s, sec).filter(function (r) { return r.ranked && r.finished_ms != null; }).map(function (r) { return r.score_ms; }).sort(function (a, b) { return a - b; })[0];
+      return ok({ day: day, section: sec, size: SP.size, penalty_ms: SP.penalty_ms, max_ms: SP.max_ms,
         ranked_today: !ranked ? null : ranked.finished_ms != null ? runResult(ranked) : { open: true },
         personal_best_ms: best == null ? null : best,
-        recent: runsOf(s).filter(function (r) { return r.finished_ms != null; }).sort(function (a, b) { return b.id - a.id; }).slice(0, 5).map(function (r) { return Object.assign(runResult(r), { day: r.day }); }),
+        recent: runsOf(s, sec).filter(function (r) { return r.finished_ms != null; }).sort(function (a, b) { return b.id - a.id; }).slice(0, 5).map(function (r) { return Object.assign(runResult(r), { day: r.day }); }),
         board_profile: boardProfile(s) });
     }
     if (path === "/api/speed/start") {
-      var open = runsOf(s).filter(function (r) { return r.day === day && r.finished_ms == null; }).sort(function (a, b) { return b.id - a.id; })[0];
+      var open = runsOf(s, sec).filter(function (r) { return r.day === day && r.finished_ms == null; }).sort(function (a, b) { return b.id - a.id; })[0];
       if (open && ms() - open.started_ms < SP.max_ms) return ok({ run: runOut(open) });
       if (open) finishRun(s, open, open.started_ms + SP.max_ms);
-      var isRanked = !runsOf(s).some(function (r) { return r.day === day && r.ranked; });
-      var r = { id: s.nextId++, day: day, item_ids: dayItems(day), answers: {}, started_ms: ms(), finished_ms: null, correct: null, total: SP.size, score_ms: null, ranked: isRanked, state: s.state };
+      var isRanked = !runsOf(s, sec).some(function (r) { return r.day === day && r.ranked; });
+      var r = { id: s.nextId++, day: day, section: sec, item_ids: dayItems(day, sec), answers: {}, started_ms: ms(), finished_ms: null, correct: null, total: SP.size, score_ms: null, ranked: isRanked, state: s.state };
       s.runs[r.id] = r; save(s);
       return ok({ run: runOut(r) });
     }
@@ -402,7 +407,7 @@
     if (path.indexOf("/api/speed/board") === 0) {
       var q = (path.split("?")[1] || "") + "&" + ((data && data.query) || "");
       var scope = /scope=nation/.test(q) ? "nation" : "state", period = /period=week/.test(q) ? "week" : "today";
-      return ok(board(s, scope, period));
+      return ok(board(s, scope, period, /section=rw/.test(q) ? "rw" : "math"));
     }
     if (path === "/api/speed/nicknames") {
       var names = []; for (var k = 0; k < 4; k++) names.push(SP.adjectives[Math.floor(Math.random() * SP.adjectives.length)] + " " + SP.nouns[Math.floor(Math.random() * SP.nouns.length)] + " " + (10 + Math.floor(Math.random() * 90)));
@@ -492,7 +497,10 @@
   var LESSONS = P.lessons, DAYS = P.recall_days;
   // Grading is lesson-kit.js (the same rules as lessons.right and lessons.grade on the server).
   function gradeSteps(steps, given) { var K = window.GraphiteLessonKit; return K ? K.grade(steps, given) : 0; }
-  function startFirst(s, id) { return id !== P.start_lesson && !!lessonById(P.start_lesson) && !s.lessons[P.start_lesson]; }
+  var RW_LESSON_DOMAINS = (BANK.rw_topics || []).map(function (d) { return d.key; });
+  function lsection(l) { return l && RW_LESSON_DOMAINS.indexOf(l.domain) > -1 ? "rw" : "math"; }
+  // Desmos hacks opens first for Math lessons; Reading and Writing lessons are open from the start (lessons.must_start_first).
+  function startFirst(s, id) { return id !== P.start_lesson && lsection(lessonById(id)) !== "rw" && !!lessonById(P.start_lesson) && !s.lessons[P.start_lesson]; }
   function failFirst() { var e = new Error("Start with Desmos hacks. Every other lesson opens after it."); e.status = 409; e.data = { error: e.message, code: "start_first" }; return Promise.reject(e); }
   function lessonById(id) { return LESSONS.filter(function (l) { return l.id === id; })[0]; }
   function lstatus(row) {
@@ -516,7 +524,7 @@
     if (path === "/api/lessons") {
       var lock = lessonLock(), free = P.free_lessons || [];
       var items = LESSONS.map(function (l) {
-        var it = Object.assign({ id: l.id, title: l.title, hook: l.hook, minutes: l.minutes, domain: l.domain, skill: l.skill, steps: l.steps.length, format: l.format || "classic", progress: lstatus(s.lessons[l.id]),
+        var it = Object.assign({ id: l.id, section: lsection(l), title: l.title, hook: l.hook, minutes: l.minutes, domain: l.domain, skill: l.skill, steps: l.steps.length, format: l.format || "classic", progress: lstatus(s.lessons[l.id]),
                                  locked: planLocked(l.id, lock), free: free.indexOf(l.id) >= 0 }, names(l));
         if (it.locked) it.progress.due = false;
         return it;
@@ -703,7 +711,7 @@
     var clean = path.split("?")[0];
     if (clean.indexOf("/api/game") === 0) return gameCall(clean, data);
     if (clean.indexOf("/api/speed/board") === 0) return speedCall(path, data, method);
-    if (clean.indexOf("/api/speed") === 0) return speedCall(clean, data, method);
+    if (clean.indexOf("/api/speed") === 0) return speedCall(clean, data, method, /[?&]section=rw(&|$)/.test(path) ? "rw" : "math");
     if (clean.indexOf("/api/focus") === 0) return focusCall(clean, data);
     if (clean.indexOf("/api/lessons") === 0) return lessonsCall(clean, data);
     if (clean.indexOf("/api/market") === 0 && MK) return marketCall(path, data);

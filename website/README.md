@@ -18,8 +18,8 @@ The pages run in two modes:
   - `site.css`: all styles. Colors, fonts and spacing are set at the top.
   - `paper.css`: the public pages' look (home, sign-in, checkout, legal, 404): paper, graphite ink, a yellow highlighter and the tutor's red-pen notes. The build puts `class="paper"` on `<html>` for those pages; signed-in pages keep their themes.
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
-  - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results. With `?session=<id>` it runs a set from the question bank: a timed random practice test, or untimed topic practice with a Check answer button.
-  - `practice.js`: the practice page: start a random practice test or practice one topic.
+  - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results. With `?session=<id>` it runs a set from the question bank: a timed random practice test, or untimed topic practice with a Check answer button. Reading and Writing questions show their passage on the left and the question on the right, like Bluebook, with no calculator or reference sheet.
+  - `practice.js`: the practice page: for Math or Reading and Writing, start an adaptive mock test, one module, or practice one topic.
   - `theme.js`: signed-in pages only. Applies the theme and accent color before the page draws, and adds the profile picture to the header.
   - `settings.js`: the Settings page.
   - `checkout.js`: the checkout page.
