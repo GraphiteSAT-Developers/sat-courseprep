@@ -186,7 +186,72 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && nav.classList.contains("is-open")) { closeMenu(); toggle.focus(); }
     });
-    window.matchMedia("(min-width: 901px)").addEventListener("change", function (m) { if (m.matches) closeMenu(); });
+    window.matchMedia("(min-width: 1201px)").addEventListener("change", function (m) { if (m.matches) closeMenu(); });
+  }
+
+  /* 3b. The answer-sheet header (nav.css): the pencil mark that fills the bubble of the page you're on and slides
+     to whichever link you point at or tab to. On pages whose links jump to sections (home, parent dashboard), it
+     follows the section you're reading. */
+  var navList = nav && $("ul", nav);
+  var siteHeader = $(".site-header");
+  if (navList && siteHeader) {
+    var mark = document.createElement("span");
+    mark.className = "nav-mark"; mark.setAttribute("aria-hidden", "true");
+    navList.appendChild(mark);
+    var links = $all("a", navList);
+    var resting = $("a[aria-current]", navList);
+    var shown = null;
+    var moveMark = function (a) {
+      if (!a) { mark.classList.remove("is-on"); shown = null; return; }
+      // The bubble is the link's ::before: its left edge is the link's padding, centred vertically.
+      var cs = getComputedStyle(a), size = mark.offsetWidth;
+      var x = a.offsetLeft + parseFloat(cs.paddingLeft), y = a.offsetTop + (a.offsetHeight - size) / 2;
+      mark.style.setProperty("--mx", x + "px"); mark.style.setProperty("--my", y + "px");
+      if (!shown) {
+        // First appearance: fill in place rather than slide in from the corner.
+        mark.style.transition = "none"; mark.getBoundingClientRect(); mark.style.transition = "";
+        mark.classList.remove("is-new"); void mark.offsetWidth; mark.classList.add("is-new");
+      } else if (shown !== a) {
+        mark.classList.remove("is-moving"); void mark.offsetWidth; mark.classList.add("is-moving");
+      }
+      mark.classList.add("is-on"); shown = a;
+    };
+    var settle = function () { moveMark(resting); };
+    links.forEach(function (a) {
+      a.addEventListener("pointerenter", function () { moveMark(a); });
+      a.addEventListener("focus", function () { moveMark(a); });
+      a.addEventListener("blur", function () { setTimeout(function () { if (!navList.contains(document.activeElement)) settle(); }, 0); });
+    });
+    navList.addEventListener("pointerleave", function () { if (!navList.contains(document.activeElement)) settle(); });
+    // Section links on this page: the mark follows the section on screen.
+    var spied = links.map(function (a) {
+      var u = new URL(a.href, location.href);
+      return u.pathname === location.pathname && u.hash.length > 1 ? { a: a, el: document.getElementById(u.hash.slice(1)) } : null;
+    }).filter(function (s) { return s && s.el; });
+    if (spied.length && "IntersectionObserver" in window) {
+      var visible = new Set();
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) visible.add(e.target); else visible.delete(e.target); });
+        var first = spied.filter(function (s) { return visible.has(s.el); })[0];
+        resting = first ? first.a : $("a[aria-current]", navList);
+        links.forEach(function (a) { a.classList.toggle("is-here", a === resting); });
+        if (!navList.matches(":hover") && !navList.contains(document.activeElement)) settle();
+      }, { rootMargin: "-30% 0px -60% 0px" });
+      spied.forEach(function (s) { io.observe(s.el); });
+    }
+    var placeMark = function () { if (shown) { var a = shown; shown = null; mark.classList.remove("is-new"); moveMark(a); mark.classList.remove("is-new"); } else settle(); };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeMark);
+    window.addEventListener("load", placeMark);
+    window.addEventListener("resize", placeMark);
+    settle();
+    // A shadow once the header is stuck to the top of the screen.
+    // Stuck means it has reached its sticky offset: on wide screens that's once the top row has scrolled away.
+    var stuck = function () {
+      var at = parseFloat(getComputedStyle(siteHeader).top) || 0;
+      siteHeader.classList.toggle("is-stuck", window.scrollY > 4 && siteHeader.getBoundingClientRect().top <= at + 0.5);
+    };
+    window.addEventListener("scroll", stuck, { passive: true });
+    stuck();
   }
 
   /* 4. Analytics (consent-gated)
