@@ -1,5 +1,6 @@
 /* The tutor page. Live: recent misses come from /api/me/history/questions, and once the server says the tutor is
    connected (GET /api/tutor), the message box sends the conversation to /api/tutor/chat, which asks Qwen.
+   It comes with paid plans; the free plan sees an upgrade card in place of the message box.
    In the preview, or before QWEN_API_KEY / QWEN_BASE_URL is set, the conversation stays "Coming soon". */
 (function () {
   "use strict";
@@ -72,6 +73,12 @@
   }
   function connect(st) {
     if (!st.connected) return;
+    // The tutor comes with paid plans: the free plan, or a plan that isn't paid, sees what unlocks it instead.
+    if (st.lock && !st.lock.ok && window.GraphiteLock) {
+      $("tu-soon").replaceWith(window.GraphiteLock.card(st.lock, true));
+      $("tu-status").textContent = st.lock.reason ? "Locked" : (st.lock.limit ? "0 left today" : st.lock.need_name + " and up");
+      return;
+    }
     $("tu-soon").hidden = true;
     form.hidden = false;
     showLeft(st.lock);

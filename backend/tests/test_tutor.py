@@ -8,7 +8,8 @@ import unittest
 from unittest import mock
 
 from app import create_app
-from app.services import qwen
+from app.db import execute
+from app.services import plans, qwen
 from test_practice import ORIGIN
 
 
@@ -46,34 +47,66 @@ class Base(unittest.TestCase):
     def ask(self, text="How do I solve 2x + 3 = 11?", **extra):
         return self.post("/api/tutor/chat", dict({"messages": [{"role": "user", "content": text}]}, **extra))
 
+    def buy(self, plan="no2"):
+        r = self.post("/api/me/subscription/plan", {"plan": plan, "interval": "month", "agree": True})
+        self.assertEqual(r.status_code, 201, r.json)
+
+
+class FreePlanTest(Base):
+    def test_free_plan_has_no_tutor(self):
+        st = self.client.get("/api/tutor").json
+        self.assertTrue(st["connected"])
+        self.assertFalse(st["lock"]["ok"])
+        self.assertEqual((st["lock"]["limit"], st["lock"]["need"]), (0, "no2"))
+        r = self.ask()
+        self.assertEqual((r.status_code, r.json["code"]), (402, "plan_required"))
+        self.assertIn("No. 2", r.json["error"])
+        self.assertEqual(self.fake.calls, [])
+
+    def test_unpaid_plan_locks_it_again(self):
+        self.buy("sharpened")
+        self.assertEqual(self.ask().status_code, 200)
+        with self.app.app_context():
+            execute("UPDATE subscriptions SET status = 'past_due' WHERE student_id = ?", (self.uid,))
+        r = self.ask()
+        self.assertEqual((r.status_code, r.json["code"]), (402, "plan_required"))
+        self.assertEqual(r.json["lock"]["need"], "sharpened")
+        self.assertEqual(len(self.fake.calls), 1)
+
 
 class TutorTest(Base):
+    """A No. 2 student: 50 tutor questions a day."""
+    def setUp(self):
+        super().setUp()
+        self.buy("no2")
     def test_status_and_answer(self):
         st = self.client.get("/api/tutor").json
         self.assertTrue(st["connected"])
-        self.assertEqual((st["lock"]["limit"], st["lock"]["left"]), (5, 5))
+        self.assertEqual((st["lock"]["limit"], st["lock"]["left"]), (50, 50))
         r = self.ask(context={"title": "Linear equations", "detail": "your answer: 7"})
         self.assertEqual(r.status_code, 200, r.json)
         self.assertEqual(r.json["reply"], self.fake.reply)
-        self.assertEqual(r.json["lock"]["left"], 4)
+        self.assertEqual(r.json["lock"]["left"], 49)
         sent = self.fake.calls[0]
         self.assertEqual(sent["model"], "qwen-plus")
         self.assertEqual(sent["messages"][0]["role"], "system")
         self.assertIn("Linear equations", sent["messages"][0]["content"])
         self.assertEqual(sent["messages"][-1], {"role": "user", "content": "How do I solve 2x + 3 = 11?"})
 
-    def test_free_plan_daily_limit(self):
+    def test_daily_limit(self):
+        limit = mock.patch.dict(plans.LIMITS["no2"], {"ai_tutor_per_day": 5})
+        limit.start()
+        self.addCleanup(limit.stop)
         for _ in range(5):
             self.assertEqual(self.ask().status_code, 200)
         r = self.ask()
         self.assertEqual((r.status_code, r.json["code"]), (402, "plan_required"))
-        self.assertEqual((r.json["lock"]["feature"], r.json["lock"]["need"]), ("tutor", "no2"))
+        self.assertEqual((r.json["lock"]["feature"], r.json["lock"]["need"]), ("tutor", "sharpened"))
         self.assertIn("today", r.json["error"])
         self.assertEqual(len(self.fake.calls), 5)
 
     def test_burst_limit_on_unlimited_plans(self):
-        r = self.post("/api/me/subscription/plan", {"plan": "sharpened", "interval": "month", "agree": True})
-        self.assertEqual(r.status_code, 201, r.json)
+        self.buy("sharpened")
         self.assertIsNone(self.client.get("/api/tutor").json["lock"]["limit"])
         codes = [self.ask().status_code for _ in range(9)]
         self.assertEqual(codes, [200] * 8 + [429])
@@ -106,7 +139,7 @@ class TutorTest(Base):
             r = self.ask()
         self.assertEqual((r.status_code, r.json["code"]), (502, "tutor_error"))
         # A failed answer doesn't use up one of the day's questions.
-        self.assertEqual(self.client.get("/api/tutor").json["lock"]["left"], 4)
+        self.assertEqual(self.client.get("/api/tutor").json["lock"]["left"], 49)
 
     def test_needs_sign_in(self):
         self.post("/api/auth/logout")

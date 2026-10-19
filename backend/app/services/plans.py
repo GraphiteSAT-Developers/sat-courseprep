@@ -18,7 +18,7 @@ PLANS = {
     "free": {
         "name": "Scratch Paper",
         "tagline": "Try Graphite SAT before you commit.",
-        "blurb": "The diagnostic, one practice set a week and a few tutor questions a day.",
+        "blurb": "The diagnostic, one practice set a week and 3 starter lessons.",
         "badge": None,
         "prices": {"week": 0, "month": 0, "year": 0},
         "intro": None,
@@ -27,7 +27,6 @@ PLANS = {
             "Your strongest and weakest skill areas",
             "1 practice set a week",
             "3 starter lessons",
-            "5 tutor questions a day",
             "Built-in graphing calculator",
         ],
     },
@@ -96,7 +95,7 @@ COMPARE = [
         ("Built-in graphing calculator", [True, True, True, True]),
     ]),
     ("Help when you're stuck", [
-        ("Tutor", ["5 questions a day", "50 questions a day", "Unlimited", "Unlimited"]),
+        ("Tutor", [False, "50 questions a day", "Unlimited", "Unlimited"]),
         ("Step-by-step written explanations", ["Diagnostic only", True, True, True]),
         ("In-depth video explanations", [False, False, True, True]),
         ("Support", ["Help center", "Email, within 1 school day", "24/7", "24/7, priority"]),
@@ -114,7 +113,7 @@ COMPARE = [
 
 # What each plan allows, for when limits are switched on (None means unlimited).
 LIMITS = {
-    "free": {"practice_sets_per_week": 1, "practice_tests_per_month": 0, "ai_tutor_per_day": 5, "video_explanations": False,
+    "free": {"practice_sets_per_week": 1, "practice_tests_per_month": 0, "ai_tutor_per_day": 0, "video_explanations": False,
              "level_up": False, "study_plan": False, "parent_dashboard": False, "review_queue": False,
              "explanations": False, "score_history": False, "all_lessons": False},
     "no2": {"practice_sets_per_week": None, "practice_tests_per_month": 2, "ai_tutor_per_day": 50, "video_explanations": False,
