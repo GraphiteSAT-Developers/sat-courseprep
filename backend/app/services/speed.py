@@ -128,7 +128,7 @@ def items_for(user_id, day, section="math", ranked=True):
     does a run reuse questions they've done."""
     from . import practice
     items = bank.all_items()
-    seen = practice.seen_ids(user_id)
+    seen = practice.taken_ids(user_id)
     for r in query("SELECT item_ids FROM speed_runs WHERE user_id = ? AND day = ? AND section = ?", (user_id, day, section)):
         seen |= set(json.loads(r["item_ids"]))
     rng = random.Random(f"{day}:{section}:{user_id}:{len(seen)}")

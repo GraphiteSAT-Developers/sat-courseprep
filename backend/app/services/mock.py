@@ -57,7 +57,7 @@ def build_module(user_id, mix, exclude=(), rng=random, section="math"):
     """One module in the real mix (Math: 22 by domain; Reading and Writing: 27 by skill) and the given
     difficulty mix, new to the student. Math runs easiest first; Reading and Writing by question type."""
     items = bank.all_items()
-    seen = practice.seen_ids(user_id) | set(exclude)
+    seen = practice.taken_ids(user_id) | set(exclude)
     picked = []
     # Each domain (or skill) gets its share of each difficulty; the content mix comes first, like the real test.
     if section == "rw":
