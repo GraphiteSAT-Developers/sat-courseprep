@@ -352,6 +352,9 @@ def submit(user_id, session, answers, seconds):
         add_to_review(user_id, unchecked)
 
     if session["mode"] == "test" and not task.startswith("mock:"):
+        # One module, so its section score is projected (services/scoring.py) and shown next to the right answers.
+        from . import scoring
+        result["estimate"] = scoring.project(result["section"], result["questions"])
         # Practice tests count toward the dashboard's score history, like the fixed tests.
         # (A mock test's two modules count once, together: services/mock.py saves that.)
         row = execute(

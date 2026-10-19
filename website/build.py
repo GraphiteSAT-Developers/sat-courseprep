@@ -259,7 +259,14 @@ def bank_js():
                    "features": {k: {"limit": v[0], "name": v[1], "period": v[2]} for k, v in service("access").FEATURES.items()},
                    "unpaid": service("access").UNPAID, "locked_explanation": service("access").LOCKED_EXPLANATION},
         "mock": {"sections": service("mock").SECTIONS, "break_seconds": service("mock").BREAK_SECONDS,
-                 "route_at": service("mock").ROUTE_AT, "mix": service("mock").MIX},
+                 "route_at": service("mock").ROUTE_AT, "mix": service("mock").MIX,
+                 # The score calculator (services/scoring.py); curve keys become "math|harder" and so on.
+                 "scoring": {"sections": service("scoring").SECTIONS, "spread": service("scoring").SPREAD, "prior": service("scoring").PRIOR,
+                             "curves": {f"{k[0]}|{k[1]}": v for k, v in service("scoring").CURVES.items()}},
+                 # The score check (services/scorecheck.py): which questions it draws and how it ranks skills.
+                 "score_check": {"cycle": service("scorecheck").DIFFICULTY_CYCLE, "sections": service("scorecheck").SECTIONS,
+                                 "names": service("scorecheck").SECTION_NAMES, "guess_weight": service("scorecheck").GUESS_WEIGHT,
+                                 "top": service("scorecheck").TOP_SKILLS}},
         # Rewards, speed rounds, focus and lessons: the same numbers and content as the server (play-local.js).
         "play": {"rules": game.rules(), "lessons": lessons.all_lessons(), "recall_days": list(lessons.RECALL_DAYS),
                  "recall_pass": lessons.RECALL_PASS, "lesson_formats": lessons.FORMATS, "start_lesson": lessons.START_LESSON, "free_lessons": list(lessons.FREE_LESSONS),
@@ -294,18 +301,20 @@ CRUMBS = {
     "dashboard.html": [], "plan.html": [DASH], "practice.html": [DASH], "levels.html": [DASH], "lessons.html": [DASH],
     "speed.html": [DASH], "focus.html": [DASH], "rewards.html": [DASH], "market.html": [DASH], "tutor.html": [DASH], "settings.html": [DASH],
     "parent.html": [], "privacy.html": [HOME], "terms.html": [HOME], "cookies.html": [HOME], "checkout.html": [HOME],
-    "signin.html": [HOME], "404.html": [HOME],
+    "signin.html": [HOME], "404.html": [HOME], "score-check.html": [HOME], "guides.html": [HOME],
 }
+GUIDES = ("Study guides", "guides.html")
 CRUMB_NAMES = {"dashboard.html": "Dashboard", "parent.html": "Parent dashboard", "privacy.html": "Privacy policy",
                "terms.html": "Terms of service", "cookies.html": "Cookie policy", "signin.html": "Sign in",
-               "404.html": "Page not found", "plan.html": "Study plan", "levels.html": "Level up"}
+               "404.html": "Page not found", "plan.html": "Study plan", "levels.html": "Level up",
+               "score-check.html": "Free score check", "guides.html": "Study guides"}
 
 
 def crumbs_html(meta):
-    trail = CRUMBS.get(meta["file"])
+    trail = CRUMBS.get(meta["file"], [HOME, GUIDES] if meta["file"].startswith("guide-") else None)
     if trail is None or meta.get("test"):
         return ""
-    name = CRUMB_NAMES.get(meta["file"]) or meta["title"].split(" | ")[0]
+    name = meta.get("crumb") or CRUMB_NAMES.get(meta["file"]) or meta["title"].split(" | ")[0]
     esc = lambda t: str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
     items = "".join(f'<li><a href="{href}"{" data-crumb-home" if href == "dashboard.html" else ""}>{esc(label)}</a></li>' for label, href in trail)
     items += f'<li><span aria-current="page" id="crumb-here">{esc(name)}</span></li>'
@@ -503,7 +512,7 @@ def build():
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
     for n in ("effects.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
-              "lessons.js", "lesson-kit.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js", "integrity.js", "subscription.js"):
+              "lessons.js", "lesson-kit.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js", "integrity.js", "subscription.js", "score-check.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     if (DIST / "vendor" / "katex").exists():

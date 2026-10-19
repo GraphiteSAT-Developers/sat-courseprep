@@ -3,7 +3,7 @@
 The pages blueprint stays last: it catches every path that isn't an API route.
 """
 from . import (account, auth, checkout, dashboard, family, history, integrity, leads, mocktests, pages, plan, play, practice,
-               settings, subscription, tests)
+               scorecheck, settings, subscription, tests)
 
 BLUEPRINTS = [
     auth.bp,        # /api/auth/...  create account, sign in and out, password reset
@@ -14,6 +14,7 @@ BLUEPRINTS = [
     mocktests.bp,   # /api/mock-tests  full adaptive sections: Module 1, then a harder or easier Module 2, and the break
     plan.bp,        # /api/plan      the diagnostic and the study plan
     practice.sample_bp,  # /api/sample  the home page's sample question
+    scorecheck.bp,  # /api/score-check  20 questions without an account, scored like the SAT
     practice.levels_bp,  # /api/levels  Level up: sets that get harder level by level
     dashboard.bp,   # /api/dashboard, /api/review, /api/activity
     family.student_bp,  # /api/family  a student's Parent access: link codes and connected parents

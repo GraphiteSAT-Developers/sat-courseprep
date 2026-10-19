@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.graphiteprep.com/cookies.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
+  <url><loc>https://www.graphiteprep.com/guide-30-day-plan.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
+  <url><loc>https://www.graphiteprep.com/guide-desmos-sat.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
+  <url><loc>https://www.graphiteprep.com/guide-digital-sat-scoring.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
+  <url><loc>https://www.graphiteprep.com/guide-review-mistakes.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
+  <url><loc>https://www.graphiteprep.com/guide-typed-answers.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
+  <url><loc>https://www.graphiteprep.com/guides.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
   <url><loc>https://www.graphiteprep.com/</loc><lastmod>2026-10-15</lastmod><priority>1.0</priority></url>
   <url><loc>https://www.graphiteprep.com/privacy.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
+  <url><loc>https://www.graphiteprep.com/score-check.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
   <url><loc>https://www.graphiteprep.com/signin.html</loc><lastmod>2026-10-15</lastmod><priority>0.6</priority></url>
   <url><loc>https://www.graphiteprep.com/terms.html</loc><lastmod>2026-10-15</lastmod><priority>0.3</priority></url>
 </urlset>
