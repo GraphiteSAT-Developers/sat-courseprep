@@ -7,6 +7,7 @@ from ..db import days_from_today, execute, now_iso, query
 from ..security import ApiError, body, current_user, login_required
 from ..services.content import all_tests, get_test, public_test, summary
 from ..services.grading import clean_answers, grade
+from ..services.scoring import project
 
 bp = Blueprint("tests", __name__, url_prefix="/api/tests")
 
@@ -46,6 +47,7 @@ def submit(test_id):
     seconds = max(0, min(seconds, test["minutes"] * 60 + MAX_SECONDS_SLACK))
     result = grade(test, answers)
     result["seconds_used"] = seconds
+    result["estimate"] = project(test["section"], result["questions"])  # one module: the section score it projects to
     stamp = now_iso()
     row = execute(
         "INSERT INTO test_attempts (user_id, test_id, seconds_used, correct, total, answers, results, submitted_at) "

@@ -19,7 +19,7 @@ import random
 from datetime import datetime, timezone
 
 from ..db import execute, now_iso, query
-from . import bank, practice
+from . import bank, practice, scoring
 
 SECTIONS = {
     "math": {"name": "Math", "questions": 22, "minutes": 35, "modules": 2, "ready": True, "route_at": 14},
@@ -27,11 +27,7 @@ SECTIONS = {
 }
 BREAK_SECONDS = 10 * 60
 ROUTE_AT = 14  # right answers in Math Module 1 (of 22) for the harder Module 2; Reading and Writing: 17 of 27
-MIX = {
-    "m1": {"easy": 7, "medium": 8, "hard": 7},
-    "harder": {"easy": 3, "medium": 8, "hard": 11},
-    "easier": {"easy": 10, "medium": 9, "hard": 3},
-}
+MIX = scoring.MIX
 NEIGHBORS = {"easy": ["medium", "hard"], "medium": ["easy", "hard"], "hard": ["medium", "easy"]}
 
 
@@ -139,16 +135,9 @@ def break_action(user_id, m, action):
 def estimate(route, raw, section="math"):
     """An estimated section score, 200 to 800, from the right answers in both modules (Math 44, Reading and Writing 54).
 
-    The harder Module 2 opens the top of the scale; the easier one tops out lower, as on the real test.
-    This is an estimate from our own question bank, not an official College Board score.
+    services/scoring.py has the curves. This is an estimate from our own question bank, not an official College Board score.
     """
-    per, route_at = SECTIONS[section]["questions"], SECTIONS[section]["route_at"]
-    if route == "harder":
-        score = 400 + 400 * max(0, raw - route_at) / (2 * per - route_at)
-    else:
-        top = route_at - 1 + per
-        score = 200 + 410 * min(raw, top) / top
-    return int(round(score / 10.0) * 10)
+    return scoring.section_score(section, route, raw)
 
 
 def _answers_from(result):
@@ -199,7 +188,7 @@ def after_module(user_id, session, result, rng=random):
     stamp = now_iso()
     combined.update({"seconds_used": (r1.get("seconds_used") or 0) + (result.get("seconds_used") or 0), "mode": "mock",
                      "title": f"{SECTIONS[m['section']]['name']} mock test", "section": m["section"], "submitted_at": stamp, "finished": result.get("finished", []),
-                     "score": score, "route": m["route"],
+                     "score": score, "route": m["route"], "estimate": scoring.full(m["section"], m["route"], combined["correct"]),
                      "modules": [{"n": 1, "correct": m["m1_correct"], "total": len(ids1)},
                                  {"n": 2, "correct": result["correct"], "total": len(ids), "route": m["route"]}]})
     attempt = execute(

@@ -25,6 +25,7 @@ PUBLIC = {
     "/api/checkout",                   # plan list on the checkout page (account details only when signed in)
     "/api/analytics", "/api/consent",  # cookie choices and consented analytics, from any visitor
     "/api/speed/states",               # the list of US states
+    "/api/score-check", "/api/score-check/grade",  # the free score check: rate limited, graded once per signed token
     "/api/stripe/webhook",             # Stripe's servers, checked by signature instead
 }
 

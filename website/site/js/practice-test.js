@@ -118,6 +118,7 @@
         answer: q.type === "mc" ? LETTERS[q.answer] : String(q.answer), answer_index: q.answer,
         choices: q.choices, explain: q.explain, calc: q.calc });
     });
+    if (window.GraphiteScoring) res.estimate = window.GraphiteScoring.project(SECTION, res.questions);
     return res;
   }
   function previewHTML(raw) {
@@ -659,17 +660,24 @@
     $("next-overlay").hidden = false;
     $("next-go").focus();
   }
+  // The score calculator's estimate (services/scoring.py): a mock test's from both modules, a single module's projected.
   function renderMockScore(r) {
     var box = $("res-mock");
-    box.hidden = r.score == null;
-    if (r.score == null) return;
+    var e = r.estimate || (r.score != null ? { score: r.score, low: Math.max(200, r.score - 30), high: Math.min(800, r.score + 30), route: r.route } : null);
+    box.hidden = !e;
+    if (!e) return;
     var m = r.modules || [];
-    box.innerHTML = '<p class="label">Estimated ' + SECTION + ' score</p><p class="res-score"><strong></strong><span>out of 800</span></p><p class="res-modules"></p>' +
-      '<p class="fine">An estimate from how many you got right in each module, using our own questions. It isn\'t an official College Board score.</p>';
-    box.querySelector("strong").textContent = String(r.score);
-    box.querySelector(".res-modules").textContent = m.map(function (x) {
+    box.innerHTML = '<p class="label">' + (e.projected ? "Projected " : "Estimated ") + SECTION + ' score</p><p class="res-score"><strong></strong><span>out of 800</span></p>' +
+      '<p class="res-range"></p><p class="res-modules"></p><p class="fine"></p>';
+    box.querySelector("strong").textContent = String(e.score);
+    box.querySelector(".res-range").textContent = "Likely between " + e.low + " and " + e.high + " · " + r.correct + " of " + r.total + " right";
+    box.querySelector(".res-modules").textContent = m.length ? m.map(function (x) {
       return "Module " + x.n + (x.route ? " (" + x.route + ")" : "") + ": " + x.correct + " of " + x.total;
-    }).join(" · ");
+    }).join(" · ") : "This module would send you to the " + e.route + " Module 2, where you'd get about " + e.module2_right + " right at the pace you just set.";
+    box.querySelector(".fine").textContent = (e.projected
+      ? "Projected the way an SAT score calculator does it: this module picks your Module 2, and your accuracy on easy, medium and hard questions carries over. Take a full mock test for a firmer number. "
+      : "From how many you got right in both modules and which Module 2 you reached, using the same curves as SAT score calculators. ") +
+      "It's an estimate from our own questions, not an official College Board score.";
   }
 
   /* ---------- dialogs ---------- */

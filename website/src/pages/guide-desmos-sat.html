@@ -1,0 +1,65 @@
+<!--{"file": "guide-desmos-sat.html", "path": "/guide-desmos-sat.html", "title": "Desmos on the SAT: 10 Calculator Moves and When to Skip It | Graphite SAT", "description": "The Desmos graphing calculator moves that solve the most digital SAT Math questions: intersections, sliders, regression, lists and more, plus the mistakes that cost points and when by hand is faster.", "crumb": "Desmos on the SAT"}-->
+<main id="main">
+  <div class="wrap doc-head">
+    <p class="label">Math · Desmos · updated October 2026</p>
+    <h1>Desmos on the SAT: 10 moves, and when to skip it</h1>
+    <p class="lede">Bluebook has the Desmos graphing calculator built into the whole Math section. A handful of moves cover most of the questions it can solve. Knowing them, and knowing when not to use them, is worth real points.</p>
+  </div>
+  <div class="wrap doc-grid">
+    <nav class="toc" aria-label="On this page">
+      <p class="label">On this page</p>
+      <ol>
+        <li><a href="#moves">The 10 moves</a></li>
+        <li><a href="#mistakes">Mistakes that cost points</a></li>
+        <li><a href="#skip">When to skip Desmos</a></li>
+        <li><a href="#practice">How to practice</a></li>
+      </ol>
+    </nav>
+    <article class="doc">
+      <h2 id="moves">The 10 moves</h2>
+      <ol class="guide-steps">
+        <li><strong>Graph both sides of an equation.</strong> To solve <code>3(x − 2) = x + 8</code>, type <code>y = 3(x − 2)</code> and <code>y = x + 8</code> and click where they cross. The x-value is the solution. Or move everything to one side and read the x-intercepts.</li>
+        <li><strong>Solve a system by clicking the intersection.</strong> Type both equations as they're given. The point where they cross is (x, y). Lines on top of each other mean infinitely many solutions; parallel lines mean none.</li>
+        <li><strong>Click for the vertex, zeros and intercepts.</strong> Click a parabola and Desmos marks its vertex, x-intercepts and y-intercept as gray points. Click one to read its coordinates.</li>
+        <li><strong>Use a slider for an unknown constant.</strong> Type the equation with the letter in it, like <code>y = kx + 3</code>, and accept "add slider." Drag k until the graph does what the question asks: touches once, overlaps, or never meets.</li>
+        <li><strong>Fit a model with regression.</strong> Put the points in a table (x₁, y₁), then type <code>y_1 ~ m x_1 + b</code> for a line or <code>y_1 ~ a b^{x_1}</code> for an exponential. Desmos reports m and b, or a and b.</li>
+        <li><strong>Find matching coefficients with the tilde.</strong> For "which values make these expressions equivalent," write the identity with <code>~</code> instead of <code>=</code>, use x₁ for x, and give x₁ a list of test values with at least as many values as unknowns, like <code>x_1 = [1, 2, 3]</code>.</li>
+        <li><strong>Get statistics from a list.</strong> Type <code>L = [3, 7, 7, 10, 13]</code>, then <code>mean(L)</code>, <code>median(L)</code> or <code>stdev(L)</code>. Use square brackets: curly braces mean something else in Desmos.</li>
+        <li><strong>Shade inequalities.</strong> Type each inequality and Desmos shades it, solid for ≤ and ≥, dashed for &lt; and &gt;. The overlap is the solution set. Check a point you're unsure of by typing it in.</li>
+        <li><strong>Graph a circle as given.</strong> Desmos graphs <code>x^2 + y^2 − 6x + 4y − 3 = 0</code> directly. Click the top and bottom points: the center is halfway between them and the radius is half the distance.</li>
+        <li><strong>Test the answer choices.</strong> When the setup is hard but the choices are numbers or graphs, type each choice in and see which one works. It's slower than solving directly, so save it for when you're stuck.</li>
+      </ol>
+
+      <h2 id="mistakes">Mistakes that cost points</h2>
+      <ul>
+        <li><strong>Not zooming out.</strong> An intersection can be off the screen. Zoom out before deciding there's no solution.</li>
+        <li><strong>Missing parentheses.</strong> <code>2/3x</code> and <code>2/(3x)</code> are different graphs. Type the parentheses the question implies.</li>
+        <li><strong>Degrees vs. radians.</strong> For any trig question, check the angle mode in settings first.</li>
+        <li><strong>Copying a rounded decimal.</strong> Desmos shows rounded values but keeps more digits. If the question wants an exact answer, use the fraction toggle or work it out by hand.</li>
+        <li><strong>Forgetting the subscripts or the test list</strong> in regression. Without them it quietly does nothing.</li>
+      </ul>
+
+      <h2 id="skip">When to skip Desmos</h2>
+      <p>Desmos isn't always faster. A good rule: if you can do it by hand in about 15 seconds, do it by hand. By hand usually wins on:</p>
+      <ul>
+        <li>Translating word problems into equations. Desmos can't set up the problem for you.</li>
+        <li>Geometry and trig facts: similar triangles, special right triangles, angle relationships, area and volume.</li>
+        <li>Reading graphs, tables and study designs in Problem-Solving and Data Analysis.</li>
+        <li>"Which must be true" and structure questions, where the point is to see the algebra.</li>
+      </ul>
+      <p>The skill isn't "always use Desmos." It's knowing in a few seconds which route is faster for the question in front of you.</p>
+
+      <h2 id="practice">How to practice</h2>
+      <ul>
+        <li><strong>Practice with the calculator you'll use.</strong> Graphite's built-in calculator works next to every question, and our lessons teach the Desmos moves above, each with the by-hand route too.</li>
+        <li><strong>Learn one move at a time.</strong> Do five questions with one move until it's automatic, then mix it in.</li>
+        <li><strong>Time both routes.</strong> On questions you could do either way, try both and notice which was faster. That's how you build the 15-second judgment.</li>
+      </ul>
+      <div class="guide-cta">
+        <h2>Try it on real questions</h2>
+        <p>The free score check has 10 Math questions with a graphing calculator built in, scored like the SAT. No account needed.</p>
+        <a class="btn btn-primary" href="score-check.html" data-track="guide_score_check">Take the free score check</a>
+      </div>
+    </article>
+  </div>
+</main>
