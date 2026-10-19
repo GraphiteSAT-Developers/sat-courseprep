@@ -45,6 +45,20 @@ class BankTest(unittest.TestCase):
         for k in range(4):
             self.assertGreater(answers[k], 100)  # right answers spread across A to D
 
+    def test_longest_choice_is_not_a_tell(self):
+        # "Pick the longest answer" shouldn't work: in every skill the right answer's length rank among
+        # the four choices is spread out, so it's the longest about a quarter of the time, not most of it.
+        raws = [json.loads(l) for l in (BACKEND / "app/content/bank/items.jsonl").read_text().splitlines() if l.strip()]
+        ranks = {}
+        for r in raws[1000:]:
+            lengths = [len(c.replace("[i]", "").replace("[/i]", "").replace("[u]", "").replace("[/u]", "")) for c in r["choices"]]
+            answer = lengths[r["answerIndex"]]
+            others = lengths[:r["answerIndex"]] + lengths[r["answerIndex"] + 1:]
+            ranks.setdefault(r["skill"], []).append(sum(n < answer for n in others))  # 3 = strictly longest
+        for skill, rs in ranks.items():
+            self.assertLessEqual(rs.count(3) / len(rs), 0.35, skill)
+            self.assertLessEqual(sum(n >= 2 for n in rs) / len(rs), 0.65, skill)  # nor "pick the second longest"
+
     def test_questions_render(self):
         for q in bank.all_items().values():
             if q["section"] != "rw":
