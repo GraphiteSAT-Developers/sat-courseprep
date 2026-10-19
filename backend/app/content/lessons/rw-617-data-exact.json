@@ -1,0 +1,143 @@
+{
+  "id": "rw-data-exact",
+  "order": 617,
+  "domain": "information-ideas",
+  "skill": "command-of-evidence-quantitative",
+  "title": "Use the data, not a guess",
+  "minutes": 7,
+  "format": "lab",
+  "hook": "The right answer is true according to the table and it completes the text's claim. You need both.",
+  "steps": [
+    {
+      "type": "grid",
+      "prompt": "Experiment. Average hours of sleep, weeknights: Grade 9 7.6, Grade 10 7.2, Grade 11 6.9, Grade 12 6.8. Fill in the drop from grade 9 to grade 12, and the grade with the least sleep.",
+      "head": [
+        "Question",
+        "Answer"
+      ],
+      "rows": [
+        [
+          "Drop from grade 9 to grade 12 (hours)",
+          "___"
+        ],
+        [
+          "Grade with the least sleep",
+          "___"
+        ]
+      ],
+      "accept": [
+        [
+          "0.8",
+          ".8"
+        ],
+        [
+          "12",
+          "grade 12",
+          "twelve"
+        ]
+      ],
+      "why": "7.6 minus 6.8 is 0.8 hours, and grade 12 is lowest. Simple reading of the table, but it's the step people skip."
+    },
+    {
+      "type": "sort",
+      "prompt": "Using the same table, sort each statement.",
+      "buckets": [
+        "True per the table",
+        "Not supported"
+      ],
+      "cards": [
+        {
+          "text": "Sleep decreased each year from grade 9 to grade 12.",
+          "bucket": 0
+        },
+        {
+          "text": "Grade 12 students sleep less because of homework.",
+          "bucket": 1
+        },
+        {
+          "text": "Grade 11 students slept less than grade 10 students.",
+          "bucket": 0
+        },
+        {
+          "text": "Most grade 9 students sleep eight hours.",
+          "bucket": 1
+        }
+      ],
+      "why": "The table gives averages by grade. It never gives causes or what most students do."
+    },
+    {
+      "type": "predict",
+      "prompt": "A student claims sleep 'declines as students move through high school.' Which choice best uses the table to complete the claim?",
+      "choices": [
+        "Grade 9 students averaged 7.6 hours, while grade 12 students averaged 6.8.",
+        "Grade 12 students averaged 6.8 hours.",
+        "Students need about eight hours of sleep."
+      ],
+      "answer": 0,
+      "why": "A decline needs two points to compare. A single number can't show a change."
+    },
+    {
+      "type": "recall",
+      "prompt": "What two checks must the right answer on a data question pass?",
+      "answer": "It must be accurate according to the table or graph, and it must support the specific claim in the text."
+    },
+    {
+      "type": "predict",
+      "prompt": "Text: 'The researchers expected the newest bikes to be the most reliable, but the data didn't support this.' Repairs per 100 bikes: 2018 models 12, 2020 models 9, 2022 models 14. Which choice completes the text?",
+      "choices": [
+        "2022 models needed more repairs than 2020 models.",
+        "2020 models needed 9 repairs per 100 bikes.",
+        "Repairs fell from 2018 to 2020."
+      ],
+      "answer": 0,
+      "why": "The claim is that the newest models weren't most reliable. Only the 2022 comparison shows that."
+    },
+    {
+      "type": "spot",
+      "prompt": "Which line misreads the data from the bike table?",
+      "lines": [
+        "2018 models needed 12 repairs per 100 bikes.",
+        "2020 models were the most reliable of the three.",
+        "2022 models needed the fewest repairs.",
+        "The newest models were not the most reliable."
+      ],
+      "wrong": 2,
+      "why": "2022 had the most repairs, 14, not the fewest."
+    }
+  ],
+  "keys": [
+    "Check the answer against the numbers first, then against the claim.",
+    "A claim about change or comparison needs two data points.",
+    "Tables don't give causes. Reject choices that explain why."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "To show that something 'declined,' the answer should include:",
+      "choices": [
+        "two values to compare",
+        "one value",
+        "a reason for the decline"
+      ],
+      "answer": 0,
+      "why": "Change needs a before and after."
+    },
+    {
+      "type": "predict",
+      "prompt": "A choice is true according to the graph but doesn't relate to the claim. It is:",
+      "choices": [
+        "wrong",
+        "right",
+        "right only if it's the longest"
+      ],
+      "answer": 0,
+      "why": "It must also complete the claim."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's a common trap on data questions?",
+      "answer": "A choice that adds a cause or a fact the table doesn't give, or a true number that doesn't support the claim."
+    }
+  ],
+  "tex": true
+}

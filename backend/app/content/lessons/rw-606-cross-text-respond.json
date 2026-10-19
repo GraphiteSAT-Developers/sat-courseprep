@@ -1,0 +1,131 @@
+{
+  "id": "rw-cross-text-respond",
+  "order": 606,
+  "domain": "craft-structure",
+  "skill": "cross-text-connections",
+  "title": "How would Text 2 respond?",
+  "minutes": 7,
+  "format": "path",
+  "hook": "Boil each text down to one claim. Then ask: does Text 2 agree, disagree, or agree with a condition?",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "Try this first. Text 1: 'Four-day school weeks save money without hurting learning.' Text 2: 'Districts that switched saved money, but students' math scores fell slightly over three years.' How would the author of Text 2 most likely respond to Text 1?",
+      "choices": [
+        "By agreeing completely",
+        "By accepting the savings but questioning the claim about learning",
+        "By arguing that four-day weeks cost more"
+      ],
+      "answer": 1,
+      "why": "Text 2 grants the savings and challenges the learning claim. That's a partial agreement, the most common answer type.",
+      "gate": true
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each response Text 2's author might give to Text 1.",
+      "buckets": [
+        "Fits Text 2",
+        "Doesn't fit Text 2"
+      ],
+      "cards": [
+        {
+          "text": "The savings are real, but there's a cost to students.",
+          "bucket": 0
+        },
+        {
+          "text": "Four-day weeks have no effect on anything.",
+          "bucket": 1
+        },
+        {
+          "text": "The evidence on learning is less positive than Text 1 claims.",
+          "bucket": 0
+        },
+        {
+          "text": "Schools should add a sixth day.",
+          "bucket": 1
+        }
+      ],
+      "why": "Text 2 agrees on money and disagrees on learning. Answers that go beyond either text don't fit.",
+      "skip_if": 0
+    },
+    {
+      "type": "match",
+      "prompt": "Match each relationship to a phrase that would signal it in Text 2.",
+      "left": [
+        "Full agreement",
+        "Disagreement",
+        "Partial agreement",
+        "Adds a condition"
+      ],
+      "right": [
+        "'Our results confirm...'",
+        "'This view is mistaken...'",
+        "'While this is true for X, it is not for Y...'",
+        "'This holds only when...'"
+      ],
+      "why": "Partial agreement and conditions are the subtle ones. Look for while, although, and only when."
+    },
+    {
+      "type": "recall",
+      "prompt": "What should you write down for each text before answering a cross-text question?",
+      "answer": "One short sentence giving each text's main claim, so you can compare the two claims directly."
+    },
+    {
+      "type": "predict",
+      "prompt": "Text 1: 'Bees learn to recognize flowers by color alone.' Text 2: 'In experiments, bees given flowers of the same color still learned which ones held nectar by their scent.' Text 2's author would most likely say Text 1:",
+      "choices": [
+        "overlooks another cue bees use",
+        "is correct in every respect",
+        "studies the wrong insect"
+      ],
+      "answer": 0,
+      "why": "Text 2 shows scent matters too, so 'by color alone' leaves something out."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which answer pattern is most often right on 'how would Text 2 respond' questions?",
+      "choices": [
+        "Text 2 calls Text 1 completely wrong",
+        "Text 2 qualifies or limits Text 1's claim",
+        "Text 2 changes the topic"
+      ],
+      "answer": 1,
+      "why": "Short paired texts usually disagree in part, not totally."
+    }
+  ],
+  "keys": [
+    "Write each text's claim in one short sentence.",
+    "Most answers are partial: agree on one point, push back on another.",
+    "Watch for while, although, and only when in Text 2."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Text 2 says a finding holds 'only in warm climates.' Its relationship to Text 1's general claim is:",
+      "choices": [
+        "adds a condition",
+        "full agreement",
+        "unrelated"
+      ],
+      "answer": 0,
+      "why": "Only when narrows the claim."
+    },
+    {
+      "type": "predict",
+      "prompt": "Before comparing two texts, you should:",
+      "choices": [
+        "state each text's main claim",
+        "read the answer choices first",
+        "count the details in each"
+      ],
+      "answer": 0,
+      "why": "Compare claims, not details."
+    },
+    {
+      "type": "recall",
+      "prompt": "Name the four ways Text 2 can relate to Text 1.",
+      "answer": "Agree, disagree, agree in part, or agree only under a condition."
+    }
+  ],
+  "tex": true
+}
