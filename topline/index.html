@@ -391,6 +391,7 @@ li.row{grid-template-columns:52px minmax(0,1fr) 40px;border-bottom:1px solid var
 .regresid{padding:2px 9px;border:1px solid var(--rule);border-radius:4px;background:var(--tool);font:400 13px var(--font-ui)}
 .regresid[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .reg-err{margin:8px 0 0 40px;color:var(--muted);font:italic 13px var(--font-ui)}
+.reg-note{margin:8px 0 0 40px;color:var(--muted);font:13px/1.4 var(--font-ui)}
 .row[data-kind="table"] .zoomfit{margin-top:auto}
 </style>
 
@@ -1727,7 +1728,7 @@ const ICON_ZOOM = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="
 const ICON_COPY = '<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="1.5" y="1.5" width="10" height="13" rx="1.5"/><path d="M4 5h5M4 8h5M4 11h3"/><path d="M10.5 12.5l4-6.5 1 .6-4 6.5-1.6.9z" fill="currentColor"/></svg>';
 function regSum(list) {
   let s = '';
-  list.forEach(([c, part], i) => {
+  list.filter(([c]) => c !== 0).forEach(([c, part], i) => {
     const neg = c < 0, a = Math.abs(c), body = part && Math.abs(a - 1) < 1e-12 ? part : numTex(a, 7) + part;
     s += i === 0 ? (neg ? '-' : '') + body : (neg ? '-' : '+') + body;
   });
@@ -1751,10 +1752,35 @@ function bestLm(X, Y, model, starts) {
   }
   return best;
 }
+// With fewer points than a full fit needs, a model is anchored on the first point and passes through all of them.
+const binom = (n, k) => { let r = 1; for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return r; };
+const MORE = (n, need) => `Add ${need - n === 1 ? 'one more point' : `${need - n} more points`} for a best fit.`;
 function polyType(key, name, deg) {
-  const vars = ['', 'x', 'x^{2}', 'x^{3}', 'x^{4}'];
+  const vars = ['', 'x', 'x^{2}', 'x^{3}', 'x^{4}'], anchor = deg === 3 ? 'center' : 'vertex';
   return { key, name, need: deg + 1, f: (p, x) => polyAt(p, x), fit: (X, Y) => { const c = polyFitData(X, Y, deg); return c && { p: c }; },
+           // y = k + a(x-h)^deg + b(x-h)^(deg-1) + …, with (h, k) the first point and one term for each other point
+           few: (X, Y) => {
+             const h = X[0], k = Y[0], m = X.length - 1;
+             const c = solveLin(X.slice(1).map(x => Array.from({ length: m }, (_, j) => Math.pow(x - h, deg - j))), Y.slice(1).map(y => y - k));
+             if (!c) return { error: 'Each point needs a different x-value from the first one.' };
+             const p = new Array(deg + 1).fill(0); p[0] = k;
+             c.forEach((cj, j) => { const e = deg - j; for (let i = 0; i <= e; i++) p[i] += cj * binom(e, i) * Math.pow(-h, e - i); });
+             return { p };
+           },
+           note: n => (n === 2 ? `With two points, the first one is the ${anchor} of the curve. ` : `The curve goes through all ${n} points, starting from the first. `) + MORE(n, deg + 1),
            tex: p => 'y=' + regSum(p.map((c, i) => [c, vars[i]]).reverse()) };
+}
+// a sine through a peak (or low point) at the first point and the next low point (or peak) at the second
+function sinePeaks(X, Y) {
+  const span = Math.abs(X[1] - X[0]), b = Math.PI / span;
+  return [(Y[0] - Y[1]) / 2, b, Math.PI / 2 - b * X[0], (Y[0] + Y[1]) / 2];
+}
+function sineTidy(p) {
+  let [a, b, c, d] = p;
+  if (b < 0) { b = -b; c = -c; a = -a; }
+  if (a < 0) { a = -a; c += Math.PI; }
+  c = ((c + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+  return { p: [a, b, c, d] };
 }
 const REG_TYPES = [
   polyType('linear', 'Linear Regression', 1), polyType('quadratic', 'Quadratic Regression', 2),
@@ -1785,6 +1811,14 @@ const REG_TYPES = [
       }
       return bestLm(X, Y, (p, x) => p[0] / (1 + p[1] * Math.exp(-p[2] * x)), starts);
     },
+    // two points: the higher one is the middle of the S, so the top is twice its height
+    few: (X, Y) => {
+      const m = Math.abs(Y[1]) > Math.abs(Y[0]) ? 1 : 0, o = 1 - m, c = 2 * Y[m], q = c / Y[o] - 1;
+      if (!(Y[0] * Y[1] > 0 && X[1] !== X[0])) return { error: 'With two points, both y-values need the same sign, and the x-values need to differ.' };
+      const b = -Math.log(q) / (X[o] - X[m]);
+      return { p: [c, Math.exp(b * X[m]), b] };
+    },
+    note: n => 'With two points, the higher one is the middle of the S-curve, halfway to its top. ' + MORE(n, 3),
     tex: p => `y=\\frac{${numTex(p[0], 7)}}{1+${numTex(p[1], 7)}e^{${p[2] > 0 ? '-' : ''}${numTex(Math.abs(p[2]), 7)}x}}` },
   { key: 'sinusoidal', name: 'Sinusoidal Regression', need: 4, f: (p, x) => p[0] * Math.sin(p[1] * x + p[2]) + p[3],
     fit: (X, Y) => {
@@ -1792,14 +1826,17 @@ const REG_TYPES = [
       for (const k of [2, 1.5, 1, 0.75, 0.5, 1 / 3, 0.25, 0.2, 1 / 6, 0.125]) for (const c of [0, Math.PI / 2, Math.PI, -Math.PI / 2])
         starts.push([(hi - lo) / 2 || 1, 2 * Math.PI / (span * k), c, meanOf(Y)]);
       const r = bestLm(X, Y, (p, x) => p[0] * Math.sin(p[1] * x + p[2]) + p[3], starts);
-      if (!r) return null;
-      let [a, b, c, d] = r.p;
-      if (b < 0) { b = -b; c = -c; a = -a; }
-      if (a < 0) { a = -a; c += Math.PI; }
-      c = ((c + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
-      return { p: [a, b, c, d] };
+      return r && sineTidy(r.p);
     },
-    tex: p => `y=${numTex(p[0], 7)}\\sin\\left(${regSum([[p[1], 'x'], [p[2], '']])}\\right)${p[3] < 0 ? '-' : '+'}${numTex(Math.abs(p[3]), 7)}` },
+    few: (X, Y) => {
+      if (X[1] === X[0]) return { error: 'The first two points need different x-values.' };
+      const guess = sinePeaks(X, Y);
+      if (X.length === 2) return sineTidy(guess);
+      const r = bestLm(X, Y, (p, x) => p[0] * Math.sin(p[1] * x + p[2]) + p[3], [guess]);
+      return r && sineTidy(r.p);
+    },
+    note: n => (n === 2 ? 'With two points, the first is a peak (or low point) and the second is the next low point (or peak). ' : `The curve goes through all ${n} points. `) + MORE(n, 4),
+    tex: p => `y=${numTex(p[0], 7)}\\sin\\left(${regSum([[p[1], 'x'], [p[2], '']])}\\right)${Math.abs(p[3]) < 1e-12 ? '' : (p[3] < 0 ? '-' : '+') + numTex(Math.abs(p[3]), 7)}` },
 ];
 const REG_BY = Object.fromEntries(REG_TYPES.map(t => [t.key, t]));
 function cleanReg(r) {
@@ -1813,11 +1850,14 @@ function fitTableReg(R, reg, base) {
   if (R.cols.length < 2 || !isArr(xs) || !isArr(ys)) return Object.assign(out, { error: 'Add a column of y-values to fit.' });
   const X = [], Y = [];
   for (let i = 0; i < Math.min(xs.length, ys.length); i++) if (isFinite(xs[i]) && isFinite(ys[i])) { X.push(xs[i]); Y.push(ys[i]); }
-  if (X.length < M.need) return Object.assign(out, { error: `${M.name.replace(' Regression', '')} regression needs at least ${M.need} points. This table has ${X.length}.` });
+  if (X.length < 2) return Object.assign(out, { error: `${M.name.replace(' Regression', '')} regression needs at least 2 points. This table has ${X.length}.` });
   if (M.posX && X.some(v => v <= 0)) return Object.assign(out, { error: `${M.name.replace(' Regression', '')} regression needs every x-value to be positive.` });
+  const few = X.length < M.need;
   let fit = null;
-  try { fit = M.fit(X, Y); } catch (e) { fit = null; }
+  try { fit = few ? M.few(X, Y) : M.fit(X, Y); } catch (e) { fit = null; }
+  if (fit && fit.error) return Object.assign(out, { error: fit.error });
   if (!fit || !fit.p || !fit.p.every(isFinite)) return Object.assign(out, { error: "This model can't be fit to this data. Try another one." });
+  if (few) out.note = M.note(X.length);
   const p = fit.p, f = x => M.f(p, x);
   let sse = 0; const my = meanOf(Y); let sst = 0;
   X.forEach((x, i) => { const e = Y[i] - f(x); sse += e * e; sst += (Y[i] - my) ** 2; out.resid.push(new Pt(x, e)); });
@@ -3350,18 +3390,20 @@ class MathField {
         <div class="reg-body"><div class="reg-sec reg-eqsec"><div class="reg-h">Equation <button class="regcopy" type="button" aria-label="Copy the equation into a new line" title="Copy into a new line">${ICON_COPY}</button></div><div class="reg-eq mstatic"></div></div>
         <div class="reg-cols"><div class="reg-sec"><div class="reg-h">Statistics</div><div class="reg-stats"></div></div>
         <div class="reg-sec"><div class="reg-h">Residuals</div><div class="reg-res"><span class="mstatic reg-e"></span><button class="regresid" type="button" aria-pressed="false">plot</button></div></div></div>
-        <p class="reg-err" role="status" hidden></p></div>`;
+        <p class="reg-note" role="status" hidden></p><p class="reg-err" role="status" hidden></p></div>`;
       box._built = true;
     }
     const type = REG_BY[reg.type] || REG_TYPES[0];
     box.querySelector('.regsel-t').textContent = type.name;
     box.querySelectorAll('.regopt').forEach(o => o.setAttribute('aria-selected', String(o.dataset.type === type.key)));
-    const key = JSON.stringify([reg, fit && (fit.error || fit.tex), fit && fit.r2, ys.map(c => c.name)]);
+    const key = JSON.stringify([reg, fit && (fit.error || fit.tex), fit && fit.r2, fit && fit.note, ys.map(c => c.name)]);
     if (box._k === key) return;
     box._k = key;
     const err = box.querySelector('.reg-err'), body = box.querySelectorAll('.reg-eqsec, .reg-cols');
     box.querySelector('.regmenu').innerHTML = (ys.length > 1 ? ys.map(c => `<button type="button" role="menuitemradio" aria-checked="${c.k === reg.y}" data-y="${c.k}">Fit ${esc(c.name)}</button>`).join('') : '') +
       '<button type="button" role="menuitem" data-act="copy">Copy equation to a new line</button><button type="button" role="menuitem" data-act="remove">Remove regression</button>';
+    const note = box.querySelector('.reg-note');
+    note.hidden = !(fit && !fit.error && fit.note); note.textContent = note.hidden ? '' : fit.note;
     if (!fit || fit.error) {
       err.hidden = false; err.textContent = fit ? fit.error : 'Type some data into the table.';
       body.forEach(b => (b.hidden = true)); return;
