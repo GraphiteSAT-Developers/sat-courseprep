@@ -1,0 +1,130 @@
+{
+  "id": "rw-tense-pronouns",
+  "order": 624,
+  "domain": "conventions",
+  "skill": "form-structure-and-sense",
+  "title": "Tense, pronouns, and plurals",
+  "minutes": 7,
+  "format": "classic",
+  "hook": "Look for time clues for tense, the noun a pronoun replaces, and who owns what. The sentence always tells you.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "'Since 2015, the library ______ more than four hundred workshops.'",
+      "choices": [
+        "hosts",
+        "has hosted",
+        "will host"
+      ],
+      "answer": 1,
+      "why": "Since plus a past year means an action that started then and continues: present perfect."
+    },
+    {
+      "type": "fill",
+      "prompt": "'The committee announced ___ decision on Monday.' Type the pronoun: its or their.",
+      "lines": [
+        "The committee announced ___ decision on Monday."
+      ],
+      "accept": [
+        "its"
+      ],
+      "why": "The committee is one group, so it takes the singular its."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each sentence to the form its blank needs.",
+      "left": [
+        "'Both researchers presented ___ findings.'",
+        "'The bird returned to ___ nest.'",
+        "'Each of the reports ___ ready now.'",
+        "'Last week, the list of winners ___ posted.'"
+      ],
+      "right": [
+        "their",
+        "its",
+        "is",
+        "was"
+      ],
+      "why": "Plural owners take their and a single owner takes its. Each and the list are singular, and last week calls for the past."
+    },
+    {
+      "type": "spot",
+      "prompt": "Tap the sentence with a tense error.",
+      "lines": [
+        "Last year, the team won six games.",
+        "Every morning, she walks to the station.",
+        "In 1969, astronauts land on the Moon.",
+        "By next spring, the bridge will have reopened."
+      ],
+      "wrong": 2,
+      "why": "In 1969 is a finished past time, so it needs landed."
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each phrase by whether its possessive is correct.",
+      "buckets": [
+        "Correct",
+        "Error"
+      ],
+      "cards": [
+        {
+          "text": "the three dogs' leashes",
+          "bucket": 0
+        },
+        {
+          "text": "the womens' team",
+          "bucket": 1
+        },
+        {
+          "text": "a week's vacation",
+          "bucket": 0
+        },
+        {
+          "text": "the companies's reports",
+          "bucket": 1
+        }
+      ],
+      "why": "Plural ending in s: add an apostrophe (dogs'). Plural not ending in s: add 's (women's). Companies' is already plural."
+    },
+    {
+      "type": "recall",
+      "prompt": "What are the three checks for a pronoun question?",
+      "answer": "Find the noun it replaces, check singular or plural, and make sure it's clear which noun it means."
+    }
+  ],
+  "keys": [
+    "Time words decide tense: since means has or have, a past date means past tense.",
+    "Groups like committee, team, and company are singular: its.",
+    "Plural possessive: dogs' and women's."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "'The team celebrated ___ victory.'",
+      "choices": [
+        "its",
+        "their",
+        "it's"
+      ],
+      "answer": 0,
+      "why": "A team is one group."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Since 2010, prices ___ steadily.'",
+      "choices": [
+        "rose",
+        "have risen",
+        "will rise"
+      ],
+      "answer": 1,
+      "why": "Since calls for present perfect."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the possessive of children?",
+      "answer": "Children's."
+    }
+  ],
+  "tex": true
+}

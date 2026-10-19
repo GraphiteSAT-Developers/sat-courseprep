@@ -1,0 +1,131 @@
+{
+  "id": "rw-words-second-meanings",
+  "order": 604,
+  "domain": "craft-structure",
+  "skill": "words-in-context",
+  "title": "Easy words, unusual meanings",
+  "minutes": 6,
+  "format": "timed",
+  "seconds": 40,
+  "hook": "The SAT loves plain words used in a second sense. Ignore the meaning you know best and let the sentence decide.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "'The new rules were meant to check the spread of the invasive beetle.' As used here, check most nearly means:",
+      "choices": [
+        "examine",
+        "restrain",
+        "mark"
+      ],
+      "answer": 1,
+      "why": "You can't examine a spread into slowing down. The rules hold it back, so check means restrain."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each plain word to the meaning it has in its sentence.",
+      "left": [
+        "'The mayor gave the plan her qualified support.'",
+        "'The senator's remarks were not lost on the crowd.'",
+        "'The essay's argument doesn't hold water.'",
+        "'The firm will sound out investors next week.'"
+      ],
+      "right": [
+        "limited, with conditions",
+        "understood",
+        "make sense under scrutiny",
+        "ask for the opinions of"
+      ],
+      "why": "Each word keeps its everyday spelling but takes a meaning from the words around it."
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each sentence by what 'cultivate' means in it.",
+      "buckets": [
+        "Grow plants",
+        "Develop on purpose"
+      ],
+      "cards": [
+        {
+          "text": "Farmers cultivate rice in flooded fields.",
+          "bucket": 0
+        },
+        {
+          "text": "The coach worked to cultivate patience in her younger players.",
+          "bucket": 1
+        },
+        {
+          "text": "She cultivated friendships with editors at three magazines.",
+          "bucket": 1
+        },
+        {
+          "text": "Monks once cultivated grapes on these hillsides.",
+          "bucket": 0
+        }
+      ],
+      "why": "Same word, two senses. The object of the verb (rice, patience) tells you which one."
+    },
+    {
+      "type": "recall",
+      "prompt": "What should you do before you look at the answer choices on a words in context question?",
+      "answer": "Cover the blank or the word, reread the sentence, and say a simple word of your own that fits. Then pick the choice closest to it."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Critics called the novel's ending abrupt, but the author defended it as deliberate: she wanted readers to feel the ______ of a life cut short.' Which word fits best?",
+      "choices": [
+        "suddenness",
+        "warmth",
+        "length"
+      ],
+      "answer": 0,
+      "why": "Abrupt and cut short both point to something ending fast. Suddenness fits; length points the wrong way."
+    },
+    {
+      "type": "spot",
+      "prompt": "A student swapped each word for its meaning. Tap the swap that changes what the sentence says.",
+      "lines": [
+        "'The study's findings were striking' became 'The study's findings were remarkable.'",
+        "'The scientist's account of the eruption was faithful' became 'The scientist's account was accurate.'",
+        "'Her objections were sound' became 'Her objections were noisy.'",
+        "'The treaty was a modest success' became 'The treaty was a limited success.'"
+      ],
+      "wrong": 2,
+      "why": "Sound here means well reasoned, not noisy. The other swaps keep the sentence's meaning."
+    }
+  ],
+  "keys": [
+    "Plain words often carry a second meaning: check, qualified, sound, striking.",
+    "Predict your own word before you read the choices.",
+    "Test the choice in the sentence. If the sentence now says something else, it's wrong."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "'The museum's director was keen to preserve the building's original character.' Character most nearly means:",
+      "choices": [
+        "personality",
+        "distinctive features",
+        "a person in a story"
+      ],
+      "answer": 1,
+      "why": "A building doesn't have a personality or play a role. Its character is what makes it distinct."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Her reply was measured.' Measured most nearly means:",
+      "choices": [
+        "careful and controlled",
+        "counted",
+        "long"
+      ],
+      "answer": 0,
+      "why": "A measured reply is calm and deliberate."
+    },
+    {
+      "type": "recall",
+      "prompt": "Why is the most familiar meaning of a word often a trap?",
+      "answer": "The SAT picks words used in a second sense, so the meaning that comes to mind first usually doesn't fit the sentence."
+    }
+  ],
+  "tex": true
+}
