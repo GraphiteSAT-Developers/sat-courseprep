@@ -115,7 +115,7 @@
     $("rw-cat-note").textContent = c.note;
     var list = itemsIn(c);
     $("rw-grid").innerHTML = list.length ? list.map(function (it) {
-      var st = stateOf(it), sel = trying && trying.key === it.key;
+      var st = stateOf(it), sel = !!(trying && trying.key === it.key);
       var tag = st === "worn" ? '<span class="rw-state is-worn">' + (it.kind === "theme" || it.kind === "accent" || it.kind === "effect" ? "In use" : "Wearing") + "</span>"
         : st === "owned" ? '<span class="rw-state">' + (it.free ? "Free" : "Owned") + "</span>" : it.exclusive ? '<span class="rw-state">Market set</span>' : '<span class="rw-price">' + coin(it.price) + "</span>";
       return '<li><button type="button" class="rw-tile r-' + esc(it.rarity || "common") + (sel ? " is-trying" : "") + '" data-key="' + esc(it.key) + '" aria-pressed="' + sel + '">' +
