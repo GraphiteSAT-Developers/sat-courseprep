@@ -1347,7 +1347,7 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 body:has(.ripple-bg) main, body:has(.ripple-bg) .app-footer, body:has(.ripple-bg) .site-footer { position: relative; z-index: 1; }
 
 /* Header account chip (theme.js): profile picture + email, links to Settings. */
-.account-chip { display: inline-flex; align-items: center; gap: var(--s2); color: var(--muted); text-decoration: none; border-radius: 999px; padding: 2px var(--s3) 2px 2px; min-width: 0; }
+.account-chip { display: inline-flex; align-items: center; gap: var(--s3); color: var(--muted); text-decoration: none; border-radius: 999px; padding: 2px var(--s3) 2px 2px; min-width: 0; }
 .account-chip:hover { color: var(--text); background: var(--raised); text-decoration: none; }
 .account-chip .account-email { color: inherit; }
 .avatar { flex: none; display: inline-grid; place-items: center; overflow: hidden; border-radius: 50%; background: var(--raised); color: var(--text);
