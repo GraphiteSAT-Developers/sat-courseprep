@@ -10,6 +10,7 @@ To run the Graphite SAT website on your computer: open this folder in VS Code an
 
 - [`reports/AI Desmos SAT math course plan.md`](reports/AI%20Desmos%20SAT%20math%20course%20plan.md): the full planning report, with the recommended architecture, a phased roadmap, the decisions the owner needs to make, and a list of facts still to verify.
 - [`website/`](website/): Graphite SAT, the website for the AI SAT tutor: marketing pages, sign-in, the student dashboard and the math practice test. Built pages are in `website/site/`.
+- Reading and Writing: 500 original questions in the same question bank as Math (`backend/app/content/bank/items.jsonl`, after the 1,000 Math questions, with the same fields plus a `passage`; `services/bank.py` describes them). They run through the same practice sets, adaptive mock tests, Level up, speed rounds and lessons as Math. Finished questions go on a done list (a cookie per section plus the account) and don't repeat until the whole pool is done.
 - [`backend/`](backend/): the Flask server that runs the site, with student accounts, test grading, the dashboard API and the database. Start with [`backend/README.md`](backend/README.md).
 - [`topline/`](topline/): Topline, a standalone browser graphing calculator with a live math editor. Open `topline/index.html` in a browser.
 - [`docs/desmos-integration.md`](docs/desmos-integration.md): calculator design decision (student-operated embed, OnePrep-style) and how the AI reads it

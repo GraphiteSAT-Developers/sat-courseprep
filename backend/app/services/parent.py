@@ -265,7 +265,7 @@ def summary(student, link, today=None):
         "overview": stats,
         "alerts": _alerts(student, link, stats, scores, diagnostic, today),
         "scores": scores,
-        "domains": [{"name": x["name"], "pct": x["pct"], "focus": x["focus"]} for x in dash["domains"] if x["section"] == "Math"],
+        "domains": [{"name": x["name"], "section": x["section"], "pct": x["pct"], "focus": x["focus"]} for x in dash["domains"]],
         "diagnostic": diagnostic,
         "plan": plan,
         "levels": ladder,

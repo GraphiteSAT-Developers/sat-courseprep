@@ -230,21 +230,24 @@ def bank_js():
     """The question bank for the offline preview, built by the backend's own bank module (same HTML, same keys)."""
     bank, diagnostic, studyplan, levels, plans = (service(n) for n in ("bank", "diagnostic", "studyplan", "levels", "plans"))
     game, speed, focus, lessons = (service(n) for n in ("game", "speed", "focus", "lessons"))
-    keep = ("id", "domain_key", "domain", "skill", "skill_key", "difficulty", "type", "stem", "choices",
-            "answer", "keys", "answer_text", "explain_html")
+    keep = ("id", "section", "domain_key", "domain", "skill", "skill_key", "difficulty", "type", "stem", "passage", "prompt",
+            "choices", "answer", "keys", "answer_text", "explain_html")
     data = {
         "items": [{k: q[k] for k in keep if k in q} for q in bank.all_items().values()],
         "topics": bank.topics(), "mix": bank.MODULE_MIX, "order": bank.DIFFICULTY_ORDER,
         "test": {"questions": sum(bank.MODULE_MIX.values()), "minutes": bank.MODULE_MINUTES},
+        # Reading and Writing: its topics, the skill mix of one module (in Bluebook's order) and its timing.
+        "rw_topics": bank.topics("rw"), "rw_mix": bank.rw_module_mix(), "rw_order": list(bank.rw_module_mix()),
+        "rw_test": {"questions": sum(bank.rw_module_mix().values()), "minutes": bank.RW_MODULE_MINUTES},
         "topic_counts": [5, 10, 15, 20],
         "rw": [{k: q[k] for k in ("id", "section", "domain", "skill", "type", "stem", "choices", "answer", "explain_html")}
-               for q in diagnostic.rw_items().values()],
+               for q in diagnostic.legacy_rw_items().values()],
         "diagnostic": {"math_slots": diagnostic.MATH_SLOTS, "rw_domains": diagnostic.RW_DOMAINS,
                        "weight": diagnostic.DIFFICULTY_WEIGHT, "sure": diagnostic.SURE, "guess": diagnostic.GUESS,
                        "strong": diagnostic.STRONG, "weak": diagnostic.WEAK, "phases": studyplan.PHASES,
                        "checklist": studyplan.TEST_WEEK_CHECKLIST},
         "levels": {"size": levels.SIZE, "pass": levels.PASS, "count": levels.LEVELS,
-                   "tracks": [{"key": t["key"], "name": t["name"], "skills": t["skills"]} for t in levels.tracks()],
+                   "tracks": [{"key": t["key"], "name": t["name"], "section": t["section"], "skills": t["skills"]} for t in levels.tracks()],
                    "rungs": [{"n": n, "tier": levels.tier(n), "mix": levels.mix(n), "mix_label": studyplan.mix_label(levels.mix(n))}
                              for n in range(1, levels.LEVELS + 1)]},
         "parent": {"plans": plans.public_plans(),
@@ -262,7 +265,8 @@ def bank_js():
                  "topic_names": lessons.topic_names(),
                  "speed": {"size": speed.SIZE, "penalty_ms": speed.PENALTY_MS, "max_ms": speed.MAX_MS,
                            "lightning_ms": speed.LIGHTNING_MS, "states": [{"code": c, "name": n} for c, n in speed.STATES],
-                           "adjectives": speed.ADJECTIVES, "nouns": speed.NOUNS, "domains": sorted(speed.DOMAINS)},
+                           "adjectives": speed.ADJECTIVES, "nouns": speed.NOUNS, "domains": sorted(speed.DOMAINS),
+                           "rw_domains": sorted(speed.RW_DOMAINS), "rw_slow_skills": sorted(speed.RW_SLOW_SKILLS)},
                  "focus": {"lengths": [{"minutes": m, "break": focus.BREAKS[m]} for m in focus.LENGTHS],
                            "labels": [{"key": k, "name": v} for k, v in focus.LABELS.items()],
                            "counted_elsewhere": sorted(focus.COUNTED_ELSEWHERE), "finish_share": focus.FINISH_SHARE,

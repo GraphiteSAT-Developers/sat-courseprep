@@ -1,14 +1,14 @@
 # Handoff: SAT Math 800 course (Desmos-first, AI tutor)
 
-_Last updated 2026-10-19. Status: the site is built and runs; the AI tutor and Reading and Writing practice are not built yet._
+_Last updated 2026-10-19. Status: the site is built and runs; the AI tutor and video explanations are not built yet._
 
 ## What exists now
 The research below led to a working site, **Graphite SAT**, which differs from the original plan in a few ways:
 
 - **Stack:** a Flask backend (`backend/`, SQLite locally, Postgres on Render) serving static pages built by `website/build.py` from `website/src/` into `website/site/`. Not Next.js. Run it with `python start.py`; details in `backend/README.md`.
 - **Calculator:** Graphite's own graphing calculator, Topline (`topline/index.html`), built into every question. Not the Desmos API embed described in decision 1 and `docs/desmos-integration.md`. The lessons still teach Desmos moves, since Bluebook uses Desmos.
-- **Built:** accounts and parent accounts, the diagnostic and study plan, 1,000 original Math questions, practice sets, mock tests, one fixed practice test module, lessons, Level up, speed rounds, rewards, plans and checkout (Stripe), and the parent dashboard.
-- **Not built yet:** the AI tutor (its page says "Coming soon"), video explanations, and Reading and Writing practice (the diagnostic has 4 R&W questions, but the question bank is Math only). The site labels these "coming soon".
+- **Built:** accounts and parent accounts, the diagnostic and study plan, 1,500 original questions (1,000 Math, 500 Reading and Writing), practice sets, mock tests, one fixed practice test module, lessons, Level up, speed rounds, rewards, plans and checkout (Stripe), and the parent dashboard.
+- **Not built yet:** the AI tutor (its page says "Coming soon") and video explanations. The site labels both "coming soon".
 - **Deploy:** `render.yaml`. Its database is on Render's free plan, which Render deletes after 30 days; move it to a paid plan before real students sign up.
 
 The rest of this file is the research-phase handoff, kept for its decisions and sources.

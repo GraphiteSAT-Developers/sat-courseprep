@@ -142,9 +142,11 @@ class MockTestTest(Base):
         self.assertEqual(r.status_code, 201, r.json)
         return s, r.json["result"]
 
-    def test_reading_and_writing_is_coming_soon(self):
+    def test_reading_and_writing_mock_is_open(self):
         r = self.post("/api/mock-tests", {"section": "rw"})
-        self.assertEqual((r.status_code, r.json["code"]), (409, "coming_soon"))
+        self.assertEqual(r.status_code, 201, r.json)
+        self.assertEqual(r.json["mock"]["section"], "rw")
+        self.assertEqual(r.json["mock"]["total"], 54)
 
     def test_strong_module_1_gets_the_harder_module_2_with_new_questions(self):
         m = self.post("/api/mock-tests", {"section": "math", "with_break": True}).json["mock"]

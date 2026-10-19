@@ -16,7 +16,7 @@
         <span class="pr-section-name">Math</span><span class="pr-section-meta">2 modules · 44 questions · 70 min</span>
       </button>
       <button class="pr-section" type="button" role="tab" id="tab-rw" aria-controls="pr-rw" aria-selected="false" tabindex="-1" data-section="rw">
-        <span class="pr-section-name">Reading and Writing <span class="chip chip-quiet">Coming soon</span></span><span class="pr-section-meta">2 modules · 54 questions · 64 min</span>
+        <span class="pr-section-name">Reading and Writing</span><span class="pr-section-meta">2 modules · 54 questions · 64 min</span>
       </button>
     </div>
 
@@ -64,7 +64,7 @@
       <section class="panel pr-card" id="pr-topic" aria-labelledby="pr-topic-title">
         <p class="label">Untimed · at your pace</p>
         <h2 id="pr-topic-title">Practice a Math topic</h2>
-        <p class="panel-lede">Pick a topic and check each answer as you go. You'll see how to solve it right away, plus the Desmos shortcut when there is one.</p>
+        <p class="panel-lede">Pick a topic and check each answer as you go. You'll see how to solve it right away, plus the Desmos shortcut when there is one. <span id="pr-progress"></span></p>
         <p class="fine pr-allowance" id="pr-topic-left"></p>
         <fieldset class="pr-count">
           <legend class="label">Questions per set</legend>
@@ -76,67 +76,50 @@
       </section>
     </div>
 
-    <div class="pr-modes is-soon" id="pr-rw" role="tabpanel" aria-labelledby="tab-rw" hidden>
-      <p class="sample-note pr-soon-note"><span class="label">Coming soon</span> Reading and Writing mock tests are on the way. Until then, the Math section is ready to go.</p>
-      <section class="panel pr-card pr-test pr-mock" aria-labelledby="pr-rw-test-title">
+    <div class="pr-modes" id="pr-rw" role="tabpanel" aria-labelledby="tab-rw" hidden>
+      <section class="panel pr-card pr-test pr-mock" id="pr-rw-mock" aria-labelledby="pr-rw-mock-title">
         <p class="label">Adaptive · like test day</p>
-        <h2 id="pr-rw-test-title">Full Reading and Writing section</h2>
-        <p class="panel-lede">Two adaptive modules of short passages, in the same mix as the real test, with an estimated Reading and Writing score at the end.</p>
+        <h2 id="pr-rw-mock-title">Full Reading and Writing section</h2>
+        <p class="panel-lede">Two adaptive modules of short passages in the real skill mix and in Bluebook's order: Craft and Structure, then Information and Ideas, Standard English Conventions, and Expression of Ideas. A strong Module 1 opens a harder Module 2, and you get an estimated Reading and Writing score at the end.</p>
         <ul class="pr-facts">
           <li><strong>2</strong> modules, <strong>27</strong> questions each</li>
           <li><strong>32</strong> minutes per module, timed</li>
-          <li>Information and Ideas, Craft and Structure, Expression of Ideas, Conventions</li>
-          <li>Section 1 on test day, followed by the 10-minute break before Section 2 (Math)</li>
+          <li>Passage on the left, question on the right, with highlighting and notes, like test day</li>
+          <li>Full explanations, a strategy for every question type, and an estimated score out of 800</li>
         </ul>
-        <button class="btn btn-primary" type="button" disabled>Coming soon</button>
+        <label class="check pr-break-opt"><input type="checkbox" id="pr-rw-mock-break" checked> <span>Take a 10-minute break between Module 1 and Module 2.</span></label>
+        <p class="fine pr-allowance" id="pr-rw-mock-left"></p>
+        <div class="pr-lock" id="pr-rw-mock-lock"></div>
+        <button class="btn btn-primary" type="button" id="pr-rw-mock-start" data-track="mock_start_rw">Start the Reading and Writing section</button>
       </section>
 
-      <section class="panel pr-card" aria-labelledby="pr-rw-module-title">
+      <section class="panel pr-card" id="pr-rw-test" aria-labelledby="pr-rw-test-title">
         <p class="label">Shorter · one module</p>
-        <h2 id="pr-rw-module-title">One Reading and Writing module</h2>
+        <h2 id="pr-rw-test-title">One Reading and Writing module</h2>
+        <p class="panel-lede">Fresh passages in the real mix with the clock running. Counts as one of your mock tests.</p>
         <ul class="pr-facts">
-          <li><strong>27</strong> questions</li>
-          <li><strong>32</strong> minutes, timed</li>
+          <li><strong id="pr-rw-test-q">27</strong> questions</li>
+          <li><strong id="pr-rw-test-min">32</strong> minutes, timed</li>
         </ul>
-        <button class="btn btn-secondary" type="button" disabled>Coming soon</button>
+        <button class="btn btn-secondary" type="button" id="pr-rw-test-start" data-track="practice_test_start_rw">Start one module</button>
       </section>
 
-      <section class="panel pr-card" aria-labelledby="pr-rw-topic-title">
+      <section class="panel pr-card pr-recent" id="pr-rw-recent" aria-labelledby="pr-rw-recent-title" hidden>
+        <div class="panel-head"><h2 id="pr-rw-recent-title">Your Reading and Writing mock tests</h2></div>
+        <ul class="queue" id="pr-rw-recent-list"></ul>
+      </section>
+
+      <section class="panel pr-card" id="pr-rw-topic" aria-labelledby="pr-rw-topic-title">
         <p class="label">Untimed · at your pace</p>
         <h2 id="pr-rw-topic-title">Practice a Reading and Writing topic</h2>
-        <p class="panel-lede">Untimed. Check each answer as you go and see the full explanation right away.</p>
-        <div class="pr-domains">
-          <section class="pr-domain">
-            <div class="pr-domain-head"><h3>Information and Ideas</h3><button class="btn btn-secondary pr-all" type="button" disabled>Coming soon</button></div>
-            <ul class="pr-skills">
-            <li><span class="pr-skill-name">Central ideas and details</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            <li><span class="pr-skill-name">Command of evidence: textual</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            <li><span class="pr-skill-name">Command of evidence: quantitative</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            <li><span class="pr-skill-name">Inferences</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            </ul>
-          </section>
-          <section class="pr-domain">
-            <div class="pr-domain-head"><h3>Craft and Structure</h3><button class="btn btn-secondary pr-all" type="button" disabled>Coming soon</button></div>
-            <ul class="pr-skills">
-            <li><span class="pr-skill-name">Words in context</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            <li><span class="pr-skill-name">Text structure and purpose</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            <li><span class="pr-skill-name">Cross-text connections</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            </ul>
-          </section>
-          <section class="pr-domain">
-            <div class="pr-domain-head"><h3>Expression of Ideas</h3><button class="btn btn-secondary pr-all" type="button" disabled>Coming soon</button></div>
-            <ul class="pr-skills">
-            <li><span class="pr-skill-name">Rhetorical synthesis</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            <li><span class="pr-skill-name">Transitions</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            </ul>
-          </section>
-          <section class="pr-domain">
-            <div class="pr-domain-head"><h3>Standard English Conventions</h3><button class="btn btn-secondary pr-all" type="button" disabled>Coming soon</button></div>
-            <ul class="pr-skills">
-            <li><span class="pr-skill-name">Boundaries</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            <li><span class="pr-skill-name">Form, structure, and sense</span><button class="btn btn-quiet" type="button" disabled>Coming soon</button></li>
-            </ul>
-          </section>
+        <p class="panel-lede">Pick a question type and check each answer as you go. You'll see why the answer is right, why the others are wrong, and a strategy for that kind of question. <span id="pr-rw-progress"></span></p>
+        <p class="fine pr-allowance" id="pr-rw-topic-left"></p>
+        <fieldset class="pr-count">
+          <legend class="label">Questions per set</legend>
+          <div class="seg" id="pr-rw-count"></div>
+        </fieldset>
+        <div class="pr-domains" id="pr-rw-domains">
+          <p class="fine">Loading topics…</p>
         </div>
       </section>
     </div>

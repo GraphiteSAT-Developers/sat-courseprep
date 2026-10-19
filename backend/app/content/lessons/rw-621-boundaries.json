@@ -1,0 +1,137 @@
+{
+  "id": "rw-boundaries",
+  "order": 621,
+  "domain": "conventions",
+  "skill": "boundaries",
+  "title": "Where sentences end",
+  "minutes": 7,
+  "format": "lab",
+  "hook": "Find the subject and verb on each side of the blank. Two complete sentences need a real boundary.",
+  "steps": [
+    {
+      "type": "sort",
+      "prompt": "Experiment: sort each way of joining two complete sentences.",
+      "buckets": [
+        "Correct",
+        "Error"
+      ],
+      "cards": [
+        {
+          "text": "a period",
+          "bucket": 0
+        },
+        {
+          "text": "a semicolon",
+          "bucket": 0
+        },
+        {
+          "text": "a comma alone",
+          "bucket": 1
+        },
+        {
+          "text": "a comma plus and, but, or so",
+          "bucket": 0
+        },
+        {
+          "text": "nothing at all",
+          "bucket": 1
+        },
+        {
+          "text": "a colon, when the second explains the first",
+          "bucket": 0
+        }
+      ],
+      "why": "A comma alone is a comma splice; nothing at all is a run-on. Everything else in the Correct bucket can join two independent clauses."
+    },
+    {
+      "type": "build",
+      "prompt": "Build a correct joint for: 'The bus was late this morning ___ many students arrived after the bell.'",
+      "tiles": [
+        "; as a result,",
+        ", as a result",
+        "as a result,",
+        ", as a result,"
+      ],
+      "answers": [
+        [
+          0
+        ]
+      ],
+      "why": "As a result is not a conjunction, so it needs a semicolon (or period) before it and a comma after it."
+    },
+    {
+      "type": "predict",
+      "prompt": "Now name the rule you found: words like however, therefore, and in fact...",
+      "choices": [
+        "can join two clauses with just a comma",
+        "never take a comma",
+        "need a semicolon or period before them when they start a new clause"
+      ],
+      "answer": 2,
+      "why": "They're transitions, not conjunctions, so they can't hold two sentences together with a comma."
+    },
+    {
+      "type": "spot",
+      "prompt": "Tap the sentence with the error.",
+      "lines": [
+        "Jazz musician Louis Armstrong was born in New Orleans in 1901.",
+        "The students in the class, designed an experiment to test rust.",
+        "After the storm passed, volunteers cleared the trails.",
+        "My grandmother grows three herbs: basil, mint, and rosemary."
+      ],
+      "wrong": 1,
+      "why": "Never put a comma between a subject (the students in the class) and its verb (designed)."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Mount Kilimanjaro, the tallest mountain in Africa ___ rises about 5,895 meters.' What goes in the blank?",
+      "choices": [
+        "nothing",
+        ",",
+        ";"
+      ],
+      "answer": 1,
+      "why": "The phrase opened with a comma, so it must close with one. Pairs must match."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the rule for nonessential phrases in the middle of a sentence?",
+      "answer": "Set them off on both sides with the same mark: two commas, two dashes, or two parentheses."
+    }
+  ],
+  "keys": [
+    "Two complete sentences: period, semicolon, colon, or comma plus and/but/so.",
+    "However, therefore, and in fact need a semicolon or period before them.",
+    "No punctuation between a subject and its verb; interrupting pairs must match."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "'Sharks are older than trees ___ they first appeared over 400 million years ago.' What goes in the blank?",
+      "choices": [
+        "a semicolon",
+        "no punctuation",
+        "a comma"
+      ],
+      "answer": 0,
+      "why": "Two independent clauses: a semicolon works; a comma alone is a splice."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which joins two sentences correctly?",
+      "choices": [
+        "a comma alone",
+        "a comma plus but",
+        "nothing"
+      ],
+      "answer": 1,
+      "why": "Comma plus a coordinating conjunction."
+    },
+    {
+      "type": "recall",
+      "prompt": "What two errors happen when you join sentences wrong?",
+      "answer": "A comma splice (comma alone) and a run-on (no punctuation)."
+    }
+  ],
+  "tex": true
+}

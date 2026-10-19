@@ -1,0 +1,133 @@
+{
+  "id": "rw-form-structure-sense",
+  "order": 622,
+  "domain": "conventions",
+  "skill": "form-structure-and-sense",
+  "title": "Find the real subject",
+  "minutes": 7,
+  "format": "story",
+  "intro": "Sam is proofreading the school newspaper before it goes to print. Every story has one grammar slip.",
+  "hook": "Cross out the phrases in the middle to find what has to agree. Then check pronouns, tense, and modifiers.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "Story 1, the garden club: 'The flowers in the community garden ______ every spring.'",
+      "choices": [
+        "blooms",
+        "bloom",
+        "is blooming"
+      ],
+      "answer": 1,
+      "why": "Cross out 'in the community garden.' The flowers bloom: plural subject, plural verb."
+    },
+    {
+      "type": "fill",
+      "prompt": "Story 2, the team: 'Each of the players ___ a new jersey.' Type the verb: has or have.",
+      "lines": [
+        "Each of the players ___ a new jersey."
+      ],
+      "accept": [
+        "has"
+      ],
+      "why": "Each is singular. Of the players is just a phrase in between."
+    },
+    {
+      "type": "sort",
+      "prompt": "Story 3, the science fair: sort these by whether the possessive is right.",
+      "buckets": [
+        "Correct",
+        "Error"
+      ],
+      "cards": [
+        {
+          "text": "the museum and its new galleries",
+          "bucket": 0
+        },
+        {
+          "text": "the players' uniforms (many players)",
+          "bucket": 0
+        },
+        {
+          "text": "the bird and it's nest",
+          "bucket": 1
+        },
+        {
+          "text": "the two schools' water supply",
+          "bucket": 0
+        },
+        {
+          "text": "the octopuses and its arms",
+          "bucket": 1
+        }
+      ],
+      "why": "Its means belonging to it; it's means it is. Plural owners take s-apostrophe, and pronouns must match their nouns."
+    },
+    {
+      "type": "spot",
+      "prompt": "Story 4, the hike. Tap the sentence Sam should fix.",
+      "lines": [
+        "Walking through the forest at dawn, the hikers heard birdsong.",
+        "Hoping to see the comet, my brother stayed up late.",
+        "Originally designed to carry mail, passengers later rode the airplane.",
+        "Having trained for months, Ana finished in record time."
+      ],
+      "wrong": 2,
+      "why": "The opening phrase describes the airplane, so 'the airplane' must come right after the comma, not 'passengers.'"
+    },
+    {
+      "type": "order",
+      "prompt": "Story 5, Sam's checklist. Put the checks in the order Sam uses them.",
+      "items": [
+        "Find the subject and cross out phrases in between",
+        "Make the verb agree with the subject",
+        "Check tense against time words like yesterday or since",
+        "Check that pronouns match the nouns they replace"
+      ],
+      "why": "Subject first, because agreement depends on it; then tense; then pronouns."
+    },
+    {
+      "type": "predict",
+      "prompt": "Last story: 'By the time the guests arrived, the hosts ______ all the food.'",
+      "choices": [
+        "will prepare",
+        "prepare",
+        "had prepared"
+      ],
+      "answer": 2,
+      "why": "One past event finished before another: past perfect."
+    }
+  ],
+  "keys": [
+    "Cross out phrases between the subject and verb.",
+    "Its (belonging to it) vs. it's (it is); plural owners: s-apostrophe.",
+    "An opening phrase must be followed by the thing it describes."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "'The number of riders ___ doubled.'",
+      "choices": [
+        "have",
+        "has"
+      ],
+      "answer": 1,
+      "why": "The number is singular."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Neither the coach nor the players ___ ready.'",
+      "choices": [
+        "was",
+        "were"
+      ],
+      "answer": 1,
+      "why": "Agree with the closer subject: players."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the first step on a subject-verb agreement question?",
+      "answer": "Find the real subject by crossing out the phrases in between."
+    }
+  ],
+  "tex": true
+}

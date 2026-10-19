@@ -1,4 +1,5 @@
-/* Graphite SAT Level up: practice sets that get harder one level at a time.
+/* Graphite SAT Level up: practice sets that get harder one level at a time, for Math and for Reading and Writing.
+   The Math | Reading and Writing switch (site.js) picks which tracks show.
    Live: talks to /api/levels. Preview: the same requests go to GraphitePracticeLocal (practice-local.js). */
 (function () {
   "use strict";
@@ -30,7 +31,9 @@
   function mixText(mix) {
     return ["easy", "medium", "hard"].filter(function (d) { return mix[d]; }).map(function (d) { return mix[d] + " " + d; }).join(" · ");
   }
-  function track() { return data.tracks.filter(function (t) { return t.key === current; })[0] || data.tracks[0]; }
+  function subject() { return document.documentElement.getAttribute("data-subject") === "rw" ? "rw" : "math"; }
+  function shown() { return data.tracks.filter(function (t) { return (t.section || "math") === subject(); }); }
+  function track() { var list = shown(); return list.filter(function (t) { return t.key === current; })[0] || list[0]; }
 
   function start(level, btn) {
     if (busy) return;
@@ -48,7 +51,9 @@
 
   function renderTabs() {
     var box = $("lv-tracks"); box.innerHTML = "";
-    data.tracks.forEach(function (t, i) {
+    var list = shown();
+    current = track().key;
+    list.forEach(function (t, i) {
       var b = document.createElement("button");
       b.type = "button"; b.className = "lv-track"; b.setAttribute("role", "tab");
       b.setAttribute("aria-selected", String(t.key === current)); b.tabIndex = t.key === current ? 0 : -1;
@@ -58,7 +63,7 @@
       b.addEventListener("click", function () { pick(t.key); });
       b.addEventListener("keydown", function (e) {
         var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (!d) return;
-        e.preventDefault(); pick(data.tracks[(i + d + data.tracks.length) % data.tracks.length].key, true);
+        e.preventDefault(); pick(list[(i + d + list.length) % list.length].key, true);
       });
       box.appendChild(b);
     });
@@ -113,6 +118,7 @@
   if (window.GraphiteRewards && GraphiteRewards.call()) {
     GraphiteRewards.call()("/api/game/summary").then(function (g) { GraphiteRewards.hud($("lv-hud"), g); }).catch(function () { /* levels work without it */ });
   }
+  document.addEventListener("graphite:subject", function () { if (data) render(); });
   call("/api/levels").then(function (d) {
     data = d;
     $("lv-pass").textContent = String(d.pass); $("lv-size").textContent = String(d.size);

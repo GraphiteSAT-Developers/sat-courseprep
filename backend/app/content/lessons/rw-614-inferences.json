@@ -1,0 +1,131 @@
+{
+  "id": "rw-inferences",
+  "order": 614,
+  "domain": "information-ideas",
+  "skill": "inferences",
+  "title": "What must be true?",
+  "minutes": 6,
+  "format": "cold-open",
+  "hook": "The right completion follows from the text without adding anything new. Careful beats bold.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "Cold open, try it now. 'Lodgepole pine cones open only when heat melts their resin, as in a forest fire. As a result, seedlings are often plentiful ______'",
+      "choices": [
+        "in forests that haven't burned for decades",
+        "during cold winters",
+        "in areas that have recently burned"
+      ],
+      "answer": 2,
+      "why": "Fire opens the cones, so seeds land after fires.",
+      "cold": true
+    },
+    {
+      "type": "recall",
+      "prompt": "What question should you ask yourself on every inference question?",
+      "answer": "If everything in the text is true, which choice must also be true, without adding new facts?"
+    },
+    {
+      "type": "sort",
+      "prompt": "Sort each completion for: 'Mr. Alvarez always locked the store at six. At seven-thirty, the lights were on and the door was open. Rosa understood that ______'",
+      "buckets": [
+        "Supported",
+        "Goes too far"
+      ],
+      "cards": [
+        {
+          "text": "something unusual had happened.",
+          "bucket": 0
+        },
+        {
+          "text": "Mr. Alvarez had been robbed.",
+          "bucket": 1
+        },
+        {
+          "text": "the store was now open late every night.",
+          "bucket": 1
+        },
+        {
+          "text": "the store wasn't closed at its usual time.",
+          "bucket": 0
+        }
+      ],
+      "why": "Something unusual is supported. A robbery or a new schedule adds facts the text never gives."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each warning word to why it often makes a completion wrong.",
+      "left": [
+        "always",
+        "proves",
+        "all",
+        "never"
+      ],
+      "right": [
+        "claims something happens every time",
+        "claims certainty the evidence can't give",
+        "covers every case",
+        "rules out every case"
+      ],
+      "why": "Extreme words need extreme evidence. Short texts rarely provide it."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Weekend patients had more complications. But weekend patients were also sicker on arrival.' This suggests the difference ______",
+      "choices": [
+        "is too small to measure",
+        "may partly reflect the patients themselves",
+        "proves weekend staffing is dangerous"
+      ],
+      "answer": 1,
+      "why": "The second fact offers another explanation, so the careful choice wins."
+    },
+    {
+      "type": "predict",
+      "prompt": "Rematch. 'Corals depend on algae for most of their food. During bleaching, corals expel the algae. Corals that stay bleached for long periods ______'",
+      "choices": [
+        "are at risk of starving",
+        "make their own algae",
+        "grow more quickly"
+      ],
+      "answer": 0,
+      "why": "No algae means no food source, so starvation is the logical result.",
+      "rematch": true
+    }
+  ],
+  "keys": [
+    "Ask: if the text is true, what must also be true?",
+    "Don't add facts the text doesn't give.",
+    "Extreme words like always, proves, and all usually go too far."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "'Most new business owners in the towns came from elsewhere.' This suggests:",
+      "choices": [
+        "former factory workers didn't mainly cause the rise",
+        "factory workers never start businesses",
+        "the towns lost people"
+      ],
+      "answer": 0,
+      "why": "It undercuts one explanation without claiming more."
+    },
+    {
+      "type": "predict",
+      "prompt": "A completion with 'proves' is usually:",
+      "choices": [
+        "too strong",
+        "exactly right",
+        "about the data"
+      ],
+      "answer": 0,
+      "why": "Short texts rarely prove anything."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the main rule for inference answers?",
+      "answer": "They must follow from the text without adding new information."
+    }
+  ],
+  "tex": true
+}

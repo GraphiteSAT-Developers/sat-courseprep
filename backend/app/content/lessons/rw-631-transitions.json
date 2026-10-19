@@ -1,0 +1,142 @@
+{
+  "id": "rw-transitions",
+  "order": 631,
+  "domain": "expression-ideas",
+  "skill": "transitions",
+  "title": "Name the relationship first",
+  "minutes": 6,
+  "format": "lives",
+  "hook": "Ignore the choices. Read the sentences on both sides and say how they connect: same way, opposite way, or cause and effect.",
+  "steps": [
+    {
+      "type": "sort",
+      "prompt": "Sort each transition by the relationship it signals.",
+      "buckets": [
+        "Same direction",
+        "Opposite direction",
+        "Cause and effect"
+      ],
+      "cards": [
+        {
+          "text": "For example",
+          "bucket": 0
+        },
+        {
+          "text": "However",
+          "bucket": 1
+        },
+        {
+          "text": "Therefore",
+          "bucket": 2
+        },
+        {
+          "text": "In addition",
+          "bucket": 0
+        },
+        {
+          "text": "By contrast",
+          "bucket": 1
+        },
+        {
+          "text": "As a result",
+          "bucket": 2
+        },
+        {
+          "text": "Nevertheless",
+          "bucket": 1
+        }
+      ],
+      "why": "Learn these three families and most transition questions take seconds."
+    },
+    {
+      "type": "predict",
+      "prompt": "'Penguins can't fly. ______ they are excellent swimmers.'",
+      "choices": [
+        "Instead,",
+        "Therefore,",
+        "For instance,"
+      ],
+      "answer": 0,
+      "why": "Swimming is what they do in place of flying."
+    },
+    {
+      "type": "predict",
+      "prompt": "'The library extended its weekend hours. ______ more students studied there on weekends.'",
+      "choices": [
+        "As a result,",
+        "Similarly,",
+        "However,"
+      ],
+      "answer": 0,
+      "why": "More students is the effect of longer hours."
+    },
+    {
+      "type": "recall",
+      "prompt": "Two choices mean almost the same thing, like 'therefore' and 'thus.' What does that usually tell you?",
+      "answer": "Neither is likely the answer, since there can only be one right choice."
+    },
+    {
+      "type": "predict",
+      "prompt": "'The novel was rejected by twelve publishers. ______ it became a bestseller.'",
+      "choices": [
+        "Similarly,",
+        "However,",
+        "For example,"
+      ],
+      "answer": 1,
+      "why": "Bestseller contrasts with rejection."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each sentence pair to its best transition.",
+      "left": [
+        "It rained all day. The game was canceled.",
+        "Cats sleep a lot. Dogs nap often too.",
+        "The plan was cheap. It failed anyway.",
+        "Many fruits have seeds. Strawberries carry theirs outside."
+      ],
+      "right": [
+        "Consequently,",
+        "Likewise,",
+        "Nevertheless,",
+        "For example,"
+      ],
+      "why": "Cause, similarity, contrast, example: name it first, then pick."
+    }
+  ],
+  "keys": [
+    "Name the relationship before reading choices.",
+    "Three families: same direction, opposite direction, cause and effect.",
+    "Choices that mean the same thing are usually both wrong."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "'Coral reefs cover under one percent of the ocean floor. ______ they hold a quarter of marine species.'",
+      "choices": [
+        "Yet",
+        "Thus,",
+        "Likewise,"
+      ],
+      "answer": 0,
+      "why": "Small area versus huge diversity is a contrast."
+    },
+    {
+      "type": "predict",
+      "prompt": "'In addition' belongs to which family?",
+      "choices": [
+        "same direction",
+        "opposite direction",
+        "cause and effect"
+      ],
+      "answer": 0,
+      "why": "It adds."
+    },
+    {
+      "type": "recall",
+      "prompt": "What do you do before reading transition choices?",
+      "answer": "Name the relationship between the two sentences."
+    }
+  ],
+  "tex": true
+}
