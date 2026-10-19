@@ -1185,6 +1185,8 @@
         $("#kpi-latest-label").textContent = "Latest practice test";
         $("#kpi-latest").textContent = s.latest.correct + " / " + s.latest.total;
         $("#kpi-latest-sub").textContent = s.latest.pct + "% correct" + (s.change_pct_points != null ? ", " + (s.change_pct_points >= 0 ? "up " : "down ") + Math.abs(s.change_pct_points) + " from your first test" : " on " + s.latest.label);
+        // A finished mock test gives a Math estimate, shown as a range rather than one number.
+        if (s.math_estimate) $("#kpi-latest-sub").textContent += ". Math estimate " + s.math_estimate.low + "–" + s.math_estimate.high;
       } else {
         $("#kpi-latest-label").textContent = "Latest practice test";
         $("#kpi-latest").textContent = "None yet";

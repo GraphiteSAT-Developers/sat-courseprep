@@ -1,36 +1,87 @@
-<!--{"file": "index.html", "path": "/", "title": "Graphite SAT | SAT Tutoring for High School Students", "description": "SAT prep for high school students: a free diagnostic, a daily plan, a tutor on every question and a full Desmos course. Learn why each wrong answer was wrong.", "scripts": ["effects.js"]}-->
+<!--{"file": "index.html", "path": "/", "title": "Graphite SAT | SAT Tutoring for High School Students", "description": "SAT prep for high school students: a free diagnostic, a daily plan to your test date, a tutor on every question and a full Desmos course. Learn why each wrong answer was wrong."}-->
 <main id="main">
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div class="hero-copy">
-        <h1>SAT prep that starts with the <em>questions you miss.</em></h1>
-        <p class="lede">Graphite SAT reads every wrong answer, works out why you picked it, and builds tomorrow's practice around that mistake. Built for the digital SAT, scored 400 to 1600.</p>
-        <div class="hero-ctas">
+  <section class="pp-hero">
+    <div class="wrap pp-hero-grid">
+      <div class="pp-hero-copy">
+        <p class="pp-kicker">For the digital SAT · Math and Reading &amp; Writing · scored 400 to 1600</p>
+        <h1>SAT prep that starts with <span class="hl">the questions you miss.</span></h1>
+        <p class="lede">Graphite SAT reads every wrong answer, works out why you picked it, and builds tomorrow's practice around that mistake. Twenty to forty minutes a day, planned backward from your test date.</p>
+        <div class="pp-ctas">
           <a class="btn btn-primary" href="#start" data-track="hero_start">Take the free diagnostic</a>
-          <a class="btn btn-secondary" href="#how" data-track="hero_how">See how it works</a>
+          <span class="pen-note"><svg viewBox="0 0 42 22" aria-hidden="true"><path d="M40 4 C 28 2, 14 6, 5 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 8 L 4.5 16 L 12 16.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>15 minutes, no card</span>
         </div>
-        <ul class="hero-facts">
-          <li><strong>15 min</strong> diagnostic that builds your plan</li>
-          <li><strong>20–40 min</strong> a day after that</li>
-          <li><strong>$0</strong> to start</li>
-        </ul>
+        <p class="pp-small">Already have an account? <a href="signin.html">Sign in</a>. Parents can <a href="signin.html?as=parent">follow a student's progress</a>.</p>
       </div>
 
-      <div class="qcard" id="qcard" aria-labelledby="qcard-title">
-        <div class="qcard-top">
-          <span class="label" id="qmeta">Math · Module 1</span>
-          <span class="label mono" id="qnum">Question 7 of 22</span>
-        </div>
-        <div class="qcard-body">
-          <h2 class="visually-hidden" id="qcard-title">Try a practice question</h2>
-          <p class="qcard-stem" id="qstem">If 3x + 7 = 25, what is the value of 6x − 4?</p>
-          <fieldset class="choices" id="qchoices"><legend class="visually-hidden">Answer choices</legend></fieldset>
-          <div class="tutor-note" id="qnote" aria-live="polite" hidden></div>
-          <div class="qcard-foot">
-            <span class="label">Pick an answer. Wrong ones get explained too.</span>
-            <button class="btn btn-quiet" type="button" id="qnext" data-track="demo_next">Next question</button>
+      <div class="pp-qwrap">
+        <span class="pen-note" aria-hidden="true">try picking a wrong one<svg viewBox="0 0 42 22" aria-hidden="true"><path d="M4 3 C 14 4, 26 8, 34 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M27 18.5 L 35 19 L 35.5 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="qcard" id="qcard" aria-labelledby="qcard-title">
+          <div class="qcard-top">
+            <span class="label" id="qmeta">Math · Module 1</span>
+            <span class="label" id="qnum">Question 7 of 22</span>
+          </div>
+          <div class="qcard-body">
+            <h2 class="visually-hidden" id="qcard-title">Try a practice question</h2>
+            <p class="qcard-stem" id="qstem">If 3x + 7 = 25, what is the value of 6x − 4?</p>
+            <fieldset class="choices" id="qchoices"><legend class="visually-hidden">Answer choices</legend></fieldset>
+            <div class="tutor-note" id="qnote" aria-live="polite" hidden></div>
+            <div class="qcard-foot">
+              <span class="label">Wrong answers get explained too.</span>
+              <button class="btn btn-quiet" type="button" id="qnext" data-track="demo_next">Next question</button>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="pp-head">
+        <h2 id="how-title">What a week looks like</h2>
+        <p class="lede">The diagnostic finds where your points are. After that, every day has one short job, and the plan counts down to your test date.</p>
+      </div>
+      <div class="pp-week">
+        <div class="pp-planner" role="group" aria-label="A sample week of Graphite SAT">
+          <div class="pp-planner-head"><span class="label">Sample week · SAT on Dec 5 · 7 weeks out</span><span class="pen">week 2 of 8</span></div>
+          <ol>
+            <li class="done"><span class="d">Mon</span><span class="t"><span>Linear equations, 10 questions</span><small>missed 3 of these on the diagnostic</small></span><span class="m">25 min</span></li>
+            <li class="done"><span class="d">Tue</span><span class="t"><span>Transitions and boundaries</span></span><span class="m">20 min</span></li>
+            <li><span class="d">Wed</span><span class="t"><span>Review queue: 6 questions you missed come back</span></span><span class="m">15 min</span></li>
+            <li><span class="d">Thu</span><span class="t"><span>Desmos lesson 4: sliders</span><small>then 5 questions to use it on</small></span><span class="m">20 min</span></li>
+            <li class="off"><span class="d">Fri</span><span class="t">Day off. The streak freeze covers it.</span><span class="m"></span></li>
+            <li><span class="d">Sat</span><span class="t"><span>Full practice test, both sections</span></span><span class="m">2 h 14 min</span></li>
+            <li><span class="d">Sun</span><span class="t"><span>Read the score report. Next week's plan updates.</span><small>parent report goes out tonight</small></span><span class="m">10 min</span></li>
+          </ol>
+        </div>
+        <ol class="pp-steps">
+          <li><h3>Take the diagnostic</h3><p>Ten questions from every part of the test, six Math and four Reading and Writing. You also say how sure you were on each, so a lucky guess doesn't hide a weak spot.</p></li>
+          <li><h3>Get a plan to your test date</h3><p>Results are split into the eight skill areas the College Board reports, ranked by how many points each can still give you.</p></li>
+          <li><h3>Practice a little every day</h3><p>Each set aims at your weakest areas. Anything you miss comes back a few days later, until you get it right twice.</p></li>
+          <li><h3>Retest every three weeks</h3><p>A full practice test shows what moved, and the plan shifts time toward whatever is still costing you points.</p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="tutor" aria-labelledby="tutor-title">
+    <div class="wrap pp-tutor">
+      <div class="pp-work" aria-label="Example tutor conversation">
+        <span class="who">Student</span><p class="say">I picked C on number 12. Why is it wrong?</p>
+        <span class="who">Tutor</span><p class="say tutor"><span class="pen">hint 1</span>You set up 0.15x = 42, which finds 15% of the original price. The question gives the price <em>after</em> a 15% discount. What percent of the original price is left?</p>
+        <span class="who">Student</span><p class="say">85%. So 0.85x = 42?</p>
+        <span class="who">Tutor</span><p class="say tutor"><span class="pen">that's it</span>Solve it and compare with the choices. This is your third percent-change miss this week, so tomorrow's set has six more of these.</p>
+      </div>
+      <div>
+        <div class="pp-head">
+          <h2 id="tutor-title">A tutor that asks before it tells</h2>
+          <p class="lede">Open the tutor beside any question, lesson or Level up set, at lunch or the night before the test. It knows what you've missed this week, and it gives the help in three steps instead of handing over the answer.</p>
+        </div>
+        <ol class="pp-ladder">
+          <li><span class="label">Step 1</span><p><strong>A nudge</strong><span>Points at the part of the question you skipped or misread.</span></p></li>
+          <li><span class="label">Step 2</span><p><strong>The method</strong><span>Names the approach, like setting up a percent-change equation, without doing it for you.</span></p></li>
+          <li><span class="label">Step 3</span><p><strong>The full solution</strong><span>Every step, plus why each wrong choice was tempting. Always one tap away.</span></p></li>
+        </ol>
       </div>
     </div>
   </section>
@@ -38,11 +89,16 @@
   <section class="calc-feature" id="calculator" aria-labelledby="calc-title">
     <div class="wrap calc-feature-grid">
       <div class="calc-copy">
-        <p class="label">Our own graphing calculator</p>
-        <h2 id="calc-title">Meet <span class="hl">Topline</span>, the calculator inside every question</h2>
-        <p class="lede">It's a graphing calculator that opens beside the question you're on. Type an equation, then tap where the graph crosses to read the answer off the screen.</p>
-        <ul class="c3-feats"><li><span class="c3-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h9M5 17h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><div><strong>Type math like you write it</strong><p><code>/</code> makes a fraction, <code>^</code> an exponent, and <code>sqrt</code> becomes √. No menus.</p></div></li><li><span class="c3-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></span><div><strong>Tap to find the answer</strong><p>Select a curve to see its intercepts, minimum, maximum and every intersection, with exact coordinates.</p></div></li><li><span class="c3-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18 L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="14" r="1.6" fill="currentColor"/><circle cx="11" cy="13" r="1.6" fill="currentColor"/><circle cx="14" cy="9" r="1.6" fill="currentColor"/><circle cx="18" cy="9" r="1.6" fill="currentColor"/></svg></span><div><strong>Regressions in one line</strong><p>Type <code>y₁ ~ mx₁ + b</code> for a line of best fit, or any curve, with R² to check it.</p></div></li><li><span class="c3-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="12" r="3.5" fill="currentColor"/></svg></span><div><strong>Sliders, tables and lists</strong><p>Drag a constant to see what changes. Turn data into a table, a list or a stat in seconds.</p></div></li><li><span class="c3-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 5v14" stroke="currentColor" stroke-width="1.8"/></svg></span><div><strong>Right next to every question</strong><p>It opens beside each practice question, so you never switch tabs.</p></div></li><li><span class="c3-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 L10 17 L19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><strong>Built for SAT moves</strong><p>Practice the same graph-it-and-click techniques you'll use with the test-day calculator.</p></div></li></ul>
-        <a class="btn btn-primary btn-big" href="signin.html#create" data-track="calc_feature_cta">Try it free</a>
+        <p class="label">Topline, our graphing calculator</p>
+        <h2 id="calc-title">A graphing calculator that sits next to the question</h2>
+        <p class="lede">Type an equation, then tap where the graph crosses to read the answer off the screen. It opens beside every practice question, so you never switch tabs.</p>
+        <ul class="pp-calc-list">
+          <li><strong>Type math the way you write it</strong><p><code>/</code> makes a fraction, <code>^</code> an exponent, <code>sqrt</code> a root. No menus.</p></li>
+          <li><strong>Tap a curve for its points</strong><p>Intercepts, the minimum or maximum and every intersection, with exact coordinates.</p></li>
+          <li><strong>Regressions in one line</strong><p><code>y₁ ~ mx₁ + b</code> fits a line to a table and shows R².</p></li>
+          <li><strong>The same moves as test day</strong><p>What you practice here works in the calculator built into Bluebook.</p></li>
+        </ul>
+        <a class="btn btn-primary" href="signin.html#create" data-track="calc_feature_cta">Try it free</a>
       </div>
       <div class="calc3d" id="calc3d">
         <div class="c3-shadow" aria-hidden="true"></div>
@@ -78,163 +134,112 @@
           <div class="c3-face c3-top"><span class="c3-port"></span><span class="c3-port-led"></span></div>
         </div></div>
         <button class="c3-flip" type="button" id="c3-flip" aria-pressed="false">Flip it over</button>
-        <span class="c3-spark c3-s1"></span><span class="c3-spark c3-s2"></span><span class="c3-spark c3-s3"></span>
       </div>
     </div>
   </section>
-
 
   <section class="section desmos-brag" id="desmos" aria-labelledby="desmos-title">
-    <div class="wrap section-grid">
-      <div class="section-rail"><p class="label">Desmos tricks</p></div>
-      <div>
-        <div class="section-head">
-          <h2 id="desmos-title">The calculator moves top scorers use</h2>
-          <p class="lede">Bluebook puts Desmos next to every Math question. Most students only use it to multiply. Our Desmos course teaches the moves that solve or check a third to half of the Math section, and the questions where doing it by hand is faster.</p>
-        </div>
-        <div class="db-grid">
-          <ol class="db-moves">
-            <li><strong>Graph both sides</strong><span>Any equation, any degree. Type each side, then click where the graphs cross.</span></li>
-            <li><strong>The tilde trick</strong><span>Questions that ask for a, b and c in an equivalent expression? A list of x-values and one regression finds all of them.</span></li>
-            <li><strong>Regression from a table</strong><span>Turn data into a line or an exponential model in one line of typing.</span></li>
-            <li><strong>Sliders for unknown constants</strong><span>Drag k until the lines go parallel, then confirm it by hand in ten seconds.</span></li>
-            <li><strong>Nine more, plus a pre-flight checklist</strong><span>Small habits like checking angle mode and brackets, so a right method doesn't give you a wrong answer.</span></li>
-          </ol>
-          <figure class="db-demo">
-            <figcaption><span class="label">The tilde trick, live</span></figcaption>
-            <p class="db-q">(5x − 17)(4x − c) = ax² + bx + 119 for all x. What is c?</p>
-            <ol class="db-lines">
-              <li><code>x_1=[2,3,4]</code></li>
-              <li><code>(5x_1-17)(4x_1-c)~ax_1^2+bx_1+119</code></li>
-            </ol>
-            <div class="db-out"><span>c = 7</span><span>a = 20</span><span>b = −103</span></div>
-            <p class="fine">About 20 seconds in Desmos. By hand you'd expand and match coefficients: 17c = 119, so c = 7. The course teaches both, so you can check one with the other.</p>
-          </figure>
-        </div>
-        <p class="db-foot"><a class="btn btn-secondary" href="signin.html#create" data-track="desmos_cta">Start the Desmos course free</a> <span class="fine">14 short lessons. Every one has you type the moves yourself.</span></p>
+    <div class="wrap">
+      <div class="pp-head">
+        <h2 id="desmos-title">The Desmos moves that save the most time</h2>
+        <p class="lede">Bluebook puts Desmos next to every Math question, and most students only use it to multiply. Our 14-lesson course teaches the moves that solve or check a third to half of the Math section, and when doing it by hand is faster.</p>
       </div>
-    </div>
-  </section>
-
-  <section class="section" id="how" aria-labelledby="how-title">
-    <div class="wrap section-grid">
-      <div class="section-rail"><p class="label">How it works</p></div>
-      <div>
-        <div class="section-head">
-          <h2 id="how-title">Four steps from first diagnostic to test day</h2>
-          <p class="lede">The plan is built backward from your test date, so every week has a job.</p>
-        </div>
-        <ol class="steps">
-          <li>
-            <span class="step-num">1</span>
-            <div><h3>Take the diagnostic</h3><p>Ten questions from every part of the test: six Math and four Reading and Writing. Tell us how sure you are on each one, and we find your strengths and the easiest points to gain.</p></div>
-            <span class="label step-time">15 min</span>
-          </li>
-          <li>
-            <span class="step-num">2</span>
-            <div><h3>Get your plan</h3><p>Your score report breaks results into the eight skill domains the College Board reports. Graphite SAT ranks them by how many points each one can still give you and sets a daily schedule.</p></div>
-            <span class="label step-time">Ready in 1 min</span>
-          </li>
-          <li>
-            <span class="step-num">3</span>
-            <div><h3>Practice with the tutor</h3><p>Each daily set targets your weakest domains. When you miss a question, the tutor explains what went wrong. A similar question comes back a few days later to check that it stuck.</p></div>
-            <span class="label step-time">20–40 min a day</span>
-          </li>
-          <li>
-            <span class="step-num">4</span>
-            <div><h3>Retest and adjust</h3><p>A new full-length practice test every three weeks shows what moved. The plan shifts time toward whatever is still costing you points.</p></div>
-            <span class="label step-time">Every 3 weeks</span>
-          </li>
+      <div class="db-grid">
+        <ol class="db-moves">
+          <li><strong>Graph both sides</strong><span>Any equation, any degree. Type each side, then click where the graphs cross.</span></li>
+          <li><strong>The tilde trick</strong><span>Asked for a, b and c in an equivalent expression? A list of x-values and one regression finds all three.</span></li>
+          <li><strong>Regression from a table</strong><span>Turn data into a line or an exponential model in one line of typing.</span></li>
+          <li><strong>Sliders for unknown constants</strong><span>Drag k until the lines go parallel, then confirm it by hand in ten seconds.</span></li>
+          <li><strong>Nine more, and a checklist</strong><span>Small habits like checking angle mode and brackets, so a right method doesn't give you a wrong answer.</span></li>
         </ol>
+        <figure class="db-demo">
+          <figcaption><span class="label">The tilde trick</span></figcaption>
+          <p class="db-q">(5x − 17)(4x − c) = ax² + bx + 119 for all x. What is c?</p>
+          <ol class="db-lines">
+            <li><code>x_1=[2,3,4]</code></li>
+            <li><code>(5x_1-17)(4x_1-c)~ax_1^2+bx_1+119</code></li>
+          </ol>
+          <div class="db-out"><span>c = 7</span><span>a = 20</span><span>b = −103</span></div>
+          <p class="fine">About 20 seconds in Desmos. By hand you'd expand and match coefficients: 17c = 119, so c = 7. The course teaches both, so you can check one with the other.</p>
+        </figure>
       </div>
+      <p class="db-foot"><a class="btn btn-secondary" href="signin.html#create" data-track="desmos_cta">Start the Desmos course free</a> <span class="fine">Every lesson has you type the moves yourself.</span></p>
     </div>
   </section>
 
-  <section class="section" id="tutor" aria-labelledby="tutor-title">
-    <div class="wrap section-grid">
-      <div class="section-rail"><p class="label">The tutor</p></div>
-      <div class="split">
+  <section class="section" id="keep" aria-labelledby="keep-title">
+    <div class="wrap">
+      <div class="pp-head">
+        <h2 id="keep-title">Made for the long stretch to test day</h2>
+        <p class="lede">Most SAT prep doesn't fail on the first day. It fails in week three, when practice slips and nobody notices. These are the things that keep it going.</p>
+      </div>
+      <div class="pp-keep">
+        <div><span class="label">Streaks</span><h3>Miss a day, keep the streak</h3><p>One missed day a week is covered by a streak freeze, automatically. A streak should reward showing up, not punish a busy Tuesday.</p></div>
+        <div><span class="label">Reminders</span><h3>One nudge, at your hour</h3><p>Pick the time in Settings. You get at most one reminder a day, and none on a day you've already practiced.</p></div>
+        <div><span class="label">Plan</span><h3>Every day has one job</h3><p>The plan counts down to your test date and sizes each day to the time you said you have, so you never start by wondering what to do.</p></div>
+        <div><span class="label">Parents</span><h3>A weekly report for parents</h3><p>Study time, scores and what's next, by email every week, plus an alert if practice stops. Students can see exactly what parents see.</p></div>
+        <div><span class="label">Breaks</span><h3>Pause instead of quitting</h3><p>Exams, a trip, a busy season: pause the plan for 30 days and nothing is billed. Your history and plan are there when you come back.</p></div>
+        <div><span class="label">Try it</span><h3>A free week of Sharpened</h3><p>Every account can try the full plan for 7 days. No card, and it goes back to the free plan by itself, so there's nothing to remember to cancel.</p></div>
+      </div>
+      <div class="pp-promise" id="promise">
+        <span class="stamp">Score-up<br>promise</span>
         <div>
-          <div class="section-head">
-            <h2 id="tutor-title">A tutor on every question, at any hour</h2>
-            <p class="lede">Open the tutor next to any practice question, lesson or Level up set, at lunch or at midnight before the test. It already knows which questions you've missed this week, so it starts where you're stuck. And it won't hand you the answer first: you get three levels of help, one at a time.</p>
-          </div>
-          <ol class="ladder">
-            <li><span class="label">Level 1</span><p><strong>A nudge</strong><span>Points at the part of the question you skipped or misread.</span></p></li>
-            <li><span class="label">Level 2</span><p><strong>The method</strong><span>Names the approach, such as setting up a percent-change equation, without doing it for you.</span></p></li>
-            <li><span class="label">Level 3</span><p><strong>The full solution</strong><span>Every step, plus why each wrong choice is tempting.</span></p></li>
-          </ol>
-          <figure class="figure">
-            <img src="assets/hint-ladder.svg" width="560" height="200" loading="lazy" decoding="async" alt="Diagram of the hint ladder: three steps rising from a nudge, to the method, to the full worked solution.">
-            <figcaption>Most students need level 1 or 2. Level 3 is always one tap away.</figcaption>
-          </figure>
-        </div>
-        <div class="transcript" aria-label="Example tutor conversation">
-          <div class="transcript-head"><span class="label">Example session</span><span class="label">Math · Problem-solving</span></div>
-          <div class="msg msg-student"><span class="who">Student</span><p>I picked C on number 12. Why is it wrong?</p></div>
-          <div class="msg msg-tutor"><span class="who">Graphite SAT tutor</span><p>You set up 0.15x = 42, which finds 15% of the original price. The question gives the price after a 15% discount. What percent of the original price is left after the discount?</p></div>
-          <div class="msg msg-student"><span class="who">Student</span><p>85%. So 0.85x = 42?</p></div>
-          <div class="msg msg-tutor"><span class="who">Graphite SAT tutor</span><p>Yes. Solve it and compare to the choices. This is your third percent-change miss this week, so tomorrow's set has six more of these.</p></div>
+          <h3>Do the work and your score goes up, or we refund your last two months</h3>
+          <p>On Sharpened and Masterstroke. Here is every condition, with nothing else in the fine print: you were on the plan for at least 6 weeks before your SAT, finished at least 80% of the sessions in your plan and at least 3 full practice tests, and took the SAT within 60 days of your last session. If your official score isn't higher than your first full Graphite practice test (or your last official SAT, if that's higher), email us your score report within 30 days of getting it. One refund per student. <a href="terms.html#promise">Full terms</a>.</p>
         </div>
       </div>
     </div>
   </section>
 
   <section class="section" id="test" aria-labelledby="test-title">
-    <div class="wrap section-grid">
-      <div class="section-rail"><p class="label">The digital SAT</p></div>
-      <div>
-        <div class="section-head">
-          <h2 id="test-title">What you're practicing for</h2>
-          <p class="lede">Graphite SAT's practice tests match the timing and routing of the digital SAT you'll take in Bluebook.</p>
+    <div class="wrap">
+      <div class="pp-head">
+        <h2 id="test-title">What you're practicing for</h2>
+        <p class="lede">Graphite SAT's practice tests match the timing and routing of the digital SAT you'll take in Bluebook.</p>
+      </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Digital SAT structure">
+        <table>
+          <thead><tr><th scope="col">Section</th><th scope="col" class="num">Modules</th><th scope="col" class="num">Questions</th><th scope="col" class="num">Time</th><th scope="col" class="num">Score range</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Reading and Writing</th><td class="num">2</td><td class="num">54 (27 + 27)</td><td class="num">64 min</td><td class="num">200–800</td></tr>
+            <tr><th scope="row">Math</th><td class="num">2</td><td class="num">44 (22 + 22)</td><td class="num">70 min</td><td class="num">200–800</td></tr>
+          </tbody>
+          <tfoot><tr><th scope="row">Total</th><td class="num">4</td><td class="num">98</td><td class="num">2 h 14 min</td><td class="num">400–1600</td></tr></tfoot>
+        </table>
+      </div>
+      <ul class="note-list">
+        <li>Your first module in each section decides the difficulty of the second. A strong first module opens up the harder second module, where the highest scores are.</li>
+        <li>The Desmos graphing calculator is built in for the whole Math section. Graphite SAT teaches when it's faster than solving by hand.</li>
+        <li>Totals move in steps of 10, so a 1290 and a 1300 are one step apart.</li>
+      </ul>
+      <div class="domains">
+        <div>
+          <h3>Reading and Writing domains</h3>
+          <ul>
+            <li><span>Information and Ideas</span><span>~26%</span></li>
+            <li><span>Craft and Structure</span><span>~28%</span></li>
+            <li><span>Expression of Ideas</span><span>~20%</span></li>
+            <li><span>Standard English Conventions</span><span>~26%</span></li>
+          </ul>
         </div>
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Digital SAT structure">
-          <table>
-            <thead><tr><th scope="col">Section</th><th scope="col" class="num">Modules</th><th scope="col" class="num">Questions</th><th scope="col" class="num">Time</th><th scope="col" class="num">Score range</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">Reading and Writing</th><td class="num">2</td><td class="num">54 (27 + 27)</td><td class="num">64 min</td><td class="num">200–800</td></tr>
-              <tr><th scope="row">Math</th><td class="num">2</td><td class="num">44 (22 + 22)</td><td class="num">70 min</td><td class="num">200–800</td></tr>
-            </tbody>
-            <tfoot><tr><th scope="row">Total</th><td class="num">4</td><td class="num">98</td><td class="num">2 h 14 min</td><td class="num">400–1600</td></tr></tfoot>
-          </table>
-        </div>
-        <ul class="note-list">
-          <li>Your first module in each section decides the difficulty of the second. A strong first module opens up the harder second module, where the highest scores are.</li>
-          <li>The Desmos graphing calculator is built in for the whole Math section. Graphite SAT teaches when it's faster than solving by hand.</li>
-          <li>Totals move in steps of 10, so a 1290 and a 1300 are one step apart.</li>
-        </ul>
-        <div class="domains">
-          <div>
-            <h3>Reading and Writing domains</h3>
-            <ul>
-              <li><span>Information and Ideas</span><span>~26%</span></li>
-              <li><span>Craft and Structure</span><span>~28%</span></li>
-              <li><span>Expression of Ideas</span><span>~20%</span></li>
-              <li><span>Standard English Conventions</span><span>~26%</span></li>
-            </ul>
-          </div>
-          <div>
-            <h3>Math domains</h3>
-            <ul>
-              <li><span>Algebra</span><span>~35%</span></li>
-              <li><span>Advanced Math</span><span>~35%</span></li>
-              <li><span>Problem-Solving and Data Analysis</span><span>~15%</span></li>
-              <li><span>Geometry and Trigonometry</span><span>~15%</span></li>
-            </ul>
-          </div>
+        <div>
+          <h3>Math domains</h3>
+          <ul>
+            <li><span>Algebra</span><span>~35%</span></li>
+            <li><span>Advanced Math</span><span>~35%</span></li>
+            <li><span>Problem-Solving and Data Analysis</span><span>~15%</span></li>
+            <li><span>Geometry and Trigonometry</span><span>~15%</span></li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
   <section class="section" id="pricing" aria-labelledby="pricing-title">
-    <div class="wrap section-grid">
-      <div class="section-rail"><p class="label">Pricing</p></div>
-      <div>
-        <div class="section-head">
-          <h2 id="pricing-title">Start free and move up when you want more</h2>
-          <p class="lede">Every plan starts with the free diagnostic. Each plan adds more ways to raise your score, and you can switch or cancel anytime.</p>
-        </div>
+    <div class="wrap">
+      <div class="pp-head">
+        <h2 id="pricing-title">Pricing</h2>
+        <p class="lede">Start free. Every paid plan can be tried free for a week, paused for 30 days, or canceled from your account page in two taps.</p>
       </div>
       <div class="pricing">
           {{PRICING}}
@@ -244,45 +249,51 @@
     </div>
   </section>
 
-
   <section class="section" id="compare-sites" aria-labelledby="compare-sites-title">
-    <div class="wrap section-grid">
-      <div class="section-rail"><p class="label">Compare</p></div>
-      <div>
-        <div class="section-head">
-          <h2 id="compare-sites-title">How Graphite SAT stacks up</h2>
-          <p class="lede">Other good options exist, so here's an honest side-by-side. Their details come straight from their own websites and app listings.</p>
-        </div>
-        <div class="table-scroll" tabindex="0" role="region" aria-label="Graphite SAT compared with other SAT prep sites">
-          <table class="vs-table">
-            <thead><tr><th scope="col"><span class="visually-hidden">Feature</span></th><th scope="col" class="vs-us">Graphite SAT</th><th scope="col">Crackd</th><th scope="col">Dolphin</th><th scope="col">Khan Academy</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">Price</th><td class="vs-us">Free plan, paid from $19 a month</td><td>$29, $49 or $99 a month</td><td>Free phone apps; web plans $25 to $100 a month</td><td>Free; its tutor add-on is $4 a month</td></tr>
-              <tr><th scope="row">Help on every question</th><td class="vs-us">Tutor with step-by-step hints, before the answer</td><td>Step-by-step tutor on the $49 plan</td><td>"Pip the Tutor" in the app</td><td>Khanmigo, $4 a month</td></tr>
-              <tr><th scope="row">Desmos course</th><td class="vs-us">14 hands-on lessons, plus a calculator panel beside every question</td><td>Full Desmos course</td><td>Calculator tools in the app</td><td>Not listed</td></tr>
-              <tr><th scope="row">Practice questions</th><td class="vs-us">1,000 and growing, no repeats</td><td>4,000+</td><td>Not listed</td><td>Not listed</td></tr>
-              <tr><th scope="row">Full practice tests</th><td class="vs-us">Unlimited on Sharpened, 2 a month on No. 2</td><td>5 on Plus, 11 on Pro</td><td>Not listed</td><td>Not listed</td></tr>
-              <tr><th scope="row">Lessons that make you answer</th><td class="vs-us">63 active recall lessons with reviews after 1, 3 and 7 days</td><td>Video courses (85+ videos on Pro)</td><td>Lessons in the app</td><td>Lessons and quizzes</td></tr>
-              <tr><th scope="row">Games and rewards</th><td class="vs-us">Level up, speed-round leaderboards, a pet to raise, a market</td><td>Not listed</td><td>Streaks, leaderboards and a multiplayer game</td><td>Not listed</td></tr>
-              <tr><th scope="row">A real person to check in with</th><td class="vs-us">Weekly coach check-ins on Masterstroke</td><td>Daily text tutoring on Premium</td><td>Not listed</td><td>Not listed</td></tr>
-              <tr><th scope="row">Parent dashboard</th><td class="vs-us">Yes, with weekly emails (Sharpened and up)</td><td>Not listed</td><td>Not listed</td><td>Not listed</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="fine vs-note">Checked October 2026. Prices and features change, so check each site before you decide. "Not listed" means we couldn't find it on their site, not that it doesn't exist. Sources: <a href="https://crackd.it/" rel="noopener" target="_blank">crackd.it</a>, <a href="https://dolphin.study/sat-practice-test/" rel="noopener" target="_blank">dolphin.study</a> and its <a href="https://apps.apple.com/app/id6748280981" rel="noopener" target="_blank">App Store listing</a>, and <a href="https://prepmaven.com/blog/test-prep/khan-academy-sat-prep-review/" rel="noopener" target="_blank">PrepMaven's Khan Academy review</a>. Crackd, Dolphin and Khan Academy are trademarks of their owners, who aren't affiliated with Graphite SAT.</p>
+    <div class="wrap">
+      <div class="pp-head">
+        <h2 id="compare-sites-title">Graphite SAT next to the others</h2>
+        <p class="lede">There are other good options, so here's a straight side-by-side, from their own websites and app listings.</p>
+      </div>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Graphite SAT compared with other SAT prep sites">
+        <table class="vs-table">
+          <thead><tr><th scope="col"><span class="visually-hidden">Feature</span></th><th scope="col" class="vs-us">Graphite SAT</th><th scope="col">Crackd</th><th scope="col">Dolphin</th><th scope="col">Khan Academy</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Price</th><td class="vs-us">Free plan, paid from $15 a month (yearly)</td><td>$29, $49 or $99 a month</td><td>Free phone apps; web plans $25 to $100 a month</td><td>Free; its tutor add-on is $4 a month</td></tr>
+            <tr><th scope="row">Free trial of the full plan</th><td class="vs-us">7 days, no card</td><td>Not listed</td><td>Not listed</td><td>Free</td></tr>
+            <tr><th scope="row">Help on every question</th><td class="vs-us">Tutor with step-by-step hints, before the answer</td><td>Step-by-step tutor on the $49 plan</td><td>"Pip the Tutor" in the app</td><td>Khanmigo, $4 a month</td></tr>
+            <tr><th scope="row">Desmos course</th><td class="vs-us">14 hands-on lessons, plus a calculator beside every question</td><td>Full Desmos course</td><td>Calculator tools in the app</td><td>Not listed</td></tr>
+            <tr><th scope="row">Practice questions</th><td class="vs-us">1,000 and growing, no repeats</td><td>4,000+</td><td>Not listed</td><td>Not listed</td></tr>
+            <tr><th scope="row">Full practice tests</th><td class="vs-us">Unlimited on Sharpened, 2 a month on No. 2</td><td>5 on Plus, 11 on Pro</td><td>Not listed</td><td>Not listed</td></tr>
+            <tr><th scope="row">Lessons that make you answer</th><td class="vs-us">63 active recall lessons with reviews after 1, 3 and 7 days</td><td>Video courses (85+ videos on Pro)</td><td>Lessons in the app</td><td>Lessons and quizzes</td></tr>
+            <tr><th scope="row">Games and rewards</th><td class="vs-us">Level up, speed-round leaderboards, streaks with a weekly freeze</td><td>Not listed</td><td>Streaks, leaderboards and a multiplayer game</td><td>Not listed</td></tr>
+            <tr><th scope="row">A real person to check in with</th><td class="vs-us">Weekly coach check-ins on Masterstroke</td><td>Daily text tutoring on Premium</td><td>Not listed</td><td>Not listed</td></tr>
+            <tr><th scope="row">Parent dashboard</th><td class="vs-us">Yes, with weekly emails (Sharpened and up)</td><td>Not listed</td><td>Not listed</td><td>Not listed</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine vs-note">Checked October 2026. Prices and features change, so check each site before you decide. "Not listed" means we couldn't find it on their site, not that it doesn't exist. Sources: <a href="https://crackd.it/" rel="noopener" target="_blank">crackd.it</a>, <a href="https://dolphin.study/sat-practice-test/" rel="noopener" target="_blank">dolphin.study</a> and its <a href="https://apps.apple.com/app/id6748280981" rel="noopener" target="_blank">App Store listing</a>, and <a href="https://prepmaven.com/blog/test-prep/khan-academy-sat-prep-review/" rel="noopener" target="_blank">PrepMaven's Khan Academy review</a>. Crackd, Dolphin and Khan Academy are trademarks of their owners, who aren't affiliated with Graphite SAT.</p>
+    </div>
+  </section>
+
+  <section class="section" id="note" aria-labelledby="note-title">
+    <div class="wrap">
+      <div class="pp-note">
+        <h2 id="note-title" class="visually-hidden">Why Graphite SAT exists</h2>
+        <p>Most SAT prep hands you a pile of questions and a score at the end. The score tells you how you did. It doesn't tell you why you picked C.</p>
+        <p>We built Graphite SAT around that question. Every wrong answer gets a reason, every reason turns into practice, and the practice keeps coming back until the mistake stops showing up. It's slower than skimming another thousand questions. It works better.</p>
+        <p class="sig">The Graphite SAT team</p>
       </div>
     </div>
   </section>
 
   <section class="section" id="faq" aria-labelledby="faq-title">
-    <div class="wrap section-grid">
-      <div class="section-rail"><p class="label">FAQ</p></div>
-      <div>
-        <div class="section-head"><h2 id="faq-title">Questions parents and students ask</h2></div>
+    <div class="wrap">
+      <div class="pp-head"><h2 id="faq-title">Questions parents and students ask</h2></div>
         <div class="faq">
           <details>
             <summary>How much will my score go up?</summary>
-            <div class="answer"><p>We don't promise a number. Gains depend on where you start and how much time you put in. Your dashboard shows your score after each practice test, so you can see what's working within the first three weeks.</p></div>
+            <div class="answer"><p>We don't promise a number of points, because gains depend on where you start and how much time you put in. We do promise that it goes up if you do the work: the <a href="#promise">score-up promise</a> lists every condition. Your dashboard shows your practice scores after each test, so you can see what's working within the first three weeks.</p></div>
           </details>
           <details>
             <summary>How early should we start?</summary>
@@ -297,6 +308,10 @@
             <div class="answer"><p>Yes. On Sharpened and Masterstroke, a parent gets a weekly email with practice time and practice test scores. Students can see exactly what parents see.</p></div>
           </details>
           <details>
+            <summary>How do the free trial and canceling work?</summary>
+            <div class="answer"><p>Any account can try Sharpened free for 7 days from the subscription page. There's no card, and it switches back to the free plan by itself. Paid plans can be paused for 30 days or canceled from the same page, in two taps; a canceled plan keeps working until the end of what you paid for.</p></div>
+          </details>
+          <details>
             <summary>What device do I need?</summary>
             <div class="answer"><p>Daily sets work on a phone, tablet, Chromebook or laptop. Take full practice tests on a laptop, Chromebook or tablet, since that's what you'll use in Bluebook on test day.</p></div>
           </details>
@@ -309,18 +324,17 @@
             <div class="answer"><p>We use it to run the tutor and build the study plan. We don't sell it, and we don't show ads. The <a href="privacy.html">privacy policy</a> lists everything we collect.</p></div>
           </details>
         </div>
-      </div>
     </div>
   </section>
 
+
   <section class="section" id="start" aria-labelledby="start-title">
-    <div class="wrap section-grid">
-      <div class="section-rail"><p class="label">Get started</p></div>
+    <div class="wrap">
       <div class="contact-grid">
         <div id="contact">
           <div class="section-head">
             <h2 id="start-title">Get your free diagnostic link</h2>
-            <p class="lede">Tell us a little about the student. We'll email a link to a full-length adaptive practice test.</p>
+            <p class="lede">Tell us a little about the student and we'll email a link to the diagnostic. A real person reads every note in the last box.</p>
           </div>
           <ul class="contact-list">
             <li>

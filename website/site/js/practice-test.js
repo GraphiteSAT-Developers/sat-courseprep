@@ -508,7 +508,7 @@
   function setCalc(open) { if (tools) { if (open) tools.open("calc"); else tools.close(); } }
   function closePopup() { /* the calculator never leaves the page anymore */ }
 
-  /* ---------- mock tests: the break before Math, and the step to Module 2 ---------- */
+  /* ---------- mock tests: the step to Module 2, and the break between the modules ---------- */
   var breakTimer = null;
   function breakCall(action) { return practiceCall("/api/mock-tests/" + MOCK.id + "/break", { action: action }); }
   function showBreak() {
@@ -527,15 +527,16 @@
   function endBreak(auto) {
     clearInterval(breakTimer);
     breakCall("end").catch(function () { /* the server ends it on its own clock too */ });
-    MOCK.status = "module1";
+    MOCK.status = "module2";
     $("break-overlay").hidden = true; $("start-overlay").hidden = false;
-    if (auto) toast("The break is over. Section 2 starts when you begin.");
+    if (auto) toast("The break is over. Module 2 starts when you begin.");
     $("start-btn").focus();
   }
   function showNext(sessionId, auto) {
     $("start-overlay").hidden = true;
     $("next-go").setAttribute("href", "practice-test.html?session=" + sessionId);
     $("next-title").textContent = auto ? "Time's up for Module 1" : "Module 1 is done";
+    if (MOCK.with_break) $("next-go").textContent = "Start the 10-minute break";
     $("next-overlay").hidden = false;
     $("next-go").focus();
   }
@@ -698,7 +699,7 @@
   if (S.submitted && !S.result) { S = fresh(); save(); }
   if (S.submitted && MOCK && MOCK.module === 1) { tutorRules(); showNext(MOCK.m2_session || (S.result && S.result.mock && S.result.mock.next_session), false); }
   else if (S.submitted) { renderResults(S.result); showPage("results"); $("start-overlay").hidden = true; }
-  else if (MOCK && MOCK.module === 1 && MOCK.status === "break" && !S.started) { showPage("q"); renderNav(); tutorRules(); showBreak(); }
+  else if (MOCK && MOCK.module === 2 && MOCK.status === "break" && !S.started) { showPage("q"); renderNav(); tutorRules(); showBreak(); }
   else {
     showPage(S.page === "review" ? "review" : "q"); renderNav();
     if (S.started) { $("start-overlay").hidden = true; startClock(); if (resumed) toast(UNTIMED ? "Picked up where you left off." : "Picked up where you left off. " + fmt(S.remaining) + " left."); }

@@ -15,6 +15,11 @@ SITE = "https://www.graphiteprep.com"
 # IBM Plex Mono is only for the keys a student types into Desmos.
 FONTS = ("https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700"
          "&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap")
+# Every page: Newsreader for headlines, IBM Plex Sans and Mono for text and numbers,
+# and Kalam for the tutor's red-pen notes.
+PAPER_FONTS = ("https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700"
+               "&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Kalam:wght@400;700"
+               "&family=Nunito:wght@400;700;800&display=swap")  # Nunito: the "rounded" font choice in Settings
 # The logo: the end of a pencil (yellow paint, wood, graphite core).
 FAVICON_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="#f2c14e"/>'
                '<path d="M32 32L57 17.5V46.5ZM32 32V61L7 46.5ZM32 32L7 17.5L32 3Z" fill="#000" fill-opacity=".12"/>'
@@ -41,7 +46,8 @@ def calculator_html():
         assert t.count(old) == 1, "Topline changed; update calculator_html(): " + old[:40]
         t = t.replace(old, new)
     return t
-css = (SRC / "site.css").read_text()
+# site.css, then paper.css: the public pages' look, scoped to html.paper so signed-in pages keep their themes.
+css = (SRC / "site.css").read_text() + "\n" + (SRC / "paper.css").read_text()
 BLOCKED_WORDS = Path(__file__).resolve().parent.parent / "backend" / "app" / "content" / "blocked_words.txt"
 
 
@@ -243,6 +249,7 @@ def bank_js():
                              for n in range(1, levels.LEVELS + 1)]},
         "parent": {"plans": plans.public_plans(),
                    "alert_days": list(plans.ALERT_DAYS), "pause_days": plans.PAUSE_DAYS,
+                   "trial": {"plan": plans.TRIAL_PLAN, "plan_name": plans.PLANS[plans.TRIAL_PLAN]["name"], "days": plans.TRIAL_DAYS},
                    # Plan locks and mock tests: the same rules as services/access.py and services/mock.py.
                    "limits": plans.LIMITS, "order": list(plans.ORDER),
                    "features": {k: {"limit": v[0], "name": v[1], "period": v[2]} for k, v in service("access").FEATURES.items()},
@@ -373,11 +380,16 @@ def render(meta, mode):
         svg = (SRC / "assets/hint-ladder.svg").read_text().strip()
         body = body.replace('src="assets/hint-ladder.svg"', 'src="data:image/svg+xml;base64,' + base64.b64encode(svg.encode()).decode() + '"')
 
+    # Public pages get the paper look: the class goes on <html> before anything is drawn.
+    paper = not any(meta.get(k) for k in ("app", "parent", "test", "settings"))
+    # The live site's security policy blocks inline scripts, so there the class is on the <html> tag itself. The
+    # preview's home page has no <html> tag of its own (the artifact wraps it), so it adds the class with a script.
+    paper_tag = '<script>document.documentElement.classList.add("paper")</script>\n' if paper and mode == "artifact" else ""
     head = f"""<title>{meta['title']}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="{meta['description']}">
 <meta name="robots" content="{robots}">
-<meta name="theme-color" content="#1c1e21">
+<meta name="theme-color" content="{'#f4f1e9' if paper else '#1c1e21'}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Graphite SAT">
 <meta property="og:title" content="{meta['title']}">
@@ -390,8 +402,8 @@ def render(meta, mode):
 {icons}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="{FONTS}">
-{styles}"""
+<link rel="stylesheet" href="{PAPER_FONTS}">
+{paper_tag}{styles}"""
     if is_home:
         head += '\n<script type="application/ld+json">' + json.dumps(JSONLD) + "</script>"
     head = "\n".join(l for l in head.split("\n") if l.strip())
@@ -407,7 +419,8 @@ def render(meta, mode):
     if signed_in:
         theme_tag = ('<script src="/js/theme.js"></script>\n' if mode == "dist"
                      else "<script>" + (SRC / "theme.js").read_text() + "</script>\n")
-    return ('<!doctype html>\n<html lang="en"' + (' class="live"' if mode == "dist" else "") + '>\n<head>\n<meta charset="utf-8">\n' + live_meta +
+    classes = " ".join(c for c, on in (("live", mode == "dist"), ("paper", paper)) if on)
+    return ('<!doctype html>\n<html lang="en"' + (f' class="{classes}"' if classes else "") + '>\n<head>\n<meta charset="utf-8">\n' + live_meta +
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
             + theme_tag + head + "\n" + (script if mode == "dist" else "") + "\n</head>\n<body>\n" + body
             + (script if mode == "artifact" else "") + "\n</body>\n</html>\n")

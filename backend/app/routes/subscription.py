@@ -2,7 +2,7 @@
 
 GET  /api/me/subscription              the plan, its status, what's locked, billing history and the plans
 POST /api/me/subscription/plan         switch plans: {plan, interval}. Paid plans go through checkout once payments are live.
-POST /api/me/subscription/<action>     pause, cancel or resume
+POST /api/me/subscription/<action>     pause, cancel, resume, or trial (the one free trial, no card)
 POST /api/me/subscription/portal       Stripe's page for the card on file, receipts and paying a failed bill
 POST /api/me/subscription/test         test account only: {plan, status} takes effect at once, no checkout or card
 
@@ -50,6 +50,7 @@ def _out(me):
         "plans": public_plans(),
         "payments_live": stripe_api.is_live(),
         "pause_days": service.PAUSE_DAYS,
+        "trial": {"plan": service.TRIAL_PLAN, "plan_name": PLANS[service.TRIAL_PLAN]["name"], "days": service.TRIAL_DAYS},
         "payer": None if not payer else {"you": payer["id"] == me["id"], "role": payer["role"],
                                           "name": payer["name"] if payer["id"] != me["id"] else "You"},
         "has_card": bool(payer and payer["stripe_customer_id"]),
@@ -137,13 +138,18 @@ def plan_action(action):
         return portal()
     sub = service.subscription(me["id"])
     allowed = {"pause": sub["plan"] != "free" and sub["status"] == "active",
-               "cancel": sub["plan"] != "free" and sub["status"] in ("active", "paused", "past_due"),
-               "resume": sub["status"] in ("paused", "canceled")}
+               "cancel": sub["plan"] != "free" and sub["status"] in ("active", "paused", "past_due", "trial"),
+               "resume": sub["status"] in ("paused", "canceled"),
+               "trial": sub["trial_available"]}
     if action not in allowed:
         raise ApiError(404, "Unknown plan action.")
     if not allowed[action]:
         raise ApiError(409, {"pause": "Only an active paid plan can be paused.", "cancel": "There's no paid plan to cancel.",
-                             "resume": "The plan is already active."}[action])
+                             "resume": "The plan is already active.",
+                             "trial": "The free trial is for the free plan, once per student."}[action])
+    if action == "trial":
+        service.start_trial(me["id"], me["id"])
+        return jsonify(_out(me)), 201
     _stripe(me["id"], action, (date.today() + timedelta(days=service.PAUSE_DAYS)).isoformat())
     getattr(service, action)(me["id"], me["id"])
     return jsonify(_out(me))

@@ -148,16 +148,18 @@ class MockTestTest(Base):
 
     def test_strong_module_1_gets_the_harder_module_2_with_new_questions(self):
         m = self.post("/api/mock-tests", {"section": "math", "with_break": True}).json["mock"]
-        self.assertEqual((m["status"], m["break_left"]), ("break", 600))
+        self.assertEqual((m["status"], m["break_left"]), ("module1", 600))  # the break comes after Module 1
         s1 = self.client.get(f"/api/practice/sessions/{m['m1_session']}").json["session"]
         self.assertEqual(len(s1["questions"]), 22)
         self.assertEqual((s1["mock"]["module"], s1["minutes"]), (1, 35))
-        # The break: started, then ended early.
-        self.assertEqual(self.post(f"/api/mock-tests/{m['id']}/break", {"action": "start"}).json["mock"]["status"], "break")
-        self.assertEqual(self.post(f"/api/mock-tests/{m['id']}/break", {"action": "end"}).json["mock"]["status"], "module1")
+        self.assertEqual(self.post(f"/api/mock-tests/{m['id']}/break", {"action": "end"}).json["mock"]["status"], "module1")  # no break yet
         s1, r1 = self.run_module(m["m1_session"], lambda i: True)
         self.assertIn("next_session", r1["mock"])
         s2 = self.client.get(f"/api/practice/sessions/{r1['mock']['next_session']}").json["session"]
+        # The break, between the modules: started, then ended early.
+        self.assertEqual((s2["mock"]["module"], s2["mock"]["status"]), (2, "break"))
+        self.assertEqual(self.post(f"/api/mock-tests/{m['id']}/break", {"action": "start"}).json["mock"]["status"], "break")
+        self.assertEqual(self.post(f"/api/mock-tests/{m['id']}/break", {"action": "end"}).json["mock"]["status"], "module2")
         ids1 = {q["id"] for q in s1["questions"]}
         ids2 = {q["id"] for q in s2["questions"]}
         self.assertEqual((len(ids1), len(ids2), len(ids1 & ids2)), (22, 22, 0))
@@ -181,6 +183,7 @@ class MockTestTest(Base):
         self.assertEqual(m["status"], "module1")
         _, r1 = self.run_module(m["m1_session"], lambda i: i < 5)
         s2 = self.client.get(f"/api/practice/sessions/{r1['mock']['next_session']}").json["session"]
+        self.assertEqual(s2["mock"]["status"], "module2")  # no break asked for
         easy = sum(1 for q in s2["questions"] if bank.all_items()[q["id"]]["difficulty"] == "easy")
         self.assertGreaterEqual(easy, 8)
         _, final = self.run_module(s2["id"], lambda i: True)
@@ -194,11 +197,12 @@ class MockTestTest(Base):
 
     def test_break_runs_out_by_itself(self):
         m = self.post("/api/mock-tests", {"section": "math"}).json["mock"]
+        _, r1 = self.run_module(m["m1_session"], lambda i: True)
         self.post(f"/api/mock-tests/{m['id']}/break", {"action": "start"})
         with self.app.app_context():
             execute("UPDATE mock_tests SET break_started_at = '2020-01-01T00:00:00Z' WHERE id = ?", (m["id"],))
-        s = self.client.get(f"/api/practice/sessions/{m['m1_session']}").json["session"]
-        self.assertEqual((s["mock"]["status"], s["mock"]["break_left"]), ("module1", 0))
+        s = self.client.get(f"/api/practice/sessions/{r1['mock']['next_session']}").json["session"]
+        self.assertEqual((s["mock"]["status"], s["mock"]["break_left"]), ("module2", 0))
 
 
 class CopyWarningTest(Base):
