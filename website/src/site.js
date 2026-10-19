@@ -809,7 +809,7 @@
         nextBtn.disabled = true;
         api("/api/sample").then(function (r) {
           current = r.question;
-          $("#qmeta").textContent = "Math · " + current.domain; $("#qnum").textContent = "Try one";
+          $("#qmeta").textContent = (current.section === "rw" ? "Reading and Writing · " : "Math · ") + current.domain; $("#qnum").textContent = "Try one";
           $("#qstem").innerHTML = current.stem;
           fs.innerHTML = '<legend class="visually-hidden">Answer choices</legend>';
           current.choices.forEach(function (c, i) {
@@ -1185,8 +1185,9 @@
         $("#kpi-latest-label").textContent = "Latest practice test";
         $("#kpi-latest").textContent = s.latest.correct + " / " + s.latest.total;
         $("#kpi-latest-sub").textContent = s.latest.pct + "% correct" + (s.change_pct_points != null ? ", " + (s.change_pct_points >= 0 ? "up " : "down ") + Math.abs(s.change_pct_points) + " from your first test" : " on " + s.latest.label);
-        // A finished mock test gives a Math estimate, shown as a range rather than one number.
+        // A finished mock test gives a section estimate, shown as a range rather than one number.
         if (s.math_estimate) $("#kpi-latest-sub").textContent += ". Math estimate " + s.math_estimate.low + "–" + s.math_estimate.high;
+        if (s.rw_estimate) $("#kpi-latest-sub").textContent += ". Reading and Writing estimate " + s.rw_estimate.low + "–" + s.rw_estimate.high;
       } else {
         $("#kpi-latest-label").textContent = "Latest practice test";
         $("#kpi-latest").textContent = "None yet";
@@ -1237,7 +1238,7 @@
         $("#score-chart").innerHTML = drawChart(d.history);
         $("#scores-thead").innerHTML = '<tr><th scope="col">Test</th><th scope="col">Date</th><th scope="col" class="num">Correct</th><th scope="col" class="num">Percent</th><th scope="col" class="num">Time</th></tr>';
         $("#scores-tbody").innerHTML = d.history.map(function (h, i) {
-          return '<tr><th scope="row">Attempt ' + (i + 1) + "</th><td>" + esc(h.label) + '</td><td class="num">' + h.correct + "/" + h.total + '</td><td class="num">' + h.pct + '%</td><td class="num">' + Math.round(h.seconds_used / 60) + " min</td></tr>";
+          return '<tr><th scope="row">' + (h.section === "rw" ? "Reading and Writing" : "Math") + " · attempt " + (i + 1) + "</th><td>" + esc(h.label) + '</td><td class="num">' + h.correct + "/" + h.total + '</td><td class="num">' + h.pct + '%</td><td class="num">' + Math.round(h.seconds_used / 60) + " min</td></tr>";
         }).join("");
         $("#scores-table").hidden = false;
         bindChart();
@@ -1251,7 +1252,7 @@
       $("#domains-meta").textContent = d.history.length ? "% correct on your latest test" : "No test yet";
       $("#domains-lede").textContent = d.domains.some(function (x) { return x.focus; })
         ? "The ones marked Focus have the most points left to gain. Your daily sets lean toward them."
-        : "Take a practice test to see where your points are. Reading and Writing results appear once that section's practice tests are added.";
+        : "Take a practice test in either section to see where your points are.";
       $("#bar-groups").innerHTML = Object.keys(groups).map(function (name) {
         return '<div><h3 class="bar-group-title">' + esc(name) + '</h3><ul class="bars">' + groups[name].map(function (dm) {
           var has = dm.pct != null;
@@ -1336,9 +1337,10 @@
 })();
 
 
-/* Math | Reading and Writing. Every math feature has a Reading and Writing side on the same page.
+/* Math | Reading and Writing. Every feature has a Reading and Writing side on the same page.
    Markup: <div class="subject-switch" data-subject-for="ID"> with buttons data-subject="math|rw"; inside #ID,
-   blocks marked data-subject-show="math" or "rw". Reading and Writing is coming soon, so its blocks hold a preview. */
+   blocks marked data-subject-show="math" or "rw" show for that subject only. Pages that draw their own lists
+   (Level up, Speed round, Lessons, Tutor) listen for the graphite:subject event and redraw for the new subject. */
 (function () {
   "use strict";
   var KEY = "graphite_subject";

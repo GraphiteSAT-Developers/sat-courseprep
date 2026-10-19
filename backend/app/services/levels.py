@@ -1,6 +1,7 @@
 """Level up: practice sets that get harder one level at a time.
 
-Each track (all of Math, or one Math domain) has LEVELS levels of SIZE questions. Level 1 is
+Each track (all of Math, one Math domain, all of Reading and Writing, or one Reading and Writing
+domain) has LEVELS levels of SIZE questions. Level 1 is
 mostly easy and the last level is mostly hard. Getting PASS right unlocks the next level, and
 any unlocked level can be replayed with new questions.
 
@@ -20,15 +21,20 @@ SIZE = 10
 PASS = 7
 TIERS = [(2, "Warm-up"), (4, "Building"), (6, "On target"), (8, "Challenge"), (LEVELS, "Top score")]
 ALL = "mixed"
+RW_ALL = "rw-mixed"
+MIXED = {ALL: ("math", "All of Math"), RW_ALL: ("rw", "All of Reading and Writing")}
 
 
 def tracks():
-    """[{key, name, skills: [{domain, skill, name}]}], all of Math first."""
+    """[{key, name, section, skills: [{domain, skill, name}]}]: all of Math, the Math domains, then the same for Reading and Writing."""
     out = []
-    for d in bank.topics():
-        out.append({"key": d["key"], "name": d["name"],
-                    "skills": [{"domain": d["key"], "skill": s["key"], "name": s["name"]} for s in d["skills"]]})
-    return [{"key": ALL, "name": "All of Math", "skills": [s for t in out for s in t["skills"]]}] + out
+    for key, (section, name) in MIXED.items():
+        per = []
+        for d in bank.topics(section):
+            per.append({"key": d["key"], "name": d["name"], "section": section,
+                        "skills": [{"domain": d["key"], "skill": s["key"], "name": s["name"]} for s in d["skills"]]})
+        out += [{"key": key, "name": name, "section": section, "skills": [s for t in per for s in t["skills"]]}] + per
+    return out
 
 
 def track(key):
@@ -96,7 +102,7 @@ def overview(user_id):
             m = mix(n)
             levels.append({"n": n, "tier": tier(n), "mix": m, "mix_label": studyplan.mix_label(m), "status": status,
                            "best": p.get("best"), "resume_id": p.get("open_id")})
-        out.append({"key": t["key"], "name": t["name"], "unlocked": unlocked, "levels": levels,
+        out.append({"key": t["key"], "name": t["name"], "section": t["section"], "unlocked": unlocked, "levels": levels,
                     "all_passed": all(lv["status"] == "passed" for lv in levels)})
     return {"tracks": out, "size": SIZE, "pass": PASS, "levels": LEVELS}
 
@@ -125,7 +131,7 @@ def start(user_id, track_key, level, rng=random):
         return practice.get(user_id, open_id)
     ids = boss_last(practice.draw_mix(user_id, t["skills"], mix(level), rng))
     title = f"{t['name']} · Level {level}"
-    domain = None if track_key == ALL else track_key
+    domain = None if track_key in MIXED else track_key
     return practice.save_session(user_id, "quiz", title, ids, 0, domain=domain, plan_task=tag(track_key, level))
 
 

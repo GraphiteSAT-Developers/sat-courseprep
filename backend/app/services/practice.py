@@ -1,7 +1,9 @@
 """Practice sets drawn from the question bank, without repeats.
 
-Every question a student answers goes on their done list (practice_seen).
-New sets draw only from questions not on that list. When a pool runs out
+Every question a student answers goes on their done list (practice_seen), for Math and
+Reading and Writing alike. The browser keeps a copy of the list in two cookies, one per
+section (services/donelist.py), so a done list follows the student even before the server
+has seen a set. New sets draw only from questions not on that list. When a pool runs out
 (the whole bank for a practice test's domain, or one topic), the questions
 in that pool come off the list and the student starts the pool again.
 
@@ -20,6 +22,9 @@ TOPIC_COUNTS = (5, 10, 15, 20)
 
 def seen_ids(user_id):
     return {r["item_id"] for r in query("SELECT item_id FROM practice_seen WHERE user_id = ?", (user_id,))}
+
+
+TEST_TITLES = {"math": "Math practice test", "rw": "Reading and Writing practice test"}
 
 
 def draw(user_id, pool, n, seen, rng=random, fill=False):
@@ -44,11 +49,18 @@ def draw(user_id, pool, n, seen, rng=random, fill=False):
     return rng.sample(unseen, len(unseen)) + rng.sample(done, min(n - len(unseen), len(done)))
 
 
-def build_test(user_id, rng=random):
-    """A 22-question module in the real test's domain mix, easiest first, like the real module."""
+def build_test(user_id, rng=random, section="math"):
+    """One module in the real test's mix. Math: 22 questions by domain, easiest first. Reading and
+    Writing: 27 questions by skill, grouped by question type as on test day, easiest first within each."""
     seen = seen_ids(user_id)
     items = bank.all_items()
     picked = []
+    if section == "rw":
+        for skill, n in bank.rw_module_mix().items():
+            picked += draw(user_id, bank.pool(skill=skill, section="rw"), n, seen, rng, fill=True)
+        rng.shuffle(picked)
+        picked.sort(key=lambda i: bank.rw_sort_key(items[i]))
+        return picked
     for domain, n in bank.MODULE_MIX.items():
         picked += draw(user_id, bank.pool(domain=domain), n, seen, rng, fill=True)
     rng.shuffle(picked)
@@ -56,8 +68,12 @@ def build_test(user_id, rng=random):
     return picked
 
 
+def module_minutes(section):
+    return bank.RW_MODULE_MINUTES if section == "rw" else bank.MODULE_MINUTES
+
+
 def topic_title(domain, skill):
-    for d in bank.topics():
+    for d in bank.topics("math") + bank.topics("rw"):
         if d["key"] != domain:
             continue
         if not skill:
@@ -68,9 +84,9 @@ def topic_title(domain, skill):
     return None
 
 
-def create(user_id, mode, domain=None, skill=None, count=10, rng=random):
+def create(user_id, mode, domain=None, skill=None, count=10, rng=random, section="math"):
     if mode == "test":
-        ids, title, minutes = build_test(user_id, rng), "Math practice test", bank.MODULE_MINUTES
+        ids, title, minutes = build_test(user_id, rng, section), TEST_TITLES[section], module_minutes(section)
         domain = skill = None
     else:
         title = topic_title(domain, skill)
@@ -303,7 +319,8 @@ def submit(user_id, session, answers, seconds):
     answers = dict(answers)
     answers.update(checked)  # an answer that was checked can't change afterward
     result = bank.grade(ids, answers)
-    result.update({"seconds_used": seconds, "practice_id": session["id"], "mode": session["mode"], "title": session["title"]})
+    result.update({"seconds_used": seconds, "practice_id": session["id"], "mode": session["mode"], "title": session["title"],
+                   "section": bank.section_of_items(ids)})
     stamp = now_iso()
     answered = [ids[i] for i in answers if answers[i] is not None and answers[i] != ""]
     result["finished"] = mark_seen(user_id, answered)
@@ -349,10 +366,10 @@ def submit(user_id, session, answers, seconds):
     return result
 
 
-def overview(user_id):
-    """Topics with each one's progress through the current round, plus sets left unfinished."""
+def overview(user_id, section="math"):
+    """One section's topics with each one's progress through the current round, plus sets left unfinished."""
     seen = seen_ids(user_id)
-    items = bank.all_items()
+    items = {k: q for k, q in bank.all_items().items() if q["section"] == section}
     done_by_skill = {}
     for item_id in seen:
         q = items.get(item_id)
@@ -360,17 +377,19 @@ def overview(user_id):
             k = (q["domain_key"], q["skill_key"])
             done_by_skill[k] = done_by_skill.get(k, 0) + 1
     domains = []
-    for d in bank.topics():
+    for d in bank.topics(section):
         skills = [dict(s, done=done_by_skill.get((d["key"], s["key"]), 0)) for s in d["skills"]]
         domains.append({"key": d["key"], "name": d["name"], "skills": skills,
                         "total": sum(s["total"] for s in skills), "done": sum(s["done"] for s in skills)})
     open_rows = query("SELECT id, mode, title, item_ids, checked, created_at FROM practice_sessions "
                       "WHERE user_id = ? AND submitted_at IS NULL ORDER BY created_at DESC, id DESC LIMIT 5", (user_id,))
     unfinished = [{"id": r["id"], "mode": r["mode"], "title": r["title"], "created_at": r["created_at"],
+                   "section": bank.section_of_items(json.loads(r["item_ids"])),
                    "questions": len(json.loads(r["item_ids"])), "checked": len(json.loads(r["checked"] or "{}"))}
                   for r in open_rows]
+    per_module = sum(bank.rw_module_mix().values()) if section == "rw" else sum(bank.MODULE_MIX.values())
     return {
-        "total": len(items), "done": sum(d["done"] for d in domains), "domains": domains,
-        "test": {"questions": sum(bank.MODULE_MIX.values()), "minutes": bank.MODULE_MINUTES},
+        "section": section, "total": len(items), "done": sum(d["done"] for d in domains), "domains": domains,
+        "test": {"questions": per_module, "minutes": module_minutes(section)},
         "topic_counts": list(TOPIC_COUNTS), "unfinished": unfinished,
     }

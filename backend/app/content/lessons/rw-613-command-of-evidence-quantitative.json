@@ -1,0 +1,136 @@
+{
+  "id": "rw-evidence-data",
+  "order": 613,
+  "domain": "information-ideas",
+  "skill": "command-of-evidence-quantitative",
+  "title": "Read the claim, then the chart",
+  "minutes": 6,
+  "format": "timed",
+  "seconds": 45,
+  "hook": "Start with the claim in the question. Then find exactly the numbers it needs: the right group, the right year.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "Which do you read first on a data question: the table or the claim?",
+      "answer": "The claim. It tells you which numbers matter."
+    },
+    {
+      "type": "grid",
+      "prompt": "Books checked out (Fiction / Nonfiction): Jan 1,240 / 860; Mar 1,320 / 1,015; Apr 1,180 / 1,090. Fill in the nonfiction change from March to April, and whether it rose.",
+      "head": [
+        "Measure",
+        "Value"
+      ],
+      "rows": [
+        [
+          "Change (April minus March)",
+          "___"
+        ],
+        [
+          "Rose? (yes or no)",
+          "___"
+        ]
+      ],
+      "accept": [
+        [
+          "75"
+        ],
+        [
+          "yes"
+        ]
+      ],
+      "why": "1,090 minus 1,015 is 75, so nonfiction rose. That's the April example of growing nonfiction checkouts."
+    },
+    {
+      "type": "predict",
+      "prompt": "Claim: trust in national news fell much more than trust in local news (2008 to 2020). National: 60 to 36. Local: 72 to 66. Best support?",
+      "choices": [
+        "Local was higher than national every year.",
+        "In 2008, 72 percent trusted local news.",
+        "National fell 24 points while local fell only 6."
+      ],
+      "answer": 2,
+      "why": "The claim is about the size of the drops, so compare changes, not levels."
+    },
+    {
+      "type": "sort",
+      "prompt": "Claim: bumblebees like red flowers more than honeybees do. Sort each data statement.",
+      "buckets": [
+        "Supports",
+        "Accurate but off target"
+      ],
+      "cards": [
+        {
+          "text": "Bumblebees visited red flowers 15 times; honeybees, 4.",
+          "bucket": 0
+        },
+        {
+          "text": "Honeybees visited blue flowers 46 times.",
+          "bucket": 1
+        },
+        {
+          "text": "Bumblebees visited blue more than red.",
+          "bucket": 1
+        }
+      ],
+      "why": "Only a comparison of the two kinds of bees at red flowers fits the claim."
+    },
+    {
+      "type": "predict",
+      "prompt": "Claim: scores rose with more practice sessions, but gains leveled off after three or four. Scores: 0 sessions 68, 1 to 2 sessions 71, 3 to 4 sessions 79, 5 or more 80. Which choice covers both parts?",
+      "choices": [
+        "Scores rose from 68 to 71.",
+        "Scores rose from 68 to 79, then only to 80.",
+        "Students with 3 to 4 sessions scored 79."
+      ],
+      "answer": 1,
+      "why": "Two-part claims need two-part evidence: the rise and the leveling off."
+    },
+    {
+      "type": "predict",
+      "prompt": "The most common trap on data questions is a choice that:",
+      "choices": [
+        "has a math error",
+        "uses percentages",
+        "reports the data correctly but answers a different question"
+      ],
+      "answer": 2,
+      "why": "Accurate isn't enough. It must be relevant to the claim."
+    }
+  ],
+  "keys": [
+    "Read the claim first, then hunt for its numbers.",
+    "Changes and comparisons are different from single values.",
+    "Two-part claims need evidence for both parts."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "A claim says a decline accelerated. You need:",
+      "choices": [
+        "the most recent drop compared with earlier drops",
+        "the lowest value",
+        "the total decline"
+      ],
+      "answer": 0,
+      "why": "Accelerating means the newest drop is the biggest."
+    },
+    {
+      "type": "predict",
+      "prompt": "Accurate data that describes the wrong group is:",
+      "choices": [
+        "always right",
+        "right if it's a percent",
+        "still wrong"
+      ],
+      "answer": 2,
+      "why": "Relevance to the claim decides."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the first thing to read on a table question?",
+      "answer": "The claim in the question."
+    }
+  ],
+  "tex": true
+}

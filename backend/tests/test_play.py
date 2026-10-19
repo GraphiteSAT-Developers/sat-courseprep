@@ -173,6 +173,8 @@ class PlayTest(PracticeTest):
         r = self.patch("/api/speed/profile", {"nickname": "  Quadratic   Queen 7 "})
         self.assertEqual((r.status_code, r.json["board_profile"]["nickname"]), (200, "Quadratic Queen 7"))
         self.assertEqual(self.patch("/api/speed/profile", {"state": "ZZ"}).status_code, 400)
+        for _ in range(50):  # every suggestion fits the length limit
+            self.assertTrue(all(len(x) <= speed.NICK_MAX for x in speed.roll_nicknames()))
         nick = self.client.get("/api/speed/nicknames").json["nicknames"][0]
         self.assertTrue(speed.valid_nickname(nick))
         r = self.patch("/api/speed/profile", {"nickname": nick, "opt_in": True, "state": "FL"})

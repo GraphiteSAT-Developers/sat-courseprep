@@ -579,9 +579,6 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .sys { display: grid; gap: var(--s1); justify-items: center; margin-block: var(--s2) var(--s4); }
 .frac { display: inline-grid; vertical-align: middle; text-align: center; line-height: 1.15; margin-inline: 2px; font-size: 0.9em; }
 .frac > span:first-child { border-bottom: 1px solid currentColor; padding-inline: 2px; }
-.spr-help details { background: var(--x-bar); border-radius: var(--radius); padding: var(--s3) var(--s4); font-size: var(--t-sm); }
-.spr-help summary { cursor: pointer; font-weight: 700; }
-.spr-help ul { margin: var(--s3) 0 0; padding-left: 1.2em; display: grid; gap: var(--s1); color: var(--x-muted); }
 
 .mc { display: grid; gap: var(--s3); }
 .mc-row { display: flex; align-items: center; gap: var(--s3); position: relative; }
@@ -2816,3 +2813,78 @@ html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-laun
 /* Subscription page: the one offer shown before canceling */
 .sub-cancel-offer { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s4); padding: var(--s4); border: 1px solid var(--line); border-radius: var(--radius); background: var(--raised); }
 .sub-cancel-offer p { flex: 1 1 280px; }
+
+/* ---------- Reading and Writing questions ---------- */
+/* Two panes, like the real test: the passage (or a grid-in question's entry directions) on the left, the question
+   on the right, and a divider that can be dragged or nudged. Multiple-choice Math stays in one column. */
+.exam.is-rw #calc-toggle, .exam.is-rw #ref-open { display: none; }
+.q-wrap.is-split { max-width: 1280px; grid-template-columns: minmax(0, var(--left, 1fr)) 28px minmax(0, var(--right, 1fr)); column-gap: var(--s4); align-items: start; }
+.q-wrap.is-split > .q-passage { grid-column: 1; grid-row: 1 / span 8; position: sticky; top: 0; max-height: calc(100dvh - 210px); overflow-y: auto; padding-right: var(--s3); }
+.q-wrap.is-split > .q-divider { grid-column: 2; grid-row: 1 / span 8; align-self: stretch; }
+.q-wrap.is-split > :not(.q-passage):not(.q-divider) { grid-column: 3; }
+.q-divider { position: relative; display: flex; flex-direction: column; align-items: center; gap: var(--s2); padding-top: var(--s2); cursor: col-resize; touch-action: none; min-height: 240px; }
+.q-divider::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; transform: translateX(-50%); background: var(--x-line); border-radius: 2px; }
+.q-divider:focus-visible::before, .q-divider:hover::before { background: var(--x-sel); }
+.q-divider-btn { position: relative; z-index: 1; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--x-control); background: var(--x-bg); color: var(--x-text); cursor: pointer; padding: 0; }
+.q-divider-btn svg { width: 12px; height: 12px; }
+.q-divider-btn:hover { border-color: var(--x-text); }
+.q-divider-grip { position: relative; z-index: 1; width: 10px; height: 34px; border-radius: 5px; background: var(--x-control); }
+@media (max-width: 860px) {
+  .q-wrap.is-split { grid-template-columns: minmax(0, 1fr); }
+  .q-wrap.is-split > .q-passage, .q-wrap.is-split > :not(.q-passage):not(.q-divider) { grid-column: 1; grid-row: auto; }
+  .q-wrap.is-split > .q-passage { position: static; max-height: none; padding: 0 0 var(--s5); border-bottom: 2px dashed var(--x-line); }
+  .q-wrap.is-split > .q-divider { display: none; }
+}
+/* Annotate: highlighted words and their notes. */
+mark.anno { background: rgba(242, 193, 78, .38); color: inherit; border-radius: 2px; cursor: pointer; }
+mark.anno.has-note { border-bottom: 2px dotted var(--x-sel); }
+mark.anno:focus-visible { outline: 2px solid var(--x-sel); }
+.exam[data-view="light"] mark.anno { background: #fde68a; }
+.anno-pop { position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); bottom: 88px; z-index: 40; width: min(440px, calc(100vw - 32px)); display: grid; gap: var(--s3); padding: var(--s4); background: var(--x-bar); color: var(--x-text); border: 1px solid var(--x-line); border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.35); }
+.anno-head { display: flex; align-items: center; justify-content: space-between; }
+.anno-head h2 { margin: 0; font-size: var(--t-md); }
+.anno-quote { margin: 0; font-family: var(--font-display); font-style: italic; color: var(--x-muted); }
+.anno-pop textarea { width: 100%; font: inherit; padding: var(--s2) var(--s3); border-radius: var(--radius); border: 1px solid var(--x-control); background: var(--x-bg); color: var(--x-text); resize: vertical; }
+.anno-actions { display: flex; justify-content: flex-end; gap: var(--s2); }
+/* Grid-in entry directions, in the left pane. */
+.spr-dir summary { cursor: pointer; font-weight: 700; font-family: var(--font-body); }
+.spr-dir ul { margin: var(--s3) 0; padding-left: 1.2em; display: grid; gap: var(--s2); font-family: var(--font-body); font-size: var(--t-sm); }
+.spr-examples { border-collapse: collapse; font-family: var(--font-body); font-size: var(--t-sm); width: 100%; }
+.spr-examples caption { text-align: left; font-weight: 700; padding-bottom: var(--s2); }
+.spr-examples th, .spr-examples td { border: 1px solid var(--x-line); padding: var(--s2); text-align: left; vertical-align: top; }
+.spr-examples thead th { background: var(--x-bar); }
+.q-passage, .rw-passage { font-family: var(--font-display); font-size: 1.125rem; line-height: 1.75; color: var(--x-text, var(--text)); }
+.q-passage p, .rw-passage p { margin: 0 0 var(--s3); }
+.q-passage > :last-child, .rw-passage > :last-child { margin-bottom: 0; }
+.rw-intro { font-style: italic; color: var(--x-muted, var(--muted)); }
+.rw-text { margin-bottom: var(--s4); }
+.rw-text-label { font-family: var(--font-body); font-weight: 800; font-size: var(--t-sm); letter-spacing: 0.02em; margin-bottom: var(--s1) !important; }
+.rw-notes { margin: 0; padding-left: 1.3em; display: grid; gap: var(--s2); }
+.rw-blank { display: inline-block; min-width: 4.5em; border-bottom: 2px solid var(--x-text, var(--text)); color: transparent; line-height: 1.1; user-select: none; }
+.rw-prompt { font-weight: 600; margin: 0; }
+.rw-passage + .rw-prompt { margin-top: var(--s4); }
+.rw-table-wrap { overflow-x: auto; margin: 0 0 var(--s4); }
+.rw-table { border-collapse: collapse; font-family: var(--font-body); font-size: var(--t-sm); line-height: 1.4; min-width: 100%; }
+.rw-table caption { text-align: left; font-weight: 700; padding-bottom: var(--s2); }
+.rw-table th, .rw-table td { border: 1px solid var(--x-line, var(--line)); padding: var(--s2) var(--s3); text-align: left; vertical-align: top; }
+.rw-table thead th { background: var(--x-bar, var(--raised)); }
+.rw-table td { font-variant-numeric: tabular-nums; }
+.rw-graph { margin: 0 0 var(--s4); font-family: var(--font-body); }
+.rw-graph figcaption { font-weight: 700; font-size: var(--t-sm); margin-bottom: var(--s2); }
+.rw-chart { width: 100%; max-width: 560px; height: auto; display: block; }
+.rw-chart text { fill: currentColor; font-size: 12px; font-family: var(--font-body); }
+.rw-chart .tick, .rw-chart .axis-label { fill: var(--x-muted, var(--muted)); font-size: 11px; }
+.rw-chart .val { font-size: 11px; font-weight: 700; }
+.rw-chart .grid { stroke: var(--x-line, var(--line)); stroke-width: 1; }
+.rw-chart .axis { stroke: currentColor; stroke-width: 1.5; }
+.rw-chart .s0, .rw-legend .s0 { fill: var(--accent); background: var(--accent); }
+.rw-chart .s1, .rw-legend .s1 { fill: var(--info); background: var(--info); }
+.rw-chart .s2, .rw-legend .s2 { fill: var(--ok); background: var(--ok); }
+.exam[data-view="light"] .rw-chart .s0, .exam[data-view="light"] .rw-legend .s0 { fill: #4b5563; background: #4b5563; }
+.exam[data-view="light"] .rw-chart .s1, .exam[data-view="light"] .rw-legend .s1 { fill: #93a3b8; background: #93a3b8; }
+.rw-legend { list-style: none; margin: 0 0 var(--s2); padding: 0; display: flex; flex-wrap: wrap; gap: var(--s4); font-size: var(--t-sm); }
+.rw-legend li { display: inline-flex; align-items: center; gap: var(--s2); }
+.rw-legend .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+.res-stem .rw-passage, .sp-stem .rw-passage, .qcard-stem .rw-passage { font-size: 1rem; }
+.qcard-stem .rw-prompt { font-size: 1rem; }
+.pr-done { font-weight: 600; font-size: var(--t-xs); color: var(--muted); margin-left: var(--s1); white-space: nowrap; }

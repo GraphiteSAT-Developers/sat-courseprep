@@ -1,0 +1,116 @@
+{
+  "id": "rw-cross-text",
+  "order": 603,
+  "domain": "craft-structure",
+  "skill": "cross-text-connections",
+  "title": "Make two authors talk",
+  "minutes": 7,
+  "format": "teach",
+  "intro": "A student answered these two-text questions. Check their work, line by line.",
+  "hook": "Sum up each text in one line, then ask how author 2 would answer author 1.",
+  "steps": [
+    {
+      "type": "recall",
+      "prompt": "Before checking any work: what two things should you write down before reading the choices?",
+      "answer": "A one-line summary of Text 1's claim and a one-line summary of Text 2's view of it."
+    },
+    {
+      "type": "spot",
+      "prompt": "Text 1: highway lanes reduce traffic. Text 2: new lanes fill up as more people drive. The student's reasoning. Tap the mistake.",
+      "lines": [
+        "Text 1 says more lanes reduce traffic jams.",
+        "Text 2 says the extra space attracts more drivers.",
+        "So Text 2 would agree that wider highways permanently fix traffic.",
+        "The answer is the choice about benefits fading as more people drive."
+      ],
+      "wrong": 2,
+      "why": "Text 2 disagrees: the benefit fades. The student's last line was right, but the third line contradicts it."
+    },
+    {
+      "type": "match",
+      "prompt": "Match each Text 2 move to what it does to Text 1's claim.",
+      "left": [
+        "Accepts the finding but offers another cause",
+        "Shows the claim is true only sometimes",
+        "Agrees and adds more evidence",
+        "Rejects the claim outright"
+      ],
+      "right": [
+        "Alternative explanation",
+        "Too broad",
+        "Support",
+        "Flat disagreement"
+      ],
+      "why": "On the SAT, flat disagreement is the least common. Most second texts qualify the first: another cause, or 'it depends.'"
+    },
+    {
+      "type": "predict",
+      "prompt": "Text 1: cracking knuckles causes arthritis. Text 2: a doctor cracked only one hand's knuckles for 60 years; neither hand had arthritis. Text 2's author would most likely:",
+      "choices": [
+        "argue people should crack their knuckles more",
+        "present evidence that casts doubt on the claim",
+        "agree that cracking knuckles is harmful"
+      ],
+      "answer": 1,
+      "why": "Text 2 gives a test that found no difference. That casts doubt; it doesn't recommend anything."
+    },
+    {
+      "type": "spot",
+      "prompt": "Text 1: social media makes teens lonely. Text 2: it depends on whether teens chat with friends or scroll strangers' posts. Tap the student's mistake.",
+      "lines": [
+        "Text 2 found two different effects.",
+        "Chatting with friends went with less loneliness.",
+        "So Text 2 shows social media has no effect at all.",
+        "The best answer says the effect depends on how teens use it."
+      ],
+      "wrong": 2,
+      "why": "Two different effects is not 'no effect.' Watch out for choices that make Text 2 more extreme than it is."
+    },
+    {
+      "type": "predict",
+      "prompt": "Which answer pattern is most often right on cross-text questions?",
+      "choices": [
+        "Text 2 ignores Text 1's topic",
+        "Text 2 completely rejects Text 1",
+        "Text 2 agrees with part of Text 1 and complicates the rest"
+      ],
+      "answer": 2,
+      "why": "Second texts usually qualify the first: partly agree, then add a factor, a limit, or another explanation."
+    }
+  ],
+  "keys": [
+    "Write a one-line summary of each text first.",
+    "Most second texts qualify the first: another cause, a limit, or 'it depends.'",
+    "Reject choices that make an author more extreme than the text."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Text 2 accepts Text 1's finding but says other factors could explain it. That's:",
+      "choices": [
+        "flat disagreement",
+        "support",
+        "an alternative explanation"
+      ],
+      "answer": 2,
+      "why": "Accepting the data but offering another cause is an alternative explanation."
+    },
+    {
+      "type": "predict",
+      "prompt": "Choices with words like 'never' or 'completely' on cross-text questions are usually:",
+      "choices": [
+        "too extreme",
+        "about Text 1 only",
+        "right"
+      ],
+      "answer": 0,
+      "why": "Most second texts qualify rather than flatly reject."
+    },
+    {
+      "type": "recall",
+      "prompt": "What do you write before reading the choices on a two-text question?",
+      "answer": "A one-line summary of each text."
+    }
+  ],
+  "tex": true
+}
