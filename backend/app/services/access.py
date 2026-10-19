@@ -20,7 +20,7 @@ UNPAID = {"past_due": "A payment didn't go through", "paused": "Your plan is pau
 FEATURES = {
     "practice_set": ("practice_sets_per_week", "Practice sets", "week"),
     "mock_test": ("practice_tests_per_month", "Mock tests", "month"),
-    "level_up": ("level_up", "Level up", None),
+    "level_up": ("level_up", "All Level up levels", None),  # every plan opens plans.FREE_LEVELS of each track
     "study_plan": ("study_plan", "Your study plan", None),
     "review_queue": ("review_queue", "The review queue", None),
     "explanations": ("explanations", "Step-by-step explanations", None),
@@ -108,13 +108,14 @@ def state(student_id, feature, today=None):
 
 
 def message(st):
+    name = st["name"][:1].lower() + st["name"][1:]  # mid-sentence; "Level up" keeps its capital
     if st["reason"]:
-        return f"{st['reason']}, so {st['name'].lower()} {'are' if st['name'].endswith('s') else 'is'} locked until it's paid. Fix it on your subscription page."
+        return f"{st['reason']}, so {name} {'are' if st['name'].endswith('s') else 'is'} locked until it's paid. Fix it on your subscription page."
     if st["period"] and st["limit"]:
         each = "this week" if st["period"] == "week" else "this month"
-        return (f"You've used all {st['limit']} of your {st['name'].lower()} {each}. "
-                f"{st['need_name']} includes more.")
-    return f"{st['name']} {'come' if st['name'].endswith('s') else 'comes'} with the {st['need_name']} plan and up."
+        used = f"your {name[:-1]}" if st["limit"] == 1 else f"all {st['limit']} of your {name}"
+        return f"You've used {used} {each}. {st['need_name']} includes more."
+    return f"{st['name']} {'come' if st['name'].endswith('s') else 'comes'} with the {st['need_name']} plan."
 
 
 def require(user, feature, today=None):
@@ -143,7 +144,8 @@ def summary(student_id, today=None):
 
 
 LOCKED_EXPLANATION = (
-    '<div class="xp-locked"><p><strong>Step-by-step explanations come with the No. 2 plan and up.</strong> '
+    f'<div class="xp-locked"><p><strong>Step-by-step explanations come with the '
+    f'{PLANS[next(p for p in ORDER if LIMITS[p]["explanations"])]["name"]} plan.</strong> '
     'You can see the right answer here. <a href="subscription.html?feature=explanations">See plans</a></p></div>')
 
 

@@ -6,6 +6,9 @@ starts when Stripe confirms the payment (on the way back to checkout.html, and t
 
 Prices come from plans.py. The first checkout for each plan, billing option and amount creates the
 matching Stripe price (found again later by its lookup key), so there's nothing to set up in Stripe by hand.
+A subscription keeps the price it started with: someone on an older plan (plans.LEGACY_PRICES) pays that
+until they check out Mechanical, or until their subscription is moved to another of these prices in Stripe,
+which the webhook then copies here.
 """
 from datetime import date, datetime, timezone
 
@@ -13,7 +16,7 @@ from flask import current_app
 
 from ..db import execute, now_iso, query
 from . import parent as parent_svc, stripe_api
-from .plans import PLANS, interval_words, key_for, money, next_renewal
+from .plans import INTERVALS, LEGACY_PRICES, PLANS, billed_cents, interval_words, key_for, money, next_renewal
 
 _price_ids = {}  # lookup key -> Stripe price id, so each price is looked up once per server start
 
@@ -91,7 +94,9 @@ def _period_end(sub):
 
 def _activate(meta, customer_id, subscription, amount=None):
     """Starts a paid plan from a completed checkout. Safe to call twice for the same checkout."""
-    student_id, plan, interval = int(meta["student_id"]), key_for(meta.get("plan")), meta.get("interval")
+    student_id, interval = int(meta["student_id"]), meta.get("interval")
+    # A checkout started at an older plan's price (plans.LEGACY_PRICES) keeps that plan, so it shows what Stripe bills.
+    plan = meta.get("plan") if meta.get("plan") in LEGACY_PRICES else key_for(meta.get("plan"))
     payer_id = int(meta["payer_id"]) if meta.get("payer_id") else None
     if isinstance(subscription, str):
         subscription = stripe_api.request("GET", f"/subscriptions/{subscription}")
@@ -112,9 +117,9 @@ def _activate(meta, customer_id, subscription, amount=None):
     execute("UPDATE subscriptions SET stripe_subscription_id = ? WHERE student_id = ?", (sub_id, student_id))
     if customer_id and payer_id:
         execute("UPDATE users SET stripe_customer_id = ? WHERE id = ?", (customer_id, payer_id))
-    paid = amount if amount is not None else PLANS[plan]["prices"][interval]
+    paid = amount if amount is not None else billed_cents(plan, interval)
     parent_svc._event(student_id, payer_id, "change",
-                      f"{PLANS[plan]['name']}, billed {interval_words(interval)}. Paid {money(paid)}. Renews {parent_svc.nice_date(renews)}.", paid)
+                      f"{PLANS[key_for(plan)]['name']}, billed {interval_words(interval)}. Paid {money(paid)}. Renews {parent_svc.nice_date(renews)}.", paid)
 
 
 # ---------- keeping Stripe in step with the parent dashboard ----------
@@ -146,6 +151,21 @@ def portal_url(payer, return_path=None):
 
 # ---------- webhook ----------
 
+def _price_plan(sub):
+    """(plan, interval) for the price a Stripe subscription bills, when it's one of ours: a plan or an older plan's
+    price (from the price's metadata, or failing that its lookup key, graphite_<plan>_<interval>_<cents>). Else None."""
+    price = (((sub.get("items") or {}).get("data") or [{}])[0].get("price")) or {}
+    meta = price.get("metadata") or {}
+    plan, interval = meta.get("plan"), meta.get("interval") or (price.get("recurring") or {}).get("interval")
+    if not plan:
+        parts = (price.get("lookup_key") or "").split("_")
+        if len(parts) == 4 and parts[0] == "graphite":
+            plan, interval = parts[1], parts[2]
+    if plan != "free" and (plan in PLANS or plan in LEGACY_PRICES) and interval in INTERVALS:
+        return plan, interval
+    return None
+
+
 def handle_event(event):
     """Applies one Stripe webhook event. Each event is handled once, however many times Stripe sends it."""
     if query("SELECT id FROM stripe_events WHERE id = ?", (event["id"],), one=True):
@@ -169,6 +189,10 @@ def handle_event(event):
                 row.update(status=status, renews_on=_period_end(obj) or row["renews_on"])
                 if status != "paused":
                     row["paused_until"] = None
+                moved = _price_plan(obj)
+                if moved:
+                    # Moved to another of our prices in Stripe, such as an older plan's subscriber moved to Mechanical.
+                    row.update(plan=moved[0], billing_interval=moved[1])
                 parent_svc._save(row["student_id"], row, row["updated_by"])
     elif kind in ("invoice.paid", "invoice.payment_failed") and obj.get("subscription"):
         row = query("SELECT * FROM subscriptions WHERE stripe_subscription_id = ?", (obj["subscription"],), one=True)

@@ -161,7 +161,7 @@
     if (!res && r.plan && r.plan.results) res = r.plan.results;
     if (res) renderResults(res);
     renderPlan(r.plan);
-    // The diagnostic is free; the week-by-week plan comes with No. 2 and up.
+    // The diagnostic is free; the week-by-week plan comes with Mechanical.
     if (r.access && !r.access.ok && window.GraphiteLock) GraphiteLock.panel($("pl-plan-title").closest(".panel"), r.access);
   }
   function renderResults(res) {

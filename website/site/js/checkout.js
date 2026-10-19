@@ -1,7 +1,7 @@
 /* Graphite SAT checkout (checkout.html): pick a plan and how to pay, then pay on Stripe.
    Live: /api/checkout sends the parent to Stripe's payment page, or, before Stripe is connected, starts the plan
    without charging. Preview: the plan is saved in this browser, where the parent dashboard preview reads it.
-   Links in: checkout.html?plan=sharpened&interval=year&student=12 (all optional). */
+   Links in: checkout.html?plan=mechanical&interval=month&student=12 (all optional). */
 (function () {
   "use strict";
   var form = document.getElementById("co-form");
@@ -10,12 +10,13 @@
   var API = window.GraphiteAPI, LIVE = !!(API && API.live);
   var PLANS = JSON.parse($("plans-data").textContent).filter(function (p) { return p.key !== "free"; });
   var FREE_NAME = JSON.parse($("plans-data").textContent)[0].name;
+  var LEGACY = JSON.parse($("plans-legacy").textContent);  // older plan names -> the plan that replaced them
   var IV = ["week", "month", "year"], WORDS = { week: "weekly", month: "monthly", year: "yearly" };
   var EVERY = { week: "week", month: "month", year: "year" };
   var q = new URLSearchParams(location.search);
   var state = {
-    plan: PLANS.some(function (p) { return p.key === q.get("plan"); }) ? q.get("plan") : "sharpened",
-    interval: IV.indexOf(q.get("interval")) >= 0 ? q.get("interval") : "year",
+    plan: PLANS.some(function (p) { return p.key === q.get("plan"); }) ? q.get("plan") : PLANS[0].key,
+    interval: IV.indexOf(q.get("interval")) >= 0 ? q.get("interval") : "month",
     student: Number(q.get("student")) || null, info: null, busy: false
   };
 
@@ -117,7 +118,7 @@
       if (!a.students.some(function (s) { return s.id === state.student; })) state.student = a.students[0].id;
       var s = a.students.filter(function (x) { return x.id === state.student; })[0], sub = s.subscription;
       var now = sub && sub.plan !== "free" ? "Right now: " + sub.plan_name + (sub.status === "canceled" ? " (canceled)" : "") + ", " + sub.price_label + ". " +
-        (sub.plan === state.plan && sub.interval === state.interval ? "That's this exact plan already." : "Checking out switches to " + plan().name + " today" + (info.payments_live ? ", and the time left on the old plan is credited to your account." : ".")) : "Right now: the free " + FREE_NAME + " plan.";
+        (sub.plan === state.plan && sub.interval === state.interval && !sub.legacy ? "That's this exact plan already." : "Checking out switches to " + plan().name + " today" + (info.payments_live ? ", and the time left on the old plan is credited to your account." : ".")) : "Right now: the free " + FREE_NAME + " plan.";
       el.innerHTML = (a.students.length > 1
         ? '<div class="field"><label for="co-student">Student</label><select id="co-student">' + a.students.map(function (x) { return '<option value="' + x.id + '"' + (x.id === state.student ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("") + "</select></div>"
         : '<p class="co-for"><strong>' + esc(s.name) + "</strong></p>") + '<p class="fine">' + esc(now) + "</p>";
@@ -196,11 +197,11 @@
       if (w.email) {
         account = { name: w.email, role: w.role === "parent" ? "parent" : "student" };
         if (account.role !== "parent") {
-          var ms = f.sub && f.sub.plan !== "free" ? f.sub : null, mp = ms && PLANS.filter(function (x) { return x.key === ms.plan; })[0];
+          var ms = f.sub && f.sub.plan !== "free" ? f.sub : null, mp = ms && PLANS.filter(function (x) { return x.key === (LEGACY[ms.plan] || ms.plan); })[0];
           account.students = [{ id: 1, name: w.email, self: true, subscription: mp ? { plan: mp.key, plan_name: mp.name, interval: ms.interval, status: ms.status, price_label: label(mp, ms.interval) } : { plan: "free" } }];
         }
         if (account.role === "parent") {
-          var sub = f.sub && f.sub.plan !== "free" ? f.sub : null, p = sub && PLANS.filter(function (x) { return x.key === sub.plan; })[0];
+          var sub = f.sub && f.sub.plan !== "free" ? f.sub : null, p = sub && PLANS.filter(function (x) { return x.key === (LEGACY[sub.plan] || sub.plan); })[0];
           account.students = f.parents.length || w.email === "beta2" ? [{ id: 1, name: "Maya Rivera", subscription: p ? { plan: p.key, plan_name: p.name, interval: sub.interval, status: sub.status,
             price_label: label(p, sub.interval) } : { plan: "free" } }] : [];
         }

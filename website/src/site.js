@@ -407,7 +407,7 @@
       return { title: "You've used this " + lock.period + "'s " + lock.name.toLowerCase(),
                text: "Your plan includes " + lock.limit + " a " + lock.period + ". " + lock.need_name + " includes more, or wait until next " + lock.period + ".", cta: "See plans" };
     }
-    return { title: lock.name + " " + (/s$/.test(lock.name) ? "come" : "comes") + " with " + lock.need_name, text: "Upgrade to " + lock.need_name + " or higher to unlock it.", cta: "See plans" };
+    return { title: lock.name + " " + (/s$/.test(lock.name) ? "come" : "comes") + " with " + lock.need_name, text: "Upgrade to " + lock.need_name + " to unlock " + (/s$/.test(lock.name) ? "them." : "it."), cta: "See plans" };
   }
   // Every lock leads to the subscription page, which knows what was locked and where to come back to.
   function lockUrl(lock) {
@@ -496,7 +496,7 @@
   }
   function safeNext() {
     var next = new URLSearchParams(location.search).get("next") || "";
-    // A page on this site, optionally with simple settings after "?" (checkout.html?plan=sharpened&interval=year).
+    // A page on this site, optionally with simple settings after "?" (checkout.html?plan=mechanical&interval=month).
     if (!/^\/[a-z0-9-]+\.html(\?[a-z0-9=&_%.-]*)?$/i.test(next)) return CONFIG.dashboardUrl;
     return LIVE ? next : next.slice(1);  // the preview's pages sit side by side, so links there are relative
   }

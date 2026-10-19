@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 from flask import current_app, g, jsonify, request, session
 
 from .db import execute, iso, now, query
+from .services.plans import key_for
 
 EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$")
 
@@ -90,7 +91,7 @@ def public_user(user):
         "id": user["id"], "email": user["email"], "name": user["name"],
         "first_name": (user["name"] or "").split(" ")[0],
         "grade": user["grade"], "test_date": user["test_date"], "target_score": user["target_score"],
-        "plan": user["plan"], "weekly_goal_hours": user["weekly_goal_hours"], "parent_email": _unseal(user["parent_email"]),
+        "plan": key_for(user["plan"]), "weekly_goal_hours": user["weekly_goal_hours"], "parent_email": _unseal(user["parent_email"]),
         "role": user["role"] if "role" in user.keys() else "student",
         "created_at": user["created_at"],
         "appearance": dict({

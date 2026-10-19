@@ -133,18 +133,20 @@ class ParentTest(unittest.TestCase):
     def test_plans_and_billing(self):
         url = self.link()
         self.assertEqual(self.parent.get(url).json["subscription"]["plan"], "free")
-        self.assertEqual(self.post(self.parent, url + "/plan", {"plan": "sharpened"}).status_code, 400)  # needs a billing option
-        self.assertEqual(self.post(self.parent, url + "/plan", {"plan": "daily", "interval": "month"}).status_code, 400)  # old name
-        r = self.post(self.parent, url + "/plan", {"plan": "sharpened", "interval": "month"}).json
-        self.assertEqual((r["subscription"]["plan"], r["subscription"]["price_label"]), ("sharpened", "$39/month"))
+        self.assertEqual(self.post(self.parent, url + "/plan", {"plan": "mechanical"}).status_code, 400)  # needs a billing option
+        for old in ("daily", "no2", "sharpened", "masterstroke"):  # older plans can't be bought any more
+            self.assertEqual(self.post(self.parent, url + "/plan", {"plan": old, "interval": "month"}).status_code, 400)
+        r = self.post(self.parent, url + "/plan", {"plan": "mechanical", "interval": "month"}).json
+        sub = r["subscription"]
+        self.assertEqual((sub["plan"], sub["plan_name"], sub["price_label"], sub["legacy"]), ("mechanical", "Mechanical", "$8/month", False))
         self.assertIn("No card was charged", r["billing"][0]["detail"])
-        self.assertEqual(self.student.get("/api/me").json["user"]["plan"], "sharpened")
-        r = self.post(self.parent, url + "/plan", {"plan": "no2", "interval": "week"}).json
-        self.assertEqual(r["subscription"]["price_label"], "$21.62/month, billed $4.99 weekly")
+        self.assertEqual(self.student.get("/api/me").json["user"]["plan"], "mechanical")
+        r = self.post(self.parent, url + "/plan", {"plan": "mechanical", "interval": "week"}).json
+        self.assertEqual(r["subscription"]["price_label"], "$8.62/month, billed $1.99 weekly")
         self.assertEqual(date.fromisoformat(r["subscription"]["renews_on"]) - date.today(), timedelta(days=7))
-        self.assertIn("billed weekly at $4.99", r["billing"][0]["detail"])
-        r = self.post(self.parent, url + "/plan", {"plan": "masterstroke", "interval": "year"}).json
-        self.assertEqual(r["subscription"]["price_label"], "$99/month, billed $1,188 yearly")
+        self.assertIn("billed weekly at $1.99", r["billing"][0]["detail"])
+        r = self.post(self.parent, url + "/plan", {"plan": "mechanical", "interval": "year"}).json
+        self.assertEqual(r["subscription"]["price_label"], "$6/month, billed $72 yearly")
         renews = r["subscription"]["renews_on"]
         r = self.post(self.parent, url + "/plan/pause").json
         self.assertEqual(r["subscription"]["status"], "paused")
@@ -152,18 +154,19 @@ class ParentTest(unittest.TestCase):
         self.assertEqual(self.post(self.parent, url + "/plan/pause").status_code, 409)
         self.post(self.parent, url + "/plan/resume")
         r = self.post(self.parent, url + "/plan/cancel").json
-        self.assertEqual((r["subscription"]["status"], r["subscription"]["plan"]), ("canceled", "masterstroke"))  # runs to the end of the period
+        self.assertEqual((r["subscription"]["status"], r["subscription"]["plan"]), ("canceled", "mechanical"))  # runs to the end of the period
         with self.app.app_context():
             self.assertEqual(parent_svc.subscription(self.student_id, date.fromisoformat(r["subscription"]["renews_on"]) + timedelta(days=1))["plan"], "free")
         self.assertEqual(self.post(self.parent, url + "/plan/explode").status_code, 404)
 
     def test_parent_sees_every_plan_with_monthly_prices(self):
         plans = self.parent.get("/api/parent").json["plans"]
-        self.assertEqual([p["key"] for p in plans], ["free", "no2", "sharpened", "masterstroke"])
-        self.assertEqual([p["name"] for p in plans], ["Scratch Paper", "No. 2", "Sharpened", "Masterstroke"])
-        sharp = plans[2]
-        self.assertEqual(sharp["per_month_cents"], {"week": 4329, "month": 3900, "year": 2900})
-        self.assertEqual(sharp["savings"]["year"], {"percent": 26, "per_year_cents": 12000})
+        self.assertEqual([p["key"] for p in plans], ["free", "mechanical"])
+        self.assertEqual([p["name"] for p in plans], ["Sharpened", "Mechanical"])
+        mech = plans[1]
+        self.assertEqual(mech["cents"], {"week": 199, "month": 800, "year": 7200})
+        self.assertEqual(mech["per_month_cents"], {"week": 862, "month": 800, "year": 600})
+        self.assertEqual(mech["savings"]["year"], {"percent": 25, "per_year_cents": 2400})
         prices = [p["per_month_cents"]["month"] for p in plans]
         self.assertEqual(prices, sorted(prices), "plans go from free to the top plan")
 
@@ -180,6 +183,26 @@ class ParentTest(unittest.TestCase):
         self.assertEqual(con.execute("SELECT plan FROM users WHERE id = ?", (self.student_id,)).fetchone()[0], "masterstroke")
         self.assertEqual(con.execute("SELECT plan FROM subscriptions WHERE student_id = ?", (self.student_id,)).fetchone()[0], "sharpened")
         con.close()
+        # Those October 2026 plans count as Mechanical now, still at the price they were bought at.
+        with self.app.app_context():
+            sub = parent_svc.subscription(self.student_id)
+        self.assertEqual((sub["plan"], sub["plan_name"], sub["legacy"]), ("mechanical", "Mechanical", True))
+        self.assertEqual((sub["price_cents"], sub["price_label"]), (3900, "$39/month (earlier price)"))
+        self.assertEqual(self.student.get("/api/me").json["user"]["plan"], "mechanical")
+
+    def test_older_plan_price_until_switching(self):
+        url = self.link()
+        with self.app.app_context():
+            parent_svc._save(self.student_id, {"plan": "no2", "billing_interval": "week", "status": "active",
+                                               "renews_on": (date.today() + timedelta(days=5)).isoformat(), "paused_until": None}, None)
+        sub = self.parent.get(url).json["subscription"]
+        self.assertEqual((sub["plan"], sub["price_label"], sub["legacy"]), ("mechanical", "$21.62/month, billed $4.99 weekly (earlier price)", True))
+        r = self.post(self.parent, url + "/plan/cancel").json  # canceling keeps the plan, at its price, to the end
+        self.assertEqual((r["subscription"]["status"], r["subscription"]["legacy"]), ("canceled", True))
+        self.assertIn("Mechanical stays on until", r["billing"][0]["detail"])
+        r = self.post(self.parent, url + "/plan", {"plan": "mechanical", "interval": "week"}).json  # today's price
+        self.assertEqual((r["subscription"]["price_label"], r["subscription"]["legacy"], r["subscription"]["status"]),
+                         ("$8.62/month, billed $1.99 weekly", False, "active"))
 
     def test_report_email(self):
         url = self.link()

@@ -81,7 +81,7 @@ class SecurityTest(PracticeTest):
 
     # ---------- block field tampering ----------
     def test_browser_cant_set_protected_fields(self):
-        self.patch("/api/me", {"name": "Sam Lee", "role": "parent", "plan": "masterstroke", "id": 99, "email": "x@y.org",
+        self.patch("/api/me", {"name": "Sam Lee", "role": "parent", "plan": "mechanical", "id": 99, "email": "x@y.org",
                                "password_hash": "x", "board_opt_in": 1, "frame": "gold"})
         me = self.client.get("/api/me").json["user"]
         self.assertEqual((me["role"], me["plan"], me["email"], me["frame"]), ("student", "free", "sam@school.org", None))

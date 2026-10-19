@@ -63,12 +63,12 @@ class TrialTest(unittest.TestCase):
     def test_trial_once_no_card_then_back_to_free(self):
         d = self.c.get("/api/me/subscription").json
         self.assertTrue(d["subscription"]["trial_available"])
-        self.assertEqual(d["trial"], {"plan": "sharpened", "plan_name": "Sharpened", "days": 7})
+        self.assertEqual(d["trial"], {"plan": "mechanical", "plan_name": "Mechanical", "days": 7})
         r = self.post("/api/me/subscription/trial")
         self.assertEqual(r.status_code, 201, r.json)
         sub = r.json["subscription"]
-        self.assertEqual((sub["plan"], sub["status"], sub["price_label"]), ("sharpened", "trial", "Free trial"))
-        self.assertEqual(r.json["access"]["counts_as"], "sharpened")
+        self.assertEqual((sub["plan"], sub["status"], sub["price_label"], sub["legacy"]), ("mechanical", "trial", "Free trial", False))
+        self.assertEqual(r.json["access"]["counts_as"], "mechanical")
         self.assertTrue(r.json["access"]["features"]["level_up"]["ok"])
         self.assertIn("No card", r.json["billing"][0]["detail"])
         self.assertEqual(self.post("/api/me/subscription/trial").status_code, 409)
@@ -88,8 +88,8 @@ class TrialTest(unittest.TestCase):
 
     def test_buying_a_plan_ends_the_trial(self):
         self.post("/api/me/subscription/trial")
-        r = self.c.post("/api/me/subscription/plan", json={"plan": "no2", "interval": "month", "agree": True}, headers=ORIGIN)
-        self.assertEqual((r.json["subscription"]["plan"], r.json["subscription"]["status"]), ("no2", "active"))
+        r = self.c.post("/api/me/subscription/plan", json={"plan": "mechanical", "interval": "month", "agree": True}, headers=ORIGIN)
+        self.assertEqual((r.json["subscription"]["plan"], r.json["subscription"]["status"]), ("mechanical", "active"))
         self.assertFalse(r.json["subscription"]["trial_available"])
 
     def test_dashboard_has_no_estimate_before_a_mock_test(self):

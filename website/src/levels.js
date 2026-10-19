@@ -11,6 +11,10 @@
   var call = LIVE ? API.call : (window.GraphitePracticeLocal && window.GraphitePracticeLocal.call);
   var TRACK_KEY = "graphite_levels_track";
   var data = null, current = "mixed", busy = false;
+  // Every plan opens the first data.free_levels levels of each track; planLock is the lock on the rest, if any.
+  var planLock = null;
+  function planLocked(n) { return !!planLock && n > (data.free_levels || 0); }
+  function firstLevels(n) { return n === 1 ? "Level 1" : n === 2 ? "Levels 1 and 2" : "Levels 1 to " + n; }
   try { current = localStorage.getItem(TRACK_KEY) || "mixed"; } catch (e) { /* storage blocked */ }
   var m = /[#&]track=([\w-]+)/.exec(location.hash); if (m) current = m[1];
 
@@ -81,26 +85,39 @@
     // Up next: the highest unlocked level, or a replay of the top one once every level is cleared.
     $("lv-next").hidden = false;
     $("lv-next-n").textContent = String(next.n);
-    $("lv-next-kicker").textContent = t.all_passed ? "Every level cleared" : next.resume_id ? "Pick up where you left off" : "Up next · " + t.name;
+    $("lv-next-kicker").textContent = planLocked(next.n) ? (planLock.reason || "Level " + next.n + (next.n < data.levels ? " and up come" : " comes") + " with " + planLock.need_name)
+      : t.all_passed ? "Every level cleared" : next.resume_id ? "Pick up where you left off" : "Up next · " + t.name;
     $("lv-next-title").textContent = "Level " + next.n + " · " + next.tier;
     $("lv-next-meter").innerHTML = meter(next.mix);
     $("lv-next-meter").setAttribute("aria-label", "Difficulty: " + mixText(next.mix));
     $("lv-next-meta").textContent = data.size + " questions · " + mixText(next.mix) + " · pass with " + data.pass + " right" +
       (next.best != null ? " · your best so far: " + next.best + " of " + data.size : "");
     var btn = $("lv-next-btn");
-    btn.textContent = next.resume_id ? "Resume level " + next.n : t.all_passed ? "Replay level " + next.n : "Start level " + next.n;
-    btn.onclick = function () { start(next.n, btn); };
+    if (planLocked(next.n)) {
+      btn.textContent = planLock.reason ? "Fix payment to open level " + next.n : "Unlock level " + next.n;
+      btn.onclick = function () { location.href = GraphiteLock.url(planLock); };
+    } else {
+      btn.textContent = next.resume_id ? "Resume level " + next.n : t.all_passed ? "Replay level " + next.n : "Start level " + next.n;
+      btn.onclick = function () { start(next.n, btn); };
+    }
 
     grid.innerHTML = "";
     lv.forEach(function (l) {
       var li = document.createElement("li");
       li.className = "lv-rung is-" + l.status + (l.n === next.n ? " is-current" : "");
       var state = l.status === "passed" ? '<span class="lv-state ok">✓ Passed · best ' + l.best + "/" + data.size + "</span>"
-        : l.status === "locked" ? '<span class="lv-state">Locked</span>'
+        : l.status === "locked" || planLocked(l.n) ? '<span class="lv-state">Locked</span>'
         : '<span class="lv-state now">' + (l.resume_id ? "In progress" : l.best != null ? "Best " + l.best + "/" + data.size : "Ready") + "</span>";
       li.innerHTML = '<span class="lv-num">' + l.n + '</span><span class="lv-tier">' + esc(l.tier) + "</span>" +
         '<span class="lv-meter" role="img" aria-label="Difficulty: ' + esc(mixText(l.mix)) + '">' + meter(l.mix) + "</span>" + state;
-      if (l.status !== "locked") {
+      if (l.status !== "locked" && planLocked(l.n)) {
+        // Open by progress but not on this plan: the button goes where the plan can be changed or paid.
+        var a = document.createElement("a");
+        a.className = "btn btn-quiet lv-go"; a.href = GraphiteLock.url(planLock);
+        a.textContent = planLock.reason ? "Fix payment" : "With " + planLock.need_name;
+        a.setAttribute("aria-label", a.textContent + " to open level " + l.n);
+        li.appendChild(a);
+      } else if (l.status !== "locked") {
         var b = document.createElement("button");
         b.type = "button"; b.className = "btn btn-quiet lv-go";
         b.textContent = l.resume_id ? "Resume" : l.status === "passed" ? "Replay" : "Start";
@@ -124,10 +141,13 @@
     $("lv-pass").textContent = String(d.pass); $("lv-size").textContent = String(d.size);
     if (!d.tracks.some(function (t) { return t.key === current; })) current = d.tracks[0].key;
     $("lv-loading").hidden = true;
+    planLock = d.access && !d.access.ok && window.GraphiteLock ? d.access : null;
     render();
-    // Level up comes with the Sharpened plan and up.
-    if (d.access && !d.access.ok && window.GraphiteLock && !document.querySelector(".lv-plan-lock")) {
-      var card = GraphiteLock.card(d.access); card.classList.add("lv-plan-lock");
+    if (planLock && !document.querySelector(".lv-plan-lock")) {
+      var card = GraphiteLock.card(planLock, true); card.classList.add("lv-plan-lock");
+      if (!planLock.reason && d.free_levels) {
+        card.querySelector("p").textContent = firstLevels(d.free_levels) + " of every track are open on your plan. " + planLock.need_name + " opens all " + d.levels + ".";
+      }
       $("lv-loading").insertAdjacentElement("afterend", card);
     }
   }).catch(function (err) {

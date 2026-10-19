@@ -1,6 +1,9 @@
 """Plans, prices and what each plan includes. The single source for the home page pricing section,
 the parent dashboard's billing, and the site build (so the preview shows the same prices).
 
+There are two plans: Sharpened, which is free, and Mechanical, which has everything. (The free plan's key
+is still "free"; "sharpened" as a key is one of the older paid plans in LEGACY below.)
+
 Prices are in cents, for each way of paying. Everything shown to people is the price per month:
 weekly and yearly billing show what they work out to each month, plus what's actually billed.
 
@@ -10,130 +13,113 @@ while a plan isn't paid: a failed payment (past_due) or a pause.
 """
 from datetime import timedelta
 
-ORDER = ("free", "no2", "sharpened", "masterstroke")
+ORDER = ("free", "mechanical")
+FEATURED = "mechanical"  # the plan the home page highlights and checkout picks first
 INTERVALS = ("week", "month", "year")
 WEEKS_PER_MONTH = 52 / 12
 
 PLANS = {
     "free": {
-        "name": "Scratch Paper",
-        "tagline": "Try Graphite SAT before you commit.",
-        "blurb": "The diagnostic, one practice set a week and 3 starter lessons.",
+        "name": "Sharpened",
+        "tagline": "Try Graphite SAT before you pay.",
+        "blurb": "The diagnostic, 1 practice test a month, 3 practice sets a week, 3 starter lessons and the first Level up levels.",
         "badge": None,
         "prices": {"week": 0, "month": 0, "year": 0},
         "intro": None,
         "features": [
             "The 10-question diagnostic",
             "Your strongest and weakest skill areas",
-            "1 practice set a week",
+            "1 full practice test a month, with your score breakdown",
+            "3 practice sets a week",
             "3 starter lessons",
-            "5 tutor questions a day (tutor coming soon)",
+            "Level up: the first 2 levels of every track",
+            "A review queue that brings back every miss",
+            "30 tutor credits a month (tutor coming soon)",
             "Built-in graphing calculator",
         ],
     },
-    "no2": {
-        "name": "No. 2",
-        "tagline": "The pencil every SAT needs. Steady practice, every week.",
-        "blurb": "Daily practice sets, every lesson, 2 practice tests a month and a study plan to your test date.",
-        "badge": None,
-        "prices": {"week": 499, "month": 1900, "year": 18000},
-        "intro": "Everything in Scratch Paper, plus:",
-        "features": [
-            "Daily practice sets picked from your weakest skills",
-            "Every lesson, including the full Desmos course",
-            "Tutor: 50 questions a day (coming soon)",
-            "2 full practice tests a month",
-            "Step-by-step explanations for every answer",
-            "A study plan built around your test date",
-            "A review queue that brings back every miss",
-            "Email support, answered within one school day",
-        ],
-    },
-    "sharpened": {
-        "name": "Sharpened",
-        "tagline": "Everything you need to raise your score.",
-        "blurb": "Unlimited practice tests, 24/7 support, Level up and the parent dashboard.",
-        "badge": "Most popular",
-        "prices": {"week": 999, "month": 3900, "year": 34800},
-        "intro": "Everything in No. 2, plus:",
-        "features": [
-            "Unlimited tutor help, any time of day (coming soon)",
-            "Unlimited practice tests in the real test layout",
-            "In-depth video explanations (coming soon)",
-            "24/7 support",
-            "Level up: sets that get harder level by level",
-            "Score history and a skill breakdown after every test",
-            "Parent dashboard with weekly progress emails",
-        ],
-    },
-    "masterstroke": {
-        "name": "Masterstroke",
-        "tagline": "Our most hands-on plan, with a coach in your corner.",
-        "blurb": "Everything in Sharpened, plus a weekly 1-on-1 check-in with a human coach and priority support.",
-        "badge": "Best results",
-        "prices": {"week": 3499, "month": 12900, "year": 118800},
+    "mechanical": {
+        "name": "Mechanical",
+        "tagline": "Everything Graphite SAT has, in one plan.",
+        "blurb": "Everything: unlimited practice tests, every lesson and explanation, your study plan, the parent dashboard and a weekly coach check-in.",
+        "badge": "Everything included",
+        "prices": {"week": 199, "month": 800, "year": 7200},
         "intro": "Everything in Sharpened, plus:",
         "features": [
+            "Unlimited full practice tests in the real test layout",
+            "Unlimited practice sets, picked from your weakest skills",
+            "Every lesson, including the full Desmos course",
+            "Level up: every level of every track",
+            "Step-by-step explanations for every answer",
+            "A study plan built around your test date",
+            "Unlimited tutor help, any time of day (coming soon)",
+            "In-depth video explanations (coming soon)",
+            "Parent dashboard with weekly progress emails",
             "A weekly 30-minute 1-on-1 video check-in with a coach",
             "Your study plan reviewed after every practice test",
-            "Priority 24/7 support, first in line",
             "A test-week plan for pacing, sleep and logistics",
             "A monthly call with your parent",
+            "Priority 24/7 support",
         ],
     },
 }
 
-# The "Compare every feature" table on the home page, in plan order (free, No. 2, Sharpened, Masterstroke).
+# The "Compare every feature" table on the home page, in plan order (Sharpened, Mechanical).
 # True shows a check mark, False a dash, and text shows as written.
 COMPARE = [
     ("Practice", [
-        ("10-question diagnostic with your strong and weak areas", [True, True, True, True]),
-        ("Daily practice sets", ["1 set a week", True, True, True]),
-        ("Full practice tests in the real test layout", [False, "2 a month", "Unlimited", "Unlimited"]),
-        ("Level up: sets that get harder level by level", [False, False, True, True]),
-        ("Review queue that brings back every miss", [False, True, True, True]),
-        ("Hands-on lessons, including the Desmos course", ["3 starter lessons", "All", "All", "All"]),
-        ("Built-in graphing calculator", [True, True, True, True]),
+        ("10-question diagnostic with your strong and weak areas", [True, True]),
+        ("Full practice tests in the real test layout", ["1 a month", "Unlimited"]),
+        ("Practice sets picked from your weakest skills", ["3 a week", "Unlimited"]),
+        ("Level up: sets that get harder level by level", ["First 2 levels of each track", "Every level"]),
+        ("Review queue that brings back every miss", [True, True]),
+        ("Hands-on lessons, including the Desmos course", ["3 starter lessons", "All"]),
+        ("Built-in graphing calculator", [True, True]),
     ]),
     ("Help when you're stuck", [
-        ("Tutor (coming soon)", ["5 questions a day", "50 questions a day", "Unlimited", "Unlimited"]),
-        ("Step-by-step written explanations", ["Diagnostic only", True, True, True]),
-        ("In-depth video explanations (coming soon)", [False, False, True, True]),
-        ("Support", ["Help center", "Email, within 1 school day", "24/7", "24/7, priority"]),
-        ("1-on-1 coach check-ins", [False, False, False, "Weekly, 30 minutes"]),
+        ("Tutor (coming soon)", ["30 credits a month", "Unlimited"]),
+        ("Step-by-step written explanations", ["Diagnostic only", True]),
+        ("In-depth video explanations (coming soon)", [False, True]),
+        ("Support", ["Help center", "24/7, priority"]),
+        ("1-on-1 coach check-ins", [False, "Weekly, 30 minutes"]),
     ]),
     ("Planning and progress", [
-        ("Study plan built around your test date", [False, True, True, True]),
-        ("Score history and skill breakdown", [False, False, True, True]),
-        ("Parent dashboard and weekly progress emails", [False, False, True, True]),
-        ("Study plan reviewed by a coach", [False, False, False, True]),
-        ("Test-week plan for pacing, sleep and logistics", [False, False, False, True]),
-        ("Monthly call with your parent", [False, False, False, True]),
+        ("Study plan built around your test date", [False, True]),
+        ("Score history and skill breakdown", [True, True]),
+        ("Parent dashboard and weekly progress emails", [False, True]),
+        ("Study plan reviewed by a coach", [False, True]),
+        ("Test-week plan for pacing, sleep and logistics", [False, True]),
+        ("Monthly call with your parent", [False, True]),
     ]),
 ]
 
-# What each plan allows, for when limits are switched on (None means unlimited).
+# What each plan allows, for when limits are switched on (None means unlimited). A tutor credit is one
+# question to the tutor; the tutor isn't built yet, so nothing counts them so far.
 LIMITS = {
-    "free": {"practice_sets_per_week": 1, "practice_tests_per_month": 0, "ai_tutor_per_day": 5, "video_explanations": False,
-             "level_up": False, "study_plan": False, "parent_dashboard": False, "review_queue": False,
-             "explanations": False, "score_history": False, "all_lessons": False},
-    "no2": {"practice_sets_per_week": None, "practice_tests_per_month": 2, "ai_tutor_per_day": 50, "video_explanations": False,
-            "level_up": False, "study_plan": True, "parent_dashboard": False, "review_queue": True,
-            "explanations": True, "score_history": False, "all_lessons": True},
-    "sharpened": {"practice_sets_per_week": None, "practice_tests_per_month": None, "ai_tutor_per_day": None, "video_explanations": True,
-                  "level_up": True, "study_plan": True, "parent_dashboard": True, "review_queue": True,
-                  "explanations": True, "score_history": True, "all_lessons": True},
-    "masterstroke": {"practice_sets_per_week": None, "practice_tests_per_month": None, "ai_tutor_per_day": None, "video_explanations": True,
-                     "level_up": True, "study_plan": True, "parent_dashboard": True, "review_queue": True,
-                     "explanations": True, "score_history": True, "all_lessons": True},
+    "free": {"practice_sets_per_week": 3, "practice_tests_per_month": 1, "tutor_credits_per_month": 30, "video_explanations": False,
+             "level_up": False, "study_plan": False, "parent_dashboard": False, "review_queue": True,
+             "explanations": False, "score_history": True, "all_lessons": False},
+    "mechanical": {"practice_sets_per_week": None, "practice_tests_per_month": None, "tutor_credits_per_month": None, "video_explanations": True,
+                   "level_up": True, "study_plan": True, "parent_dashboard": True, "review_queue": True,
+                   "explanations": True, "score_history": True, "all_lessons": True},
 }
+# Level up levels every plan can play, in every track. The levels above them need level_up (every level).
+FREE_LEVELS = 2
 
-# Plan names used before October 2026, mapped to the plan that replaced them.
-LEGACY = {"daily": "sharpened", "coached": "masterstroke"}
+# Plan names used before, mapped to the plan that replaced them: Daily and Coached (until early October 2026),
+# then No. 2, Sharpened and Masterstroke (until October 19, 2026). Every one of them gets what Mechanical includes.
+LEGACY = {"daily": "mechanical", "coached": "mechanical", "no2": "mechanical", "sharpened": "mechanical", "masterstroke": "mechanical"}
+# What the October 2026 plans cost. A Stripe subscription keeps the price it started with, so anyone still paying
+# for one of them is shown that price (not Mechanical's) until they switch to Mechanical at checkout.
+LEGACY_PRICES = {
+    "no2": {"week": 499, "month": 1900, "year": 18000},
+    "sharpened": {"week": 999, "month": 3900, "year": 34800},
+    "masterstroke": {"week": 3499, "month": 12900, "year": 118800},
+}
 
 PAUSE_DAYS = 30
 # A free trial of TRIAL_PLAN: once per student, no card, and it goes back to the free plan by itself.
-TRIAL_PLAN = "sharpened"
+TRIAL_PLAN = "mechanical"
 TRIAL_DAYS = 7
 ALERT_DAYS = (0, 2, 3, 5, 7)  # quiet days before a parent gets an inactivity alert; 0 turns alerts off
 
@@ -151,14 +137,25 @@ def money(cents):
     return f"${cents / 100:,.2f}".replace(".00", "")
 
 
-def per_month(plan, interval):
-    """What a plan works out to each month when paid weekly, monthly or yearly, in cents."""
-    cents = PLANS[key_for(plan)]["prices"][interval]
+def _per_month(cents, interval):
     if interval == "week":
         return round(cents * WEEKS_PER_MONTH)
     if interval == "year":
         return round(cents / 12)
     return cents
+
+
+def per_month(plan, interval):
+    """What a plan works out to each month when paid weekly, monthly or yearly, in cents."""
+    return _per_month(PLANS[key_for(plan)]["prices"][interval], interval)
+
+
+def billed_cents(plan, interval):
+    """What a subscription on this plan is billed each week, month or year: the plan's price, or for a plan in
+    LEGACY_PRICES, the older price that subscriber still pays."""
+    if plan in LEGACY_PRICES:
+        return LEGACY_PRICES[plan][interval]
+    return PLANS[key_for(plan)]["prices"][interval]
 
 
 def savings(plan, interval):
@@ -181,13 +178,13 @@ def interval_words(interval):
 
 
 def price_label(plan, interval):
-    """For the parent dashboard: '$29/month, billed $348 yearly'."""
-    if not interval or not PLANS[key_for(plan)]["prices"][interval]:
+    """For the parent dashboard: '$6/month, billed $72 yearly'. An older plan's price says so."""
+    cents = billed_cents(plan, interval) if interval else 0
+    if not cents:
         return "Free"
-    each = money(per_month(plan, interval)) + "/month"
-    if interval == "month":
-        return each
-    return f"{each}, billed {money(PLANS[key_for(plan)]['prices'][interval])} {interval_words(interval)}"
+    each = money(_per_month(cents, interval)) + "/month"
+    label = each if interval == "month" else f"{each}, billed {money(cents)} {interval_words(interval)}"
+    return label + (" (earlier price)" if plan in LEGACY_PRICES else "")
 
 
 def public_plans():

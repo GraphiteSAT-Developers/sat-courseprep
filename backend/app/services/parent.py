@@ -11,7 +11,8 @@ from datetime import date, datetime, timedelta, timezone
 
 from ..db import execute, local_day, now_iso, query
 from . import dashboard, levels, stripe_api, today as today_svc
-from .plans import ALERT_DAYS, INTERVALS, PAUSE_DAYS, PLANS, TRIAL_DAYS, TRIAL_PLAN, interval_words, key_for, next_renewal, price_label  # noqa: F401
+from .plans import (ALERT_DAYS, INTERVALS, LEGACY_PRICES, PAUSE_DAYS, PLANS, TRIAL_DAYS, TRIAL_PLAN, billed_cents,  # noqa: F401
+                    interval_words, key_for, next_renewal, price_label)
 
 def payments_live():
     """True once Stripe is connected (STRIPE_SECRET_KEY is set)."""
@@ -54,10 +55,12 @@ def subscription(student_id, today=None):
     key = key_for(sub["plan"])
     plan = PLANS[key]
     interval = sub["billing_interval"] if sub["billing_interval"] in INTERVALS else None
-    price = plan["prices"][interval] if interval else 0
+    price = billed_cents(sub["plan"], interval) if interval else 0
     return {"plan": key, "plan_name": plan["name"], "interval": interval, "status": sub["status"],
             "renews_on": sub["renews_on"], "paused_until": sub["paused_until"], "price_cents": price,
-            "price_label": "Free trial" if sub["status"] == "trial" else price_label(key, interval),
+            "price_label": "Free trial" if sub["status"] == "trial" else price_label(sub["plan"], interval),
+            # Still paying an older plan's price (plans.LEGACY_PRICES), so switching to today's price is offered.
+            "legacy": bool(interval) and sub["plan"] in LEGACY_PRICES,
             "trial_available": key == "free" and not trial_used(student_id)}
 
 

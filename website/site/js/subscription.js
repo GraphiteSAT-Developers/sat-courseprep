@@ -32,6 +32,7 @@
     var a = document.createElement("a"); a.className = "btn btn-secondary"; a.href = FROM; a.textContent = text || "Go back to what you were doing";
     return a;
   }
+  function midSentence(name) { return name.charAt(0).toLowerCase() + name.slice(1); }  // "Level up" keeps its capital
   function context(d) {
     var box = $("sub-context"), f = FEATURE && d.access.features[FEATURE];
     box.hidden = !f;
@@ -46,10 +47,10 @@
       var t = window.GraphiteLock ? GraphiteLock.text(f) : { title: f.name + " is locked", text: "" };
       head.textContent = t.title;
       p.textContent = f.reason ? t.text : t.text + " " + f.need_name + " is picked for you below.";
-      $("sub-h1").textContent = f.reason ? "Fix your payment" : "Unlock " + f.name.toLowerCase();
+      $("sub-h1").textContent = f.reason ? "Fix your payment" : "Unlock " + midSentence(f.name);
     }
     box.appendChild(head); box.appendChild(p);
-    var back = backLink(f.ok ? "Go back to " + f.name.toLowerCase() : "Not now, go back");
+    var back = backLink(f.ok ? "Go back to " + midSentence(f.name) : "Not now, go back");
     if (back) { var row = document.createElement("div"); row.className = "pd-row"; row.appendChild(back); box.appendChild(row); }
   }
 
@@ -104,7 +105,7 @@
   function plans(d) {
     var box = $("sub-plans"), iv = (document.querySelector('input[name="sub-iv"]:checked') || {}).value || "month";
     var cur = d.subscription.plan;
-    if (!pick) pick = cur === "free" ? "no2" : cur;
+    if (!pick) pick = cur === "free" ? (d.plans.filter(function (p) { return p.key !== "free"; })[0] || {}).key : cur;
     box.innerHTML = "";
     d.plans.forEach(function (p) {
       var id = "sub-plan-" + p.key, price = p.cents[iv] ? money(p.per_month_cents[iv]) + "/month" + (iv === "month" ? "" : ", billed " + money(p.cents[iv]) + " " + { week: "weekly", year: "yearly" }[iv]) : "Free";
@@ -125,7 +126,8 @@
   function label() {
     var b = $("sub-change-go"), cur = D.subscription.plan;
     var iv = (document.querySelector('input[name="sub-iv"]:checked') || {}).value;
-    var same = pick === cur && (cur === "free" || D.subscription.interval === iv);
+    // A student still paying an older plan's price (legacy) can switch to the same plan at today's price.
+    var same = pick === cur && (cur === "free" || (D.subscription.interval === iv && !D.subscription.legacy));
     var name = (D.plans.filter(function (p) { return p.key === pick; })[0] || {}).name;
     b.disabled = same;
     b.textContent = same ? "This is your plan" : pick === "free" ? "Switch to the free plan" : (D.payments_live ? "Continue to payment" : "Switch to " + name);
@@ -172,6 +174,7 @@
       });
       notes.push("Canceling keeps " + s.plan_name + " until " + day(s.renews_on) + ", then you're on the free plan. Pausing stops billing for " + d.pause_days + " days, and paid features are locked while it's paused.");
     }
+    if (s.legacy) notes.push("You're paying the price of an earlier plan. Pick " + s.plan_name + " above to switch to today's price.");
     if (!paid && !s.trial_available) notes.push("You're on the free plan. Pick a plan above to unlock more.");
     if (d.payer && !d.payer.you) notes.push("A parent pays for this plan, so the card is on their parent dashboard.");
     if (!d.payments_live) notes.push("Payments aren't connected on this site yet, so plan changes take effect without charging a card.");
