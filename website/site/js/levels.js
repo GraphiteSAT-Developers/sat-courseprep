@@ -94,7 +94,7 @@
         : l.status === "locked" ? '<span class="lv-state">Locked</span>'
         : '<span class="lv-state now">' + (l.resume_id ? "In progress" : l.best != null ? "Best " + l.best + "/" + data.size : "Ready") + "</span>";
       li.innerHTML = '<span class="lv-num">' + l.n + '</span><span class="lv-tier">' + esc(l.tier) + "</span>" +
-        '<span class="lv-meter" aria-label="Difficulty: ' + esc(mixText(l.mix)) + '">' + meter(l.mix) + "</span>" + state;
+        '<span class="lv-meter" role="img" aria-label="Difficulty: ' + esc(mixText(l.mix)) + '">' + meter(l.mix) + "</span>" + state;
       if (l.status !== "locked") {
         var b = document.createElement("button");
         b.type = "button"; b.className = "btn btn-quiet lv-go";

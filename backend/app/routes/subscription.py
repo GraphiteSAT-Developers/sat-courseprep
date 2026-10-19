@@ -115,6 +115,8 @@ def change_plan():
         raise ApiError(400, "Pick weekly, monthly or yearly billing.", "interval")
     if data.get("agree") is not True:
         raise ApiError(400, "Check the box to agree to the terms and automatic renewal.", "agree")
+    if stripe_api.payments_off():
+        raise ApiError(503, "Paid plans aren't open yet, so nothing was charged. Try again soon.", code="payments_off")
     if stripe_api.is_live():
         # Paying happens on Stripe's page; the plan starts when Stripe confirms it.
         out = billing.start(me, me, plan, interval)

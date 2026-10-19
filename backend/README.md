@@ -184,7 +184,7 @@ Prices are always shown per month. The feature lists and the "Compare every feat
 
 - Free: the diagnostic, 1 practice set a week, answers without step-by-step explanations, and 3 starter lessons (`lessons.FREE_LESSONS`: Desmos hacks, Active recall, Solve any linear equation). No mock tests, study plan, review queue, Level up, score history or parent progress.
 - No. 2: every lesson, unlimited practice sets, explanations, the study plan and review queue, 2 mock tests a month.
-- Sharpened and Masterstroke: everything, including unlimited mock tests, Level up, score history and the parent dashboard with weekly emails.
+- Sharpened and Masterstroke: everything, including unlimited mock tests, Level up, score history and the parent dashboard with weekly emails (sent Sunday evenings by the `graphite-weekly-reports` cron job in `render.yaml`, or `flask --app wsgi send-weekly-reports` from the backend folder).
 - A plan that isn't paid counts as free: a failed payment (Stripe marks it `past_due`) or a pause locks the paid features until it's paid or resumed. A canceled plan keeps working until the end of the time paid for.
 
 Locked features show what unlocks them, and requests for them answer `402` with `code: "plan_required"`. Students manage their own plan on the standalone **Subscription** page (`subscription.html`), and anything locked sends them there with the plan that unlocks it already picked (switch, pause, cancel, undo, fix a failed payment); parents can do the same on the parent dashboard, and either can pay at checkout. Set `PLAN_LIMITS=false` in `backend/.env` to turn every lock off. The test account starts on the free plan; switch it to any plan on the Subscription page (no card is charged while Stripe isn't connected). Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
@@ -247,7 +247,7 @@ The list is `app/content/blocked_words.txt`, stored in ROT13 so the file isn't a
 
 `checkout.html` is where a parent picks a plan and how to pay (weekly, monthly or yearly). Students and visitors are asked to sign in or create a parent account first; their choices stay in the link. Plan buttons on the home page and the parent dashboard lead there.
 
-Until Stripe is connected, checkout starts the plan right away and the billing history says "No card was charged". To connect Stripe:
+Until Stripe is connected, checkout on your computer starts the plan right away and the billing history says "No card was charged". On the hosted site (`APP_ENV=production`) paid plans can't be started at all until Stripe is connected; buyers see "Paid plans aren't open yet". To connect Stripe:
 
 1. Create a Stripe account and copy the **test** secret key (Developers > API keys, starts with `sk_test_`).
 2. Set `STRIPE_SECRET_KEY` to it (in `backend/.env` on your computer, or in Render or Railway's environment settings).

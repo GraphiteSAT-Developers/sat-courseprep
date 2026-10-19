@@ -47,7 +47,13 @@ NOUNS = ["Parabola", "Vertex", "Tangent", "Radius", "Integer", "Fraction", "Slop
 
 # ---------- nicknames ----------
 def roll_nicknames(n=3, rng=random):
-    return [f"{rng.choice(ADJECTIVES)} {rng.choice(NOUNS)} {rng.randint(10, 99)}" for _ in range(n)]
+    """Suggestions that always pass clean_nickname: a few word pairs, like "Electric Protractor", are too long."""
+    out = []
+    while len(out) < n:
+        nick = f"{rng.choice(ADJECTIVES)} {rng.choice(NOUNS)} {rng.randint(10, 99)}"
+        if len(nick) <= NICK_MAX:
+            out.append(nick)
+    return out
 
 
 NICK_MIN, NICK_MAX = 3, 20

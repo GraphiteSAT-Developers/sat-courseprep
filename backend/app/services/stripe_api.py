@@ -1,7 +1,8 @@
 """A small Stripe client: just the calls Graphite SAT needs, with no extra packages to install.
 
 Payments switch on when STRIPE_SECRET_KEY is set (see backend/README.md, "Connect Stripe"). Until then,
-is_live() is False and checkout starts plans without charging anyone.
+is_live() is False and checkout starts plans without charging anyone, except on the live site
+(APP_ENV=production), where paid plans can't be started until payments are connected (payments_off()).
 """
 import hashlib
 import hmac
@@ -27,6 +28,12 @@ def secret_key():
 def is_live():
     """True once a Stripe key is set. Test keys (sk_test_...) count: they let you try checkout with test cards."""
     return bool(secret_key())
+
+
+def payments_off():
+    """True on the live site before Stripe is connected. Locally, plans start without a charge so the site can be
+    tried; on the live site that would hand out paid plans for free, so paid plans wait for payments instead."""
+    return not is_live() and bool(current_app.config.get("IS_PRODUCTION"))
 
 
 def _flatten(data, prefix=""):

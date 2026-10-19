@@ -18,6 +18,9 @@ PARENT_USERNAME = "beta2"
 PARENT_PASSWORD = "beta2"
 PARENT_NAME = "Beta2 Parent"
 OLD_PARENT_USERNAMES = ("parent",)  # earlier name for the test parent; renamed to beta2 on start, keeping its link
+# The passwords are published above, so a slow hash protects nothing here. A fast one keeps every app start
+# (and so every backend test) from spending most of its time hashing "beta".
+HASH_METHOD = "pbkdf2:sha256:1000"
 
 
 def ensure(url):
@@ -29,12 +32,12 @@ def ensure(url):
         row = conn.execute(f"SELECT id, password_hash FROM users WHERE email = {ph}", (email,)).fetchone()
         if not row:
             conn.execute(f"INSERT INTO users (email, password_hash, name, role, created_at) VALUES ({ph}, {ph}, {ph}, {ph}, {ph})",
-                         (email, generate_password_hash(password), name, role, stamp))
+                         (email, generate_password_hash(password, HASH_METHOD), name, role, stamp))
             row = conn.execute(f"SELECT id, password_hash FROM users WHERE email = {ph}", (email,)).fetchone()
         else:
             conn.execute(f"UPDATE users SET name = {ph}, role = {ph} WHERE id = {ph}", (name, role, row["id"]))
         if not check_password_hash(row["password_hash"], password):
-            conn.execute(f"UPDATE users SET password_hash = {ph} WHERE id = {ph}", (generate_password_hash(password), row["id"]))
+            conn.execute(f"UPDATE users SET password_hash = {ph} WHERE id = {ph}", (generate_password_hash(password, HASH_METHOD), row["id"]))
         return row["id"]
 
     try:
