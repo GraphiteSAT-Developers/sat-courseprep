@@ -256,6 +256,10 @@ html.paper .faq summary::after { color: var(--text); font-family: var(--font-bod
 /* Cookie banner on paper */
 html.paper .cookie-banner { background: var(--surface); border-top: 1px solid var(--text); box-shadow: none; }
 html.paper .cookie-banner h2 { font-size: 1.2rem; }
+@media (max-width: 480px) {
+  html.paper .cookie-actions { flex-wrap: nowrap; }
+  html.paper .cookie-actions .btn { min-height: 44px; padding: 0 8px; font-size: 0.875rem; line-height: 1.2; }
+}
 html.paper .compare-group th { font: 500 0.8125rem/1.3 var(--font-mono); text-transform: none; letter-spacing: 0; }
 html.paper .compare-table th.is-featured, html.paper .compare-table td.is-featured, html.paper .vs-us { background: #fbf2cf !important; }
 

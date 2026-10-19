@@ -7,6 +7,7 @@ from flask import Flask, jsonify, redirect, request, send_from_directory
 from werkzeug.exceptions import HTTPException
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+from .compress import gzip_response
 from .config import Config
 from .db import close_db
 from .routes import BLUEPRINTS
@@ -117,7 +118,7 @@ def create_app(overrides=None):
             resp.headers.setdefault("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
         if request.path.startswith("/api/"):
             resp.headers["Cache-Control"] = "no-store"
-        return resp
+        return gzip_response(resp, request)
 
     @app.errorhandler(ApiError)
     def api_error(err):
