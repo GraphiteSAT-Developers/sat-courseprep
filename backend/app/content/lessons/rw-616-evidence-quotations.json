@@ -1,0 +1,131 @@
+{
+  "id": "rw-evidence-quotations",
+  "order": 616,
+  "domain": "information-ideas",
+  "skill": "command-of-evidence-textual",
+  "title": "Which quotation proves it?",
+  "minutes": 7,
+  "format": "case",
+  "intro": "Case file: a student's essay makes four claims about a poem. Your job is to find the quotation that proves each one.",
+  "hook": "The right quotation shows every part of the claim. A quotation that is merely about the same topic is a decoy.",
+  "steps": [
+    {
+      "type": "predict",
+      "prompt": "Clue 1. Claim: 'The speaker finds comfort in the city's noise.' Which line best supports it?",
+      "choices": [
+        "'The sirens sing me gently off to sleep.'",
+        "'The city never rests, not even at night.'",
+        "'I moved here in the spring of my twentieth year.'"
+      ],
+      "answer": 0,
+      "why": "Sing me gently to sleep shows both noise and comfort. The second line has noise but no comfort."
+    },
+    {
+      "type": "match",
+      "prompt": "Clue 2. Match each claim to the quotation that proves it.",
+      "left": [
+        "The speaker misses home.",
+        "The speaker feels out of place.",
+        "The speaker has changed over time.",
+        "The speaker admires the river."
+      ],
+      "right": [
+        "'I still set the table for the ones I left.'",
+        "'Each face I pass looks through me, not at me.'",
+        "'The boy who came here would not know me now.'",
+        "'The river shines like something no one owns.'"
+      ],
+      "why": "Each quotation shows the exact feeling in its claim, not just the same setting."
+    },
+    {
+      "type": "spot",
+      "prompt": "Clue 3. Claim: 'The speaker is both drawn to and afraid of the sea.' Tap the quotation that supports only half of the claim.",
+      "lines": [
+        "'I walk to the edge each morning, then step back.'",
+        "'The waves call me, and I will not answer.'",
+        "'The sea is the bluest thing I know.'",
+        "'I love the tide the way one loves a storm: from far away.'"
+      ],
+      "wrong": 2,
+      "why": "Bluest thing shows admiration but no fear. The others show both pull and caution."
+    },
+    {
+      "type": "sort",
+      "prompt": "Clue 4. Claim: 'The poem suggests that memory fades.' Sort each quotation.",
+      "buckets": [
+        "Supports the claim",
+        "Decoy"
+      ],
+      "cards": [
+        {
+          "text": "'Her voice grows quieter every year I try to hear it.'",
+          "bucket": 0
+        },
+        {
+          "text": "'I remember the kitchen and its yellow walls.'",
+          "bucket": 1
+        },
+        {
+          "text": "'The photographs keep fading at the edges.'",
+          "bucket": 0
+        },
+        {
+          "text": "'Memory is a house with many rooms.'",
+          "bucket": 1
+        }
+      ],
+      "why": "A clear memory or a pretty metaphor about memory isn't evidence that it fades."
+    },
+    {
+      "type": "recall",
+      "prompt": "What's the step-by-step method for 'which quotation best illustrates the claim' questions?",
+      "answer": "Split the claim into its parts, then pick the quotation that shows every part. Reject quotations that only share the topic."
+    },
+    {
+      "type": "predict",
+      "prompt": "Case closed. Claim: 'The narrator grows more confident over the story.' Which quotation best supports it?",
+      "choices": [
+        "'At first I whispered my answers; by June, I argued with the teacher.'",
+        "'I was always the quiet one.'",
+        "'The school had a red door and a long hallway.'"
+      ],
+      "answer": 0,
+      "why": "Whispered to argued shows change over time. The second shows only shyness."
+    }
+  ],
+  "keys": [
+    "Break the claim into parts. The quotation must show all of them.",
+    "Same topic is not the same as support.",
+    "For change over time, look for a before and an after."
+  ],
+  "recall": [
+    {
+      "type": "predict",
+      "prompt": "Claim: 'The speaker feels both joy and loss.' The best quotation shows:",
+      "choices": [
+        "both feelings",
+        "only joy",
+        "only the setting"
+      ],
+      "answer": 0,
+      "why": "Every part of the claim needs support."
+    },
+    {
+      "type": "predict",
+      "prompt": "The most common decoy quotation:",
+      "choices": [
+        "shares the topic but doesn't prove the claim",
+        "proves every part of the claim",
+        "is very short"
+      ],
+      "answer": 0,
+      "why": "It looks related, but it doesn't show the claim."
+    },
+    {
+      "type": "recall",
+      "prompt": "What should you do with a claim before reading the quotations?",
+      "answer": "Split it into its separate parts."
+    }
+  ],
+  "tex": true
+}

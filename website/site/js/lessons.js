@@ -94,29 +94,76 @@
                   "information-ideas": "Main ideas, the evidence that proves a claim (quotes, findings, tables and graphs), and what must be true.",
                   "conventions": "Where sentences end, and making every subject, verb, pronoun and modifier agree.",
                   "expression-ideas": "The last questions in every module: transitions and writing from a student's notes." };
-    $("ls-jump").innerHTML = order.map(function (d) {
-      var done = groups[d].filter(function (l) { return l.progress.done; }).length;
-      return '<li><a href="#ls-sec-' + esc(d) + '">' + esc(groups[d][0].domain_name) + ' <span class="fine">' + done + "/" + groups[d].length + "</span></a></li>";
+    // Each group folds shut, so the page opens as one short row per group with its progress. The group with
+    // the next lesson to do starts open; after that the student's own open and shut choices are kept.
+    var opened = openState(), filter = listFilter();
+    var next = null;
+    order.forEach(function (d) { groups[d].forEach(function (l) { if (!next && !l.progress.done && !(lock && l.locked) && !(locked && l.id !== o.start_with)) next = d; }); });
+    // A To do or Done filter opens every group that has a match, without changing what's remembered.
+    function isOpen(d) { return filter !== "all" || (d in opened ? opened[d] : d === next); }
+    function counts(list) {
+      var done = list.filter(function (l) { return l.progress.done; }).length;
+      return { done: done, todo: list.length - done, all: list.length };
+    }
+    var all = counts(order.reduce(function (a, d) { return a.concat(groups[d]); }, []));
+    $("ls-filter").innerHTML = [["all", "All"], ["todo", "To do"], ["done", "Done"]].map(function (f) {
+      return '<button type="button" data-filter="' + f[0] + '" aria-pressed="' + (filter === f[0]) + '">' + f[1] + ' <span class="fine">' + all[f[0]] + "</span></button>";
     }).join("");
-    $("ls-jump-wrap").hidden = order.length < 2;
+    $("ls-toggle-all").textContent = order.every(isOpen) ? "Fold all" : "Open all";
+    $("ls-tools").hidden = !order.length;
     $("ls-groups").innerHTML = order.map(function (d) {
-      var done = groups[d].filter(function (l) { return l.progress.done; }).length;
-      return '<section class="panel ls-group" id="ls-sec-' + esc(d) + '" aria-labelledby="ls-g-' + esc(d) + '"><div class="panel-head"><h2 id="ls-g-' + esc(d) + '">' + esc(groups[d][0].domain_name) + '</h2><span class="label">' + done + " of " + groups[d].length + " done</span></div>" +
+      var c = counts(groups[d]), shown = groups[d].filter(function (l) { return filter === "all" || (filter === "done") === !!l.progress.done; });
+      return '<details class="panel ls-group" id="ls-sec-' + esc(d) + '" data-d="' + esc(d) + '"' + (isOpen(d) ? " open" : "") + (shown.length ? "" : " hidden") + ">" +
+        '<summary class="ls-group-head"><h2>' + esc(groups[d][0].domain_name) + "</h2>" +
+        '<span class="ls-group-bar" aria-hidden="true"><i style="width:' + Math.round(100 * c.done / c.all) + '%"></i></span>' +
+        '<span class="label">' + c.done + " of " + c.all + " done</span></summary>" +
         (ABOUT[d] ? '<p class="panel-lede">' + ABOUT[d] + "</p>" : "") +
-        '<ul class="ls-list">' + groups[d].map(function (l) {
+        '<ul class="ls-list">' + shown.map(function (l) {
           var st = stateText(l.progress, o.recall_days), paid = !!(lock && l.locked), shut = paid || (locked && l.id !== o.start_with);
           var href = "lessons.html?lesson=" + encodeURIComponent(l.id);
           if (paid && l.progress.due === false && l.progress.done && !l.progress.mastered) st = { chip: "Done", cls: "chip-quiet", line: "Recall checks wait until your plan includes this lesson." };
-          return '<li class="ls-item' + (shut ? " is-locked" : "") + (paid ? " is-plan-locked" : "") + (l.id === START ? " is-start" : "") + '"><div class="ls-item-copy"><h3>' + (shut ? T(l.title) : '<a href="' + href + '">' + T(l.title) + "</a>") + "</h3>" +
-            '<p class="fine">' + T(l.hook) + "</p>" +
-            '<p class="ls-meta">' + (lock && l.free ? '<span class="chip ls-free-chip">Free</span>' : "") + '<span class="chip ' + st.cls + '">' + st.chip + '</span><span class="ls-format-chip ls-f-' + esc(l.format || "classic") + '">' + esc(FORMAT[l.format] || "Classic") + "</span><span>" + l.minutes + " min · " + l.steps + " steps · " + esc(l.skill_name) + "</span>" +
-            (l.progress.done ? stageDots(l.progress, o.recall_days) : "") + "</p>" + (st.line ? '<p class="fine">' + st.line + "</p>" : "") + "</div>" +
-            (paid ? '<a class="btn btn-quiet ls-plan-btn" href="' + esc(window.GraphiteLock.url(lock)) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>' + (lock.reason ? "Fix payment" : "With " + esc(lock.need_name)) + "</a>"
+          return '<li class="ls-item' + (shut ? " is-locked" : "") + (paid ? " is-plan-locked" : "") + (l.id === START ? " is-start" : "") + (l.progress.done ? " is-done" : "") + '"><div class="ls-item-copy"><h3>' + (shut ? T(l.title) : '<a href="' + href + '">' + T(l.title) + "</a>") + "</h3>" +
+            '<p class="fine ls-hook">' + T(l.hook) + "</p>" +
+            '<p class="ls-meta">' + (lock && l.free ? '<span class="chip ls-free-chip">Free</span>' : "") + '<span class="chip ' + st.cls + '">' + st.chip + '</span><span class="ls-format-chip ls-f-' + esc(l.format || "classic") + '">' + esc(FORMAT[l.format] || "Classic") + "</span><span>" + l.minutes + " min</span>" +
+            (l.progress.done ? stageDots(l.progress, o.recall_days) : "") + "</p>" + (st.line ? '<p class="fine ls-when">' + st.line + "</p>" : "") + "</div>" +
+            (paid ? '<a class="ls-plan-btn" href="' + esc(window.GraphiteLock.url(lock)) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>' + (lock.reason ? "Fix payment" : "With " + esc(lock.need_name)) + "</a>"
              : shut ? '<span class="ls-lock fine">Opens after Desmos hacks</span>'
-                  : '<a class="btn ' + (l.progress.done ? "btn-quiet" : "btn-secondary") + '" href="' + href + '">' + (l.progress.done ? "Do it again" : "Start") + "</a>") + "</li>";
-        }).join("") + "</ul></section>";
+                  : '<span class="ls-cta" aria-hidden="true">' + (l.progress.done ? "Do it again" : "Start") + "</span>") + "</li>";
+        }).join("") + "</ul></details>";
     }).join("");
+    $("ls-filter-empty").hidden = order.some(function (d) { return !$("ls-sec-" + d).hidden; });
   }
+  // Open and shut groups, and the All | To do | Done filter, are remembered in this browser.
+  var OPEN_KEY = "graphite_lessons_open", FILTER_KEY = "graphite_lessons_filter";
+  function openState() { try { return JSON.parse(localStorage.getItem(OPEN_KEY)) || {}; } catch (e) { return {}; } }
+  function saveOpen(d, v) { var s = openState(); s[d] = v; try { localStorage.setItem(OPEN_KEY, JSON.stringify(s)); } catch (e) { /* storage blocked */ } }
+  function listFilter() { var f = null; try { f = localStorage.getItem(FILTER_KEY); } catch (e) { /* storage blocked */ } return f === "todo" || f === "done" ? f : "all"; }
+  function openGroup(d, scroll) {
+    var g = $("ls-sec-" + d); if (!g) return;
+    if (g.hidden) { try { localStorage.setItem(FILTER_KEY, "all"); } catch (e) { /* storage blocked */ } renderList(listData); g = $("ls-sec-" + d); }
+    g.open = true; saveOpen(d, true);
+    if (scroll) { g.scrollIntoView({ block: "start" }); g.querySelector("summary").focus({ preventScroll: true }); }
+  }
+  $("ls-groups").addEventListener("click", function (e) {
+    var sum = e.target.closest(".ls-group-head"); if (sum) saveOpen(sum.parentNode.getAttribute("data-d"), !sum.parentNode.open);
+  });
+  $("ls-groups").addEventListener("toggle", function () {
+    var gs = $("ls-groups").querySelectorAll(".ls-group:not([hidden])");
+    $("ls-toggle-all").textContent = Array.prototype.every.call(gs, function (x) { return x.open; }) ? "Fold all" : "Open all";
+  }, true);
+  $("ls-filter").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-filter]"); if (!b) return;
+    try { localStorage.setItem(FILTER_KEY, b.getAttribute("data-filter")); } catch (err) { /* storage blocked */ }
+    renderList(listData);
+  });
+  $("ls-toggle-all").addEventListener("click", function () {
+    var gs = $("ls-groups").querySelectorAll(".ls-group:not([hidden])"), v = !Array.prototype.every.call(gs, function (x) { return x.open; });
+    each(gs, function (g) { g.open = v; saveOpen(g.getAttribute("data-d"), v); });
+    this.textContent = v ? "Fold all" : "Open all";
+  });
+  // A link straight to a group (lessons.html?list=1#ls-sec-algebra) opens it.
+  function openFromHash() { var m = /^#ls-sec-(.+)$/.exec(location.hash); if (m && listData) openGroup(decodeURIComponent(m[1]), true); }
+  window.addEventListener("hashchange", openFromHash);
 
   /* ---------- one lesson ---------- */
   function open(id, mode, note) {
@@ -800,6 +847,7 @@
     return call("/api/lessons").then(function (o) {
       if (auto && o.start_with && subject() !== "rw") { open(o.start_with); return; }  // first visit to Math lessons: Desmos hacks, straight away
       renderList(o);
+      openFromHash();
     }).catch(function (err) {
       if (err && err.status === 401) { signIn(); return; }
       $("ls-loading").textContent = err && err.status === 403 ? "Lessons are for student accounts." : "We couldn't load lessons. Check your connection and refresh the page.";
