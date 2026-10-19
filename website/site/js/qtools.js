@@ -1,22 +1,25 @@
 /* Graphite SAT question tools: the graphing calculator and the tutor, on every page with math questions.
-   On a computer they open as a panel on the right and the page slides left, so the whole question stays in view.
+   On a computer or tablet they open as a floating window: drag its title bar to move it anywhere, drag an edge or
+   corner to resize it, and double-click the title bar to put it back. The question reflows into the space beside it,
+   on whichever side has more room, so the whole question stays in view. The window remembers where it was.
    On a phone they open as a sheet over the bottom of the screen. Nothing opens a new tab or window.
 
    A page turns it on with GraphiteTools.mount({ shift: "selector", top: "selector", bottom: "selector", launcher: true }):
      shift     the parts of the page that move aside (default: main, the trail and the footer)
-     top       the bar the panel sits under (default: the site header)
-     bottom    a bar the panel sits above (the practice test's question bar)
+     top       the bar the window stays below (default: the site header)
+     bottom    a bar the window stays above (the practice test's question bar)
      launcher  show the Calculator / Tutor tabs on the right edge (pages with their own buttons turn it off)
    Then GraphiteTools.open("calc" | "tutor"), .toggle(tab), .close(), .context({ title, detail }) and
    .tutorAllowed(bool, why) for timed tests, where the tutor waits until the test is submitted. */
 (function () {
   "use strict";
   var D = document, root = D.documentElement;
-  var KEY = "graphite_tools_v1";
+  var KEY = "graphite_tools_v2";
+  var GAP = 16, MIN_W = 340, MIN_H = 240, MIN_TEXT = 260;
   var opts = null, el = null, tab = "calc", built = false, allowed = true, blockedWhy = "", ctx = null;
-  var phone = window.matchMedia("(max-width: 860px)");
+  var phone = window.matchMedia("(max-width: 640px)");
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var saved = { w: 0 };
+  var saved = {};
   try { saved = JSON.parse(localStorage.getItem(KEY)) || saved; } catch (e) { /* storage blocked */ }
   function store() { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) { /* storage blocked */ } }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -31,13 +34,14 @@
     el.className = "qt"; el.id = "qt"; el.hidden = true;
     el.setAttribute("aria-label", "Calculator and tutor");
     el.innerHTML =
-      '<div class="qt-edge" id="qt-edge" role="separator" aria-orientation="vertical" aria-label="Resize the panel. Use the arrow keys." tabindex="0"></div>' +
-      '<div class="qt-head">' +
+      ["n", "s", "e", "w", "ne", "nw", "se", "sw"].map(function (d) { return '<div class="qt-rs qt-rs-' + d + '" data-dir="' + d + '" aria-hidden="true"></div>'; }).join("") +
+      '<div class="qt-head" id="qt-head">' +
+        '<button type="button" class="qt-grip" id="qt-grip" aria-label="Move the window. Use the arrow keys to move it, or Shift and the arrow keys to resize it."><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></g></svg></button>' +
         '<div class="qt-tabs" role="tablist" aria-label="Tools">' +
           '<button type="button" role="tab" id="qt-tab-calc" aria-controls="qt-calc" data-tab="calc">' + ICON.calc + "<span>Calculator</span></button>" +
           '<button type="button" role="tab" id="qt-tab-tutor" aria-controls="qt-tutor" data-tab="tutor">' + ICON.tutor + "<span>Tutor</span></button>" +
         "</div>" +
-        '<button type="button" class="qt-close" id="qt-close" aria-label="Close the panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>' +
+        '<button type="button" class="qt-close" id="qt-close" aria-label="Close the window"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>' +
       "</div>" +
       '<div class="qt-pane qt-calc" id="qt-calc" role="tabpanel" aria-labelledby="qt-tab-calc"><p class="qt-loading">Loading the calculator…</p></div>' +
       '<div class="qt-pane qt-tutor" id="qt-tutor" role="tabpanel" aria-labelledby="qt-tab-tutor" hidden></div>';
@@ -50,7 +54,9 @@
       show(tab === "calc" ? "tutor" : "calc"); D.getElementById("qt-tab-" + tab).focus();
     });
     D.getElementById("qt-close").addEventListener("click", close);
-    edge(D.getElementById("qt-edge"));
+    drag(D.getElementById("qt-head"));
+    el.querySelectorAll(".qt-rs").forEach(resizer);
+    keys(D.getElementById("qt-grip"));
     if (opts.launcher) {
       var l = D.createElement("div");
       l.className = "qt-launch"; l.id = "qt-launch";
@@ -115,22 +121,52 @@
     if (tab === "calc") buildCalc();
     marks();
   }
-  function width() {
-    var vw = window.innerWidth, w = saved.w || Math.round(Math.min(560, Math.max(380, vw * 0.4)));
-    return Math.round(Math.max(340, Math.min(w, vw * 0.65)));
-  }
   function measure(sel) { var n = sel && D.querySelector(sel); return n ? Math.round(n.getBoundingClientRect().height) : 0; }
+  // The room the window may use: the whole viewport, less the bars it stays between.
+  function bounds() {
+    var top = measure(opts.top || ".site-header"), bottom = window.innerHeight - measure(opts.bottom);
+    return { l: 0, r: root.clientWidth || window.innerWidth, t: top, b: Math.max(top + MIN_H, bottom) };
+  }
+  // Where the window is, from what the student last chose (or the top right the first time), kept on screen.
+  function box() {
+    var b = bounds(), vw = b.r - b.l, vh = b.b - b.t;
+    var w = saved.w || Math.round(Math.min(460, Math.max(MIN_W, vw * 0.38)));
+    var h = saved.h || Math.round(Math.min(640, vh - 2 * GAP));
+    w = Math.max(Math.min(MIN_W, vw), Math.min(w, vw));
+    h = Math.max(Math.min(MIN_H, vh), Math.min(h, vh));
+    var x = saved.x == null ? b.r - w - GAP : saved.x, y = saved.y == null ? b.t + GAP : saved.y;
+    x = Math.max(b.l, Math.min(x, b.r - w));
+    y = Math.max(b.t, Math.min(y, b.b - h));
+    return { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
+  }
+  // The question moves out from under the window, to whichever side of it has more room.
+  function reflow(r) {
+    var b = bounds(), left = r.x - b.l, right = b.r - (r.x + r.w), padL = 0, padR = 0;
+    if (right >= left) padL = Math.min(r.x + r.w + GAP - b.l, b.r - b.l - MIN_TEXT);
+    else padR = Math.min(b.r - r.x + GAP, b.r - b.l - MIN_TEXT);
+    root.style.setProperty("--qt-l", Math.max(0, padL) + "px");
+    root.style.setProperty("--qt-r", Math.max(0, padR) + "px");
+  }
   function layout() {
     if (!el) return;
-    var open = !el.hidden;
+    var open = !el.hidden, sheet = open && phone.matches;
     root.classList.toggle("qt-open", open);
-    root.classList.toggle("qt-sheet", open && phone.matches);
-    root.style.setProperty("--qt-top", measure(opts.top || ".site-header") + "px");
+    root.classList.toggle("qt-sheet", sheet);
     root.style.setProperty("--qt-bottom", measure(opts.bottom) + "px");
-    root.style.setProperty("--qt-w", open && !phone.matches ? width() + "px" : "0px");
-    root.style.setProperty("--qt-h", open && phone.matches ? Math.round(window.innerHeight * 0.56) + "px" : "0px");
+    root.style.setProperty("--qt-h", sheet ? Math.round(window.innerHeight * 0.56) + "px" : "0px");
+    if (open && !sheet) {
+      var r = box();
+      el.style.left = r.x + "px"; el.style.top = r.y + "px"; el.style.width = r.w + "px"; el.style.height = r.h + "px";
+      reflow(r);
+    } else {
+      el.style.left = el.style.top = el.style.width = el.style.height = "";
+      root.style.setProperty("--qt-l", "0px"); root.style.setProperty("--qt-r", "0px");
+    }
     marks();
   }
+  var frame = 0;
+  function soon() { if (!frame) frame = requestAnimationFrame(function () { frame = 0; layout(); }); }
+  function keep() { var r = box(); saved = { x: r.x, y: r.y, w: r.w, h: r.h }; store(); }
   function marks() {
     if (!opts) return;
     D.querySelectorAll("[data-qt-toggle]").forEach(function (b) {
@@ -159,20 +195,69 @@
   function toggle(t) {
     if (el && !el.hidden && (t || tab) === tab) close(); else open(t);
   }
-  // Drag the left edge (or use the arrow keys on it) to make the panel wider or narrower.
-  function edge(h) {
-    var start = null;
+  // Pointer moves (mouse, pen or touch) on a handle, as offsets from where they started. With slack, a press only
+  // becomes a drag once it has moved a few pixels, so the buttons on the title bar still take a plain click or tap.
+  function track(h, slack, move) {
+    var start = null, dragged = false;
     h.addEventListener("pointerdown", function (e) {
       if (phone.matches || e.button > 0) return;
-      e.preventDefault(); h.setPointerCapture(e.pointerId);
-      start = { x: e.clientX, w: width() }; root.classList.add("qt-resizing");
+      start = { px: e.clientX, py: e.clientY, r: box(), id: e.pointerId, live: false };
+      // Listen on the window, and let the calculator's frame ignore the pointer, so a quick flick isn't lost.
+      window.addEventListener("pointermove", step, true);
+      window.addEventListener("pointerup", end, true); window.addEventListener("pointercancel", end, true);
+      root.classList.add("qt-pressing");
+      if (!slack) { e.preventDefault(); begin(); }
     });
-    h.addEventListener("pointermove", function (e) { if (!start) return; saved.w = start.w + (start.x - e.clientX); layout(); });
-    function end() { if (!start) return; start = null; saved.w = width(); store(); root.classList.remove("qt-resizing"); }
-    h.addEventListener("pointerup", end); h.addEventListener("pointercancel", end);
+    function begin() { start.live = true; try { h.setPointerCapture(start.id); } catch (err) { /* already up */ } root.classList.add("qt-resizing"); }
+    function step(e) {
+      if (!start || e.pointerId !== start.id) return;
+      if (e.pointerType === "mouse" && !e.buttons) { end(); return; } // the button came up somewhere we didn't hear about
+      var dx = e.clientX - start.px, dy = e.clientY - start.py;
+      if (!start.live) { if (Math.abs(dx) + Math.abs(dy) < 6) return; begin(); }
+      move(start.r, dx, dy); soon();
+    }
+    function end() {
+      window.removeEventListener("pointermove", step, true);
+      window.removeEventListener("pointerup", end, true); window.removeEventListener("pointercancel", end, true);
+      root.classList.remove("qt-pressing");
+      if (!start) return;
+      var live = start.live; start = null; if (!live) return;
+      dragged = true; setTimeout(function () { dragged = false; }, 0); root.classList.remove("qt-resizing"); layout(); keep();
+    }
+    h.addEventListener("lostpointercapture", function (e) { if (e.target === h) end(); });
+    // the click that ends a drag isn't a click on whatever button the drag started on
+    h.addEventListener("click", function (e) { if (dragged) { e.stopPropagation(); e.preventDefault(); } }, true);
+  }
+  // Drag anywhere on the title bar to move the window; double-click it to put the window back where it started.
+  function drag(h) {
+    track(h, true, function (r, dx, dy) { saved.x = r.x + dx; saved.y = r.y + dy; });
+    h.addEventListener("dblclick", function (e) { if (e.target.closest(".qt-tabs button, .qt-close")) return; saved = {}; store(); layout(); });
+  }
+  // Drag an edge or corner to resize; the opposite edge stays put.
+  function resizer(h) {
+    var dir = h.getAttribute("data-dir");
+    track(h, false, function (r, dx, dy) {
+      var x = r.x, y = r.y, w = r.w, hh = r.h;
+      if (dir.indexOf("e") >= 0) w = Math.max(MIN_W, r.w + dx);
+      if (dir.indexOf("w") >= 0) { w = Math.max(MIN_W, r.w - dx); x = r.x + r.w - w; }
+      if (dir.indexOf("s") >= 0) hh = Math.max(MIN_H, r.h + dy);
+      if (dir.indexOf("n") >= 0) { hh = Math.max(MIN_H, r.h - dy); y = r.y + r.h - hh; }
+      var b = bounds();
+      if (x < b.l) { w -= b.l - x; x = b.l; }
+      if (y < b.t) { hh -= b.t - y; y = b.t; }
+      w = Math.min(w, b.r - x); hh = Math.min(hh, b.b - y);
+      saved = { x: x, y: y, w: w, h: hh };
+    });
+  }
+  // From the keyboard: the arrow keys move the window, and Shift with them resizes it.
+  function keys(h) {
     h.addEventListener("keydown", function (e) {
-      var d = { ArrowLeft: 40, ArrowRight: -40 }[e.key]; if (!d) return;
-      e.preventDefault(); saved.w = width() + d; layout(); saved.w = width(); store();
+      var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key]; if (!d) return;
+      e.preventDefault();
+      var r = box(), step = 32;
+      if (e.shiftKey) saved = { x: r.x, y: r.y, w: Math.max(MIN_W, r.w + d[0] * step), h: Math.max(MIN_H, r.h + d[1] * step) };
+      else saved = { x: r.x + d[0] * step, y: r.y + d[1] * step, w: r.w, h: r.h };
+      layout(); keep();
     });
   }
 
