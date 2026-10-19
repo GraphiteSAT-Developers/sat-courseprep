@@ -2807,6 +2807,7 @@ html.qt-open:not(.qt-sheet) .exam-body.qt-shift { margin: 0; padding-left: var(-
 .res-score strong { font: 800 3rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
 .res-score span { color: var(--x-muted); }
 .res-modules { margin: 0; font-weight: 700; }
+.res-range { margin: 0; font-weight: 700; color: var(--x-muted); font-variant-numeric: tabular-nums; }
 /* No tutor during a timed test */
 html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-launch [data-open="tutor"] { display: none !important; }
 /* Mock tests page: the full section and the single module side by side, then your tests, then topics across the page */
@@ -2930,3 +2931,72 @@ mark.anno:focus-visible { outline: 2px solid var(--x-sel); }
 .res-stem .rw-passage, .sp-stem .rw-passage, .qcard-stem .rw-passage { font-size: 1rem; }
 .qcard-stem .rw-prompt { font-size: 1rem; }
 .pr-done { font-weight: 600; font-size: var(--t-xs); color: var(--muted); margin-left: var(--s1); white-space: nowrap; }
+
+/* ---------- Score check (score-check.html): 20 questions without an account ---------- */
+.sc { --x-line: var(--line); --x-muted: var(--muted); --x-text: var(--text); --x-bar: var(--raised); padding-block: var(--s6) var(--s7); }
+.sc .wrap { max-width: 860px; }
+.sc-intro, .sc-results { display: grid; gap: var(--s4); }
+.sc-intro h1 { margin: 0; }
+.sc-facts { margin: 0; padding-left: 1.2em; display: grid; gap: var(--s2); }
+.sc-note { margin: 0; }
+.sc-error { margin: 0; color: var(--err); font-weight: 700; }
+.sc-test { display: grid; gap: var(--s4); }
+.sc-progress { display: grid; grid-template-columns: auto 1fr; gap: var(--s2) var(--s4); align-items: baseline; }
+.sc-progress .label { margin: 0; }
+.sc-progress #sc-qsec { justify-self: end; text-align: right; }
+.sc-bar { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.sc-bar span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s ease; }
+.sc-card { display: grid; gap: var(--s4); padding: var(--s5); border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.sc-stem { line-height: 1.6; overflow-x: auto; }
+.sc-spr { display: grid; gap: var(--s2); max-width: 320px; }
+.sc-spr label { font-weight: 700; }
+.sc-spr input { font: 700 1.2rem var(--font-mono); padding: var(--s2) var(--s3); border-radius: var(--radius); border: 1px solid var(--control); background: var(--bg); color: var(--text); }
+.sc-spr .fine { margin: 0; }
+.sc-sure { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); padding-top: var(--s3); border-top: 1px solid var(--line); }
+.sc-sure span { font-weight: 700; margin-right: var(--s2); }
+.sc-sure button { font: inherit; padding: var(--s1) var(--s4); border-radius: 999px; border: 1px solid var(--control); background: var(--bg); color: var(--text); cursor: pointer; }
+.sc-sure button[aria-checked="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.sc-nav { display: flex; gap: var(--s3); justify-content: space-between; flex-wrap: wrap; }
+.sc-nav #sc-next { margin-left: auto; }
+.sc-total { display: grid; gap: var(--s1); padding: var(--s5); border-radius: 12px; background: var(--raised); }
+.sc-total p { margin: 0; }
+.sc-total-score { display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap; }
+.sc-total-score strong { font: 800 clamp(3rem, 12vw, 4.5rem)/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.sc-total-score span, .sc-sec-score span { color: var(--muted); }
+.sc-total-range { font-weight: 700; font-variant-numeric: tabular-nums; }
+.sc-sections { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s3); }
+.sc-sec { display: grid; gap: var(--s1); padding: var(--s4); border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.sc-sec p { margin: 0; }
+.sc-sec-score { display: flex; align-items: baseline; gap: var(--s2); }
+.sc-sec-score strong { font: 800 2rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.sc-skills, .sc-review, .sc-cta { display: grid; gap: var(--s3); }
+.sc-skills h2, .sc-review h2, .sc-cta h2, .sc-skills p, .sc-cta p { margin: 0; }
+.sc-skills ol { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s2); }
+.sc-skills li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: var(--s3); align-items: center; padding: var(--s3) var(--s4); border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }
+.sc-pts { font: 800 1.3rem var(--font-mono); color: var(--accent); font-variant-numeric: tabular-nums; }
+.sc-skill { display: grid; gap: 2px; min-width: 0; }
+.sc-skill .fine { margin: 0; }
+.sc-cta { padding: var(--s5); border-radius: 12px; border-left: 4px solid var(--accent); background: var(--raised); justify-items: start; }
+@media (max-width: 640px) {
+  .sc-card { padding: var(--s4); }
+  .sc-skills li { grid-template-columns: 56px minmax(0, 1fr); }
+  .sc .res-item summary { grid-template-columns: 28px 1fr; }
+  .sc .res-dom { grid-column: 2 / -1; }
+  .sc .res-body { padding-left: 0; }
+}
+
+/* ---------- Study guides (guides.html and guide-*.html) ---------- */
+.guide-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s4); padding-bottom: var(--s7); }
+.guide-card { display: grid; gap: var(--s2); align-content: start; padding: var(--s5); border-radius: 12px; background: var(--surface); border: 1px solid var(--line); color: var(--text); text-decoration: none; transition: border-color .15s ease, transform .15s ease; }
+.guide-card:hover { border-color: var(--text); transform: translateY(-2px); }
+.guide-card h2 { margin: 0; font-size: clamp(1.3rem, 2.4vw, 1.6rem); line-height: 1.2; }
+.guide-card p { margin: 0; color: var(--muted); }
+.guide-card .label { margin: 0; }
+.guide-cta { display: grid; gap: var(--s3); justify-items: start; padding: var(--s5); margin-top: var(--s5); border-radius: 12px; border-left: 4px solid var(--accent); background: var(--raised); }
+.guide-foot { padding-bottom: var(--s9); }
+.guide-foot .guide-cta { margin-top: 0; }
+.guide-cta h2, .doc .guide-cta h2 { margin: 0; font-size: clamp(1.3rem, 2.4vw, 1.6rem); }
+.guide-cta p { margin: 0; }
+.guide-steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s3); }
+.doc code { font-family: var(--font-mono); font-size: 0.92em; padding: 1px 5px; border-radius: 4px; background: var(--raised); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .guide-card, .guide-card:hover { transition: none; transform: none; } }

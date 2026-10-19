@@ -315,3 +315,7 @@ html.paper.app .lock-card, html.paper.app .kpis { border-radius: 2px; }
 .dash-fold > .panel > .panel-head > :not(a) { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .dash-fold > .panel > .panel-head:not(:has(> a)) { display: contents; }
 html.paper .dash-fold { border-color: var(--text); border-radius: var(--radius); box-shadow: 5px 5px 0 var(--raised); }
+
+/* Study guide cards, call-to-action boxes and the score check's result headings: smaller than page headings. */
+html.paper .guide-card h2, html.paper .guide-cta h2 { font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.6rem); line-height: 1.2; }
+html.paper .sc-results h2 { font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); }

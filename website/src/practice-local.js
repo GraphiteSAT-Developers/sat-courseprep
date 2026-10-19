@@ -260,6 +260,7 @@
     var limit = s.minutes ? s.minutes * 60 + 120 : s.item_ids.length * 600;
     res.seconds_used = Math.max(0, Math.min(Number(data.seconds_used) || 0, limit));
     res.practice_id = s.id; res.mode = s.mode; res.title = s.title; res.submitted_at = now(); res.section = sectionOf(s.item_ids);
+    if (s.mode === "test" && (s.plan_task || "").indexOf("mock:") !== 0) res.estimate = project(res.section, res.questions);
     var tag = parseTag(s.plan_task);
     if (tag) {
       var before = lvProgress(st, tag.track).levels[tag.level];
@@ -958,12 +959,103 @@
     if (section === "rw") return picked.sort(rwSort);
     return picked.sort(function (a, b) { return BANK.order[byId[a].difficulty] - BANK.order[byId[b].difficulty]; });
   }
+  /* The score calculator (same rules as services/scoring.py). */
+  var SC = MK.scoring;
+  function secKey(section) { return section === "rw" || section === "Reading and Writing" ? "rw" : "math"; }
   function estimate(route, raw, section) {
-    var sc = MK.sections[section || "math"], at = sc.route_at, per = sc.questions, score;
-    if (route === "harder") score = 400 + 400 * Math.max(0, raw - at) / (2 * per - at);
-    else { var top = at - 1 + per; score = 200 + 410 * Math.min(raw, top) / top; }
+    var pts = SC.curves[secKey(section) + "|" + (route === "harder" ? "harder" : "easier")], score = null;
+    if (raw <= pts[0][0]) score = route === "harder" ? pts[0][1] : 200;
+    else if (raw >= pts[pts.length - 1][0]) score = pts[pts.length - 1][1];
+    else for (var i = 0; i < pts.length - 1 && score === null; i++) {
+      if (pts[i][0] <= raw && raw <= pts[i + 1][0]) score = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * (raw - pts[i][0]) / (pts[i + 1][0] - pts[i][0]);
+    }
     return Math.round(score / 10) * 10;
   }
+  function scoreResult(section, route, raw, kind) {
+    var score = estimate(route, raw, section), sp = SC.spread[kind];
+    return { score: score, low: Math.max(200, score - sp), high: Math.min(800, score + sp), section: secKey(section), route: route, projected: kind !== "full" };
+  }
+  function splitMix(n, mix) {
+    var total = 0, out = {}, rest = [], k;
+    for (k in mix) total += mix[k];
+    for (k in mix) { var v = n * mix[k] / total; out[k] = Math.floor(v); rest.push([k, v - out[k]]); }
+    var left = n; for (k in out) left -= out[k];
+    rest.sort(function (a, b) { return b[1] - a[1]; }).slice(0, left).forEach(function (r) { out[r[0]]++; });
+    return out;
+  }
+  function project(section, questions, kind) {
+    var key = secKey(section), per = SC.sections[key].questions, at = SC.sections[key].route_at;
+    if (!questions.length) return null;
+    var right = questions.filter(function (q) { return q.correct; }).length, overall = right / questions.length;
+    var m1 = Math.round(overall * per), route = m1 >= at ? "harder" : "easier", by = {}, m2 = 0;
+    questions.forEach(function (q) { var d = by[q.difficulty || ""] = by[q.difficulty || ""] || [0, 0]; d[0] += q.correct ? 1 : 0; d[1]++; });
+    var mix = splitMix(per, MK.mix[route]);
+    Object.keys(mix).forEach(function (d) { var b = by[d] || [0, 0]; m2 += mix[d] * (b[0] + SC.prior * overall) / (b[1] + SC.prior); });
+    var out = scoreResult(key, route, m1 + Math.round(m2), kind || "projected");
+    out.module2_right = Math.round(m2);
+    return out;
+  }
+  /* The score check (same rules as services/scorecheck.py): 20 questions, no account. */
+  var CK = MK.score_check, checkIds = null;
+  function scoreCheckPick() {
+    var ids = [];
+    CK.sections.forEach(function (sec) {
+      var slots = [], picked = [];
+      sec[1].forEach(function (d) { for (var n = 0; n < d[1]; n++) slots.push(d[0]); });
+      slots.forEach(function (domain, i) {
+        var want = CK.cycle[i % CK.cycle.length], kind = sec[2].indexOf(i) >= 0 ? "spr" : "mc";
+        var pool = BANK.items.filter(function (q) { return (q.section || "math") === sec[0] && q.domain_key === domain && q.type === kind && picked.indexOf(q.id) < 0; });
+        var exact = pool.filter(function (q) { return q.difficulty === want; }), harder = pool.filter(function (q) { return q.difficulty !== "easy"; });
+        pool = exact.length ? exact : harder.length ? harder : pool;
+        picked.push(pool[Math.floor(Math.random() * pool.length)].id);
+      });
+      picked.sort(sec[0] === "rw" ? rwSort : function (a, b) { return BANK.order[byId[a].difficulty] - BANK.order[byId[b].difficulty]; });
+      ids = ids.concat(picked);
+    });
+    return ids;
+  }
+  function scoreCheckGrade(ids, answers, sure) {
+    var all = ids.map(function (id, i) {
+      var g = graded(byId[id], i, cleanAnswer(byId[id], answers[i]));
+      g.sure = !!sure[i]; g.skill_key = byId[id].skill_key; return g;
+    });
+    var sections = [], skills = {};
+    CK.sections.forEach(function (sec) {
+      var key = sec[0], qs = all.filter(function (g) { return g.section === key; });
+      var est = project(key, qs, "check");
+      sections.push(Object.assign(est, { name: CK.names[key], right: qs.filter(function (g) { return g.correct; }).length, total: qs.length }));
+      qs.forEach(function (g, n) {
+        if (g.correct && g.sure) return;
+        var right = qs.map(function (x, k) { return Object.assign({}, x, { correct: k === n || x.correct }); });
+        var wrong = qs.map(function (x, k) { return Object.assign({}, x, { correct: k !== n && x.correct }); });
+        var worth = project(key, right, "check").score - project(key, wrong, "check").score;
+        var s = skills[g.skill] = skills[g.skill] || { skill: g.skill, section: CK.names[key], domain: g.domain, points: 0, missed: 0, guessed: 0 };
+        if (g.correct) { s.points += worth * CK.guess_weight; s.guessed++; } else { s.points += worth; s.missed++; }
+      });
+    });
+    var score = sections.reduce(function (t, s) { return t + s.score; }, 0), sp = SC.spread.check_total;
+    var ranked = Object.keys(skills).map(function (k) { return Object.assign({}, skills[k], { points: Math.round(skills[k].points / 10) * 10 }); })
+      .sort(function (a, b) { return (b.points - a.points) || (b.missed - a.missed) || (a.skill < b.skill ? -1 : 1); });
+    return { total: { score: score, low: Math.max(400, score - sp), high: Math.min(1600, score + sp) }, sections: sections,
+      skills: ranked.filter(function (s) { return s.points > 0; }).slice(0, CK.top),
+      correct: all.filter(function (g) { return g.correct; }).length, count: all.length, questions: all };
+  }
+  function scoreCheckCall(path, data) {
+    if (path === "/api/score-check" && !data) {
+      checkIds = scoreCheckPick();
+      return Promise.resolve({ token: "preview", questions: checkIds.map(function (id) {
+        var q = byId[id], out = {};
+        ["id", "section", "domain", "skill", "difficulty", "type", "stem", "passage", "prompt", "choices"].forEach(function (k) { if (q[k] !== undefined) out[k] = q[k]; });
+        return out;
+      }) });
+    }
+    if (path === "/api/score-check/grade" && checkIds) {
+      var ids = checkIds; checkIds = null;
+      return Promise.resolve({ result: scoreCheckGrade(ids, data.answers || {}, data.sure || {}) });
+    }
+    return fail(400, "That score check has expired. Start a new one.");
+  }
+  window.GraphiteScoring = { project: project, full: function (section, route, raw) { return scoreResult(section, route, raw, "full"); } };
   function breakLeft(m) {
     if (!m.with_break || m.break_ended_at) return 0;
     if (!m.break_started_at) return MK.break_seconds;
@@ -1015,7 +1107,7 @@
     m.m2_correct = res.correct; m.score = estimate(m.route, c.correct, m.section); m.status = "done"; m.finished_at = now();
     Object.assign(c, { seconds_used: (r1.seconds_used || 0) + (res.seconds_used || 0), mode: "mock", title: MK.sections[m.section].name + " mock test",
       section: m.section, submitted_at: m.finished_at,
-      finished: res.finished || [], score: m.score, route: m.route,
+      finished: res.finished || [], score: m.score, route: m.route, estimate: scoreResult(m.section, m.route, c.correct, "full"),
       modules: [{ n: 1, correct: m.m1_correct, total: ids1.length }, { n: 2, correct: res.correct, total: s.item_ids.length, route: m.route }],
       mock: { id: m.id, module: 2, done: true } });
     s.result = c; save(st);
@@ -1058,6 +1150,7 @@
     if (path.indexOf("/api/parent") === 0) return parentCall(path, data, method);
     if (path.indexOf("/api/me/subscription") === 0) return subscriptionCall(path, data);
     if (path.indexOf("/api/mock-tests") === 0) return mockCall(path, data);
+    if (path.indexOf("/api/score-check") === 0) return scoreCheckCall(path, data);
     if (path.indexOf("/api/levels") === 0) return levelsCall(path, data);
     if (path.indexOf("/api/plan") === 0) return planCall(path, data);
     if (path === "/api/practice") { var ov = overview(section); ov.access = accessState("practice_set"); return Promise.resolve(ov); }

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en" class="live paper">
+<head>
+<meta charset="utf-8">
+<meta name="graphite-mode" content="live">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Desmos on the SAT: 10 Calculator Moves and When to Skip It | Graphite SAT</title>
+<meta name="description" content="The Desmos graphing calculator moves that solve the most digital SAT Math questions: intersections, sliders, regression, lists and more, plus the mistakes that cost points and when by hand is faster.">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#f4f1e9">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Graphite SAT">
+<meta property="og:title" content="Desmos on the SAT: 10 Calculator Moves and When to Skip It | Graphite SAT">
+<meta property="og:description" content="The Desmos graphing calculator moves that solve the most digital SAT Math questions: intersections, sliders, regression, lists and more, plus the mistakes that cost points and when by hand is faster.">
+<meta property="og:url" content="https://www.graphiteprep.com/guide-desmos-sat.html">
+<meta property="og:image" content="https://www.graphiteprep.com/og-image.png">
+<meta property="og:image:alt" content="Graphite SAT: a yellow pencil end beside the line SAT prep that starts with the questions you miss.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://www.graphiteprep.com/guide-desmos-sat.html">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Kalam:wght@400;700&family=Nunito:wght@400;700;800&display=swap">
+<link rel="stylesheet" href="/css/site.css?v=c1f4c78124">
+<script src="/js/site.js?v=a86fa79166" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="logo" href="/home" data-logo aria-label="Graphite SAT home">
+      <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="#f2c14e"/><path d="M32 32L57 17.5V46.5ZM32 32V61L7 46.5ZM32 32L7 17.5L32 3Z" fill="#000" fill-opacity=".12"/><circle cx="32" cy="32" r="16" fill="#e9c79a"/><circle cx="32" cy="32" r="7" fill="#2d3136"/></svg>
+      <span>Graphite SAT</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      <span class="menu-bars" aria-hidden="true"><span></span></span><span class="menu-label">Menu</span>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="/score-check.html" data-track="nav_score_check">Free score check</a></li>
+        <li><a href="/#how">How it works</a></li>
+        <li><a href="/#explore">What's inside</a></li>
+        <li><a href="/#pricing">Pricing</a></li>
+        <li><a href="/#faq">FAQ</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a class="signin-link" href="/signin.html" data-track="nav_signin">Sign in</a>
+        <a class="btn btn-primary" href="/#start" data-track="nav_start">Free diagnostic</a>
+      </div>
+    </nav>
+  </div>
+</header>
+<div class="crumbs-bar"><nav class="wrap crumbs" aria-label="You are here"><ol id="crumbs"><li><a href="/">Home</a></li><li><a href="/guides.html">Study guides</a></li><li><span aria-current="page" id="crumb-here">Desmos on the SAT</span></li></ol></nav></div>
+<main id="main">
+  <div class="wrap doc-head">
+    <p class="label">Math · Desmos · updated October 2026</p>
+    <h1>Desmos on the SAT: 10 moves, and when to skip it</h1>
+    <p class="lede">Bluebook has the Desmos graphing calculator built into the whole Math section. A handful of moves cover most of the questions it can solve. Knowing them, and knowing when not to use them, is worth real points.</p>
+  </div>
+  <div class="wrap doc-grid">
+    <nav class="toc" aria-label="On this page">
+      <p class="label">On this page</p>
+      <ol>
+        <li><a href="#moves">The 10 moves</a></li>
+        <li><a href="#mistakes">Mistakes that cost points</a></li>
+        <li><a href="#skip">When to skip Desmos</a></li>
+        <li><a href="#practice">How to practice</a></li>
+      </ol>
+    </nav>
+    <article class="doc">
+      <h2 id="moves">The 10 moves</h2>
+      <ol class="guide-steps">
+        <li><strong>Graph both sides of an equation.</strong> To solve <code>3(x − 2) = x + 8</code>, type <code>y = 3(x − 2)</code> and <code>y = x + 8</code> and click where they cross. The x-value is the solution. Or move everything to one side and read the x-intercepts.</li>
+        <li><strong>Solve a system by clicking the intersection.</strong> Type both equations as they're given. The point where they cross is (x, y). Lines on top of each other mean infinitely many solutions; parallel lines mean none.</li>
+        <li><strong>Click for the vertex, zeros and intercepts.</strong> Click a parabola and Desmos marks its vertex, x-intercepts and y-intercept as gray points. Click one to read its coordinates.</li>
+        <li><strong>Use a slider for an unknown constant.</strong> Type the equation with the letter in it, like <code>y = kx + 3</code>, and accept "add slider." Drag k until the graph does what the question asks: touches once, overlaps, or never meets.</li>
+        <li><strong>Fit a model with regression.</strong> Put the points in a table (x₁, y₁), then type <code>y_1 ~ m x_1 + b</code> for a line or <code>y_1 ~ a b^{x_1}</code> for an exponential. Desmos reports m and b, or a and b.</li>
+        <li><strong>Find matching coefficients with the tilde.</strong> For "which values make these expressions equivalent," write the identity with <code>~</code> instead of <code>=</code>, use x₁ for x, and give x₁ a list of test values with at least as many values as unknowns, like <code>x_1 = [1, 2, 3]</code>.</li>
+        <li><strong>Get statistics from a list.</strong> Type <code>L = [3, 7, 7, 10, 13]</code>, then <code>mean(L)</code>, <code>median(L)</code> or <code>stdev(L)</code>. Use square brackets: curly braces mean something else in Desmos.</li>
+        <li><strong>Shade inequalities.</strong> Type each inequality and Desmos shades it, solid for ≤ and ≥, dashed for &lt; and &gt;. The overlap is the solution set. Check a point you're unsure of by typing it in.</li>
+        <li><strong>Graph a circle as given.</strong> Desmos graphs <code>x^2 + y^2 − 6x + 4y − 3 = 0</code> directly. Click the top and bottom points: the center is halfway between them and the radius is half the distance.</li>
+        <li><strong>Test the answer choices.</strong> When the setup is hard but the choices are numbers or graphs, type each choice in and see which one works. It's slower than solving directly, so save it for when you're stuck.</li>
+      </ol>
+
+      <h2 id="mistakes">Mistakes that cost points</h2>
+      <ul>
+        <li><strong>Not zooming out.</strong> An intersection can be off the screen. Zoom out before deciding there's no solution.</li>
+        <li><strong>Missing parentheses.</strong> <code>2/3x</code> and <code>2/(3x)</code> are different graphs. Type the parentheses the question implies.</li>
+        <li><strong>Degrees vs. radians.</strong> For any trig question, check the angle mode in settings first.</li>
+        <li><strong>Copying a rounded decimal.</strong> Desmos shows rounded values but keeps more digits. If the question wants an exact answer, use the fraction toggle or work it out by hand.</li>
+        <li><strong>Forgetting the subscripts or the test list</strong> in regression. Without them it quietly does nothing.</li>
+      </ul>
+
+      <h2 id="skip">When to skip Desmos</h2>
+      <p>Desmos isn't always faster. A good rule: if you can do it by hand in about 15 seconds, do it by hand. By hand usually wins on:</p>
+      <ul>
+        <li>Translating word problems into equations. Desmos can't set up the problem for you.</li>
+        <li>Geometry and trig facts: similar triangles, special right triangles, angle relationships, area and volume.</li>
+        <li>Reading graphs, tables and study designs in Problem-Solving and Data Analysis.</li>
+        <li>"Which must be true" and structure questions, where the point is to see the algebra.</li>
+      </ul>
+      <p>The skill isn't "always use Desmos." It's knowing in a few seconds which route is faster for the question in front of you.</p>
+
+      <h2 id="practice">How to practice</h2>
+      <ul>
+        <li><strong>Practice with the calculator you'll use.</strong> Graphite's built-in calculator works next to every question, and our lessons teach the Desmos moves above, each with the by-hand route too.</li>
+        <li><strong>Learn one move at a time.</strong> Do five questions with one move until it's automatic, then mix it in.</li>
+        <li><strong>Time both routes.</strong> On questions you could do either way, try both and notice which was faster. That's how you build the 15-second judgment.</li>
+      </ul>
+      <div class="guide-cta">
+        <h2>Try it on real questions</h2>
+        <p>The free score check has 10 Math questions with a graphing calculator built in, scored like the SAT. No account needed.</p>
+        <a class="btn btn-primary" href="/score-check.html" data-track="guide_score_check">Take the free score check</a>
+      </div>
+    </article>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <a class="logo" href="/home" data-logo aria-label="Graphite SAT home">
+          <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="#f2c14e"/><path d="M32 32L57 17.5V46.5ZM32 32V61L7 46.5ZM32 32L7 17.5L32 3Z" fill="#000" fill-opacity=".12"/><circle cx="32" cy="32" r="16" fill="#e9c79a"/><circle cx="32" cy="32" r="7" fill="#2d3136"/></svg>
+          <span>Graphite SAT</span>
+        </a>
+        <p>SAT tutoring for high school students. Practice the digital SAT and learn something from every question you miss.</p>
+      </div>
+      <div>
+        <h2>Prep</h2>
+        <ul>
+          <li><a href="/score-check.html">Free score check</a></li>
+          <li><a href="/guides.html">SAT study guides</a></li>
+          <li><a href="/#how">How it works</a></li>
+          <li><a href="/#explore">What's inside</a></li>
+          <li><a href="/#test">The digital SAT</a></li>
+          <li><a href="/#pricing">Pricing</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Account</h2>
+        <ul>
+          <li><a href="/signin.html">Sign in</a></li>
+          <li><a href="/signin.html?as=parent">Parent sign-in</a></li>
+          <li><a href="/#start">Start free diagnostic</a></li>
+          <li><a href="/#contact">Contact</a></li>
+          <li><a href="mailto:hello@graphiteprep.com">hello@graphiteprep.com</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Legal</h2>
+        <ul>
+          <li><a href="/privacy.html">Privacy policy</a></li>
+          <li><a href="/cookies.html">Cookie policy</a></li>
+          <li><a href="/terms.html">Terms of service</a></li>
+          <li><button class="linkish" type="button" data-cookie-settings>Cookie settings</button></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <p>&copy; <span data-year>2026</span> Graphite Learning, Inc. All rights reserved.</p>
+      <p>SAT and Bluebook are trademarks of the College Board, which is not affiliated with and does not endorse Graphite SAT. Our questions and test screens are our own.</p>
+    </div>
+  </div>
+</footer>
+<section class="cookie-banner" id="cookie-banner" aria-labelledby="cookie-title" hidden>
+  <div class="cookie-inner">
+    <div>
+      <h2 id="cookie-title">Cookies on Graphite SAT</h2>
+      <p>Essential cookies keep you signed in and protect forms. With your OK, analytics cookies show us which pages help students. Read the <a href="/cookies.html">cookie policy</a>.</p>
+    </div>
+    <div class="cookie-actions">
+      <button class="btn btn-quiet" type="button" id="cookie-choose" aria-expanded="false" aria-controls="cookie-prefs">Choose</button>
+      <button class="btn btn-secondary" type="button" id="cookie-reject">Essential only</button>
+      <button class="btn btn-primary" type="button" id="cookie-accept">Accept analytics</button>
+    </div>
+    <div class="cookie-prefs" id="cookie-prefs" hidden>
+      <label class="check"><input type="checkbox" checked disabled id="consent-essential"><span>Essential<small>Sign in, security and saving this choice. Always on.</small></span></label>
+      <label class="check"><input type="checkbox" id="consent-analytics"><span>Analytics<small>Pages opened, where you came from, time on page, scrolling and main-button clicks. Kept on our own server, never sold.</small></span></label>
+      <div><button class="btn btn-primary" type="button" id="cookie-save">Save choices</button></div>
+    </div>
+  </div>
+</section>
+<p class="visually-hidden" id="cookie-live" role="status" aria-live="polite"></p>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!--{"file": "score-check.html", "path": "/score-check.html", "title": "Free SAT Score Check: 20 Questions, No Account | Graphite SAT", "description": "Take a free 20-question digital SAT score check with no account. Get a score range out of 1600 scored like the real test, the three skills costing you the most points, and an explanation for every question.", "katex": true, "calculator": true, "scripts": ["bank.js", "practice-local.js", "qtools.js", "score-check.js"]}-->
+<main id="main" class="sc">
+  <section class="wrap sc-intro" id="sc-intro" aria-labelledby="sc-title">
+    <p class="pp-kicker">Free · no account · about 25 minutes</p>
+    <h1 id="sc-title">What would you score <span class="hl">on the SAT today?</span></h1>
+    <p class="lede">Twenty questions from every part of the digital SAT, scored the way the SAT scores you: how you do decides which Module 2 you'd get, and the hard questions open the top of the scale.</p>
+    <ul class="sc-facts">
+      <li><strong>A score range out of 1600</strong>, plus a range for each section. One short test can't pin your score to a single number, so we don't pretend it can.</li>
+      <li><strong>The three skills costing you the most points</strong>, each with about how many points it's worth.</li>
+      <li><strong>An explanation for every question</strong>, right or wrong, with the calculator move where there is one.</li>
+      <li><strong>Say how sure you are.</strong> A lucky guess still counts as right in your score, but it shows up as a skill to fix.</li>
+    </ul>
+    <p>10 Reading and Writing questions, then 10 Math, in the real test's order. The graphing calculator is built in for Math, like Bluebook's.</p>
+    <div class="pp-ctas">
+      <button class="btn btn-primary" type="button" id="sc-start" data-track="score_check_start">Start the score check</button>
+      <a class="btn btn-quiet" href="./#start">Or make a free account</a>
+    </div>
+    <p class="fine sc-note">Your answers stay in this browser and aren't saved anywhere unless you make an account. The score is an estimate from our own questions, not an official College Board score. Bluebook's full practice tests are the best predictor of your real score.</p>
+    <p class="sc-error" id="sc-error" role="alert" hidden></p>
+  </section>
+
+  <section class="wrap sc-test" id="sc-test" aria-labelledby="sc-qnum" hidden>
+    <div class="sc-progress">
+      <p class="label" id="sc-qnum">Question 1 of 20</p>
+      <p class="label" id="sc-qsec">Reading and Writing</p>
+      <div class="sc-bar" aria-hidden="true"><span id="sc-bar"></span></div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-stem" id="sc-stem"></div>
+      <fieldset class="choices" id="sc-choices"><legend class="visually-hidden">Answer choices</legend></fieldset>
+      <div class="sc-spr" id="sc-spr" hidden>
+        <label for="sc-spr-input">Type your answer</label>
+        <input type="text" id="sc-spr-input" autocomplete="off" spellcheck="false" maxlength="6" data-no-filter>
+        <p class="fine">Up to 5 characters, or 6 with a minus sign. Fractions like 7/2 and decimals like 3.5 both work.</p>
+      </div>
+      <div class="sc-sure" role="radiogroup" aria-labelledby="sc-sure-label">
+        <span id="sc-sure-label">How sure are you?</span>
+        <button type="button" role="radio" aria-checked="false" data-sure="1">Sure</button>
+        <button type="button" role="radio" aria-checked="false" data-sure="0">Guessing</button>
+      </div>
+    </div>
+    <div class="sc-nav">
+      <button class="btn btn-secondary" type="button" id="sc-back">Back</button>
+      <button class="btn btn-quiet" type="button" id="sc-calc" hidden>Calculator</button>
+      <button class="btn btn-primary" type="button" id="sc-next">Next</button>
+    </div>
+  </section>
+
+  <section class="wrap sc-results" id="sc-results" aria-labelledby="sc-res-title" hidden>
+    <p class="label">Your score check</p>
+    <h1 id="sc-res-title" class="visually-hidden">Your estimated SAT score</h1>
+    <div class="sc-total">
+      <p class="sc-total-score"><strong id="sc-total"></strong><span>out of 1600</span></p>
+      <p class="sc-total-range" id="sc-range"></p>
+      <p class="fine" id="sc-right"></p>
+    </div>
+    <div class="sc-sections" id="sc-sections"></div>
+    <div class="sc-skills">
+      <h2>Where your points are</h2>
+      <p class="fine">About how many points each skill would add to its section if you got these questions right. Lucky guesses count half.</p>
+      <ol id="sc-skills"></ol>
+    </div>
+    <div class="sc-cta">
+      <h2>Turn this into a plan</h2>
+      <p>A free account gives you the full diagnostic, a full practice test every month, and a review queue that brings back every question you miss until you get it right twice. Mechanical adds a day-by-day plan to your test date, aimed at the skills above, and you can try it free for 7 days.</p>
+      <a class="btn btn-primary" href="./#start" data-track="score_check_signup">Make a free account</a>
+      <button class="btn btn-quiet" type="button" id="sc-again">Take another score check</button>
+    </div>
+    <div class="sc-review">
+      <h2>Every question, explained</h2>
+      <div id="sc-list"></div>
+    </div>
+    <p class="fine">How this is scored: each section's 10 answers stand in for Module 1. They decide whether you'd reach the harder or easier Module 2, and your accuracy on easy, medium and hard questions carries over to it. The total is read off the same curves SAT score calculators use for Bluebook's practice tests. It's an estimate from our own questions, not an official College Board score.</p>
+  </section>
+</main>
