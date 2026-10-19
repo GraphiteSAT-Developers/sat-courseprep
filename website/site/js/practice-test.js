@@ -576,6 +576,7 @@
   $("break-resume").addEventListener("click", function () { endBreak(false); });
   $("start-btn").addEventListener("click", function () {
     S.started = true; save();
+    if (tools) tools.resetCalc();  // a new attempt starts with a blank calculator, like test day
     $("start-overlay").hidden = true; startClock(); renderTimer();
     $("q-area").focus({ preventScroll: true });
     if (window.GraphiteTheme && GraphiteTheme.prefs().study.calculator === "open") setCalc(true);  // Settings > Practice defaults
