@@ -303,3 +303,10 @@ html.paper.app .lock-card, html.paper.app .kpis { border-radius: 2px; }
 .fold-body.calc-feature { padding-block: clamp(24px, 4vw, 48px); }
 .fold-body .wrap { padding-inline: 0; }
 @media (max-width: 800px) { .fold-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Dashboard: the same cards. Today's set starts open; each closed card shows a one-line summary of what's inside. */
+.dash-folds { gap: var(--s4); }
+.dash-fold > .panel { border: 0 !important; box-shadow: none !important; background: transparent !important; border-radius: 0 0 10px 10px; }
+.dash-fold > .panel > .panel-head > :not(a) { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.dash-fold > .panel > .panel-head:not(:has(> a)) { display: contents; }
+html.paper .dash-fold { border-color: var(--text); border-radius: var(--radius); box-shadow: 5px 5px 0 var(--raised); }

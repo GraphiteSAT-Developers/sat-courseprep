@@ -1481,6 +1481,7 @@
       var today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       var days = Math.round((new Date(test0.getFullYear(), test0.getMonth(), test0.getDate()) - today0) / 86400000);
       if (isFinite(days)) dl.textContent = String(Math.max(days, 0));
+      if (isFinite(days) && $("#chip-days-left")) $("#chip-days-left").textContent = String(Math.max(days, 0));
       $all("li", queue).forEach(bindReview);
       var savedGoal = store.get("graphite_goal");
       if (savedGoal) applyGoal(savedGoal);
