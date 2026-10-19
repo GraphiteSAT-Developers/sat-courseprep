@@ -78,7 +78,7 @@ def load_pages():
 JSONLD = {
     "@context": "https://schema.org", "@type": "EducationalOrganization",
     "name": "Graphite SAT", "url": SITE + "/", "logo": SITE + "/apple-touch-icon.png",
-    "email": "hello@graphiteprep.com", "telephone": "+1-954-555-0142",
+    "email": "hello@graphiteprep.com",
     "description": "AI SAT tutoring for high school students.",
 }
 

@@ -120,7 +120,7 @@
     $("pl-next").textContent = pos === N - 1 ? "See my results" : "Next";
     syncNext();
   }
-  /* ---------- calculator (qtools.js): a panel on the right, and the question slides left ---------- */
+  /* ---------- calculator (qtools.js): a floating window, and the question reflows beside it ---------- */
   var tools = window.GraphiteTools && window.GraphiteTools.mount({ launcher: false });
   if (tools) tools.tutorAllowed(false, "The diagnostic measures where you are right now, so it's just you. The tutor is ready once your plan is built.");
   function setCalc(open) { if (!tools) return; if (open) tools.open("calc"); else tools.close(); }
