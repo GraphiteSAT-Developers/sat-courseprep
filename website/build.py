@@ -47,7 +47,8 @@ def calculator_html():
         t = t.replace(old, new)
     return t
 # site.css, then paper.css: the public pages' look, scoped to html.paper so signed-in pages keep their themes.
-css = (SRC / "site.css").read_text() + "\n" + (SRC / "paper.css").read_text()
+# nav.css last: the answer-sheet header on every theme.
+css = (SRC / "site.css").read_text() + "\n" + (SRC / "paper.css").read_text() + "\n" + (SRC / "nav.css").read_text()
 BLOCKED_WORDS = Path(__file__).resolve().parent.parent / "backend" / "app" / "content" / "blocked_words.txt"
 
 
