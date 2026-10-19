@@ -141,18 +141,31 @@ def rank_for(xp):
 
 
 def streak(user_id, on=None):
-    """{days, today}: days in a row with XP, counting today if earned, else ending yesterday."""
+    """{days, today, frozen, freeze_ready}: days in a row with XP, counting today if earned, else ending yesterday.
+    A streak freeze covers one missed day a week (Monday to Sunday) on its own: a single day off between two
+    study days doesn't break the streak. Frozen days don't add to the count."""
     on = on or today()
     rows = query("SELECT DISTINCT day FROM xp_events WHERE user_id = ? AND day >= ? AND xp > 0",
                  (user_id, (on - timedelta(days=400)).isoformat()))
-    days = {r["day"] for r in rows}
+    return streak_from({r["day"] for r in rows}, on)
+
+
+def streak_from(days, on):
     earned_today = on.isoformat() in days
     d = on if earned_today else on - timedelta(days=1)
-    n = 0
-    while d.isoformat() in days:
-        n += 1
+    n, frozen, weeks = 0, [], set()
+    while True:
+        if d.isoformat() in days:
+            n += 1
+        else:
+            week = d - timedelta(days=d.weekday())
+            if week in weeks or (d - timedelta(days=1)).isoformat() not in days:
+                break
+            weeks.add(week)
+            frozen.append(d.isoformat())
         d -= timedelta(days=1)
-    return {"days": n, "today": earned_today}
+    this_week = on - timedelta(days=on.weekday())
+    return {"days": n, "today": earned_today, "frozen": frozen, "freeze_ready": this_week not in weeks}
 
 
 # ---------- earning ----------

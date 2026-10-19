@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from ..db import execute, local_day, now_iso, query
 from . import dashboard, levels, stripe_api, today as today_svc
-from .plans import ALERT_DAYS, INTERVALS, PAUSE_DAYS, PLANS, interval_words, key_for, next_renewal, price_label  # noqa: F401
+from .plans import ALERT_DAYS, INTERVALS, PAUSE_DAYS, PLANS, TRIAL_DAYS, TRIAL_PLAN, interval_words, key_for, next_renewal, price_label  # noqa: F401
 
 def payments_live():
     """True once Stripe is connected (STRIPE_SECRET_KEY is set)."""
@@ -46,13 +46,33 @@ def subscription(student_id, today=None):
     elif sub["status"] == "paused" and sub["paused_until"] and sub["paused_until"] < today.isoformat():
         sub.update(status="active", paused_until=None)
         _save(student_id, sub, None)
+    elif sub["status"] == "trial" and sub["renews_on"] and sub["renews_on"] < today.isoformat():
+        name = PLANS[key_for(sub["plan"])]["name"]
+        sub.update(plan="free", billing_interval=None, status="active", renews_on=None)
+        _save(student_id, sub, None)
+        _event(student_id, None, "trial_end", f"The free {name} trial ended. Back on the free {PLANS['free']['name']} plan; nothing was charged.")
     key = key_for(sub["plan"])
     plan = PLANS[key]
     interval = sub["billing_interval"] if sub["billing_interval"] in INTERVALS else None
     price = plan["prices"][interval] if interval else 0
     return {"plan": key, "plan_name": plan["name"], "interval": interval, "status": sub["status"],
             "renews_on": sub["renews_on"], "paused_until": sub["paused_until"], "price_cents": price,
-            "price_label": price_label(key, interval)}
+            "price_label": "Free trial" if sub["status"] == "trial" else price_label(key, interval),
+            "trial_available": key == "free" and not trial_used(student_id)}
+
+
+def trial_used(student_id):
+    return bool(query("SELECT 1 FROM billing_events WHERE student_id = ? AND kind = 'trial' LIMIT 1", (student_id,), one=True))
+
+
+def start_trial(user_id, student_id, today=None):
+    """Starts the one free trial of TRIAL_PLAN. No card: when it ends the plan goes back to free by itself."""
+    today = today or date.today()
+    ends = (today + timedelta(days=TRIAL_DAYS)).isoformat()
+    _save(student_id, {"plan": TRIAL_PLAN, "billing_interval": None, "status": "trial", "renews_on": ends, "paused_until": None}, user_id)
+    _event(student_id, user_id, "trial", f"Started a free {TRIAL_DAYS}-day {PLANS[TRIAL_PLAN]['name']} trial. No card. "
+                                         f"It ends {nice_date(ends)}, then the plan goes back to free by itself.")
+    return subscription(student_id, today)
 
 
 def _save(student_id, sub, parent_id):
@@ -103,9 +123,12 @@ def resume(parent_id, student_id, today=None):
     today = today or date.today()
     row = dict(query("SELECT * FROM subscriptions WHERE student_id = ?", (student_id,), one=True))
     was = row["status"]
-    row.update(status="active", paused_until=None)
+    # A canceled trial (no billing option) goes back to being a trial, not a paid plan.
+    row.update(status="active" if row["billing_interval"] else "trial", paused_until=None)
     _save(student_id, row, parent_id)
-    _event(student_id, parent_id, "resume", "Resumed." if was == "paused" else f"Cancellation undone. Renews {nice_date(row['renews_on'])}.")
+    _event(student_id, parent_id, "resume", "Resumed." if was == "paused" else
+           f"Cancellation undone. Renews {nice_date(row['renews_on'])}." if row["billing_interval"] else
+           f"Trial back on. It ends {nice_date(row['renews_on'])}.")
     return subscription(student_id, today)
 
 
@@ -114,6 +137,9 @@ def cancel(parent_id, student_id, today=None):
     row = dict(query("SELECT * FROM subscriptions WHERE student_id = ?", (student_id,), one=True))
     row.update(status="canceled", paused_until=None)
     _save(student_id, row, parent_id)
+    if not row["billing_interval"]:
+        _event(student_id, parent_id, "cancel", f"Trial canceled. It stays on until {nice_date(row['renews_on'])}, then the plan is free. Nothing is charged.")
+        return subscription(student_id, today)
     _event(student_id, parent_id, "cancel",
            f"Canceled. {PLANS[key_for(row['plan'])]['name']} stays on until {nice_date(row['renews_on'])}, then the plan returns to the free {PLANS['free']['name']} plan.")
     return subscription(student_id, today)

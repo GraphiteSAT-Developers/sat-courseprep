@@ -57,6 +57,7 @@
     active: function (s) { return s.plan === "free" ? "Free plan" : "Active · renews " + day(s.renews_on); },
     canceled: function (s) { return "Canceled · stays on until " + day(s.renews_on); },
     paused: function (s) { return "Paused until " + day(s.paused_until); },
+    trial: function (s) { return "Free trial · ends " + day(s.renews_on); },
     past_due: function () { return "Payment didn't go through"; }
   };
   var FEATURE_ORDER = ["mock_test", "practice_set", "explanations", "review_queue", "study_plan", "level_up", "score_history", "parent_dashboard"];
@@ -145,15 +146,33 @@
     if (paid && s.status === "active") btn("Pause for " + d.pause_days + " days", "btn-secondary", function (b) { act("pause", b); });
     if (s.status === "paused") btn("Resume now", "btn-primary", function (b) { act("resume", b); });
     if (s.status === "canceled") btn("Keep my plan", "btn-primary", function (b) { act("resume", b); });
-    if (paid && s.status !== "canceled") {
-      var armed = false;
+    if (s.trial_available && d.trial) {
+      btn("Try " + d.trial.plan_name + " free for " + d.trial.days + " days", "btn-primary", function (b) { act("trial", b); });
+      notes.push("No card needed. The trial ends by itself after " + d.trial.days + " days and you go back to the free plan, so nothing is ever charged.");
+    }
+    if (s.status === "trial") {
+      btn("Cancel the trial", "btn-quiet", function (b) { act("cancel", b); });
+      notes.push("Your free " + s.plan_name + " trial ends " + day(s.renews_on) + ", then you're back on the free plan. Nothing is charged. Pick a plan above to keep everything.");
+    } else if (paid && s.status !== "canceled") {
+      // One honest offer before canceling: pausing keeps the plan without billing. Canceling is still one more tap.
       btn("Cancel plan", "btn-quiet", function (b) {
-        if (!armed) { armed = true; b.textContent = "Tap again to cancel"; setTimeout(function () { armed = false; b.textContent = "Cancel plan"; }, 4000); return; }
-        act("cancel", b);
+        if (box.querySelector(".sub-cancel-offer")) { act("cancel", b); return; }
+        var offer = document.createElement("div");
+        offer.className = "sub-cancel-offer";
+        offer.innerHTML = "<p><strong>Taking a break?</strong> " + (s.status === "active"
+          ? "Pausing stops billing for " + d.pause_days + " days and keeps your plan, streak and history. It restarts by itself."
+          : "Your plan, streak and history stay either way.") + " Or tap <em>Cancel plan</em> again to cancel.</p>";
+        if (s.status === "active") {
+          var p = document.createElement("button"); p.type = "button"; p.className = "btn btn-secondary"; p.textContent = "Pause instead";
+          p.addEventListener("click", function () { act("pause", p); });
+          offer.appendChild(p);
+        }
+        box.appendChild(offer);
+        b.textContent = "Cancel plan";
       });
       notes.push("Canceling keeps " + s.plan_name + " until " + day(s.renews_on) + ", then you're on the free plan. Pausing stops billing for " + d.pause_days + " days, and paid features are locked while it's paused.");
     }
-    if (!paid) notes.push("You're on the free plan. Pick a plan above to unlock more.");
+    if (!paid && !s.trial_available) notes.push("You're on the free plan. Pick a plan above to unlock more.");
     if (d.payer && !d.payer.you) notes.push("A parent pays for this plan, so the card is on their parent dashboard.");
     if (!d.payments_live) notes.push("Payments aren't connected on this site yet, so plan changes take effect without charging a card.");
     $("sub-manage-note").textContent = notes.join(" ");

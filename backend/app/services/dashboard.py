@@ -10,6 +10,7 @@ from .studyplan import current_week
 from .today import summary as today_summary
 
 SET_SIZES = [5, 4, 3]
+ESTIMATE_SPREAD = 30  # one mock test is a sample: show its Math estimate as a range, plus or minus this
 SHORT = {"Algebra": "Math", "Advanced Math": "Math", "Problem-Solving and Data Analysis": "Math",
          "Geometry and Trigonometry": "Math"}
 
@@ -112,6 +113,14 @@ def build(user, today=None):
     taken = {a["test_id"] for a in attempts}
     tests = [dict(summary(t), taken=t["id"] in taken) for t in all_tests().values()]
 
+    # The latest finished mock test's Math estimate, as a range: one test can be off by a few questions either way.
+    mock = query("SELECT score, finished_at FROM mock_tests WHERE user_id = ? AND status = 'done' AND score IS NOT NULL "
+                 "ORDER BY finished_at DESC LIMIT 1", (user["id"],), one=True)
+    math_estimate = None
+    if mock:
+        math_estimate = {"score": mock["score"], "low": max(200, mock["score"] - ESTIMATE_SPREAD),
+                         "high": min(800, mock["score"] + ESTIMATE_SPREAD), "at": mock["finished_at"]}
+
     first = history[0] if history else None
     last = history[-1] if history else None
     return {
@@ -126,6 +135,7 @@ def build(user, today=None):
             "days_to_test": days_to_test,
             "test_date": user["test_date"],
             "target_score": user["target_score"],
+            "math_estimate": math_estimate,
         },
         "history": history,
         "domains": domains,

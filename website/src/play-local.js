@@ -48,9 +48,19 @@
   function streak(s, on) {
     on = on || today();
     var days = {}; s.events.forEach(function (e) { if (e.xp > 0) days[e.day] = 1; });
-    var earned = !!days[on], d = earned ? on : addDays(on, -1), n = 0;
-    while (days[d]) { n++; d = addDays(d, -1); }
-    return { days: n, today: earned };
+    // Same as game.streak_from: a streak freeze covers one missed day a week (Monday to Sunday).
+    var earned = !!days[on], d = earned ? on : addDays(on, -1), n = 0, frozen = [], weeks = {};
+    var monday = function (iso) { var w = (new Date(iso + "T12:00:00Z").getUTCDay() + 6) % 7; return addDays(iso, -w); };
+    for (;;) {
+      if (days[d]) n++;
+      else {
+        var wk = monday(d);
+        if (weeks[wk] || !days[addDays(d, -1)]) break;
+        weeks[wk] = 1; frozen.push(d);
+      }
+      d = addDays(d, -1);
+    }
+    return { days: n, today: earned, frozen: frozen, freeze_ready: !weeks[monday(on)] };
   }
   function badge(key) { return R.badges.filter(function (b) { return b.key === key; })[0]; }
   function earnBadge(s, key) { if (s.badges[key] || !badge(key)) return null; s.badges[key] = now(); return badge(key); }

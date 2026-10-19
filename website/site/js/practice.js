@@ -1,4 +1,4 @@
-/* Graphite SAT mock tests (practice.html): a full adaptive Math section with the test-day break, one module, or
+/* Graphite SAT mock tests (practice.html): a full adaptive Math section with a break between the modules, one module, or
    untimed topic practice. Live: /api/mock-tests and /api/practice. Preview: the same requests go to
    GraphitePracticeLocal (practice-local.js). Locked by plan: see GraphiteLock in site.js. */
 (function () {
@@ -94,7 +94,7 @@
     d.recent.forEach(function (m) {
       var li = document.createElement("li"), href;
       if (m.status === "done") href = "practice-test.html?session=" + m.m2_session;
-      else href = "practice-test.html?session=" + (m.status === "module2" ? m.m2_session : m.m1_session);
+      else href = "practice-test.html?session=" + (m.status === "module2" || m.status === "break" ? m.m2_session : m.m1_session);  // the break comes before Module 2
       var what = m.status === "done" ? "<strong>" + m.score + "</strong> estimated Math · " + m.correct + " of 44 right" +
         (m.route ? " · Module 2 " + m.route : "") : (m.status === "break" ? "On the break" : "In progress: Module " + (m.status === "module2" ? 2 : 1));
       li.innerHTML = '<div><strong></strong><p class="fine">' + what + '</p></div><a class="btn btn-quiet" href="' + href + '">' + (m.status === "done" ? "Review" : "Resume") + "</a>";
