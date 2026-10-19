@@ -35,12 +35,12 @@ banner = (SRC / "partials/cookie-banner.html").read_text()
 TOPLINE = ROOT.parent / "topline" / "index.html"
 
 def calculator_html():
-    """Topline, adapted for the test: blank on first open, its own saved state, not indexed."""
+    """Topline, adapted for the site: blank on first open, saved separately for each page (the iframe's data-calc), not indexed."""
     t = TOPLINE.read_text()
     swaps = [
         ("const STORE = 'plotline-state-v1';", "const STORE = (window.TOPLINE_EMBED && window.TOPLINE_EMBED.store) || 'plotline-state-v1';"),
         ("if (!load()) rows = exampleRows();", "if (!load()) rows = window.TOPLINE_EMBED ? (colorCounter = 0, [newRow('')]) : exampleRows();"),
-        ("<head>\n", "<head>\n<meta name=\"robots\" content=\"noindex\">\n<meta name=\"description\" content=\"Graphite SAT graphing calculator for SAT Math practice.\">\n<script>window.TOPLINE_EMBED = { store: 'graphite-test-calc-v1' };</script>\n"),
+        ("<head>\n", "<head>\n<meta name=\"robots\" content=\"noindex\">\n<meta name=\"description\" content=\"Graphite SAT graphing calculator for SAT Math practice.\">\n<script>window.TOPLINE_EMBED = { store: 'graphite-calc-v1-' + ((window.frameElement && frameElement.dataset.calc) || 'page') };</script>\n"),
     ]
     for old, new in swaps:
         assert t.count(old) == 1, "Topline changed; update calculator_html(): " + old[:40]

@@ -3,7 +3,7 @@
 <head>
 <meta name="robots" content="noindex">
 <meta name="description" content="Graphite SAT graphing calculator for SAT Math practice.">
-<script>window.TOPLINE_EMBED = { store: 'graphite-test-calc-v1' };</script>
+<script>window.TOPLINE_EMBED = { store: 'graphite-calc-v1-' + ((window.frameElement && frameElement.dataset.calc) || 'page') };</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Topline Grapher</title>
@@ -118,6 +118,8 @@ textarea.note-in{display:block;width:100%;font-family:var(--font-ui);font-style:
 .info .stat{font-family:var(--font-data);font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums}
 .info .smath{font-size:16px;color:var(--ink)}
 .info .line{flex-basis:100%}
+.fracbtn{font-family:var(--font-data);font-size:11.5px;padding:2px 7px;border-radius:5px;border:1px solid var(--rule);color:var(--muted);background:transparent}
+.fracbtn:hover{color:var(--ink);background:var(--tool)}
 .add-slider{font-family:var(--font-data);font-size:11.5px;padding:4px 8px;border-radius:5px;border:1px solid var(--accent);color:var(--accent);background:transparent}
 .slider{display:grid;grid-template-columns:28px 56px minmax(0,1fr) 56px;gap:8px;align-items:center;padding:0 4px 10px}
 .slider input:not([type=range]){width:100%;font-family:var(--font-data);font-size:12px;text-align:center;padding:4px;border:1px solid var(--rule);border-radius:5px;background:var(--paper);color:var(--ink)}
@@ -847,9 +849,10 @@ const s1 = (list, f, c) => list.split(' ').forEach(n => (BUILTIN[n] = { k: 's1',
 const sn = (name, min, max, f) => (BUILTIN[name] = { k: 'sn', min, max, f });
 const raw = (list, f) => list.split(' ').forEach(n => (BUILTIN[n] = { k: 'raw', f }));
 const rnd = (name, f) => (BUILTIN[name] = { k: 'rand', f });
-s1('sin', x => Math.sin(x * K()), z => csin(z));
-s1('cos', x => Math.cos(x * K()), z => ccos(z));
-s1('tan', x => Math.tan(x * K()), z => cop('/', toC(csin(z)), toC(ccos(z))));
+const cK = z => (DEG ? new Cx(z.re * K(), z.im * K()) : z); // complex inputs follow degree mode too
+s1('sin', x => Math.sin(x * K()), z => csin(cK(z)));
+s1('cos', x => Math.cos(x * K()), z => ccos(cK(z)));
+s1('tan', x => Math.tan(x * K()), z => cop('/', toC(csin(cK(z))), toC(ccos(cK(z)))));
 s1('sec', x => 1 / Math.cos(x * K())); s1('csc', x => 1 / Math.sin(x * K())); s1('cot', x => 1 / Math.tan(x * K()));
 s1('arcsin asin', x => Math.asin(x) / K()); s1('arccos acos', x => Math.acos(x) / K());
 s1('sinh', Math.sinh); s1('cosh', Math.cosh); s1('tanh', Math.tanh);
@@ -862,7 +865,7 @@ s1('floor', Math.floor); s1('ceil', Math.ceil); s1('sign', Math.sign); s1('erf',
 s1('real', x => x, z => z.re); s1('imag', () => 0, z => z.im); s1('conj', x => x, z => C(z.re, -z.im));
 s1('arg', x => (x < 0 ? Math.PI : 0) / K(), z => Math.atan2(z.im, z.re) / K());
 sn('arctan', 1, 2, (y, x) => (x === undefined ? Math.atan(y) : Math.atan2(y, x)) / K()); BUILTIN.atan = BUILTIN.arctan;
-sn('round', 1, 2, (x, d = 0) => { const m = Math.pow(10, d); return Math.round(x * m) / m; });
+sn('round', 1, 2, (x, d = 0) => { const m = Math.pow(10, d); return Math.round(Number((x * m).toPrecision(15))) / m; }); // 1.005 * 100 is 100.49999…
 sn('mod', 2, 2, (a, b) => ((a % b) + b) % b);
 sn('nCr', 2, 2, nCr); sn('nPr', 2, 2, nPr);
 sn('normalpdf', 1, 3, (x, m = 0, s = 1) => (s > 0 ? DIST.normal.pdf(x, [m, s]) : NaN));
@@ -928,7 +931,7 @@ const NAMES = Object.keys(BUILTIN).concat(Object.keys(ALIAS), Object.keys(BIG), 
 const TEXCMD = {
   cdot: '*', times: '*', div: '/', le: '<=', leq: '<=', ge: '>=', geq: '>=', lt: '<', gt: '>', pi: 'pi', sim: '~', left: '', right: '',
   mid: '|', vert: '|', lvert: '|', rvert: '|', lfloor: ' floor(', rfloor: ')', lceil: ' ceil(', rceil: ')', ldots: '...', cdots: '...', dots: '...',
-  '{': '{', '}': '}', '|': '|', lbrace: '{', rbrace: '}', lbrack: '[', rbrack: ']', mathrm: '', ',': ' ', ';': ' ', '!': '', ' ': ' ', ':': ' ', '.': '', quad: ' ', qquad: ' ', displaystyle: '', infty: 'INF',
+  '{': '{', '}': '}', '|': '|', lbrace: '{', rbrace: '}', lbrack: '[', rbrack: ']', mathrm: '', ',': ' ', ';': ' ', '!': '', ' ': ' ', ':': ' ', '.': '', quad: ' ', qquad: ' ', displaystyle: '', infty: 'INF', theta: 'θ', degree: '°', '%': '%',
 };
 function delatex(s) {
   let out = '', i = 0;
@@ -1049,7 +1052,7 @@ function tokenize(src) {
       if (!m) throw err('A "." needs digits next to it');
       T.push({ t: 'num', v: parseFloat(m[0]), raw: m[0] }); i += m[0].length; continue;
     }
-    if (/[a-zA-Z]/.test(c)) {
+    if (/[a-zA-Zθ]/.test(c)) {
       const rest = s.slice(i);
       const dd = /^d\s*\/\s*d([a-zA-Z])(?![a-zA-Z])/.exec(rest);
       if (dd) { T.push({ t: 'ddx', v: dd[1] }); i += dd[0].length; continue; }
@@ -1072,7 +1075,7 @@ function tokenize(src) {
     }
     if (s.startsWith('<=', i) || s.startsWith('>=', i)) { T.push({ t: 'cmp', v: s.substr(i, 2) }); i += 2; continue; }
     if ('<>=~'.includes(c)) { T.push({ t: 'cmp', v: c }); i++; continue; }
-    if ('+-*/^()[]{},|!:'.includes(c)) { T.push({ t: c }); i++; continue; }
+    if ('+-*/^()[]{},|!:°%'.includes(c)) { T.push({ t: c }); i++; continue; }
     throw err(`"${c}" isn't something I can read`);
   }
   return T;
@@ -1124,6 +1127,7 @@ function parse(tokens) {
     let a = primary();
     for (;;) {
       if (is('!')) { next(); a = { k: 'fact', a }; }
+      else if (is('°') || is('%')) { a = { k: 'post', op: next().t, a }; }
       else if (is('[')) { next(); const i = nested(() => { const e = expr(); return is('cmp') ? chainFrom(e) : e; }); expect(']'); a = { k: 'idx', a, i }; }
       else if (is('dot')) { const nm = next().v; let args = null; if (is('(')) { next(); args = nested(argList); } a = { k: 'dot', a, name: nm, args }; }
       else break;
@@ -1259,7 +1263,7 @@ function freeVars(n, out = new Set(), bound = new Set()) {
   switch (n.k) {
     case 'v': add(n.name); break;
     case 'b': rec(n.a); rec(n.b); break;
-    case 'u': case 'fact': rec(n.a); break;
+    case 'u': case 'fact': case 'post': rec(n.a); break;
     case 'call': n.args.forEach(rec); if (n.base) rec(n.base); break;
     case 'app': if (!bound.has(n.name)) out.add('@' + n.name); n.args.forEach(rec); break;
     case 'pt': rec(n.a); rec(n.b); break;
@@ -1388,6 +1392,8 @@ function compile(n, locals) {
     case 'v': return varRef(n.name, locals);
     case 'u': { const a = compile(n.a, locals); return L => neg(a(L)); }
     case 'fact': { const a = compile(n.a, locals); return L => fact(a(L)); }
+    // 30° is 30 degrees in either angle mode; 50% is 0.5
+    case 'post': { const a = compile(n.a, locals); return n.op === '%' ? L => binop('/', a(L), 100) : L => binop('*', a(L), Math.PI / 180 / K()); }
     case 'b': { const a = compile(n.a, locals), b = compile(n.b, locals), op = n.op; return L => binop(op, a(L), b(L)); }
     case 'pt': {
       const a = compile(n.a, locals), b = compile(n.b, locals);
@@ -1524,7 +1530,8 @@ function dotCall(v, name, args, rng) {
 }
 
 // ---------- rows ----------
-const SLIDER_RE = /^([a-zA-Z](?:_[a-zA-Z0-9]+)?)\s*=\s*(-?(?:\d+\.?\d*|\.\d+))$/;
+// a = 2, and a_{1} = 2 the way the editor writes a subscript
+const SLIDER_RE = /^([a-zA-Zθ](?:_[a-zA-Z0-9]+|_\{[a-zA-Z0-9]+\})?)\s*=\s*(-?(?:\d+\.?\d*|\.\d+))$/;
 const IDRE = /^[a-zA-Z](_[a-zA-Z0-9]+)?$/;
 const FLIP = { '<': '>', '>': '<', '<=': '>=', '>=': '<=', '=': '=' };
 function classify(text, R) {
@@ -1561,33 +1568,48 @@ function checkKnown(R, set, locals) {
     throw err(missing.length === 1 ? `${list} isn't defined yet` : `${list} aren't defined yet`);
   }
 }
-// Real solutions of g(t) = 0 for t in [-100, 100]: sign changes (bisection) and touching roots like (x - 3)^2 = 0.
+// The sign change of g between l and r (fl = g(l)), narrowed by bisection. Returns null for a jump
+// (an asymptote, or a step like {x > 0: 1, -1}): there g stays far from 0 on both sides of the crossing.
+function bisectRoot(g, l, r, fl) {
+  const ok = v => typeof v === 'number' && isFinite(v), scale = Math.max(1, Math.abs(fl), Math.abs(g(r)));
+  let fr = g(r);
+  for (let k = 0; k < 80; k++) { const m = (l + r) / 2, fm = g(m); if (!ok(fm)) break; if (fl * fm <= 0) { r = m; fr = fm; } else { l = m; fl = fm; } }
+  return ok(fl) && ok(fr) && Math.abs(fl - fr) <= 1e-6 * scale ? (l + r) / 2 : null;
+}
+// Where s·g is smallest between l and r (s is the sign of g there): the bottom of a touching root like
+// (x - 3)^2 = 0, or the point between two close roots, where g has crossed to the other sign.
+function dipMin(g, l, r, s) {
+  for (let k = 0; k < 90; k++) { const m1 = l + (r - l) / 3, m2 = r - (r - l) / 3; if (s * g(m1) < s * g(m2)) r = m2; else l = m1; }
+  return (l + r) / 2;
+}
+// Sample points for solving: every 0.05 on [-100, 100], then steps that grow by 1% out to ±1e6,
+// so answers like 240 or 500 are found too.
+const SOLVE_XS = (() => {
+  const inner = []; for (let i = 0; i <= 4000; i++) inner.push(-100 + i * 0.05);
+  const outer = []; for (let x = 101; x <= 1e6; x *= 1.01) outer.push(x);
+  return outer.map(x => -x).reverse().concat(inner, outer);
+})();
+// Real solutions of g(t) = 0 for t in [-1e6, 1e6]: sign changes (bisection) and touching roots like (x - 3)^2 = 0.
 // Returns null when there are too many to list (sin x = 0 and the like).
 function solveRoots(g, max = 8) {
   const ok = v => typeof v === 'number' && isFinite(v), out = [];
   const add = r => {
     if (!ok(r)) return;
-    const k = Math.round(r); if (Math.abs(r - k) < 1e-7) r = k;
+    const k = Math.round(r); if (Math.abs(r - k) < Math.max(1e-7, 1e-12 * Math.abs(r))) r = k;
     if (Math.abs(r) < 1e-12) r = 0;
-    if (!out.some(q => Math.abs(q - r) < 1e-6 * Math.max(1, Math.abs(r)))) out.push(r);
+    if (!out.some(q => Math.abs(q - r) < Math.max(1e-6, 1e-9 * Math.abs(r)))) out.push(r);
   };
-  const lo = -100, hi = 100, N = 4000, dx = (hi - lo) / N, xs = [], gs = [];
-  for (let i = 0; i <= N; i++) { const x = lo + i * dx; xs.push(x); const v = g(x); gs.push(ok(v) ? v : NaN); }
-  for (let i = 0; i < N; i++) {
+  const xs = SOLVE_XS, N = xs.length - 1, gs = xs.map(x => { const v = g(x); return ok(v) ? v : NaN; });
+  for (let i = 0; i <= N; i++) {
     const a = gs[i], b = gs[i + 1];
-    if (!ok(a) || !ok(b)) continue;
     if (a === 0) { add(xs[i]); continue; }
-    if (a * b < 0) {
-      let l = xs[i], r = xs[i + 1], fl = a;
-      for (let k = 0; k < 80; k++) { const m = (l + r) / 2, fm = g(m); if (!ok(fm)) break; if (fl * fm <= 0) r = m; else { l = m; fl = fm; } }
-      const x = (l + r) / 2, fx = g(x);
-      if (ok(fx) && Math.abs(fx) <= Math.min(Math.abs(a), Math.abs(b))) add(x); // a jump across an asymptote isn't a root
-    } else if (i > 0 && ok(gs[i - 1]) && Math.abs(a) < Math.abs(gs[i - 1]) && Math.abs(a) <= Math.abs(b) && a * gs[i - 1] > 0) {
-      // |g| dips toward zero without crossing: look for a touching root
-      let l = xs[i - 1], r = xs[i + 1];
-      for (let k = 0; k < 90; k++) { const m1 = l + (r - l) / 3, m2 = r - (r - l) / 3; if (Math.abs(g(m1)) < Math.abs(g(m2))) r = m2; else l = m1; }
-      const x = (l + r) / 2, fx = g(x);
+    if (i === N || !ok(a) || !ok(b)) continue;
+    if (a * b < 0) add(bisectRoot(g, xs[i], xs[i + 1], a));
+    else if (i > 0 && ok(gs[i - 1]) && Math.abs(a) < Math.abs(gs[i - 1]) && Math.abs(a) <= Math.abs(b) && a * gs[i - 1] > 0) {
+      // |g| dips toward zero without crossing: a touching root, or two roots between the same samples
+      const x = dipMin(g, xs[i - 1], xs[i + 1], Math.sign(a)), fx = g(x);
       if (ok(fx) && Math.abs(fx) < 1e-9 * Math.max(1, Math.abs(gs[i - 1]))) add(x);
+      else if (ok(fx) && fx * a < 0) { add(bisectRoot(g, xs[i - 1], x, gs[i - 1])); add(bisectRoot(g, x, xs[i + 1], fx)); }
     }
     if (out.length > max) return null;
   }
@@ -1909,14 +1931,14 @@ function evalText(t) {
 
 // ---------- formatting ----------
 const minus = s => s.replace(/-/g, '−');
-function fmtNum(v, digits = 6) {
+function fmtNum(v, digits = 10) {
   if (typeof v !== 'number' || !isFinite(v)) return v === Infinity ? '∞' : v === -Infinity ? '−∞' : 'undefined';
   if (Math.abs(v) < 1e-10) return '0';
   const a = Math.abs(v);
   if (a >= 1e9 || a < 1e-4) return minus(v.toExponential(digits - 3).replace(/\.?0+e/, 'e').replace('e+', 'e'));
   return minus(String(Number(v.toPrecision(digits))));
 }
-function fmtVal(v, digits = 6) {
+function fmtVal(v, digits = 10) {
   if (typeof v === 'number') return fmtNum(v, digits);
   if (typeof v === 'boolean') return v ? 'true' : 'false';
   if (v instanceof Cx) {
@@ -1930,13 +1952,28 @@ function fmtVal(v, digits = 6) {
   if (v instanceof Dist) return `${DIST[v.type].title} distribution`;
   return 'undefined';
 }
-function numTex(v, digits = 6) {
+function numTex(v, digits = 10) {
   if (typeof v !== 'number' || !isFinite(v)) return v === Infinity ? '\\infty' : v === -Infinity ? '-\\infty' : '\\text{undefined}';
   if (Math.abs(v) < 1e-10) return '0';
   const a = Math.abs(v);
   if (a >= 1e9 || a < 1e-4) { const [m, e] = v.toExponential(digits - 3).split('e'); return `${Number(m)}\\times10^{${Number(e)}}`; }
   return String(Number(v.toPrecision(digits)));
 }
+// The simplest fraction within 1e-9 of v, with a denominator up to 10000, for the fraction/decimal toggle.
+function toFrac(v) {
+  if (typeof v !== 'number' || !isFinite(v) || Number.isInteger(v) || Math.abs(v) >= 1e9) return null;
+  const a = Math.abs(v);
+  let h0 = 0, h1 = 1, k0 = 1, k1 = 0, x = a;
+  for (let i = 0; i < 40; i++) {
+    const n = Math.floor(x), h = n * h1 + h0, k = n * k1 + k0;
+    if (k > 10000) break;
+    h0 = h1; h1 = h; k0 = k1; k1 = k;
+    if (Math.abs(a - h / k) <= 1e-9 * Math.max(1, a)) return k === 1 ? null : { n: v < 0 ? -h : h, d: k };
+    const r = x - n; if (r < 1e-12) break; x = 1 / r;
+  }
+  return null;
+}
+const fracTex = f => `${f.n < 0 ? '-' : ''}\\frac{${Math.abs(f.n)}}{${f.d}}`;
 function vTex(v) {
   if (typeof v === 'number') return numTex(v);
   if (typeof v === 'boolean') return `\\text{${v}}`;
@@ -1981,6 +2018,7 @@ function T(n) {
     case 'v': return idTex(n.name);
     case 'u': return '-' + (isSum(n.a) || n.a.k === 'u' ? P(T(n.a)) : T(n.a));
     case 'fact': return atom(n.a) + '!';
+    case 'post': return atom(n.a) + n.op;
     case 'pt': return P(`${T(n.a)},${T(n.b)}`);
     case 'call': return callTex(n);
     case 'app': return `${idTex(n.name)}${"'".repeat(n.primes || 0)}${P(n.args.map(T).join(','))}`;
@@ -2272,7 +2310,7 @@ function renderNode(n, b, i, marks) {
       }
       if (v === ',') { e.className = 'pu'; e.textContent = ','; return e; }
       if (v === "'") { e.className = 'pr'; e.textContent = '′'; return e; }
-      if (v === 'π') { e.className = 'v'; e.textContent = 'π'; return e; }
+      if (v === 'π' || v === 'θ') { e.className = 'v'; e.textContent = v; return e; }
       e.className = 'n'; e.textContent = v; return e;
     }
     case 'sup': return sp('sup', [blk(0)]);
@@ -2706,8 +2744,9 @@ class MathField {
     } catch (e) { return false; }
   }
   let saveTimer = 0;
+  // At most one save every 300 ms, even while edits keep coming (a playing slider changes the list every frame).
   function save() {
-    clearTimeout(saveTimer);
+    if (saveTimer) return;
     saveTimer = setTimeout(flushSave, 300);
   }
   function flushSave() { saveTimer = null; try { localStorage.setItem(STORE, JSON.stringify(serialize())); } catch (e) { /* storage unavailable */ } }
@@ -2996,12 +3035,12 @@ class MathField {
     syncRows();
   }
 
-  function renderInfo(el, R) {
+  function renderInfo(el, R, row) {
     let key = '', build = null, cls = 'info', after = null;
     const val = R.value;
     if (R.kind === 'err' || (R.kind === 'table' && R.error)) {
       cls = 'info err';
-      const miss = (R.missing || []).filter(n => /^[a-zA-Z](_[a-zA-Z0-9]+)?$/.test(n));
+      const miss = (R.missing || []).filter(n => /^[a-zA-Zθ](_[a-zA-Z0-9]+)?$/.test(n));
       key = 'err:' + R.error + miss.join(',');
       build = () => `<span>${esc(R.error)}</span>` + miss.map(n => `<button type="button" class="add-slider" data-name="${esc(n)}">add slider: ${esc(n)}</button>`).join('');
     } else if (R.kind === 'reg' && R.res) {
@@ -3013,7 +3052,7 @@ class MathField {
       after = () => el.querySelectorAll('.smath').forEach(s => renderStatic(s, maths[+s.dataset.i]));
     } else if (R.roots && R.roots.length && (R.kind === 'imp' || R.kind === 'yx')) {
       const v = R.kind === 'imp' ? R.solveVar : 'x', label = R.kind === 'imp' ? (R.roots.length > 1 ? 'Solutions' : 'Solution') : (R.roots.length > 1 ? 'x-intercepts' : 'x-intercept');
-      const maths = R.roots.map(r => `${v}=${numTex(r, 6)}`);
+      const maths = R.roots.map(r => `${v}=${numTex(r)}`);
       key = 'roots:' + v + R.roots.join(',');
       build = () => `<span class="rlab">${label}</span>` + maths.map((_, i) => `<button type="button" class="root mstatic smath" data-i="${i}" aria-label="Show ${esc(maths[i])} on the graph"></button>`).join('');
       after = () => el.querySelectorAll('.smath').forEach(b => renderStatic(b, maths[+b.dataset.i]));
@@ -3038,8 +3077,13 @@ class MathField {
         else if (val.viz === 'hist') { key = 'hist:' + val.data.length + ':' + val.w; build = () => `<span class="stat">n = ${val.data.length}</span><span class="stat">bin width ${fmtNum(val.w, 4)}</span>`; }
         else if (val.viz === 'dot') { key = 'dot:' + val.data.length; build = () => `<span class="stat">n = ${val.data.length}</span>`; }
       } else if (!(val instanceof Pt) && !(isArr(val) && val.length && val.every(p => p instanceof Pt))) {
-        const tex = vTex(val);
-        if (tex !== null) { key = 'v:' + tex; build = () => '<span class="val mstatic"></span>'; after = () => renderStatic(el.firstChild, '=' + tex); }
+        // A number that is a simple fraction gets a button to show it either way, like 7/3 for a grid-in answer.
+        const fr = toFrac(val), asFrac = !!(fr && row && row.style.frac), tex = asFrac ? fracTex(fr) : vTex(val);
+        if (tex !== null) {
+          key = 'v:' + tex + (fr ? ':f' : '');
+          const btn = fr ? `<button type="button" class="fracbtn" aria-pressed="${asFrac}" aria-label="${asFrac ? 'Show as a decimal' : 'Show as a fraction'}" title="${asFrac ? 'Show as a decimal' : 'Show as a fraction'}">${asFrac ? '0.5' : 'a/b'}</button>` : '';
+          build = () => '<span class="val mstatic"></span>' + btn; after = () => renderStatic(el.firstChild, '=' + tex);
+        }
       }
     }
     if (el._k === key && el.className === cls) return;
@@ -3084,7 +3128,7 @@ class MathField {
         } else { sl.hidden = true; row.playing = false; }
       }
       if (kind === 'table') renderReg(li, row, R);
-      renderInfo(li.querySelector('.info'), R);
+      renderInfo(li.querySelector('.info'), R, row);
       const opts = li.querySelector('.opts');
       opts.hidden = !(selected === row.id && R.drawable);
       if (!opts.hidden) {
@@ -3146,6 +3190,7 @@ class MathField {
     const li = e.target.closest('.row'); if (!li) return;
     const id = +li.dataset.id, row = rowById(id);
     if (e.target.closest('.dot')) { row.hidden = !row.hidden; changed(); return; }
+    if (e.target.closest('.fracbtn')) { row.style.frac = !row.style.frac; changed(); return; }
     if (e.target.closest('.dice')) { row.seed = (row.seed * 1103515245 + 12345) >>> 0; changed(); return; }
     if (e.target.closest('.del')) { const prev = deleteRow(id); if (prev) focusRow(prev.id, 'end'); return; }
     if (e.target.closest('.play')) { row.playing = !row.playing; syncRows(); if (row.playing) startAnim(); return; }
@@ -3484,9 +3529,14 @@ class MathField {
       const m = SLIDER_RE.exec(row.text.trim()); if (!m) { row.playing = false; return; }
       any = true;
       const { min, max } = row.slider;
-      let v = parseFloat(m[2]) + row.dir * (max - min) * dt / 4;
+      // Keep the exact value between frames: on a fast screen one frame's step can be smaller than the
+      // slider's rounding, and rounding every frame would leave the slider stuck.
+      const shown = parseFloat(m[2]), d = sliderDecimals(row);
+      let v = (row.animV != null && Math.abs(row.animV - shown) <= Math.pow(10, -d)) ? row.animV : shown;
+      v += row.dir * (max - min) * dt / 4;
       if (v >= max) { v = max; row.dir = -1; } else if (v <= min) { v = min; row.dir = 1; }
-      row.text = `${m[1]} = ${String(Number(v.toFixed(sliderDecimals(row))))}`;
+      row.animV = v;
+      row.text = `${m[1]} = ${String(Number(v.toFixed(d)))}`;
     });
     if (any) { changed(); requestAnimationFrame(tick); } else { animOn = false; syncRows(); }
   }
@@ -3745,11 +3795,6 @@ class MathField {
   }
 
   // ---------- points of interest ----------
-  function bisect(f, a, b) {
-    let fa = f(a);
-    for (let k = 0; k < 60; k++) { const m = (a + b) / 2, fm = f(m); if (fm === 0) return m; if ((fm < 0) === (fa < 0)) { a = m; fa = fm; } else b = m; }
-    return (a + b) / 2;
-  }
   function golden(f, a, b, isMax) {
     const g = (Math.sqrt(5) - 1) / 2, better = (p, q) => (isMax ? p > q : p < q);
     let c = b - g * (b - a), d = a + g * (b - a), fc = f(c), fd = f(d);
@@ -3758,6 +3803,12 @@ class MathField {
       else { a = c; c = d; fc = fd; d = a + g * (b - a); fd = f(d); }
     }
     return (a + b) / 2;
+  }
+  // A root where f touches 0 without changing sign between the samples l, m, r (values fl, fm, fr): (x - 3)^2, or a tangent line.
+  function touchRoot(f, l, r, fl, fm, fr) {
+    if (![fl, fm, fr].every(isFinite) || fm === 0 || !(Math.abs(fm) < Math.abs(fl) && Math.abs(fm) <= Math.abs(fr) && fm * fl > 0)) return null;
+    const x = dipMin(f, l, r, Math.sign(fm)), fx = f(x);
+    return numOk(fx) && Math.abs(fx) < 1e-9 * Math.max(1, Math.abs(fl)) ? x : null;
   }
   function findPOIs(curve) {
     const f = curve.f, out = [];
@@ -3774,7 +3825,8 @@ class MathField {
       const a = ys[i], b = ys[i + 1];
       if (!isFinite(a) || !isFinite(b)) continue;
       if (a === 0) push(xs[i], 0, 'x-intercept');
-      else if (a * b < 0) { const r = bisect(f, xs[i], xs[i + 1]), fr = f(r); if (numOk(fr) && Math.abs(fr) <= Math.min(Math.abs(a), Math.abs(b))) push(r, 0, 'x-intercept'); }
+      else if (a * b < 0) { const r = bisectRoot(f, xs[i], xs[i + 1], a); if (r !== null) push(r, 0, 'x-intercept'); }
+      else if (i > 0) { const r = touchRoot(f, xs[i - 1], xs[i + 1], ys[i - 1], a, b); if (r !== null) push(r, 0, 'x-intercept'); }
       if (i > 0 && isFinite(ys[i - 1])) {
         const d0 = ys[i] - ys[i - 1], d1 = ys[i + 1] - ys[i];
         if ((d0 > 0 && d1 < 0) || (d0 < 0 && d1 > 0)) {
@@ -3787,14 +3839,19 @@ class MathField {
     for (const o of CURVES) {
       if (o === curve || o.type !== 'fx' || o.op !== '=') continue;
       const g = o.f, h = x => f(x) - g(x);
-      let prev = NaN;
+      let prev = NaN, prev2 = NaN;
       for (let i = 0; i <= N && out.length < 120; i++) {
         const gv = g(xs[i]), hv = isFinite(ys[i]) && numOk(gv) ? ys[i] - gv : NaN;
         if (isFinite(prev) && isFinite(hv) && prev * hv < 0) {
-          const r = bisect(h, xs[i - 1], xs[i]), hr = h(r);
-          if (numOk(hr) && Math.abs(hr) <= Math.min(Math.abs(prev), Math.abs(hv))) push(r, f(r), 'Intersection');
+          const r = bisectRoot(h, xs[i - 1], xs[i], prev);
+          if (r !== null) push(r, f(r), 'Intersection');
         } else if (hv === 0) push(xs[i], ys[i], 'Intersection');
-        prev = hv;
+        else if (i > 1) {
+          // the curves touch without crossing, like a line tangent to a parabola
+          const r = touchRoot(h, xs[i - 2], xs[i], prev2, prev, hv);
+          if (r !== null) push(r, f(r), 'Intersection');
+        }
+        prev2 = prev; prev = hv;
       }
     }
     return out;
@@ -3821,7 +3878,7 @@ class MathField {
     ctx.fillStyle = hollow ? TH.canvas : color; ctx.fill();
     ctx.lineWidth = 2; ctx.strokeStyle = hollow ? color : TH.canvas; ctx.stroke();
   }
-  const coord = (x, y) => `(${fmtNum(x, 5)}, ${fmtNum(y, 5)})`;
+  const coord = (x, y) => `(${fmtNum(x, 8)}, ${fmtNum(y, 8)})`;
   function textLabel(X, Y, text) {
     if (!isFinite(X) || !isFinite(Y)) return;
     ctx.font = `500 13px ${TH.ui}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.lineJoin = 'round';

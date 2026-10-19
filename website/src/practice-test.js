@@ -604,7 +604,7 @@
     });
   }
 
-  /* ---------- calculator and tutor (qtools.js): a panel on the right; the question slides left ---------- */
+  /* ---------- calculator and tutor (qtools.js): a floating window; the question reflows beside it ---------- */
   var tools = window.GraphiteTools && window.GraphiteTools.mount({ shift: ".exam-body", top: ".exam-top", bottom: ".exam-bottom", launcher: false,
     light: function () { return S.view === "light"; } });
   function themeCalc() { if (tools) tools.theme(); }
@@ -696,6 +696,7 @@
   $("break-resume").addEventListener("click", function () { endBreak(false); });
   $("start-btn").addEventListener("click", function () {
     S.started = true; save();
+    if (tools) tools.resetCalc();  // a new attempt starts with a blank calculator, like test day
     $("start-overlay").hidden = true; startClock(); renderTimer();
     $("q-area").focus({ preventScroll: true });
     if (!RW && window.GraphiteTheme && GraphiteTheme.prefs().study.calculator === "open") setCalc(true);  // Settings > Practice defaults

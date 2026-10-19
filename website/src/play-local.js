@@ -410,7 +410,11 @@
       return ok(board(s, scope, period, /section=rw/.test(q) ? "rw" : "math"));
     }
     if (path === "/api/speed/nicknames") {
-      var names = []; for (var k = 0; k < 4; k++) names.push(SP.adjectives[Math.floor(Math.random() * SP.adjectives.length)] + " " + SP.nouns[Math.floor(Math.random() * SP.nouns.length)] + " " + (10 + Math.floor(Math.random() * 90)));
+      var names = [];
+      while (names.length < 4) {  // only names short enough to save (speed.roll_nicknames)
+        var nm = SP.adjectives[Math.floor(Math.random() * SP.adjectives.length)] + " " + SP.nouns[Math.floor(Math.random() * SP.nouns.length)] + " " + (10 + Math.floor(Math.random() * 90));
+        if (nm.length <= 20) names.push(nm);
+      }
       return ok({ nicknames: names });
     }
     if (path === "/api/speed/states") return ok({ states: SP.states });
