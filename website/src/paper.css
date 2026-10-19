@@ -286,13 +286,15 @@ html.paper.app .up-next h2 { font-size: 1.6rem; }
 html.paper.app .lock-card, html.paper.app .kpis { border-radius: 2px; }
 
 /* What's inside: the feature sections fold into cards, so the home page shows one idea at a time. */
-.fold-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+/* dense: when a right-hand card opens to full width, the next closed card moves up into the gap it leaves. */
+.fold-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: row dense; gap: 14px; align-items: start; }
 .fold { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; scroll-margin-top: 88px; }
 .fold[open] { grid-column: 1 / -1; }
 .fold > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: center; padding: 18px 20px; border-radius: 10px; }
 .fold > summary::-webkit-details-marker { display: none; }
-.fold > summary::after { content: "+"; grid-column: 2; grid-row: 1 / span 2; font: 500 1.6rem/1 var(--font-mono); color: var(--accent); }
-.fold[open] > summary::after { content: "\2212"; }
+.fold > summary { transition: background-color 0.2s ease; }
+.fold > summary::after { content: "+"; grid-column: 2; grid-row: 1 / span 2; font: 500 1.6rem/1 var(--font-mono); color: var(--accent); transition: transform 0.3s ease; }
+.fold[open] > summary::after { transform: rotate(45deg); }
 .fold > summary:hover { background: var(--raised); }
 .fold-title { font: 700 var(--t-lg)/1.25 var(--font-display); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .fold-teaser { color: var(--muted); font-size: var(--t-sm); }
