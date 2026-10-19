@@ -1,0 +1,283 @@
+{
+  "count": 14,
+  "note": "Extra Desmos moves that the explanations add after the item's main route (bank.extra_hacks picks up to two per item, in this order). Every one still needs a hands-on check in desmos.com/testing/collegeboard/graphing before it's marked verified.",
+  "hacks": [
+    {
+      "id": "H1",
+      "key": "as-written",
+      "name": "Type the equation as written",
+      "how": "Desmos graphs an equation that has only $x$ in it as vertical lines, one at each real solution. Type the whole equation on one line, with no $y =$, and click where a line meets the $x$-axis to read the solution.",
+      "watch": "No line means no real solution on screen, so zoom out before you decide. An extraneous root never gets a line, which makes this a free check on radical and rational equations.",
+      "match": {
+        "withTechniques": [
+          "T1"
+        ],
+        "notStem": "constant|\\\\(sin|cos|tan)\\b"
+      },
+      "sources": [
+        "https://mathchops.substack.com/p/a-five-minute-dsat-desmos-intro/comments",
+        "https://www.edisonos.com/digital-sat/desmos-guide"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H2",
+      "key": "choice-table",
+      "name": "Test every choice in a table",
+      "how": "Define `f(x)=` the left side minus the right side, type `table`, put the four choices in the $x_1$ column and make the second column's header `f(x_1)`. The row that shows 0 is the answer.",
+      "watch": "Enter the choices exactly, as fractions rather than rounded decimals, or the right choice can show a tiny number instead of 0.",
+      "match": {
+        "formats": [
+          "mc"
+        ],
+        "numericChoices": true,
+        "withTechniques": [
+          "T1",
+          "T13"
+        ],
+        "notStem": "constant|inequalit"
+      },
+      "sources": [
+        "https://www.oneprep.com/blog/sat-math-tips-desmos-2026-12-calculator-moves"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H3",
+      "key": "inequality",
+      "name": "Shade the inequality as written",
+      "how": "Type a one-variable inequality straight in. Desmos shades every $x$ that works. A dashed edge means that endpoint is left out, and a solid edge means it's included.",
+      "watch": "To read the edge exactly, change the inequality sign to $=$: Desmos draws the boundary as a vertical line.",
+      "match": {
+        "skills": [
+          "Linear inequalities in one or two variables"
+        ],
+        "withoutTechniques": [
+          "T8"
+        ],
+        "notStem": "constant"
+      },
+      "sources": [
+        "https://help.desmos.com/hc/en-us/articles/4407885334285-Inequalities-and-Restrictions"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H4",
+      "key": "restrict",
+      "name": "Restrict the graph with braces",
+      "how": "Add a condition in curly braces to draw only part of a graph, like `y=x^2{0<=x<=5}`. A crossing outside the allowed values never shows up, so you can't pick it by mistake.",
+      "watch": "Curly braces restrict; square brackets make a list. Mixing them up is one of the most common typing errors.",
+      "match": {
+        "stem": "\\\\le\\s*[a-z]\\s*\\\\le",
+        "stemAlso": "function|graph|model"
+      },
+      "sources": [
+        "https://help.desmos.com/hc/en-us/articles/4407885334285-Inequalities-and-Restrictions",
+        "https://learnerlabs.app/sat-prep/desmos/stats-from-list"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H5",
+      "key": "distance-midpoint",
+      "name": "Built-in distance and midpoint",
+      "how": "`distance((1,2),(4,6))` gives the length of a segment and `midpoint((1,2),(4,6))` gives its midpoint, so there's no formula to remember. For two crossing points, click each one and type their coordinates in.",
+      "watch": "`midpoint` isn't in Desmos's own help pages, so try it in the College Board practice calculator before test day. The fallback is $\\left(\\frac{x_1 + x_2}{2}, \\frac{y_1 + y_2}{2}\\right)$.",
+      "match": {
+        "stem": "midpoint|distance between|length of (segment|\\$\\\\overline)",
+        "stemAlso": "\\$xy\\$-plane"
+      },
+      "sources": [
+        "https://achievable.me/exams/sat/resources/how-to-use-the-desmos-sat-calculator/",
+        "https://1600.io/courses/1698988/lectures/38541808"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H6",
+      "key": "regression-line",
+      "name": "The line through points, by regression",
+      "how": "Type `table`, enter the points in the $x_1$ and $y_1$ columns, then type `y_1~mx_1+b`. Desmos prints $m$ and $b$, the slope and the $y$-intercept of the line through them.",
+      "watch": "If the points aren't exactly on one line, $r^2$ comes out below 1 and you get a line of best fit, not a line through every point.",
+      "match": {
+        "skills": [
+          "Linear functions",
+          "Linear equations in two variables"
+        ],
+        "minPoints": 2,
+        "withoutTechniques": [
+          "T5"
+        ]
+      },
+      "sources": [
+        "https://acely.com/desmos-guide-library/linear-functions-table-points-to-find-function",
+        "https://reddit.birdcat.cafe/r/Sat/comments/1c8at7a/official_desmos_thread/l1uz7uo/?context=3"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H7",
+      "key": "implicit",
+      "name": "Graph it without solving for $y$",
+      "how": "Desmos graphs equations like $3x + 4y = 12$ or $x^2 + y^2 - 6x = 7$ exactly as they're written. Skip the rearranging: type it in, then click the gray dots where it crosses the axes or another graph.",
+      "watch": "Desmos doesn't print a line's slope. Click two points on it and divide the rise by the run, or rewrite it as $y = mx + b$.",
+      "match": {
+        "domains": [
+          "algebra",
+          "advanced-math",
+          "geometry-trig"
+        ],
+        "notStem": "constant"
+      },
+      "sources": [
+        "https://www.edisonos.com/digital-sat/desmos-guide"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H8",
+      "key": "formula",
+      "name": "Write the formula with $x$ as the unknown",
+      "how": "Type the formula with the missing length as $x$ and set it equal to the value you're given, like `pi x^2=49pi` for a circle with area $49\\pi$. Desmos draws $x = 7$ and $x = -7$, and a length can't be negative.",
+      "watch": "Type `pi` for $\\pi$ and keep it in the equation. Rounding to 3.14 makes the answer come out slightly off.",
+      "match": {
+        "domains": [
+          "geometry-trig"
+        ],
+        "stem": "(area|volume|circumference)\\b[^.?]*\\b(is|of)\\b[^.?]*\\d",
+        "stemAlso": "(radius|diameter|side length|height|length of (a|each|the) (side|edge)|edge length|width)\\b[^.]*\\?",
+        "withoutTechniques": [
+          "T9"
+        ]
+      },
+      "sources": [
+        "https://www.edisonos.com/digital-sat/desmos-guide"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H9",
+      "key": "sum-product",
+      "name": "Sum or product of the solutions",
+      "how": "Graph one side minus the other as $y =$, click each $x$-intercept, then add or multiply the values you read. For a quadratic $ax^2 + bx + c$, the sum is $-\\frac{b}{a}$ and the product is $\\frac{c}{a}$: use the graph to check that.",
+      "watch": "Irrational roots show as rounded decimals, so their sum on screen can be a little off. Trust $-\\frac{b}{a}$ and $\\frac{c}{a}$ for the exact value.",
+      "match": {
+        "stem": "(sum|product) of (all )?(the )?(two )?(real )?(solutions|roots|zeros)",
+        "notStem": "constant"
+      },
+      "sources": [
+        "https://www.oneprep.com/blog/sat-math-tips-desmos-2026-12-calculator-moves"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H10",
+      "key": "statistics",
+      "name": "Let Desmos do the statistics",
+      "how": "Type `mean([4,8,10,14,19])`, `median([...])` or `stdev([...])` on one line. For a missing value, put $x$ in the list and set the statistic equal to what's given: `mean([5,9,x])=11` draws the line $x = 19$.",
+      "watch": "Square brackets make a list; curly braces don't. `stdev` is the sample standard deviation and `stdevp` the population one, but the SAT nearly always asks which spread is larger, not for the number.",
+      "match": {
+        "skills": [
+          "One-variable data: distributions and measures of center and spread"
+        ],
+        "stem": "\\bmean\\b|average|median|standard deviation",
+        "notStem": "box plot",
+        "withoutTechniques": [
+          "T7"
+        ]
+      },
+      "sources": [
+        "https://mathchops.substack.com/p/a-five-minute-dsat-desmos-intro/comments",
+        "https://www.yonkerspublicschools.org/cms/lib/NY01814060/Centricity/Domain/1790/Desmos Stats Functions.pdf"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H11",
+      "key": "percent",
+      "name": "Type percents with %",
+      "how": "Desmos reads `%` and adds \"of\" for you: type `35%`, then `80`, and it shows `35% of 80`. With an unknown, type `x% of 160=40` and Desmos draws the line $x = 25$.",
+      "watch": "A percent change is a multiplier. A 30% increase and then a 20% decrease is `1.3*0.8`, which is a 4% increase, not 10%.",
+      "match": {
+        "domains": [
+          "psda",
+          "algebra"
+        ],
+        "stem": "%|percent",
+        "notStem": "standard deviation|margin of error"
+      },
+      "sources": [
+        "https://mathchops.substack.com/p/a-five-minute-dsat-desmos-intro/comments"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H12",
+      "key": "rename",
+      "name": "Rename the letter to $x$",
+      "how": "Desmos graphs $x$ and $y$; any other letter becomes a slider. When a question solves for a letter like $t$, $p$ or $n$, type it as $x$ and solve by graphing.",
+      "watch": "Rename every copy of the letter. In an $xy$-plane question, leave $y$ alone.",
+      "match": {
+        "stem": "value of \\$([a-wzA-Z])\\$",
+        "notStem": "constant",
+        "withoutTechniques": [
+          "T3",
+          "T4",
+          "T6"
+        ]
+      },
+      "sources": [
+        "https://www.edisonos.com/digital-sat/desmos-guide",
+        "https://prepdrills.com/blog/desmos-sat-cheat-sheet-2026/"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H13",
+      "key": "key-points",
+      "name": "Click the curve for its key points",
+      "how": "Click a graph once and Desmos puts gray dots on its vertex, its intercepts and every crossing with another graph. Click a dot to read its coordinates, so a maximum, a minimum or a zero takes one tap.",
+      "watch": "The dots show rounded decimals, and a point off the screen gets no dot. Zoom out first, and switch to a fraction if the answer has to be exact.",
+      "match": {
+        "domains": [
+          "algebra",
+          "advanced-math"
+        ],
+        "stem": "vertex|maximum|minimum|intercept|zeros? of",
+        "notStem": "constant",
+        "withoutTechniques": [
+          "T3",
+          "T4",
+          "T6"
+        ]
+      },
+      "sources": [
+        "https://acely.com/sat-prep/desmos-cheat-sheet",
+        "https://www.oneprep.com/blog/sat-math-tips-desmos-2026-12-calculator-moves"
+      ],
+      "verified": false
+    },
+    {
+      "id": "H14",
+      "key": "fraction",
+      "name": "Turn the decimal into a fraction",
+      "how": "Desmos shows a computed value as a decimal, with a small fraction button beside it. Click it to switch $0.8333$ to $\\frac{5}{6}$. Give values names, like `a=` the calculation, so later lines reuse the exact value rather than a rounded one.",
+      "watch": "The button works on a value computed on an expression line, not on a gray point you clicked. Type the calculation on its own line first.",
+      "match": {
+        "formats": [
+          "spr"
+        ],
+        "fractionAnswer": true,
+        "withoutTechniques": [
+          "T11"
+        ]
+      },
+      "sources": [
+        "https://acely.com/sat-prep/desmos-cheat-sheet",
+        "https://progresslearning.com/news-blog/desmos-tips-for-the-sat/"
+      ],
+      "verified": false
+    }
+  ]
+}

@@ -31,6 +31,10 @@ def shown_text():
     for t in techniques.values():
         out.append((t["id"], t["summary"]))
         out += [(t["id"], p) for p in t.get("pitfalls", [])]
+    for h in bank.hacks():
+        out += [(h["id"], h["name"]), (h["id"], h["how"]), (h["id"], h["watch"])]
+    for it in raw_items():
+        out += [(it["id"], ex["note"]) for _, ex in bank.extra_hacks(it) if ex.get("note")]
     return out
 
 
@@ -50,7 +54,8 @@ class BankLatexTest(unittest.TestCase):
     @unittest.skipUnless(shutil.which("node"), "node isn't installed")
     def test_every_formula_renders(self):
         spans = sorted({m.group(1) for _, t in shown_text() for m in MATH.finditer(t)} |
-                       {line for it in raw_items() for line in (it.get("desmos") or {}).get("lines", [])})
+                       {line for it in raw_items() for line in (it.get("desmos") or {}).get("lines", [])} |
+                       {line for it in raw_items() for _, ex in bank.extra_hacks(it) for line in ex.get("lines", [])})
         self.assertGreater(len(spans), 3000)
         js = ("const k = require(%s); const a = JSON.parse(require('fs').readFileSync(0, 'utf8')); const bad = [];"
               "for (const s of a) { try { k.renderToString(s, { throwOnError: true, strict: 'ignore' }); }"

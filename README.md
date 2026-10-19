@@ -15,7 +15,7 @@ To run the Graphite SAT website on your computer: open this folder in VS Code an
 - [`docs/desmos-integration.md`](docs/desmos-integration.md): calculator design decision (student-operated embed, OnePrep-style) and how the AI reads it
 - `research_notes/AI Desmos SAT math course plan/`: the notes behind the report, with sources:
   - `sat_math_format.md`: Digital SAT Math format, scoring, and the Desmos calculator in Bluebook
-  - `desmos_techniques.md`: Desmos technique library (T1–T13) and existing resources
+  - `desmos_techniques.md`: Desmos technique library (T1–T13), the extra hacks in answer explanations (H1–H14), and existing resources
   - `gemini_desmos_ai.md`: Gemini API features, the Desmos API, and how to make an AI reliably good at Desmos
   - `competitive_landscape.md`: competing AI SAT tutors and Desmos courses
   - `architecture_legal_pedagogy.md`: tech stack, legal and compliance (Gemini age terms, College Board, Desmos licensing, COPPA), and learning science

@@ -180,3 +180,35 @@ Estimates range from about one-third to about one-half. One outlier claims 90%. 
 
 ### Gaps
 - No source quantified time saved per question or score impact with data. No College Board statement on Desmos-solvable share exists in the results.
+
+## 6. Extra hacks in the answer explanations (H1–H14, researched October 2026)
+
+### Takeaway
+Fourteen smaller Desmos moves now sit in `backend/app/content/bank/hacks.json`. They go beyond the main route (T1–T13). Each explanation shows up to two that fit the question, under "More Desmos hacks", typed out with that question's own numbers where possible. 311 of the 1,000 bank items get at least one, including 31 of the hand-only items. All 14 are `"verified": false` until someone tries them in desmos.com/testing/collegeboard/graphing.
+
+### Cited Findings
+| Hack | What the student types | Source |
+|---|---|---|
+| H1 Type the equation as written | `6x^2-x-2=0`: Desmos draws a vertical line at each real solution | [Edison OS 2026 guide](https://www.edisonos.com/digital-sat/desmos-guide); [Math Chops comments](https://mathchops.substack.com/p/a-five-minute-dsat-desmos-intro/comments) |
+| H2 Test every choice in a table | `f(x)=` left − right, choices under `x_1`, header `f(x_1)`, find the 0 | [OnePrep 2026](https://www.oneprep.com/blog/sat-math-tips-desmos-2026-12-calculator-moves) |
+| H3 Shade the inequality as written | `3(2-x)>12`; dashed edge = strict | [Desmos help: Inequalities and Restrictions](https://help.desmos.com/hc/en-us/articles/4407885334285-Inequalities-and-Restrictions) |
+| H4 Restrict with braces | `y=x^2{0<=x<=5}` | [Desmos help](https://help.desmos.com/hc/en-us/articles/4407885334285-Inequalities-and-Restrictions); [Learner Labs](https://learnerlabs.app/sat-prep/desmos/stats-from-list) |
+| H5 Built-in distance and midpoint | `distance((1,2),(4,6))`, `midpoint(...)` | [Achievable](https://achievable.me/exams/sat/resources/how-to-use-the-desmos-sat-calculator/); [1600.io](https://1600.io/courses/1698988/lectures/38541808) |
+| H6 Line through points, by regression | table, then `y_1~mx_1+b` | [Acely guide library](https://acely.com/desmos-guide-library/linear-functions-table-points-to-find-function); [r/Sat Desmos thread](https://reddit.birdcat.cafe/r/Sat/comments/1c8at7a/official_desmos_thread/l1uz7uo/?context=3) |
+| H7 Graph without solving for y | `4x-6y=5`, `x^2+y^2-10x+6y+18=0` as written | [Edison OS 2026 guide](https://www.edisonos.com/digital-sat/desmos-guide) |
+| H8 Formula with x as the unknown | `pi x^2=49pi` | [Edison OS 2026 guide](https://www.edisonos.com/digital-sat/desmos-guide) (rename-to-x idea applied to geometry) |
+| H9 Sum or product of the solutions | click each intercept; check with −b/a and c/a | [OnePrep 2026](https://www.oneprep.com/blog/sat-math-tips-desmos-2026-12-calculator-moves) |
+| H10 Statistics functions | `mean([...])`, `median`, `stdev`, `stdevp`; `mean([5,9,x])=11` | [Math Chops comments](https://mathchops.substack.com/p/a-five-minute-dsat-desmos-intro/comments); [Yonkers Desmos stats sheet](https://www.yonkerspublicschools.org/cms/lib/NY01814060/Centricity/Domain/1790/Desmos%20Stats%20Functions.pdf) |
+| H11 Percents with % | `35% of 80`; `x% of 160=40` | [Math Chops comments](https://mathchops.substack.com/p/a-five-minute-dsat-desmos-intro/comments) |
+| H12 Rename the letter to x | solve for t, p or n by typing x | [Edison OS 2026 guide](https://www.edisonos.com/digital-sat/desmos-guide); [PrepDrills cheat sheet 2026](https://prepdrills.com/blog/desmos-sat-cheat-sheet-2026/) |
+| H13 Click the curve for its key points | gray dots on vertex, intercepts, crossings | [Acely cheat sheet](https://acely.com/sat-prep/desmos-cheat-sheet); [OnePrep 2026](https://www.oneprep.com/blog/sat-math-tips-desmos-2026-12-calculator-moves) |
+| H14 Decimal to fraction | the fraction button beside a computed value; name values to keep them exact | [Acely cheat sheet](https://acely.com/sat-prep/desmos-cheat-sheet); [Progress Learning](https://progresslearning.com/news-blog/desmos-tips-for-the-sat/) |
+
+### Inferences
+- `x% of 160=40` solving for x, and a vertical line's x-intercept showing as a gray dot, come from Desmos behavior I expect but couldn't open Desmos to confirm. Check them first.
+- `midpoint()` isn't in Desmos's own documentation (per 1600.io), so the hack's watch-out gives the formula as a fallback.
+- The 22-question mock test (`pt4-math-m1.json`) got calculator tips on seven more questions, using the same moves.
+
+### Gaps
+- The research environment again couldn't open the prep sites or desmos.com directly, so these come from search-result summaries.
+- No source covered summing solutions in Desmos specifically; H9 combines clicking intercepts with Vieta's formulas.

@@ -18,7 +18,8 @@
         "32"
       ],
       "answer": 1,
-      "explain": "Add 9 to both sides: 4x = 32. Divide by 4: x = 8."
+      "explain": "Add 9 to both sides: 4x = 32. Divide by 4: x = 8.",
+      "calc": "Type 4x − 9 = 23 exactly as written, with no y. Desmos draws the vertical line x = 8."
     },
     {
       "domain": "Problem-Solving and Data Analysis",
@@ -55,7 +56,8 @@
         "400%"
       ],
       "answer": 1,
-      "explain": "40 ÷ 160 = 0.25, which is 25%. Choice D comes from dividing 160 by 40."
+      "explain": "40 ÷ 160 = 0.25, which is 25%. Choice D comes from dividing 160 by 40.",
+      "calc": "Desmos adds \"of\" when you type %: enter x% of 160 = 40 and it draws the line x = 25."
     },
     {
       "domain": "Advanced Math",
@@ -78,7 +80,8 @@
         "48"
       ],
       "answer": 0,
-      "explain": "6² + 8² = 36 + 64 = 100, and √100 = 10. Choice C adds the legs, which isn't how hypotenuses work."
+      "explain": "6² + 8² = 36 + 64 = 100, and √100 = 10. Choice C adds the legs, which isn't how hypotenuses work.",
+      "calc": "Type distance((0, 0), (6, 8)): put the legs on the axes and Desmos gives the hypotenuse, 10."
     },
     {
       "domain": "Algebra",
@@ -139,7 +142,8 @@
       "type": "spr",
       "stem": "A circle has an area of 49π square inches. What is the radius of the circle, in inches?",
       "answer": 7,
-      "explain": "A = πr², so r² = 49 and r = 7."
+      "explain": "A = πr², so r² = 49 and r = 7.",
+      "calc": "Write the area formula with x for the radius: type pi x^2 = 49pi. Desmos draws x = −7 and x = 7, and a radius is positive."
     },
     {
       "domain": "Advanced Math",
@@ -176,7 +180,8 @@
         "<var>x</var> &lt; 2"
       ],
       "answer": 1,
-      "explain": "6 − 3x > 12, so −3x > 6. Dividing by a negative flips the sign: x < −2."
+      "explain": "6 − 3x > 12, so −3x > 6. Dividing by a negative flips the sign: x < −2.",
+      "calc": "Type 3(2 − x) > 12 as written. Desmos shades everything left of the dashed line x = −2, so x < −2."
     },
     {
       "domain": "Advanced Math",
@@ -190,7 +195,8 @@
         "<var>P</var>(<var>t</var>) = 8,000(1.5)<sup><var>t</var></sup>"
       ],
       "answer": 0,
-      "explain": "Growing by 5% means multiplying by 1 + 0.05 = 1.05 each year. Choice B would shrink the population."
+      "explain": "Growing by 5% means multiplying by 1 + 0.05 = 1.05 each year. Choice B would shrink the population.",
+      "calc": "Graph each choice with x for t. Only A passes through (1, 8400), which is 8,000 grown by 5%."
     },
     {
       "domain": "Geometry and Trigonometry",
@@ -227,7 +233,8 @@
         "240"
       ],
       "answer": 1,
-      "explain": "y = 2.4(10) + 31 = 24 + 31 = 55."
+      "explain": "y = 2.4(10) + 31 = 24 + 31 = 55.",
+      "calc": "Define f(x) = 2.4x + 31, then type f(10) on the next line: 55. A model you name once can be reused for every input."
     },
     {
       "domain": "Advanced Math",

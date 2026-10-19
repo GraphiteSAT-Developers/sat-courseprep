@@ -768,6 +768,11 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .xp-pretty { display: block; color: var(--x-muted, var(--muted)); font-size: var(--t-sm); margin-top: 2px; }
 .xp-tip { font-size: var(--t-sm); }
 .xp-route p { font-weight: 700; }
+.xp-hacks { border: 1px dashed var(--x-line, var(--line)); border-radius: var(--radius); padding: var(--s4); }
+.xp-sec .xp-hack-list { list-style: none; padding-left: 0; gap: var(--s4); }
+.xp-hack { display: grid; gap: var(--s2); }
+.xp-hack p { margin: 0; }
+.xp-sec .xp-ex { list-style: none; padding-left: var(--s3); border-left: 2px solid var(--x-sel, var(--accent)); }
 
 /* Topic practice: Check answer, then the verdict and explanation under the question */
 .q-check { display: grid; gap: var(--s3); }
@@ -891,7 +896,7 @@ table.compact th, table.compact td { padding: var(--s2) var(--s3); }
 .set-list li.is-done .mono { color: var(--ok); }
 .tutor-xp { max-height: 360px; overflow-y: auto; padding-right: var(--s2); }
 .tutor-xp .xp { font-size: var(--t-sm); gap: var(--s3); }
-.tutor-xp .xp-desmos { padding: var(--s3); }
+.tutor-xp .xp-desmos, .tutor-xp .xp-hacks { padding: var(--s3); }
 .qcard-stem var, .choice-text var { font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 1.1em; }
 
 .pl-form-actions { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap; }

@@ -359,6 +359,8 @@ def explanation_html(item, techniques):
     parts.append(f'<p class="xp-answer"><span class="label">Answer</span> <strong>{answer}</strong></p>')
 
     advice = ROUTE_ADVICE[route] if desmos else "Solve this one by hand. A graph doesn't make it faster."
+    if not desmos and extra_hacks(item):
+        advice += " The Desmos hack below is a quick way to check your answer."
     parts.append(f'<section class="xp-sec xp-route"><h4>Best approach</h4><p>{html.escape(advice)}</p></section>')
 
     desmos_sec = ""
@@ -384,6 +386,7 @@ def explanation_html(item, techniques):
         hand_sec = f'<section class="xp-sec xp-hand"><h4>Solve it by hand</h4><ol class="xp-steps">{items_html}</ol></section>'
 
     parts.extend([desmos_sec, hand_sec] if route == "desmos-primary" else [hand_sec, desmos_sec])
+    parts.append(hacks_html(item))
 
     if distractors:
         lis = "".join(f"<li>{rich_html(_sentence(d))}.</li>" for d in distractors)
@@ -405,6 +408,189 @@ def explanation_html(item, techniques):
 
     parts.append("</div>")
     return "".join(p for p in parts if p)
+
+
+# ---------- extra Desmos hacks ----------
+
+MAX_HACKS = 2
+POINT = re.compile(r"\((-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\)")
+MATH_SPAN = re.compile(r"(?<!\\)\$([^$]*)\$")
+INEQUALITY = re.compile(r"<|>|\\le|\\ge|\\lt|\\gt")
+NUMERIC_CHOICE = re.compile(r"^\$?\s*-?(\d+(\.\d+)?|\\frac\{\d+\}\{\d+\})\s*\$?$")
+# LaTeX commands Desmos takes as typed; a line with any other command isn't offered as an example.
+LINE_COMMANDS = {"frac", "dfrac", "tfrac", "sqrt", "left", "right", "cdot", "times", "div", "pi", "le", "ge"}
+
+
+@lru_cache(maxsize=None)
+def hacks():
+    """The extra Desmos moves in hacks.json, in the order explanations prefer them."""
+    return json.loads((BANK_DIR / "hacks.json").read_text())["hacks"]
+
+
+def _letters_only(latex, letters):
+    """True when a formula uses no variables but these, and only commands Desmos takes as typed."""
+    if any(c not in LINE_COMMANDS for c in re.findall(r"\\([A-Za-z]+)", latex)):
+        return False
+    return set(re.findall(r"[A-Za-z]", re.sub(r"\\[A-Za-z]+", "", latex))) <= set(letters)
+
+
+def _sides(item):
+    """The item's Desmos lines as the sides of one equation in x, or None when they aren't that."""
+    lines = (item.get("desmos") or {}).get("lines") or []
+    if len(lines) not in (1, 2) or not all(re.match(r"y=", line) for line in lines):
+        return None
+    sides = [line[2:] for line in lines]
+    if not all(_letters_only(s, "x") for s in sides) or "x" not in "".join(sides):
+        return None
+    return sides if len(sides) == 2 else [sides[0], "0"]
+
+
+def _spans(stem):
+    return [s.strip() for s in MATH_SPAN.findall(stem)]
+
+
+def _ex_as_written(item):
+    sides = _sides(item)
+    return {"lines": [f"{sides[0]}={sides[1]}"]} if sides else None
+
+
+def _ex_choice_table(item):
+    sides = _sides(item)
+    if not sides:
+        return None
+    rest = "" if sides[1] == "0" else f"-\\left({sides[1]}\\right)"
+    return {"lines": [f"f(x)={sides[0]}{rest}"]}
+
+
+def _ex_inequality(item):
+    for s in _spans(item["stem"]):
+        if INEQUALITY.search(s) and "x" in s and _letters_only(s, "x") and not re.search(r"\\le\s*x\s*\\le", s):
+            return {"lines": [s.replace(" ", "")]}
+    return None
+
+
+def _ex_restrict(item):
+    m = re.search(r"(-?[\d.]+)\s*(<|\\le)\s*([a-z])\s*(<|\\le)\s*(-?[\d.]+)", item["stem"])
+    if not m:
+        return None
+    lo, op1, var, op2, hi = m.groups()
+    out = {"lines": [f"\\{{{lo}{op1} x{op2}{hi}\\}}"]}
+    out["note"] = "Add it at the end of the graph's line" + (f", with $x$ in place of ${var}$." if var != "x" else ".")
+    return out
+
+
+def _ex_distance_midpoint(item):
+    pts = POINT.findall(item["stem"])
+    if len(pts) != 2:
+        return {}
+    (a, b), (c, d) = pts
+    name = "midpoint" if "midpoint" in item["stem"] else "distance"
+    return {"lines": [f"\\operatorname{{{name}}}(({a},{b}),({c},{d}))"]}
+
+
+def _ex_regression_line(item):
+    pts = POINT.findall(item["stem"])
+    shown = [f"$({x}, {y})$" for x, y in pts[:4]]
+    shown = ", ".join(shown[:-1]) + " and " + shown[-1]
+    return {"lines": ["y_1\\sim mx_1+b"], "note": f"Put {shown} in the table."}
+
+
+def _ex_implicit(item):
+    found = []
+    for s in _spans(item["stem"]):
+        if ("=" in s and "x" in s and "y" in s and _letters_only(s, "xy")
+                and not re.match(r"y\s*=|\(x,\s*y\)", s) and not INEQUALITY.search(s)):
+            found.append(s.replace(" ", ""))
+    return {"lines": found[:2]} if found else None
+
+
+def _ex_rename(item):
+    letter = re.search(r"value of \$([a-wzA-Z])\$", item["stem"], re.I).group(1)
+    if letter == "y" or re.search(rf"\b{letter}\(", item["stem"]):  # y stays y; f in f(x) is a function's name
+        return None
+    in_equation = any("=" in s and re.search(rf"(?<![A-Za-z\\]){letter}(?![A-Za-z])", s) for s in _spans(item["stem"]))
+    if not in_equation:
+        return None
+    lines = (item.get("desmos") or {}).get("lines") or []
+    if any(letter in re.sub(r"\\[A-Za-z]+", "", line) for line in lines):
+        return None
+    if lines and any("x" in line for line in lines):
+        return {"note": f"That's why the Desmos lines above use $x$ for ${letter}$."}
+    return {"note": f"Here, type each ${letter}$ as $x$."}
+
+
+def _ex_key_points(item):
+    graphable = any(re.match(r"(y|[A-Za-z]\(x\))\s*=", s) and "x" in s.split("=", 1)[1] and _letters_only(s.split("=", 1)[1], "x")
+                    for s in _spans(item["stem"]))
+    return {} if graphable else None
+
+
+EXAMPLES = {
+    "as-written": _ex_as_written, "choice-table": _ex_choice_table, "inequality": _ex_inequality,
+    "restrict": _ex_restrict, "distance-midpoint": _ex_distance_midpoint, "regression-line": _ex_regression_line,
+    "implicit": _ex_implicit, "rename": _ex_rename, "key-points": _ex_key_points,
+}
+
+
+def _hack_fits(hack, item):
+    m, stem = hack["match"], item["stem"]
+    techs = set(item.get("techniques", []))
+    if "domains" in m and item["domain"] not in m["domains"]:
+        return False
+    if "skills" in m and item["skill"] not in m["skills"]:
+        return False
+    if "formats" in m and item["format"] not in m["formats"]:
+        return False
+    if "withTechniques" in m and not techs & set(m["withTechniques"]):
+        return False
+    if techs & set(m.get("withoutTechniques", [])):
+        return False
+    for key in ("stem", "stemAlso"):
+        if key in m and not re.search(m[key], stem, re.I):
+            return False
+    if "notStem" in m and re.search(m["notStem"], stem, re.I):
+        return False
+    if len(POINT.findall(stem)) < m.get("minPoints", 0):
+        return False
+    if m.get("numericChoices") and not all(NUMERIC_CHOICE.match(c.strip()) for c in item.get("choices") or [""]):
+        return False
+    if m.get("fractionAnswer") and not any(a["den"] != 1 for a in item.get("answers", [])):
+        return False
+    return True
+
+
+def extra_hacks(item):
+    """Up to MAX_HACKS (hack, example) pairs from hacks.json that fit this item, best first."""
+    picks = []
+    for hack in hacks():
+        if len(picks) == MAX_HACKS:
+            break
+        if not _hack_fits(hack, item):
+            continue
+        make = EXAMPLES.get(hack["key"])
+        example = make(item) if make else {}
+        if example is None:
+            continue
+        picks.append((hack, example))
+    return picks
+
+
+def hacks_html(item):
+    """The "More Desmos hacks" section: moves beyond the item's main route, each with this item's keystrokes."""
+    picks = extra_hacks(item)
+    if not picks:
+        return ""
+    lis = []
+    for hack, ex in picks:
+        typed = "".join(
+            f'<li>Here, type <code class="keys">{html.escape(re.sub(r"\s+", "", keystrokes(line)))}</code>'
+            f'<span class="xp-pretty" aria-hidden="true">{tex_html(line)}</span></li>'
+            for line in ex.get("lines", []))
+        note = f"<li>{rich_html(ex['note'])}</li>" if ex.get("note") else ""
+        example = f'<ul class="xp-ex">{note}{typed}</ul>' if typed or note else ""
+        lis.append(f'<li class="xp-hack"><p><strong>{rich_html(hack["name"])}.</strong> {rich_html(hack["how"])}</p>{example}'
+                   f'<p class="xp-tip"><strong>Watch out:</strong> {rich_html(hack["watch"])}</p></li>')
+    return f'<section class="xp-sec xp-hacks"><h4>More Desmos hacks</h4><ul class="xp-hack-list">{"".join(lis)}</ul></section>'
 
 
 def answer_display_html(item):
