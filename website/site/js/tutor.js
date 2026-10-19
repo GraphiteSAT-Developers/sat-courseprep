@@ -1,6 +1,6 @@
 /* The tutor page. Live: recent misses come from /api/me/history/questions, and once the server says the tutor is
    connected (GET /api/tutor), the message box sends the conversation to /api/tutor/chat, which asks Qwen.
-   It comes with paid plans; the free plan sees an upgrade card in place of the message box.
+   It comes with paid plans; the free plan gets a few demo questions (plans.TUTOR_DEMO), then an upgrade card.
    In the preview, or before QWEN_API_KEY / QWEN_BASE_URL is set, the conversation stays "Coming soon". */
 (function () {
   "use strict";
@@ -42,11 +42,19 @@
     chat.scrollTop = chat.scrollHeight;
     return el;
   }
-  function showLeft(lock) {
+  function showLeft(lock, demo) {
     var chip = $("tu-status");
-    if (!lock || lock.left == null) { chip.hidden = true; return; }
     chip.hidden = false;
+    if (demo && demo.left) { chip.textContent = "Demo: " + demo.left + " of " + demo.total + " left"; return; }
+    if (lock && !lock.ok) { chip.textContent = lock.reason ? "Locked" : (lock.limit ? "0 left today" : lock.need_name + " and up"); return; }
+    if (!lock || lock.left == null) { chip.hidden = true; return; }
     chip.textContent = lock.left + " left today";
+  }
+  // The tutor comes with paid plans: once the demo is used up (or a paid plan's day is), the box shows what unlocks it.
+  function lockUp(lock) {
+    var box = form.hidden ? $("tu-soon") : form;
+    if (window.GraphiteLock) box.replaceWith(window.GraphiteLock.card(lock, true)); else box.hidden = true;
+    $("tu-starts").querySelectorAll(".qt-ask").forEach(function (b) { b.disabled = true; });
   }
   function ask(words) {
     words = (words || "").trim();
@@ -60,7 +68,11 @@
       wait.remove();
       said.push({ role: "assistant", content: r.reply });
       bubble("", r.reply);
-      showLeft(r.lock);
+      showLeft(r.lock, r.demo);
+      if (r.demo && !r.demo.left) {
+        bubble("", "That was the last of your " + r.demo.total + " demo questions. The tutor comes with " + r.lock.need_name + " and up, so we can keep going there.");
+        lockUp(r.lock);
+      }
     }).catch(function (err) {
       wait.remove();
       said.pop();  // not answered, so it isn't part of the conversation
@@ -73,15 +85,12 @@
   }
   function connect(st) {
     if (!st.connected) return;
-    // The tutor comes with paid plans: the free plan, or a plan that isn't paid, sees what unlocks it instead.
-    if (st.lock && !st.lock.ok && window.GraphiteLock) {
-      $("tu-soon").replaceWith(window.GraphiteLock.card(st.lock, true));
-      $("tu-status").textContent = st.lock.reason ? "Locked" : (st.lock.limit ? "0 left today" : st.lock.need_name + " and up");
-      return;
-    }
+    showLeft(st.lock, st.demo);
+    // Without a paid plan, the demo questions; after them, what unlocks the tutor.
+    if (st.lock && !st.lock.ok && !(st.demo && st.demo.left)) { lockUp(st.lock); return; }
     $("tu-soon").hidden = true;
     form.hidden = false;
-    showLeft(st.lock);
+    if (st.demo && st.demo.left) bubble("", "You're on the free plan, so you get " + st.demo.left + (st.demo.left === st.demo.total ? "" : " more") + " demo question" + (st.demo.left === 1 ? "" : "s") + " to try me out. Ask about anything you're stuck on.");
     form.addEventListener("submit", function (e) { e.preventDefault(); ask(text.value); });
     text.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); ask(text.value); }

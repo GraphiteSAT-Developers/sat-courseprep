@@ -429,7 +429,10 @@ MIGRATIONS = [
         )""",
         "CREATE INDEX idx_consent_visitor ON consent_log (visitor_id, id)",
     ]),
-    # (16, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    (16, "Tutor demo: how many of the free plan's demo questions each student has used", [
+        "ALTER TABLE users ADD COLUMN tutor_demo_used INTEGER NOT NULL DEFAULT 0",
+    ]),
+    # (17, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

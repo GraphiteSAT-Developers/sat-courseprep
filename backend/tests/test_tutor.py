@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 from app import create_app
-from app.db import execute
+from app.db import execute, query
 from app.services import plans, qwen
 from test_practice import ORIGIN
 
@@ -53,21 +53,45 @@ class Base(unittest.TestCase):
 
 
 class FreePlanTest(Base):
-    def test_free_plan_has_no_tutor(self):
+    def test_demo_then_locked(self):
         st = self.client.get("/api/tutor").json
         self.assertTrue(st["connected"])
         self.assertFalse(st["lock"]["ok"])
         self.assertEqual((st["lock"]["limit"], st["lock"]["need"]), (0, "no2"))
+        self.assertEqual(st["demo"], {"left": 3, "total": 3})
+        lefts = [self.ask().json["demo"]["left"] for _ in range(3)]
+        self.assertEqual(lefts, [2, 1, 0])
         r = self.ask()
         self.assertEqual((r.status_code, r.json["code"]), (402, "plan_required"))
         self.assertIn("No. 2", r.json["error"])
-        self.assertEqual(self.fake.calls, [])
+        self.assertEqual(len(self.fake.calls), 3)
+        # It never starts over, even the next day.
+        with self.app.app_context():
+            execute("DELETE FROM rate_events")
+        self.assertEqual(self.client.get("/api/tutor").json["demo"]["left"], 0)
+        self.assertEqual(self.ask().status_code, 402)
+
+    def test_failed_answers_dont_use_the_demo(self):
+        def down(payload):
+            raise qwen.QwenError("We couldn't reach the tutor. Try again in a moment.")
+        with mock.patch.object(qwen, "request", down):
+            self.assertEqual(self.ask().status_code, 502)
+        self.assertEqual(self.client.get("/api/tutor").json["demo"]["left"], 3)
+
+    def test_paid_plans_skip_the_demo(self):
+        self.buy("sharpened")
+        st = self.client.get("/api/tutor").json
+        self.assertIsNone(st["demo"])
+        self.assertEqual(self.ask().status_code, 200)
+        with self.app.app_context():
+            self.assertEqual(query("SELECT tutor_demo_used FROM users WHERE id = ?", (self.uid,), one=True)["tutor_demo_used"], 0)
 
     def test_unpaid_plan_locks_it_again(self):
         self.buy("sharpened")
         self.assertEqual(self.ask().status_code, 200)
         with self.app.app_context():
             execute("UPDATE subscriptions SET status = 'past_due' WHERE student_id = ?", (self.uid,))
+            execute("UPDATE users SET tutor_demo_used = 3 WHERE id = ?", (self.uid,))
         r = self.ask()
         self.assertEqual((r.status_code, r.json["code"]), (402, "plan_required"))
         self.assertEqual(r.json["lock"]["need"], "sharpened")
@@ -103,6 +127,7 @@ class TutorTest(Base):
         self.assertEqual((r.status_code, r.json["code"]), (402, "plan_required"))
         self.assertEqual((r.json["lock"]["feature"], r.json["lock"]["need"]), ("tutor", "sharpened"))
         self.assertIn("today", r.json["error"])
+        self.assertIsNone(self.client.get("/api/tutor").json["demo"])  # a paid plan's used-up day isn't topped up by the demo
         self.assertEqual(len(self.fake.calls), 5)
 
     def test_burst_limit_on_unlimited_plans(self):

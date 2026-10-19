@@ -13,12 +13,14 @@ from datetime import timedelta
 ORDER = ("free", "no2", "sharpened", "masterstroke")
 INTERVALS = ("week", "month", "year")
 WEEKS_PER_MONTH = 52 / 12
+# The free plan has no tutor, but every student can try it: this many questions, once, ever (routes/tutor.py).
+TUTOR_DEMO = 3
 
 PLANS = {
     "free": {
         "name": "Scratch Paper",
         "tagline": "Try Graphite SAT before you commit.",
-        "blurb": "The diagnostic, one practice set a week and 3 starter lessons.",
+        "blurb": "The diagnostic, one practice set a week, 3 starter lessons and a short tutor demo.",
         "badge": None,
         "prices": {"week": 0, "month": 0, "year": 0},
         "intro": None,
@@ -27,6 +29,7 @@ PLANS = {
             "Your strongest and weakest skill areas",
             "1 practice set a week",
             "3 starter lessons",
+            f"Try the tutor: {TUTOR_DEMO} free questions",
             "Built-in graphing calculator",
         ],
     },
@@ -95,7 +98,7 @@ COMPARE = [
         ("Built-in graphing calculator", [True, True, True, True]),
     ]),
     ("Help when you're stuck", [
-        ("Tutor", [False, "50 questions a day", "Unlimited", "Unlimited"]),
+        ("Tutor", [f"{TUTOR_DEMO}-question demo", "50 questions a day", "Unlimited", "Unlimited"]),
         ("Step-by-step written explanations", ["Diagnostic only", True, True, True]),
         ("In-depth video explanations", [False, False, True, True]),
         ("Support", ["Help center", "Email, within 1 school day", "24/7", "24/7, priority"]),

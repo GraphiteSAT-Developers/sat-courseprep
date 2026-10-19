@@ -3,12 +3,24 @@
 The page keeps the conversation and sends it whole with each question; nothing is stored here except one
 rate_events row per answered question, which counts toward the plan's daily limit (services/access.py).
 """
+from ..db import execute, query
 from ..security import ApiError, check_clean
+from .plans import TUTOR_DEMO
 
 MAX_TURNS = 20          # the most recent messages sent along; older ones drop off
 MAX_CHARS = 4000        # one message
 MAX_TOTAL = 16000       # the whole conversation
 PER_MINUTE = 8          # a burst limit on top of the plan's daily one, so a stuck key can't run up the bill
+
+
+def demo(student_id):
+    """The free plan's demo: {left, total}. Used questions are kept on the account, so it never starts over."""
+    row = query("SELECT tutor_demo_used FROM users WHERE id = ?", (student_id,), one=True)
+    return {"left": max(0, TUTOR_DEMO - (row["tutor_demo_used"] if row else TUTOR_DEMO)), "total": TUTOR_DEMO}
+
+
+def use_demo(student_id):
+    execute("UPDATE users SET tutor_demo_used = tutor_demo_used + 1 WHERE id = ?", (student_id,))
 
 SYSTEM = """You are the Graphite SAT tutor, helping a high school student with Digital SAT Math.
 

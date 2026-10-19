@@ -84,7 +84,7 @@ def reset(user_id):
     execute("INSERT INTO xp_events (user_id, kind, xp, coins, detail, day, at) VALUES (?, 'gift', 0, ?, ?, ?, ?)",
             (user_id, TEST_COINS, "Test account coins", date.today().isoformat(), now_iso()))
     execute("UPDATE users SET diagnostic_prompted_at = NULL, test_date = NULL, target_score = NULL, "
-            "weekly_goal_hours = 3 WHERE id = ?", (user_id,))
+            "weekly_goal_hours = 3, tutor_demo_used = 0 WHERE id = ?", (user_id,))
 
 
 def is_test_login(app, email):
