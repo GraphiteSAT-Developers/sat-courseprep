@@ -4,6 +4,10 @@ There are two rounds a day, one for Math and one for Reading and Writing, each w
 ranked run and its own leaderboards.
 
 The first round a student starts each day is their ranked run; later rounds that day are for practice.
+A ranked run is the day's shared 10, except that any question the student has already done (in any activity:
+it's on their done list, services/practice.py) is swapped for a new one from the same domain and difficulty, so
+runs stay comparable without repeats. Practice rounds are 10 new questions from the same pool. Every answer goes
+on the done list, so practice sets, level up and mock tests don't serve speed-round questions again either.
 Time runs on the server from the moment the questions are sent until the last answer arrives, and each
 miss adds PENALTY_MS. Leaderboards show today's runs and the best run of each student this week, for
 the student's state or the whole country.
@@ -101,16 +105,51 @@ def _salt():
     return hashlib.sha256(f"speed:{key}".encode()).hexdigest()[:16]
 
 
-def day_items(day, section="math"):
-    """Today's 10 questions for a section: quick multiple choice, easy and medium, picked the same way for everyone.
-    Reading and Writing leaves out the longer two-text and data questions so a round stays quick."""
+def pool(section="math"):
+    """The questions a speed round draws from: quick multiple choice, easy and medium. Reading and Writing
+    leaves out the longer two-text and data questions so a round stays quick."""
     domains = DOMAINS if section == "math" else RW_DOMAINS
-    pool = sorted(q["id"] for q in bank.all_items().values()
+    return sorted(q["id"] for q in bank.all_items().values()
                   if q["type"] == "mc" and q["difficulty"] in ("easy", "medium") and q["domain_key"] in domains
                   and q["skill_key"] not in RW_SLOW_SKILLS)
+
+
+def day_items(day, section="math"):
+    """Today's 10 questions for a section, picked the same way for everyone."""
     seed = f"{day}:{_salt()}" if section == "math" else f"{day}:{section}:{_salt()}"
     rng = random.Random(seed)
-    return rng.sample(pool, SIZE)
+    return rng.sample(pool(section), SIZE)
+
+
+def items_for(user_id, day, section="math", ranked=True):
+    """The questions for this student's run. Ranked: the day's shared 10, with each one they've already done
+    swapped for a new question from the same domain and difficulty. Practice: 10 new ones from the pool.
+    Questions in the student's earlier runs today count as done. Only when the pool has nothing new left
+    does a run reuse questions they've done."""
+    from . import practice
+    items = bank.all_items()
+    seen = practice.taken_ids(user_id)
+    for r in query("SELECT item_ids FROM speed_runs WHERE user_id = ? AND day = ? AND section = ?", (user_id, day, section)):
+        seen |= set(json.loads(r["item_ids"]))
+    rng = random.Random(f"{day}:{section}:{user_id}:{len(seen)}")
+    fresh = [i for i in pool(section) if i not in seen]
+    rng.shuffle(fresh)
+    if not ranked:
+        picked = fresh[:SIZE]
+        rest = [i for i in pool(section) if i not in picked]
+        return picked + rng.sample(rest, SIZE - len(picked))
+    picked = []
+    for item_id in day_items(day, section):
+        if item_id not in seen:
+            picked.append(item_id)
+            continue
+        q = items[item_id]
+        same = [i for i in fresh if items[i]["domain_key"] == q["domain_key"] and items[i]["difficulty"] == q["difficulty"]]
+        swap = (same or fresh or [item_id])[0]
+        if swap in fresh:
+            fresh.remove(swap)
+        picked.append(swap)
+    return picked
 
 
 DOMAINS = {"algebra", "advanced-math", "psda", "geometry-trig"}
@@ -162,9 +201,10 @@ def start(user, today=None, section="math"):
         finish(user["id"], open_run, open_run["started_ms"] + MAX_MS)
     ranked = not query("SELECT 1 FROM speed_runs WHERE user_id = ? AND day = ? AND section = ? AND ranked = 1",
                        (user["id"], day, section), one=True)
+    ids = items_for(user["id"], day, section, ranked)
     row = execute("INSERT INTO speed_runs (user_id, day, section, item_ids, answers, started_ms, total, ranked, state, created_at) "
                   "VALUES (?, ?, ?, ?, '{}', ?, ?, ?, ?, ?) RETURNING id",
-                  (user["id"], day, section, json.dumps(day_items(day, section)), t, SIZE, 1 if ranked else 0, user["state"], now_iso()))
+                  (user["id"], day, section, json.dumps(ids), t, SIZE, 1 if ranked else 0, user["state"], now_iso()))
     return get(user["id"], row["id"])
 
 
@@ -183,8 +223,9 @@ def answer(user_id, run, index, value):
         run = get(user_id, run["id"])
     g = bank.graded_question(q, index, answers.get(key, value))
     if fresh:
-        from . import history
+        from . import history, practice
         history.question(user_id, ids[index], "speed", f"speed-{run['id']}", value, g["correct"])
+        practice.mark_seen(user_id, [ids[index]])
     report = None
     if len(answers) >= len(ids) or t - run["started_ms"] > MAX_MS:
         run, report = finish(user_id, run, t)

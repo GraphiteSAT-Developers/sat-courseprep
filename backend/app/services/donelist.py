@@ -27,7 +27,7 @@ VERSION = "1"
 NAMES = {"math": "graphite_done_math", "rw": "graphite_done_rw"}
 MAX_AGE = 400 * 24 * 3600  # the longest browsers keep a cookie (about 13 months)
 # Requests that draw, check or submit questions: these read the cookies and write them back.
-PATHS = ("/api/practice", "/api/mock-tests", "/api/levels", "/api/today", "/api/plan", "/api/review")
+PATHS = ("/api/practice", "/api/mock-tests", "/api/levels", "/api/today", "/api/plan", "/api/review", "/api/speed")
 
 
 @lru_cache(maxsize=None)

@@ -24,6 +24,19 @@ def seen_ids(user_id):
     return {r["item_id"] for r in query("SELECT item_id FROM practice_seen WHERE user_id = ?", (user_id,))}
 
 
+OPEN_SETS = 20  # unfinished sets whose questions new sets leave out
+
+
+def taken_ids(user_id):
+    """Questions a new set shouldn't use: the done list, plus the questions in the student's latest
+    unfinished sets (a mock module or practice test they haven't submitted yet), so two open sets never share one."""
+    taken = seen_ids(user_id)
+    for r in query("SELECT item_ids FROM practice_sessions WHERE user_id = ? AND submitted_at IS NULL ORDER BY id DESC LIMIT ?",
+                   (user_id, OPEN_SETS)):
+        taken |= set(json.loads(r["item_ids"]))
+    return taken
+
+
 TEST_TITLES = {"math": "Math practice test", "rw": "Reading and Writing practice test"}
 
 
@@ -52,7 +65,7 @@ def draw(user_id, pool, n, seen, rng=random, fill=False):
 def build_test(user_id, rng=random, section="math"):
     """One module in the real test's mix. Math: 22 questions by domain, easiest first. Reading and
     Writing: 27 questions by skill, grouped by question type as on test day, easiest first within each."""
-    seen = seen_ids(user_id)
+    seen = taken_ids(user_id)
     items = bank.all_items()
     picked = []
     if section == "rw":
@@ -90,7 +103,7 @@ def create(user_id, mode, domain=None, skill=None, count=10, rng=random, section
         domain = skill = None
     else:
         title = topic_title(domain, skill)
-        ids = draw(user_id, bank.pool(domain, skill), count, seen_ids(user_id), rng)
+        ids = draw(user_id, bank.pool(domain, skill), count, taken_ids(user_id), rng)
         minutes = 0  # topic practice is untimed
     return save_session(user_id, mode, title, ids, minutes, domain, skill)
 
@@ -116,7 +129,7 @@ def draw_mix(user_id, skills, mix, rng=random):
     starts the pool over.
     """
     items = bank.all_items()
-    seen = seen_ids(user_id)
+    seen = taken_ids(user_id)
     pool = [i for s in skills for i in bank.pool(s["domain"], s["skill"])]
     unseen = {d: [i for i in pool if i not in seen and items[i]["difficulty"] == d] for d in ("easy", "medium", "hard")}
     for d in unseen:
