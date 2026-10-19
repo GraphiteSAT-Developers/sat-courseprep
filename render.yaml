@@ -74,7 +74,7 @@ services:
       - key: MAIL_FROM
         sync: false
 
-  # Weekly progress emails to parents who turned them on (Sharpened and Masterstroke). Sunday at 23:00 UTC,
+  # Weekly progress emails to parents who turned them on (Sharpened and Mechanical). Sunday at 23:00 UTC,
   # Sunday evening in the US.
   - type: cron
     name: graphite-weekly-reports
