@@ -64,7 +64,16 @@
     </div>
   </section>
 
-  <section class="section" id="tutor" aria-labelledby="tutor-title">
+  <section class="section explore" id="explore" aria-labelledby="explore-title">
+    <div class="wrap">
+      <div class="pp-head">
+        <h2 id="explore-title">What's inside</h2>
+        <p class="lede">Everything is here, one tap away. Open only what you're curious about.</p>
+      </div>
+      <div class="fold-grid">
+    <details class="fold" id="tutor">
+      <summary><span class="fold-title">The tutor <span class="fold-badge">Coming soon</span></span><span class="fold-teaser">Hints in three steps, never just the answer</span></summary>
+      <div class="fold-body section" role="region" aria-labelledby="tutor-title">
     <div class="wrap pp-tutor">
       <div class="pp-work" aria-label="Example tutor conversation">
         <span class="who">Student</span><p class="say">I picked C on number 12. Why is it wrong?</p>
@@ -84,9 +93,12 @@
         </ol>
       </div>
     </div>
-  </section>
+      </div>
+    </details>
 
-  <section class="calc-feature" id="calculator" aria-labelledby="calc-title">
+    <details class="fold" id="calculator">
+      <summary><span class="fold-title">The calculator</span><span class="fold-teaser">Topline sits beside every question</span></summary>
+      <div class="fold-body calc-feature" role="region" aria-labelledby="calc-title">
     <div class="wrap calc-feature-grid">
       <div class="calc-copy">
         <p class="label">Topline, our graphing calculator</p>
@@ -136,9 +148,12 @@
         <button class="c3-flip" type="button" id="c3-flip" aria-pressed="false">Flip it over</button>
       </div>
     </div>
-  </section>
+      </div>
+    </details>
 
-  <section class="section desmos-brag" id="desmos" aria-labelledby="desmos-title">
+    <details class="fold" id="desmos">
+      <summary><span class="fold-title">Desmos course</span><span class="fold-teaser">14 lessons on the moves that save time</span></summary>
+      <div class="fold-body section desmos-brag" role="region" aria-labelledby="desmos-title">
     <div class="wrap">
       <div class="pp-head">
         <h2 id="desmos-title">The Desmos moves that save the most time</h2>
@@ -165,9 +180,12 @@
       </div>
       <p class="db-foot"><a class="btn btn-secondary" href="signin.html#create" data-track="desmos_cta">Start the Desmos course free</a> <span class="fine">Every lesson has you type the moves yourself.</span></p>
     </div>
-  </section>
+      </div>
+    </details>
 
-  <section class="section" id="keep" aria-labelledby="keep-title">
+    <details class="fold" id="keep">
+      <summary><span class="fold-title">Staying on track</span><span class="fold-teaser">Streaks, reminders, pauses and the score-up promise</span></summary>
+      <div class="fold-body section" role="region" aria-labelledby="keep-title">
     <div class="wrap">
       <div class="pp-head">
         <h2 id="keep-title">Made for the long stretch to test day</h2>
@@ -189,9 +207,12 @@
         </div>
       </div>
     </div>
-  </section>
+      </div>
+    </details>
 
-  <section class="section" id="test" aria-labelledby="test-title">
+    <details class="fold" id="test">
+      <summary><span class="fold-title">The digital SAT</span><span class="fold-teaser">How the test is built and scored</span></summary>
+      <div class="fold-body section" role="region" aria-labelledby="test-title">
     <div class="wrap">
       <div class="pp-head">
         <h2 id="test-title">What you're practicing for</h2>
@@ -233,23 +254,12 @@
         </div>
       </div>
     </div>
-  </section>
-
-  <section class="section" id="pricing" aria-labelledby="pricing-title">
-    <div class="wrap">
-      <div class="pp-head">
-        <h2 id="pricing-title">Pricing</h2>
-        <p class="lede">Start free. Every paid plan can be tried free for a week, paused for 30 days, or canceled from your account page in two taps.</p>
       </div>
-      <div class="pricing">
-          {{PRICING}}
-          {{COMPARE}}
-        <p class="plan-fine">Prices in US dollars, shown per month. Yearly saves the most; weekly is there for a final push before test day. The tutor is coming soon. Family discounts and need-based pricing are available. <a href="#contact">Ask us</a>.</p>
-      </div>
-    </div>
-  </section>
+    </details>
 
-  <section class="section" id="compare-sites" aria-labelledby="compare-sites-title">
+    <details class="fold" id="compare-sites">
+      <summary><span class="fold-title">Compared</span><span class="fold-teaser">Graphite SAT next to Crackd, Dolphin and Khan Academy</span></summary>
+      <div class="fold-body section" role="region" aria-labelledby="compare-sites-title">
     <div class="wrap">
       <div class="pp-head">
         <h2 id="compare-sites-title">Graphite SAT next to the others</h2>
@@ -274,7 +284,27 @@
       </div>
       <p class="fine vs-note">Checked October 2026. Prices and features change, so check each site before you decide. "Not listed" means we couldn't find it on their site, not that it doesn't exist. Sources: <a href="https://crackd.it/" rel="noopener" target="_blank">crackd.it</a>, <a href="https://dolphin.study/sat-practice-test/" rel="noopener" target="_blank">dolphin.study</a> and its <a href="https://apps.apple.com/app/id6748280981" rel="noopener" target="_blank">App Store listing</a>, and <a href="https://prepmaven.com/blog/test-prep/khan-academy-sat-prep-review/" rel="noopener" target="_blank">PrepMaven's Khan Academy review</a>. Crackd, Dolphin and Khan Academy are trademarks of their owners, who aren't affiliated with Graphite SAT.</p>
     </div>
+      </div>
+    </details>
+
+      </div>
+    </div>
   </section>
+
+  <section class="section" id="pricing" aria-labelledby="pricing-title">
+    <div class="wrap">
+      <div class="pp-head">
+        <h2 id="pricing-title">Pricing</h2>
+        <p class="lede">Start free. Every paid plan can be tried free for a week, paused for 30 days, or canceled from your account page in two taps.</p>
+      </div>
+      <div class="pricing">
+          {{PRICING}}
+          {{COMPARE}}
+        <p class="plan-fine">Prices in US dollars, shown per month. Yearly saves the most; weekly is there for a final push before test day. The tutor is coming soon. Family discounts and need-based pricing are available. <a href="#contact">Ask us</a>.</p>
+      </div>
+    </div>
+  </section>
+
 
   <section class="section" id="note" aria-labelledby="note-title">
     <div class="wrap">
