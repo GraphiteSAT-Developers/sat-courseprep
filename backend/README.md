@@ -173,21 +173,21 @@ Don't run production on SQLite there: the server's disk is wiped on every restar
 
 Every plan, price and feature list lives in `app/services/plans.py`. The home page pricing section, the parent dashboard and the preview all read from it, so a change there shows up everywhere after `python website/build.py` and a restart.
 
+There are two plans: Sharpened, which is free, and Mechanical, which has everything.
+
 | Plan | Weekly | Monthly | Yearly |
 | --- | --- | --- | --- |
-| Scratch Paper (free) | $0 | $0 | $0 |
-| No. 2 | $4.99 ($21.62/month) | $19 | $180 ($15/month, 21% off) |
-| Sharpened | $9.99 ($43.29/month) | $39 | $348 ($29/month, 26% off) |
-| Masterstroke | $34.99 ($151.62/month) | $129 | $1,188 ($99/month, 23% off) |
+| Sharpened (free) | $0 | $0 | $0 |
+| Mechanical | $1.99 ($8.62/month) | $8 | $72 ($6/month, 25% off) |
 
-Prices are always shown per month. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, and `app/services/access.py` enforces it:
+Prices are always shown per month, with monthly billing first. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, and `app/services/access.py` enforces it:
 
-- Free: the diagnostic, 1 practice set a week, answers without step-by-step explanations, and 3 starter lessons (`lessons.FREE_LESSONS`: Desmos hacks, Active recall, Solve any linear equation). No mock tests, study plan, review queue, Level up, score history or parent progress.
-- No. 2: every lesson, unlimited practice sets, explanations, the study plan and review queue, 2 mock tests a month.
-- Sharpened and Masterstroke: everything, including unlimited mock tests, Level up, score history and the parent dashboard with weekly emails (sent Sunday evenings by the `graphite-weekly-reports` cron job in `render.yaml`, or `flask --app wsgi send-weekly-reports` from the backend folder).
+- Sharpened (free): the diagnostic, 1 mock test a month (a full test or a single module), 3 practice sets a week, the review queue, score history and skill breakdown, the first 2 levels of every Level up track (`FREE_LEVELS`), and 3 starter lessons (`lessons.FREE_LESSONS`: Desmos hacks, Active recall, Solve any linear equation). Answers show without step-by-step explanations. It also lists 30 tutor credits a month (one credit is one question); the tutor isn't built yet, so nothing counts them so far. No study plan, explanations, higher Level up levels or parent progress.
+- Mechanical: everything, including unlimited mock tests and practice sets, every lesson, explanations, the study plan, every Level up level, score history and the parent dashboard with weekly emails (sent Sunday evenings by the `graphite-weekly-reports` cron job in `render.yaml`, or `flask --app wsgi send-weekly-reports` from the backend folder). The free trial (7 days, no card) is a trial of Mechanical.
 - A plan that isn't paid counts as free: a failed payment (Stripe marks it `past_due`) or a pause locks the paid features until it's paid or resumed. A canceled plan keeps working until the end of the time paid for.
+- Older plans: No. 2, Sharpened and Masterstroke (the paid plans sold until October 19, 2026; the key `sharpened` is that old paid plan, while the free plan's key is `free`) and, before them, Daily and Coached all count as Mechanical (`LEGACY`). A Stripe subscription keeps the price it started with, so a student still paying one of those prices (`LEGACY_PRICES`) sees it labeled "(earlier price)" and can switch to Mechanical at checkout, where Stripe credits the unused time. Moving a subscription to a Mechanical price in the Stripe dashboard works too: the `customer.subscription.updated` webhook updates the plan here.
 
-Locked features show what unlocks them, and requests for them answer `402` with `code: "plan_required"`. Students manage their own plan on the standalone **Subscription** page (`subscription.html`), and anything locked sends them there with the plan that unlocks it already picked (switch, pause, cancel, undo, fix a failed payment); parents can do the same on the parent dashboard, and either can pay at checkout. Set `PLAN_LIMITS=false` in `backend/.env` to turn every lock off. The test account starts on the free plan; switch it to any plan on the Subscription page (no card is charged while Stripe isn't connected). Masterstroke promises a weekly coach check-in, a monthly parent call and priority 24/7 support, and Sharpened promises 24/7 support and video explanations; someone has to deliver those.
+Locked features show what unlocks them, and requests for them answer `402` with `code: "plan_required"`. Students manage their own plan on the standalone **Subscription** page (`subscription.html`), and anything locked sends them there with the plan that unlocks it already picked (switch, pause, cancel, undo, fix a failed payment); parents can do the same on the parent dashboard, and either can pay at checkout. Set `PLAN_LIMITS=false` in `backend/.env` to turn every lock off. The test account starts on the free plan; switch it to any plan on the Subscription page (no card is charged while Stripe isn't connected). Mechanical promises a weekly coach check-in, a monthly parent call, a coach review of the study plan after every practice test, a test-week plan and priority 24/7 support, plus video explanations once they're made; someone has to deliver those for every Mechanical student.
 
 ## Mock tests
 
@@ -262,7 +262,7 @@ On your own computer, Stripe can't reach `127.0.0.1` for webhooks. Checkout stil
 
 ## Not built yet
 
-- Plan limits (see `LIMITS` in `app/services/plans.py`)
+- Counting tutor credits (`tutor_credits_per_month` in `LIMITS`, `app/services/plans.py`): there's no tutor to count them yet
 - Email verification for new accounts
 - Sending the weekly progress email to parents
 - An admin page to see leads and students (for now, query the `leads` and `users` tables)

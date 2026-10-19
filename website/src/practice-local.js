@@ -159,7 +159,7 @@
     Object.keys(s.checked).forEach(function (k) { checked[k] = graded(byId[s.item_ids[k]], Number(k), s.checked[k]); });
     var o = { id: s.id, mode: s.mode, title: s.title, plan_task: s.plan_task || null, domain: s.domain, skill: s.skill, minutes: s.minutes, created_at: s.created_at,
       submitted: !!s.submitted_at, questions: s.item_ids.map(function (id) { return publicQ(byId[id]); }), checked: checked };
-    if (s.result) o.result = s.result;
+    if (s.result) o.result = levelLock(s.result);
     if ((s.plan_task || "").indexOf("mock:") === 0) o.mock = mockFor(load(), s);
     var tag = parseTag(s.plan_task);
     if (tag) o.level = { track: tag.track, n: tag.level, tier: BANK.levels.rungs[tag.level - 1].tier, pass: BANK.levels.pass, top: BANK.levels.count, boss: s.item_ids.length - 1 };
@@ -239,7 +239,7 @@
     return Promise.resolve({ question: g, finished: finished });
   }
   function submit(st, s, data) {
-    if (s.submitted_at) return Promise.resolve({ result: s.result });
+    if (s.submitted_at) return Promise.resolve({ result: levelLock(s.result) });
     var answers = {};
     Object.keys(data.answers || {}).forEach(function (k) {
       var i = Number(k); if (!(i >= 0 && i < s.item_ids.length)) return;
@@ -269,7 +269,15 @@
     }
     s.submitted_at = res.submitted_at; s.result = res; save(st);
     if ((s.plan_task || "").indexOf("mock:") === 0) res = mockAfter(load(), st.sessions[s.id] || s, res);
-    return Promise.resolve({ result: res });
+    return Promise.resolve({ result: levelLock(res) });
+  }
+  // Same as routes/practice._level_lock: a passed level whose next level the plan doesn't open shows its lock.
+  function levelLock(res) {
+    var lv = res && res.level;
+    if (!lv || !lv.next || lv.next <= PB.free_levels) return res;
+    var lock = accessState("level_up");
+    if (lock.ok) return res;
+    return Object.assign({}, res, { level: Object.assign({}, lv, { next_lock: Object.assign({}, lock, { free_levels: PB.free_levels }) }) });
   }
 
 
@@ -585,7 +593,7 @@
   function levelsCall(path, data) {
     var st = load();
     if (path === "/api/levels") {
-      return Promise.resolve({ access: accessState("level_up", st), size: LV.size, pass: LV.pass, levels: LV.count, tracks: LV.tracks.map(function (t) {
+      return Promise.resolve({ access: accessState("level_up", st), free_levels: PB.free_levels, size: LV.size, pass: LV.pass, levels: LV.count, tracks: LV.tracks.map(function (t) {
         var p = lvProgress(st, t.key);
         var levels = LV.rungs.map(function (r) {
           var x = p.levels[r.n] || {};
@@ -596,10 +604,10 @@
       }) });
     }
     if (path === "/api/levels/start") {
-      var lockL = requireAccess("level_up", st); if (lockL) return lockL;
       var tr = lvTrack(data && data.track), n = data && data.level;
       if (!tr) return fail(400, "Pick a track to practice.");
       if (typeof n !== "number" || n % 1 || n < 1 || n > LV.count) return fail(400, "Pick a level.");
+      if (n > PB.free_levels) { var lockL = requireAccess("level_up", st); if (lockL) return lockL; }
       var p = lvProgress(st, tr.key);
       if (n > p.unlocked) return fail(403, "Pass level " + (n - 1) + " first to unlock level " + n + ".");
       var open = p.levels[n] && p.levels[n].open_id, s = open ? st.sessions[open] : null;
@@ -630,8 +638,9 @@
   function iso10(d) { return isoDate(d); }
   function addMonths(d, n) { var x = new Date(d.getFullYear(), d.getMonth() + n, 1), last = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate(); x.setDate(Math.min(d.getDate(), last)); return x; }
   function niceDay(s) { var d = parseDate(s); return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
-  var OLD_PLANS = { daily: "sharpened", coached: "masterstroke" };
-  function planInfo(key) { key = OLD_PLANS[key] || key; return PB.plans.filter(function (p) { return p.key === key; })[0]; }
+  // Older plan names map to the plan that replaced them (plans.LEGACY). The preview never charged anyone, so a plan
+  // saved here under an older name simply becomes today's plan, at today's price.
+  function planInfo(key) { key = PB.legacy[key] || key; return PB.plans.filter(function (p) { return p.key === key; })[0]; }
   var WORDS = { week: "weekly", month: "monthly", year: "yearly" };
   // Same wording as plans.price_label: always per month, plus what's billed.
   function priceLabel(p, iv) {
@@ -836,9 +845,10 @@
   }
   function lockMessage(x) {
     var verb = /s$/.test(x.name) ? "are" : "is";
-    if (x.reason) return x.reason + ", so " + x.name.toLowerCase() + " " + verb + " locked until it's paid. Fix it on your subscription page.";
-    if (x.period && x.limit) return "You've used all " + x.limit + " of your " + x.name.toLowerCase() + " this " + x.period + ". " + x.need_name + " includes more.";
-    return x.name + " " + (/s$/.test(x.name) ? "come" : "comes") + " with the " + x.need_name + " plan and up.";
+    var name = x.name.charAt(0).toLowerCase() + x.name.slice(1);  // mid-sentence; "Level up" keeps its capital
+    if (x.reason) return x.reason + ", so " + name + " " + verb + " locked until it's paid. Fix it on your subscription page.";
+    if (x.period && x.limit) return "You've used " + (x.limit === 1 ? "your " + name.slice(0, -1) : "all " + x.limit + " of your " + name) + " this " + x.period + ". " + x.need_name + " includes more.";
+    return x.name + " " + (/s$/.test(x.name) ? "come" : "comes") + " with the " + x.need_name + " plan.";
   }
   function requireAccess(feature, st) {
     var x = accessState(feature, st);

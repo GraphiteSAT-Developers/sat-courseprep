@@ -24,7 +24,7 @@ def dashboard():
     if not feats["review_queue"]["ok"]:
         data["review"] = []
     if not feats["score_history"]["ok"]:
-        # The latest score stays on the dashboard; the history and skill breakdown are part of the paid plans.
+        # The latest score stays on the dashboard; the history and skill breakdown need a plan that includes them.
         data["history"] = data["history"][-1:]
     # The first visit after a student's first sign-in goes to the diagnostic, once. Skipping it is fine:
     # they aren't sent back, and Today's set offers it until they take it.

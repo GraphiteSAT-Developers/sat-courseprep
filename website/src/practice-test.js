@@ -529,9 +529,13 @@
     box.hidden = !lv;
     if (!lv) return;
     box.classList.toggle("is-pass", lv.passed);
-    var head = lv.passed ? (lv.next ? "Level " + lv.level + " passed! Level " + lv.next + " is unlocked." : "You cleared the top level of " + lv.track_name + "!")
+    // The next level isn't on this plan (or the plan isn't paid): say so, and offer the way to open it.
+    var lock = lv.passed && lv.next && lv.next_lock && window.GraphiteLock ? lv.next_lock : null;
+    var head = lock ? "Level " + lv.level + " passed! Level " + lv.next + (lock.reason ? " is locked until your plan is paid." : " comes with " + lock.need_name + ".")
+      : lv.passed ? (lv.next ? "Level " + lv.level + " passed! Level " + lv.next + " is unlocked." : "You cleared the top level of " + lv.track_name + "!")
       : "Not quite. You need " + lv.pass + " of " + lv.total + " to pass level " + lv.level + ".";
-    var sub = lv.passed ? (lv.next ? "The next set is a little harder. Keep the streak going." : "Every level in this track is done. Try another track, or replay a level with new questions.")
+    var sub = lock ? (lock.reason ? "Paying opens every level again right away." : "The first " + lock.free_levels + " levels of every track are free. " + lock.need_name + " opens them all.")
+      : lv.passed ? (lv.next ? "The next set is a little harder. Keep the streak going." : "Every level in this track is done. Try another track, or replay a level with new questions.")
       : "Read the explanations below, then try the level again with new questions.";
     box.innerHTML = "<strong></strong><span></span>";
     box.querySelector("strong").textContent = head;
@@ -545,8 +549,15 @@
     }
     var b = $("retake");
     b.hidden = false;
-    b.setAttribute("data-level", String(lv.passed && lv.next ? lv.next : lv.level));
-    b.textContent = lv.passed && lv.next ? "Start level " + lv.next : "Try level " + lv.level + " again";
+    b.setAttribute("data-level", String(lv.passed && lv.next && !lock ? lv.next : lv.level));
+    b.textContent = lock ? "Replay level " + lv.level : lv.passed && lv.next ? "Start level " + lv.next : "Try level " + lv.level + " again";
+    if (lock) {
+      var open = document.createElement("a");
+      open.className = "btn btn-primary"; open.href = GraphiteLock.url(lock);
+      open.textContent = lock.reason ? "Fix payment" : "Unlock level " + lv.next;
+      box.appendChild(open);
+      return;
+    }
     // The same button up top, so the next step is right under the score.
     var go = document.createElement("button");
     go.type = "button"; go.className = "btn " + (lv.passed ? "btn-primary" : "btn-secondary");

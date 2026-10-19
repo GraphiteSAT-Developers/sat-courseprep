@@ -1336,8 +1336,7 @@ thead th, .footer-grid h2, .res-stats dt { font-size: var(--t-sm); font-weight: 
 .pd-price { font-size: var(--t-md); color: var(--muted); font-weight: 700; }
 .pd-status-paused { background: var(--info); } .pd-status-canceled { background: var(--err); }
 .pd-interval { border: 0; margin: 0; padding: 0; display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; }
-.pd-plans { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s3); }
-@media (max-width: 1100px) { .pd-plans { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pd-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
 @media (max-width: 560px) { .pd-plans { grid-template-columns: minmax(0, 1fr); } }
 .pd-plan { display: grid; gap: var(--s2); align-content: start; padding: var(--s4); border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
 .pd-plan.is-current { border: 2px solid var(--accent); }
@@ -1438,7 +1437,7 @@ body:has(.ripple-bg) main, body:has(.ripple-bg) .app-footer, body:has(.ripple-bg
   .st-theme-art { height: 52px; }
 }
 
-/* Pricing: four plans across the full width, with a Weekly / Monthly / Yearly switch. Prices always show per month. */
+/* Pricing: the two plans side by side, with a Weekly / Monthly / Yearly switch. Prices always show per month. */
 .pricing { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s5); min-width: 0; }
 .billing-switch { justify-self: start; display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
 .billing-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
@@ -1448,14 +1447,12 @@ body:has(.ripple-bg) main, body:has(.ripple-bg) .app-footer, body:has(.ripple-bg
 .billing-switch input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: 2px; }
 .billing-switch em { font-style: normal; font-size: var(--t-xs); padding: 2px var(--s2); border-radius: 999px; background: color-mix(in srgb, var(--ok) 22%, transparent); color: var(--ok); }
 .billing-switch input:checked + label em { background: color-mix(in srgb, var(--accent-ink) 14%, transparent); color: var(--accent-ink); }
-.tiers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4); align-items: stretch; }
+.tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); align-items: stretch; }
 .tier { position: relative; display: flex; flex-direction: column; gap: var(--s4); padding: var(--s6) var(--s5) var(--s5); border-radius: 12px; border: 1px solid var(--line); background: var(--bg); min-width: 0; }
 .tier-free { background: transparent; border-style: dashed; }
 .tier-featured { background: var(--raised); border-color: var(--raised); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22); }
-.tier-masterstroke { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
 .tier-name { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s2) var(--s3); }
 .tier-badge { padding: 3px var(--s3); border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: var(--t-xs); white-space: nowrap; }
-.tier-masterstroke .tier-badge { background: var(--text); color: var(--bg); }
 .tier-head { display: grid; gap: var(--s1); }
 .tier-head h3 { font-size: var(--t-xl); }
 .tier-tagline { color: var(--muted); font-size: var(--t-sm); min-height: 2.9em; }
@@ -1468,7 +1465,6 @@ body:has(.ripple-bg) main, body:has(.ripple-bg) .app-footer, body:has(.ripple-bg
 .tier-features li { padding-left: 24px; position: relative; }
 .tier-features li::before { content: ""; position: absolute; left: 0; top: 0.35em; width: 14px; height: 10px; border-radius: 50%; background: var(--accent); }
 .tier-free .tier-features li::before { background: var(--control); }
-@media (max-width: 1100px) { .tiers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) {
   .tiers { grid-template-columns: minmax(0, 1fr); } .tier-tagline { min-height: 0; }
   /* Three equal buttons; the yearly saving sits under its label. */
@@ -1518,8 +1514,7 @@ body:has(.ripple-bg) main, body:has(.ripple-bg) .app-footer, body:has(.ripple-bg
   .compare-table tr.compare-group th { display: block; }
   .compare-table td { display: none; text-align: right; padding: var(--s3) 0 var(--s3) var(--s3); }
   .compare-table td.is-featured { background: none; }
-  .compare[data-show="0"] td:nth-of-type(1), .compare[data-show="1"] td:nth-of-type(2),
-  .compare[data-show="2"] td:nth-of-type(3), .compare[data-show="3"] td:nth-of-type(4) { display: block; }
+  .compare[data-show="0"] td:nth-of-type(1), .compare[data-show="1"] td:nth-of-type(2) { display: block; }
 }
 
 /* Checkout */

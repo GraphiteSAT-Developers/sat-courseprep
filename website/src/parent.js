@@ -44,6 +44,8 @@
       $("account-email").textContent = h.parent.email;
       $("pd-hello").textContent = "Hi, " + h.parent.name.split(" ")[0];
       $("pd-pay-note").hidden = !!h.payments_live;
+      var save = Math.max.apply(null, h.plans.map(function (p) { return p.savings ? p.savings.year.percent : 0; }));
+      if (save > 0) document.querySelector('label[for="pd-int-year"]').textContent = "Yearly · save " + save + "%";
       fillSelects();
       $("pd-loading").hidden = true;
       if (!h.students.length) { showConnect(false); return; }
@@ -93,7 +95,7 @@
   });
 
   /* ---------- render ---------- */
-  // The student's progress comes with Sharpened and up. Without it (or while a plan isn't paid), the parent still
+  // The student's progress comes with Mechanical. Without it (or while a plan isn't paid), the parent still
   // sees alerts, settings, and the plan and billing, so they can pay or upgrade.
   function lockedView(s) {
     var locked = !!(s.access && !s.access.ok);
@@ -105,7 +107,7 @@
       card.id = "pd-lock";
       card.querySelector("strong").textContent = s.access.reason ? s.access.reason : "Progress reports come with " + s.access.need_name;
       card.querySelector("p").textContent = s.access.reason ? s.student.first_name + "'s progress is locked until the plan is paid. Update the card under Plan and billing."
-        : "Scores, skills, study time and weekly emails are part of " + s.access.need_name + " and up. Copy alerts and billing always show here.";
+        : "Scores, skills, study time and weekly emails are part of " + s.access.need_name + ". Copy alerts and billing always show here.";
       card.querySelector("a").setAttribute("href", "#billing");
       $("overview").insertAdjacentElement("afterend", card);
     }
@@ -213,7 +215,8 @@
       // Always shown per month; the small line under it says what's actually billed.
       var cents = p.cents ? p.cents[iv] : (iv === "year" ? p.year_cents : p.month_cents);
       var each = p.per_month_cents ? p.per_month_cents[iv] : (iv === "year" ? Math.round(cents / 12) : cents);
-      var here = p.key === sub.plan && (p.key === "free" || sub.interval === iv);
+      // A student still paying an older plan's price (sub.legacy) can switch to the same plan at today's price.
+      var here = p.key === sub.plan && (p.key === "free" || (sub.interval === iv && !sub.legacy));
       var price = p.key === "free" ? "Free" : money(each) + "/month";
       var save = p.savings && p.savings[iv] && iv === "year" && p.savings[iv].percent > 0 ? " Saves " + money(p.savings[iv].per_year_cents) + " a year." : "";
       var billedLine = p.key === "free" ? "" : iv === "month" ? "Billed monthly." : "Billed " + money(cents) + (iv === "week" ? " weekly." : " yearly.") + save;
@@ -223,7 +226,7 @@
       else if (p.key === "free" && sub.status === "canceled") action = '<span class="chip chip-quiet">Starts ' + esc(day(sub.renews_on)) + "</span>";
       else if (p.key === "free") action = '<button class="btn btn-quiet" type="button" data-free>Switch to free</button>';
       else action = '<a class="btn btn-secondary" href="checkout.html?plan=' + p.key + "&amp;interval=" + iv + "&amp;student=" + current + '">' +
-        (p.key === sub.plan ? "Switch to " + (iv === "week" ? "weekly" : iv === "month" ? "monthly" : "yearly") : "Choose " + esc(p.name)) + "</a>";
+        (p.key === sub.plan && !sub.legacy ? "Switch to " + (iv === "week" ? "weekly" : iv === "month" ? "monthly" : "yearly") : "Choose " + esc(p.name)) + "</a>";
       return '<article class="pd-plan' + (here ? " is-current" : "") + '"><h3>' + esc(p.name) + '</h3><p class="pd-plan-price">' + price + "</p>" + sub2 +
         '<p class="fine">' + esc(p.blurb) + "</p>" + action + "</article>";
     }).join("");

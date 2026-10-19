@@ -519,7 +519,7 @@
   }
   function planLocked(id, lock) { return (P.free_lessons || []).indexOf(id) < 0 && !(lock || lessonLock()).ok; }
   function failPlan(lock) {
-    var verb = lock.reason ? lock.reason + ", so every lesson is locked until it's paid. Fix it on your subscription page." : "Every lesson comes with the " + lock.need_name + " plan and up.";
+    var verb = lock.reason ? lock.reason + ", so every lesson is locked until it's paid. Fix it on your subscription page." : "Every lesson comes with the " + lock.need_name + " plan.";
     var e = new Error(verb); e.status = 402; e.data = { error: e.message, code: "plan_required", lock: lock }; return Promise.reject(e);
   }
   function names(l) { return { domain_name: P.topic_names[l.domain] || l.domain, skill_name: P.topic_names[l.domain + "/" + l.skill] || l.skill }; }

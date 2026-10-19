@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, request
 
 from ..security import ApiError, body, current_user, login_required
 from ..services import access, bank, levels
+from ..services.plans import FREE_LEVELS
 from ..services import practice as service
 
 bp = Blueprint("practice", __name__, url_prefix="/api/practice")
@@ -65,6 +66,7 @@ def public(session):
     access.redact(uid, list(out["checked"].values()))
     if out.get("result"):
         access.redact(uid, out["result"].get("questions", []))
+        _level_lock(out["result"])
     return out
 
 
@@ -110,7 +112,7 @@ def submit(session_id):
     if session["submitted_at"]:
         done = json.loads(session["results"])
         access.redact(current_user()["id"], done.get("questions", []))
-        return jsonify({"result": done})
+        return jsonify({"result": _level_lock(done)})
     data = body()
     ids = json.loads(session["item_ids"])
     items = bank.all_items()
@@ -136,7 +138,17 @@ def submit(session_id):
     from ..services import mock
     result = mock.after_module(current_user()["id"], session, result)
     access.redact(current_user()["id"], result.get("questions", []))
-    return jsonify({"result": result}), 201
+    return jsonify({"result": _level_lock(result)}), 201
+
+
+def _level_lock(result):
+    """A passed Level up set whose next level the plan doesn't open: the lock to show instead of "unlocked"."""
+    lv = result.get("level")
+    if lv and lv.get("next") and lv["next"] > FREE_LEVELS:
+        st = access.state(current_user()["id"], "level_up")
+        if not st["ok"]:
+            lv["next_lock"] = dict(access.public_state(st), free_levels=FREE_LEVELS)
+    return result
 
 
 # ---------- the home page's sample question (no sign-in) ----------
@@ -184,6 +196,7 @@ levels_bp = Blueprint("levels", __name__, url_prefix="/api/levels")
 def levels_overview():
     out = levels.overview(current_user()["id"])
     out["access"] = access.public_state(access.state(current_user()["id"], "level_up"))
+    out["free_levels"] = FREE_LEVELS  # open on every plan; the levels above need level_up
     return jsonify(out)
 
 
@@ -197,7 +210,8 @@ def levels_start():
         raise ApiError(400, "Pick a track to practice.", "track")
     if not isinstance(level, int) or isinstance(level, bool) or not 1 <= level <= levels.LEVELS:
         raise ApiError(400, "Pick a level.", "level")
-    access.require(current_user(), "level_up")
+    if level > FREE_LEVELS:
+        access.require(current_user(), "level_up")
     session = levels.start(current_user()["id"], track, level)
     if not session:
         raise ApiError(403, f"Pass level {level - 1} first to unlock level {level}.", "level")

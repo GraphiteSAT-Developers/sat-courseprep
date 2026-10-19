@@ -23,8 +23,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Kalam:wght@400;700&family=Nunito:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=34e0bd148b">
-<script src="/js/site.js?v=e12a50b7d0" defer></script><script src="/js/checkout.js?v=c0ef31a939" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=c1f4c78124">
+<script src="/js/site.js?v=a86fa79166" defer></script><script src="/js/checkout.js?v=d3599984e1" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -58,7 +58,7 @@
     <div class="co-head">
       <p class="label">Checkout</p>
       <h1 id="co-title">Choose your plan</h1>
-      <p class="lede" id="co-lede">Pick a plan and how you pay. Prices are shown per month, and you can switch or cancel anytime.</p>
+      <p class="lede" id="co-lede">Pick how you pay. Prices are shown per month, and you can switch or cancel anytime.</p>
     </div>
 
     <div class="status" id="co-status" role="status" aria-live="polite" tabindex="-1"></div>
@@ -73,7 +73,7 @@
     <form class="co-grid" id="co-form" novalidate>
       <div class="co-steps">
         <fieldset class="co-step">
-          <legend><span class="co-num">1</span> Pick a plan</legend>
+          <legend><span class="co-num">1</span> Your plan</legend>
           <div class="co-plans" id="co-plans"></div>
         </fieldset>
 
@@ -116,7 +116,7 @@
     </form>
   </div>
 </main>
-<script type="application/json" id="plans-data">[{"key":"free","name":"Scratch Paper","tagline":"Try Graphite SAT before you commit.","blurb":"The diagnostic, one practice set a week and 3 starter lessons.","badge":null,"intro":null,"features":["The 10-question diagnostic","Your strongest and weakest skill areas","1 practice set a week","3 starter lessons","5 tutor questions a day (tutor coming soon)","Built-in graphing calculator"],"cents":{"week":0,"month":0,"year":0},"per_month_cents":{"week":0,"month":0,"year":0},"savings":{"week":{"percent":0,"per_year_cents":0},"month":{"percent":0,"per_year_cents":0},"year":{"percent":0,"per_year_cents":0}},"month_cents":0,"year_cents":0,"week_cents":0},{"key":"no2","name":"No. 2","tagline":"The pencil every SAT needs. Steady practice, every week.","blurb":"Daily practice sets, every lesson, 2 practice tests a month and a study plan to your test date.","badge":null,"intro":"Everything in Scratch Paper, plus:","features":["Daily practice sets picked from your weakest skills","Every lesson, including the full Desmos course","Tutor: 50 questions a day (coming soon)","2 full practice tests a month","Step-by-step explanations for every answer","A study plan built around your test date","A review queue that brings back every miss","Email support, answered within one school day"],"cents":{"week":499,"month":1900,"year":18000},"per_month_cents":{"week":2162,"month":1900,"year":1500},"savings":{"week":{"percent":-14,"per_year_cents":-3144},"month":{"percent":0,"per_year_cents":0},"year":{"percent":21,"per_year_cents":4800}},"month_cents":1900,"year_cents":18000,"week_cents":499},{"key":"sharpened","name":"Sharpened","tagline":"Everything you need to raise your score.","blurb":"Unlimited practice tests, 24/7 support, Level up and the parent dashboard.","badge":"Most popular","intro":"Everything in No. 2, plus:","features":["Unlimited tutor help, any time of day (coming soon)","Unlimited practice tests in the real test layout","In-depth video explanations (coming soon)","24/7 support","Level up: sets that get harder level by level","Score history and a skill breakdown after every test","Parent dashboard with weekly progress emails"],"cents":{"week":999,"month":3900,"year":34800},"per_month_cents":{"week":4329,"month":3900,"year":2900},"savings":{"week":{"percent":-11,"per_year_cents":-5148},"month":{"percent":0,"per_year_cents":0},"year":{"percent":26,"per_year_cents":12000}},"month_cents":3900,"year_cents":34800,"week_cents":999},{"key":"masterstroke","name":"Masterstroke","tagline":"Our most hands-on plan, with a coach in your corner.","blurb":"Everything in Sharpened, plus a weekly 1-on-1 check-in with a human coach and priority support.","badge":"Best results","intro":"Everything in Sharpened, plus:","features":["A weekly 30-minute 1-on-1 video check-in with a coach","Your study plan reviewed after every practice test","Priority 24/7 support, first in line","A test-week plan for pacing, sleep and logistics","A monthly call with your parent"],"cents":{"week":3499,"month":12900,"year":118800},"per_month_cents":{"week":15162,"month":12900,"year":9900},"savings":{"week":{"percent":-18,"per_year_cents":-27144},"month":{"percent":0,"per_year_cents":0},"year":{"percent":23,"per_year_cents":36000}},"month_cents":12900,"year_cents":118800,"week_cents":3499}]</script>
+<script type="application/json" id="plans-data">[{"key":"free","name":"Sharpened","tagline":"Try Graphite SAT before you pay.","blurb":"The diagnostic, 1 practice test a month, 3 practice sets a week, 3 starter lessons and the first Level up levels.","badge":null,"intro":null,"features":["The 10-question diagnostic","Your strongest and weakest skill areas","1 full practice test a month, with your score breakdown","3 practice sets a week","3 starter lessons","Level up: the first 2 levels of every track","A review queue that brings back every miss","30 tutor credits a month (tutor coming soon)","Built-in graphing calculator"],"cents":{"week":0,"month":0,"year":0},"per_month_cents":{"week":0,"month":0,"year":0},"savings":{"week":{"percent":0,"per_year_cents":0},"month":{"percent":0,"per_year_cents":0},"year":{"percent":0,"per_year_cents":0}},"month_cents":0,"year_cents":0,"week_cents":0},{"key":"mechanical","name":"Mechanical","tagline":"Everything Graphite SAT has, in one plan.","blurb":"Everything: unlimited practice tests, every lesson and explanation, your study plan, the parent dashboard and a weekly coach check-in.","badge":"Everything included","intro":"Everything in Sharpened, plus:","features":["Unlimited full practice tests in the real test layout","Unlimited practice sets, picked from your weakest skills","Every lesson, including the full Desmos course","Level up: every level of every track","Step-by-step explanations for every answer","A study plan built around your test date","Unlimited tutor help, any time of day (coming soon)","In-depth video explanations (coming soon)","Parent dashboard with weekly progress emails","A weekly 30-minute 1-on-1 video check-in with a coach","Your study plan reviewed after every practice test","A test-week plan for pacing, sleep and logistics","A monthly call with your parent","Priority 24/7 support"],"cents":{"week":199,"month":800,"year":7200},"per_month_cents":{"week":862,"month":800,"year":600},"savings":{"week":{"percent":-8,"per_year_cents":-744},"month":{"percent":0,"per_year_cents":0},"year":{"percent":25,"per_year_cents":2400}},"month_cents":800,"year_cents":7200,"week_cents":199}]</script><script type="application/json" id="plans-legacy">{"daily":"mechanical","coached":"mechanical","no2":"mechanical","sharpened":"mechanical","masterstroke":"mechanical"}</script>
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-grid">

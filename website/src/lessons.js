@@ -75,7 +75,7 @@
         var card = window.GraphiteLock.card(lock, true);
         card.querySelector("p").textContent = (lock.reason ? card.querySelector("p").textContent + " " : "") +
           "Open on your plan: " + free.map(function (l) { return P(l.title).replace(/:.*$/, ""); }).join(", ") + ". " +
-          (lock.reason ? "" : lock.need_name + " and up open all " + o.lessons.length + ".");
+          (lock.reason ? "" : lock.need_name + " opens all " + o.lessons.length + ".");
         plan.appendChild(card);
       }
     }

@@ -140,10 +140,12 @@ def service(name):
 
 def pricing_html():
     """The home page's plans, from backend/app/services/plans.py so prices match billing everywhere.
-    Every price is shown per month; the Weekly / Monthly / Yearly switch (site.js) changes what's billed."""
+    Every price is shown per month, monthly billing first; the Weekly / Monthly / Yearly switch (site.js) changes what's billed."""
     P = service("plans")
     esc = lambda t: str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
-    best = max(P.savings(k, "year")["percent"] for k in P.ORDER if k != "free")
+    paid = [k for k in P.ORDER if k != "free"]
+    best = max(P.savings(k, "year")["percent"] for k in paid)
+    best_label = ("Save up to " if len({P.savings(k, "year")["percent"] for k in paid}) > 1 else "Save ") + f"{best}%"
     def billed(key, iv):
         cents = P.PLANS[key]["prices"][iv]
         if not cents:
@@ -166,27 +168,27 @@ def pricing_html():
         intro = f'<p class="tier-intro">{esc(p["intro"])}</p>' if p["intro"] else ""
         feats = "".join(f"<li>{esc(f)}</li>" for f in p["features"])
         cta = ('<a class="btn btn-secondary btn-block" href="#start" data-track="plan_free">Start free</a>' if key == "free" else
-               f'<a class="btn {"btn-primary" if p["badge"] == "Most popular" else "btn-secondary"} btn-block" href="checkout.html?plan={key}&amp;interval=year" '
+               f'<a class="btn {"btn-primary" if key == P.FEATURED else "btn-secondary"} btn-block" href="checkout.html?plan={key}&amp;interval=month" '
                f'data-checkout="{key}" data-track="plan_{key}">Choose {esc(p["name"])}</a>')
-        save = saving(key, "year")
-        cards.append(f"""<article class="tier tier-{key}{' tier-featured' if p['badge'] == 'Most popular' else ''}" aria-labelledby="tier-{key}" {attrs}>
+        save = saving(key, "month")
+        cards.append(f"""<article class="tier tier-{key}{' tier-featured' if key == P.FEATURED else ''}" aria-labelledby="tier-{key}" {attrs}>
             <div class="tier-head"><div class="tier-name"><h3 id="tier-{key}">{esc(p["name"])}</h3>{badge}</div><p class="tier-tagline">{esc(p["tagline"])}</p></div>
-            <div class="tier-price"><p class="price"><span class="amount" data-amount>{esc(P.money(P.per_month(key, "year")))}</span><span class="per">/month</span></p>
-              <p class="tier-billed" data-billed>{esc(billed(key, "year"))}</p><p class="tier-save" data-save{'' if save else ' hidden'}>{esc(save)}</p></div>
+            <div class="tier-price"><p class="price"><span class="amount" data-amount>{esc(P.money(P.per_month(key, "month")))}</span><span class="per">/month</span></p>
+              <p class="tier-billed" data-billed>{esc(billed(key, "month"))}</p><p class="tier-save" data-save{'' if save else ' hidden'}>{esc(save)}</p></div>
             {cta}
             {intro}<ul class="tier-features">{feats}</ul>
           </article>""")
     toggle = f"""<div class="billing-switch" role="radiogroup" aria-label="How you pay">
             <span><input type="radio" name="billing" id="bill-week" value="week"><label for="bill-week">Weekly</label></span>
-            <span><input type="radio" name="billing" id="bill-month" value="month"><label for="bill-month">Monthly</label></span>
-            <span><input type="radio" name="billing" id="bill-year" value="year" checked><label for="bill-year">Yearly <em>Save up to {best}%</em></label></span>
+            <span><input type="radio" name="billing" id="bill-month" value="month" checked><label for="bill-month">Monthly</label></span>
+            <span><input type="radio" name="billing" id="bill-year" value="year"><label for="bill-year">Yearly <em>{best_label}</em></label></span>
           </div>"""
     return toggle + '\n          <div class="tiers">' + "\n          ".join(cards) + "</div>"
 
 
 def compare_html():
     """The "Compare every feature" table under the plans, from COMPARE in plans.py.
-    A table on wide screens; on phones each feature becomes a small card with the four plans under it."""
+    A table on wide screens; on phones a switch picks which plan's column shows beside each feature."""
     P = service("plans")
     esc = lambda t: str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
     names = [P.PLANS[k]["name"] for k in P.ORDER]
@@ -196,7 +198,7 @@ def compare_html():
         if v is False:
             return '<span class="no" aria-hidden="true"></span><span class="visually-hidden">Not included</span>'
         return esc(v)
-    feat = lambda k: ' class="is-featured"' if P.PLANS[k]["badge"] == "Most popular" else ""
+    feat = lambda k: ' class="is-featured"' if k == P.FEATURED else ""
     head = "".join(f'<th scope="col"{feat(k)}>{esc(P.PLANS[k]["name"])}</th>' for k in P.ORDER)
     groups = []
     for title, rows in P.COMPARE:
@@ -204,8 +206,8 @@ def compare_html():
             '<tr><th scope="row">' + esc(label) + "</th>" + "".join(
                 f'<td data-plan="{esc(names[i])}"{feat(P.ORDER[i])}>{cell(v)}</td>'
                 for i, v in enumerate(vals)) + "</tr>" for label, vals in rows)
-        groups.append(f'<tbody><tr class="compare-group"><th scope="colgroup" colspan="5">{esc(title)}</th></tr>{body}</tbody>')
-    featured = next(i for i, k in enumerate(P.ORDER) if P.PLANS[k]["badge"] == "Most popular")
+        groups.append(f'<tbody><tr class="compare-group"><th scope="colgroup" colspan="{len(P.ORDER) + 1}">{esc(title)}</th></tr>{body}</tbody>')
+    featured = P.ORDER.index(P.FEATURED)
     pick = "".join(f'<span><input type="radio" name="compare-show" id="compare-show-{i}" value="{i}"{" checked" if i == featured else ""}>'
                    f'<label for="compare-show-{i}">{esc(n)}</label></span>' for i, n in enumerate(names))
     return (f'''<div class="compare" id="compare" data-show="{featured}">
@@ -221,10 +223,12 @@ def compare_html():
 
 
 def plans_json():
-    """Plans and prices for checkout.html, read by checkout.js. Same numbers as everywhere else."""
+    """Plans and prices for checkout.html, read by checkout.js. Same numbers as everywhere else.
+    Older plan names and the plan that replaced each one come too, for plans the preview saved under an older name."""
     P = service("plans")
-    return ('<script type="application/json" id="plans-data">'
-            + json.dumps(P.public_plans(), separators=(",", ":")).replace("</", "<\\/") + "</script>")
+    data = lambda v: json.dumps(v, separators=(",", ":")).replace("</", "<\\/")
+    return (f'<script type="application/json" id="plans-data">{data(P.public_plans())}</script>'
+            f'<script type="application/json" id="plans-legacy">{data(P.LEGACY)}</script>')
 
 
 def bank_js():
@@ -254,6 +258,7 @@ def bank_js():
         "parent": {"plans": plans.public_plans(),
                    "alert_days": list(plans.ALERT_DAYS), "pause_days": plans.PAUSE_DAYS,
                    "trial": {"plan": plans.TRIAL_PLAN, "plan_name": plans.PLANS[plans.TRIAL_PLAN]["name"], "days": plans.TRIAL_DAYS},
+                   "legacy": plans.LEGACY, "free_levels": plans.FREE_LEVELS,
                    # Plan locks and mock tests: the same rules as services/access.py and services/mock.py.
                    "limits": plans.LIMITS, "order": list(plans.ORDER),
                    "features": {k: {"limit": v[0], "name": v[1], "period": v[2]} for k, v in service("access").FEATURES.items()},

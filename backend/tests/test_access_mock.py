@@ -28,7 +28,7 @@ class Base(unittest.TestCase):
     def post(self, url, data=None, client=None):
         return (client or self.client).post(url, json=data or {}, headers=ORIGIN)
 
-    def buy(self, plan="no2", interval="month"):
+    def buy(self, plan="mechanical", interval="month"):
         r = self.post("/api/me/subscription/plan", {"plan": plan, "interval": interval, "agree": True})
         self.assertEqual(r.status_code, 201, r.json)
         return r.json
@@ -47,58 +47,73 @@ class LocksTest(Base):
         q = bank.all_items()[s["questions"][0]["id"]]
         g = self.post(f"/api/practice/sessions/{s['id']}/check", {"index": 0, "answer": right_answer(q)}).json["question"]
         self.assertIn("xp-locked", g["explain_html"])
+        self.assertIn("come with the Mechanical plan.", g["explain_html"])
         self.assertTrue(g["correct"])
-        # One practice set a week on the free plan.
+        # Three practice sets a week on the free plan.
+        for _ in range(2):
+            self.assertEqual(self.post("/api/practice/sessions", {"mode": "topic", "domain": "algebra", "count": 5}).status_code, 201)
         r = self.post("/api/practice/sessions", {"mode": "topic", "domain": "algebra", "count": 5})
         self.assertEqual((r.status_code, r.json["code"]), (402, "plan_required"))
-        self.assertEqual(r.json["lock"]["need"], "no2")
-        # No mock tests, Level up or review queue.
+        self.assertEqual((r.json["lock"]["need"], r.json["lock"]["need_name"]), ("mechanical", "Mechanical"))
+        self.assertEqual(r.json["error"], "You've used all 3 of your practice sets this week. Mechanical includes more.")
+        # One mock test a month: a full test or a single module.
+        self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
+        r = self.post("/api/practice/sessions", {"mode": "test"})
+        self.assertEqual(r.status_code, 402)
+        self.assertEqual(r.json["error"], "You've used your mock test this month. Mechanical includes more.")
         self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 402)
-        self.assertEqual(self.post("/api/practice/sessions", {"mode": "test"}).status_code, 402)
-        self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 1}).status_code, 402)
-        dash = self.client.get("/api/dashboard").json
-        self.assertFalse(dash["access"]["features"]["review_queue"]["ok"])
-        self.assertEqual(dash["review"], [])
+        # The first 2 levels of every Level up track; the levels above come with Mechanical.
+        self.assertEqual(self.client.get("/api/levels").json["free_levels"], 2)
+        self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 1}).status_code, 201)
+        r = self.post("/api/levels/start", {"track": "algebra", "level": 3})
+        self.assertEqual((r.status_code, r.json["lock"]["feature"]), (402, "level_up"))
+        self.assertEqual(r.json["error"], "All Level up levels come with the Mechanical plan.")
+        # The review queue and score history are free; explanations, the study plan and parent progress aren't.
+        feats = self.client.get("/api/dashboard").json["access"]["features"]
+        self.assertEqual({k: f["ok"] for k, f in feats.items() if k in ("review_queue", "score_history", "explanations", "study_plan", "parent_dashboard")},
+                         {"review_queue": True, "score_history": True, "explanations": False, "study_plan": False, "parent_dashboard": False})
 
     def test_paid_plan_unlocks_and_unpaid_locks_again(self):
-        self.buy("no2")
-        self.assertEqual(self.post("/api/practice/sessions", {"mode": "topic", "domain": "algebra", "count": 5}).status_code, 201)
-        self.assertEqual(self.post("/api/practice/sessions", {"mode": "topic", "domain": "algebra", "count": 5}).status_code, 201)
-        # No. 2: two mock tests a month, then locked until next month or an upgrade.
-        self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
-        self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
-        r = self.post("/api/mock-tests", {"section": "math"})
-        self.assertEqual((r.status_code, r.json["lock"]["need"]), (402, "sharpened"))
-        # Level up comes with Sharpened.
-        self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 1}).status_code, 402)
-        self.buy("sharpened")
-        self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
+        self.buy("mechanical")
+        # Mechanical: unlimited practice sets and mock tests, and every Level up level.
+        for _ in range(4):
+            self.assertEqual(self.post("/api/practice/sessions", {"mode": "topic", "domain": "algebra", "count": 5}).status_code, 201)
+        for _ in range(3):
+            self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
         self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 1}).status_code, 201)
+        self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 3}).status_code, 403)  # on the plan; level 2 isn't passed yet
+        self.assertTrue(all(f["ok"] for f in self.client.get("/api/me/subscription").json["access"]["features"].values()))
         # A failed payment locks the paid features until it's paid; the lock asks for the same plan, not an upgrade.
         self.set_status("past_due")
-        r = self.post("/api/levels/start", {"track": "algebra", "level": 1})
+        r = self.post("/api/levels/start", {"track": "algebra", "level": 3})
         self.assertEqual(r.status_code, 402)
-        self.assertEqual(r.json["lock"]["need"], "sharpened")
+        self.assertEqual(r.json["lock"]["need"], "mechanical")
         self.assertIn("payment", r.json["error"].lower())
+        self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 1}).status_code, 201)  # the free levels stay open
         sub = self.client.get("/api/me/subscription").json
         self.assertEqual(sub["access"]["unpaid"], "A payment didn't go through")
         self.set_status("active")
-        self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 1}).status_code, 201)
+        self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 3}).status_code, 403)
 
     def test_pause_locks_and_resume_unlocks(self):
-        self.buy("sharpened")
+        self.buy("mechanical")
         out = self.post("/api/me/subscription/pause").json
         self.assertEqual(out["subscription"]["status"], "paused")
-        self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 402)
+        self.assertFalse(out["access"]["features"]["level_up"]["ok"])
+        r = self.post("/api/levels/start", {"track": "algebra", "level": 3})
+        self.assertEqual((r.status_code, r.json["lock"]["reason"]), (402, "Your plan is paused"))
         out = self.post("/api/me/subscription/resume").json
         self.assertEqual(out["subscription"]["status"], "active")
-        self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
+        self.assertTrue(out["access"]["features"]["level_up"]["ok"])
+        for _ in range(2):  # more than the free plan's one a month
+            self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
 
     def test_cancel_keeps_the_plan_to_the_end_of_the_period(self):
-        self.buy("sharpened", "year")
+        self.buy("mechanical", "year")
         out = self.post("/api/me/subscription/cancel").json
-        self.assertEqual((out["subscription"]["status"], out["subscription"]["plan"]), ("canceled", "sharpened"))
-        self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
+        self.assertEqual((out["subscription"]["status"], out["subscription"]["plan"]), ("canceled", "mechanical"))
+        for _ in range(2):  # more than the free plan's one a month
+            self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
         self.assertEqual(self.post("/api/me/subscription/resume").json["subscription"]["status"], "active")
         self.assertIn("You", self.client.get("/api/me/subscription").json["payer"]["name"])
 
@@ -111,7 +126,7 @@ class LocksTest(Base):
         self.assertFalse(s["access"]["ok"])
         self.assertIsNone(s["scores"])
         self.assertEqual(s["subscription"]["plan"], "free")
-        self.buy("sharpened")
+        self.buy("mechanical")
         s = parent.get(f"/api/parent/students/{self.uid}").json
         self.assertTrue(s["access"]["ok"])
         self.assertIsInstance(s["scores"], list)
@@ -126,7 +141,7 @@ class LocksTest(Base):
 class MockTestTest(Base):
     def setUp(self):
         super().setUp()
-        self.buy("sharpened")
+        self.buy("mechanical")
 
     def answers(self, session, right):
         items = bank.all_items()
@@ -302,10 +317,11 @@ class TestAccountSwitchTest(Base):
         self.post("/api/auth/login", {"email": "beta", "password": "beta"}, beta)
         r = beta.get("/api/me/subscription").json
         self.assertTrue(r["test_account"])
-        out = self.post("/api/me/subscription/test", {"plan": "sharpened"}, beta).json
-        self.assertEqual((out["subscription"]["plan"], out["subscription"]["status"]), ("sharpened", "active"))
+        self.assertEqual(self.post("/api/me/subscription/test", {"plan": "sharpened"}, beta).status_code, 400)  # an older plan
+        out = self.post("/api/me/subscription/test", {"plan": "mechanical"}, beta).json
+        self.assertEqual((out["subscription"]["plan"], out["subscription"]["status"]), ("mechanical", "active"))
         self.assertTrue(out["access"]["features"]["level_up"]["ok"])
-        out = self.post("/api/me/subscription/test", {"plan": "sharpened", "status": "past_due"}, beta).json
+        out = self.post("/api/me/subscription/test", {"plan": "mechanical", "status": "past_due"}, beta).json
         self.assertEqual(out["access"]["unpaid"], "A payment didn't go through")
         self.assertFalse(out["access"]["features"]["level_up"]["ok"])
         out = self.post("/api/me/subscription/test", {"plan": "free"}, beta).json
@@ -314,7 +330,7 @@ class TestAccountSwitchTest(Base):
 
     def test_other_accounts_cant(self):
         self.assertFalse(self.client.get("/api/me/subscription").json["test_account"])
-        self.assertEqual(self.post("/api/me/subscription/test", {"plan": "sharpened"}).status_code, 403)
+        self.assertEqual(self.post("/api/me/subscription/test", {"plan": "mechanical"}).status_code, 403)
 
 
 class LessonLockTest(Base):
@@ -328,7 +344,7 @@ class LessonLockTest(Base):
         self.assertEqual(self.finish("desmos-hacks").status_code, 200)
         o = self.client.get("/api/lessons").json
         self.assertFalse(o["access"]["ok"])
-        self.assertEqual(o["access"]["need"], "no2")
+        self.assertEqual(o["access"]["need"], "mechanical")
         open_ = [l["id"] for l in o["lessons"] if not l["locked"]]
         self.assertEqual(sorted(open_), sorted(lessons.FREE_LESSONS))
         for lid in lessons.FREE_LESSONS:
@@ -339,7 +355,7 @@ class LessonLockTest(Base):
 
     def test_paid_plan_opens_every_lesson_and_unpaid_locks_them_again(self):
         self.finish("desmos-hacks")
-        self.buy("no2")
+        self.buy("mechanical")
         o = self.client.get("/api/lessons").json
         self.assertFalse(any(l["locked"] for l in o["lessons"]))
         self.assertEqual(self.finish("parabola-vertex").status_code, 200)
@@ -350,3 +366,43 @@ class LessonLockTest(Base):
         self.assertFalse(pv["progress"]["due"])
         self.assertEqual(self.client.get("/api/lessons/parabola-vertex").status_code, 402)
         self.assertEqual(self.client.get("/api/lessons/active-recall").status_code, 200)
+
+
+class LevelLockTest(Base):
+    """The free plan plays the first plans.FREE_LEVELS levels of every Level up track."""
+    def level(self, n):
+        r = self.post("/api/levels/start", {"track": "algebra", "level": n})
+        self.assertEqual(r.status_code, 201, r.json)
+        return r.json["session"]
+
+    def finish(self, session):
+        items = bank.all_items()
+        answers = {str(i): right_answer(items[q["id"]]) for i, q in enumerate(session["questions"])}
+        r = self.post(f"/api/practice/sessions/{session['id']}/submit", {"answers": answers, "seconds_used": 300})
+        self.assertEqual(r.status_code, 201, r.json)
+        return r.json["result"]["level"]
+
+    def test_free_levels_then_the_lock_on_the_next_one(self):
+        lv = self.finish(self.level(1))
+        self.assertEqual(lv["next"], 2)
+        self.assertNotIn("next_lock", lv)  # level 2 is free too
+        two = self.level(2)
+        lv = self.finish(two)
+        self.assertEqual(lv["next"], 3)
+        self.assertEqual({k: lv["next_lock"][k] for k in ("feature", "need", "need_name", "free_levels", "reason")},
+                         {"feature": "level_up", "need": "mechanical", "need_name": "Mechanical", "free_levels": 2, "reason": None})
+        # Reading the finished set again shows the same lock, and level 3 itself is locked.
+        again = self.client.get(f"/api/practice/sessions/{two['id']}").json["session"]["result"]["level"]
+        self.assertEqual(again["next_lock"]["need"], "mechanical")
+        self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 3}).status_code, 402)
+        # With Mechanical the lock is gone and level 3 opens.
+        self.buy("mechanical")
+        self.assertNotIn("next_lock", self.client.get(f"/api/practice/sessions/{two['id']}").json["session"]["result"]["level"])
+        self.level(3)
+
+    def test_unpaid_plan_says_why_the_next_level_is_locked(self):
+        self.buy("mechanical")
+        self.finish(self.level(1))
+        self.set_status("past_due")
+        lv = self.finish(self.level(2))
+        self.assertEqual((lv["next_lock"]["reason"], lv["next_lock"]["need"]), ("A payment didn't go through", "mechanical"))
