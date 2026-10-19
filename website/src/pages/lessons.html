@@ -35,9 +35,13 @@
 
       <div id="lessons-subject" class="dash-stack">
       <div class="dash-stack">
-      <nav class="ls-jump-wrap" id="ls-jump-wrap" aria-label="Lesson groups" hidden><ul class="ls-jump" id="ls-jump"></ul></nav>
       <div class="ls-plan" id="ls-plan" hidden></div>
-      <div id="ls-groups" class="dash-stack"></div>
+      <div class="ls-tools" id="ls-tools" hidden>
+        <div class="ls-filter" id="ls-filter" role="group" aria-label="Show lessons"></div>
+        <button type="button" class="btn btn-quiet ls-toggle-all" id="ls-toggle-all">Open all</button>
+      </div>
+      <p class="fine" id="ls-filter-empty" hidden>Nothing here yet. Pick All to see every lesson.</p>
+      <div id="ls-groups" class="ls-groups"></div>
       </div>
       </div>
     </div>
