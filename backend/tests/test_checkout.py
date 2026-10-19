@@ -108,6 +108,14 @@ class WithoutStripe(CheckoutTest):
         hist = self.parent.get(f"/api/parent/students/{self.student_id}").json["billing"]
         self.assertIn("No card was charged", hist[0]["detail"])
 
+    def test_live_site_never_starts_paid_plans_without_payments(self):
+        # Locally, plans start without a charge. On the live site that would give paid plans away.
+        self.app.config["IS_PRODUCTION"] = True
+        self.assertEqual(self.buy("masterstroke", "year").json["code"], "payments_off")
+        self.assertEqual(self.post(self.student, "/api/me/subscription/plan", {"plan": "sharpened", "interval": "month", "agree": True}).status_code, 503)
+        self.assertEqual(self.post(self.parent, f"/api/parent/students/{self.student_id}/plan", {"plan": "no2", "interval": "month"}).status_code, 503)
+        self.assertEqual(self.sub()["plan"], "free")
+
     def test_switching_to_free_without_payments_is_immediate(self):
         # Payments aren't connected, so nothing was charged and there's no paid time to wait out.
         self.buy("sharpened", "month")

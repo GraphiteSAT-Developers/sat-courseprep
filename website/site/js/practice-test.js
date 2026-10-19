@@ -468,6 +468,7 @@
     $("review-view").hidden = p !== "review";
     $("results-view").hidden = p !== "results";
     $("exam-bottom").classList.toggle("is-results", p === "results");
+    $("exam").classList.toggle("is-results", p === "results");  // hides the clock, which stopped at submit
     $("next-btn").hidden = p !== "q";
     $("back-btn").hidden = p === "results";
     $("back-btn").disabled = p === "q" && S.cur === 0;
