@@ -68,7 +68,8 @@ def overview():
     if row:
         plan = json.loads(row["plan"])
         source = query("SELECT results FROM diagnostics WHERE id = ?", (row["diagnostic_id"],), one=True)
-        out["plan"] = dict(plan, id=row["id"], current_week=studyplan.current_week(plan, _today()), tasks=practice.plan_task_states(user["id"], row["id"]),
+        index, states = studyplan.current_week(plan, _today()), practice.plan_task_states(user["id"], row["id"])
+        out["plan"] = dict(plan, id=row["id"], current_week=index, tasks=states, catch_up=studyplan.catch_up(plan, index, states),
                            results=json.loads(source["results"]))
     out["access"] = access.public_state(access.state(user["id"], "study_plan"))
     return jsonify(out)

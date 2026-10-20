@@ -89,10 +89,17 @@ def grade(ids, answers, sure):
     spread = scoring.SPREAD["check_total"]
     ranked = sorted((dict(s, points=int(round(s["points"] / 10.0) * 10)) for s in skills.values()),
                     key=lambda s: (-s["points"], -s["missed"], s["skill"]))
+    top = [s for s in ranked if s["points"] > 0][:TOP_SKILLS]
+    # The estimate with every question in those skills right: what fixing them is worth, all together.
+    fix = {s["skill"] for s in top}
+    potential = sum(scoring.project(key, [dict(g, correct=g["correct"] or g["skill"] in fix) for g in graded if g["section"] == key],
+                                    "check")["score"] for key, *_ in SECTIONS)
     return {
         "total": {"score": score, "low": max(400, score - spread), "high": min(1600, score + spread)},
         "sections": sections,
-        "skills": [s for s in ranked if s["points"] > 0][:TOP_SKILLS],
+        "skills": top,
+        "potential": potential,
         "correct": sum(g["correct"] for g in graded), "count": len(graded),
+        "skipped": sum(not g["answered"] for g in graded),
         "questions": graded,
     }

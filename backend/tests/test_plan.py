@@ -122,6 +122,39 @@ class PlanTest(unittest.TestCase):
         self.assertLessEqual(len(plan["weeks"]), 3)
         self.assertEqual(plan["test_date"], soon)
 
+    def move_plan_back(self, weeks):
+        """Pretend the plan started `weeks` weeks ago, so this week is week weeks + 1."""
+        import json
+        from app.db import execute, query
+        with self.app.app_context():
+            row = query("SELECT id, plan FROM study_plans ORDER BY id DESC LIMIT 1", one=True)
+            plan = json.loads(row["plan"])
+            plan["start"] = (date.fromisoformat(plan["start"]) - timedelta(weeks=weeks)).isoformat()
+            execute("UPDATE study_plans SET plan = ? WHERE id = ?", (json.dumps(plan), row["id"]))
+
+    def test_missed_week_carries_over_into_this_week(self):
+        self.take_diagnostic()
+        self.move_plan_back(1)
+        plan = self.client.get("/api/plan").json["plan"]
+        self.assertEqual(plan["current_week"], 1)
+        carried = plan["catch_up"]
+        self.assertTrue(1 <= len(carried) <= studyplan.CATCH_UP_LIMIT)
+        self.assertTrue(all(c["week"] == 0 and c["task"]["kind"] != "quiz" for c in carried))
+        # A carried task starts from its own week, and once it's done it stops being carried.
+        first = carried[0]
+        s = self.post("/api/plan/tasks", {"week": first["week"], "task": first["task"]["key"]}).json["session"]
+        self.post(f"/api/practice/sessions/{s['id']}/submit", {"answers": {}, "seconds_used": 30})
+        after = self.client.get("/api/plan").json["plan"]["catch_up"]
+        self.assertNotIn(first["task"]["key"], [c["task"]["key"] for c in after])
+
+    def test_todays_set_reaches_carried_work_after_this_weeks(self):
+        self.take_diagnostic()
+        self.move_plan_back(1)
+        today = self.client.get("/api/dashboard").json["today"]
+        carried = [i for i in today["items"] if i["why"].startswith("Carried over from week 1")]
+        self.assertTrue(carried)
+        self.assertFalse(today["items"][0]["why"].startswith("Carried"), "this week's tasks come first")
+
     def test_tasks_need_a_plan(self):
         self.assertEqual(self.post("/api/plan/tasks", {"week": 0, "task": "w1-quiz"}).status_code, 400)
         self.assertIsNone(self.client.get("/api/plan").json["plan"])
@@ -138,6 +171,22 @@ class PlanUnitTest(unittest.TestCase):
 
     def test_strong_students_start_harder(self):
         self.assertGreater(studyplan.difficulty_at(0.9, 0), studyplan.difficulty_at(0.2, 0))
+
+    def test_catch_up_rules(self):
+        results = {"level": 0.5, "skills": {}, "strengths": [], "focus": [],
+                   "domains": [{"section": "Math", "domain": t["name"], "domain_key": t["key"], "score": 0.5} for t in bank.topics()]}
+        plan = studyplan.build(results, None, 4, date(2026, 10, 16))
+        self.assertEqual(studyplan.catch_up(plan, 0, {}), [], "nothing to carry in week 1")
+        carried = studyplan.catch_up(plan, 3, {})
+        self.assertLessEqual(len(carried), studyplan.CATCH_UP_LIMIT)
+        self.assertEqual(carried[0]["week"], 2, "the most recent week first")
+        this_week = {t["skill"]["skill"] for t in plan["weeks"][3]["tasks"] if t.get("skill")}
+        for c in carried:
+            self.assertNotEqual(c["task"]["kind"], "quiz")
+            if c["task"]["kind"] == "drill":
+                self.assertNotIn(c["task"]["skill"]["skill"], this_week)
+        done = {t["key"]: {"done": True} for w in plan["weeks"][:3] for t in w["tasks"]}
+        self.assertEqual(studyplan.catch_up(plan, 3, done), [], "nothing left over")
 
     def test_no_test_date_gives_eight_weeks(self):
         results = {"level": 0.5, "skills": {}, "strengths": [], "focus": [],

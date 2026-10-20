@@ -165,7 +165,8 @@
     var pl = s.plan;
     $("pd-plan-meta").textContent = pl ? "Week " + pl.week + " of " + pl.weeks : "";
     $("pd-plan").innerHTML = pl ? '<p class="pd-big">' + pl.done + " of " + pl.tasks + ' tasks done</p><span class="meter"><span style="width:' + Math.round(pl.done / Math.max(1, pl.tasks) * 100) + '%"></span></span>' +
-      '<p class="fine">' + esc(pl.phase) + (pl.focus.length ? ": " + esc(pl.focus.join(" and ")) : "") + (pl.difficulty ? ". " + esc(pl.difficulty) : "") + "</p>"
+      '<p class="fine">' + esc(pl.phase) + (pl.focus.length ? ": " + esc(pl.focus.join(" and ")) : "") + (pl.difficulty ? ". " + esc(pl.difficulty) : "") +
+      (pl.carried ? ". Plus " + pl.carried + (pl.carried === 1 ? " task" : " tasks") + " carried over from earlier weeks" : "") + "</p>"
       : '<p class="pd-empty">The plan is built after the diagnostic.</p>';
     $("pd-levels").innerHTML = s.levels.map(function (t) {
       return '<li><span>' + esc(t.name) + '</span><span class="pd-lv"><span class="pd-lv-bar"><span style="width:' + Math.round(t.passed / t.levels * 100) + '%"></span></span><strong>Level ' + t.unlocked + "</strong></span></li>";

@@ -135,6 +135,7 @@ class ScoreCheckTest(unittest.TestCase):
         self.assertEqual(res["total"]["score"], 1600)
         self.assertEqual(res["correct"], 20)
         self.assertEqual(res["skills"], [])
+        self.assertEqual(res["potential"], 1600)
         self.assertTrue(all(q["explain_html"] for q in res["questions"]))
 
     def test_blank_check_scores_low_and_ranks_skills(self):
@@ -145,6 +146,12 @@ class ScoreCheckTest(unittest.TestCase):
         points = [s["points"] for s in res["skills"]]
         self.assertEqual(points, sorted(points, reverse=True))
         self.assertEqual([s["name"] for s in res["sections"]], ["Reading and Writing", "Math"])
+
+    def test_potential_is_the_score_with_the_top_skills_fixed(self):
+        res = self.grade(self.start()["token"], {}).json["result"]
+        self.assertEqual(res["skipped"], 20)
+        self.assertGreater(res["potential"], res["total"]["score"])
+        self.assertLessEqual(res["potential"], 1600)
 
     def test_lucky_guesses_still_count_but_show_as_skills(self):
         from app.services import bank

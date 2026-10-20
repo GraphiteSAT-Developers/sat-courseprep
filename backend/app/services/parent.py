@@ -256,8 +256,10 @@ def summary(student, link, today=None):
     found = today_svc.week_tasks(student["id"], today)
     if found:
         _, p, index, w, tasks = found
+        this_week = [t for t in tasks if not t.get("carried")]  # carried-over work counts separately
         plan = {"week": w["n"], "weeks": len(p["weeks"]), "phase": w["phase_label"], "difficulty": w.get("difficulty_label"),
-                "focus": [f["name"] for f in w.get("focus", [])], "done": sum(1 for t in tasks if t["done"]), "tasks": len(tasks)}
+                "focus": [f["name"] for f in w.get("focus", [])], "done": sum(1 for t in this_week if t["done"]), "tasks": len(this_week),
+                "carried": len(tasks) - len(this_week)}
     ladder = [{"name": t["name"], "unlocked": t["unlocked"], "passed": sum(1 for lv in t["levels"] if lv["status"] == "passed"),
                "levels": len(t["levels"])} for t in levels.overview(student["id"])["tracks"]]
     return {
