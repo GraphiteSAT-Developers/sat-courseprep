@@ -41,7 +41,7 @@ PLANS = {
     "mechanical": {
         "name": "Mechanical",
         "tagline": "Everything Graphite SAT has, in one plan.",
-        "blurb": "Everything: unlimited practice tests, every lesson and explanation, your study plan, the parent dashboard and a weekly coach check-in.",
+        "blurb": "Everything: unlimited practice tests, every lesson and explanation, your study plan, and the parent dashboard.",
         "badge": "Everything included",
         "prices": {"week": 199, "month": 800, "year": 7200},
         "intro": "Everything in Sharpened, plus:",
@@ -55,7 +55,6 @@ PLANS = {
             "Unlimited tutor help, any time of day (coming soon)",
             "In-depth video explanations (coming soon)",
             "Parent dashboard with weekly progress emails",
-            "A weekly 30-minute 1-on-1 video check-in with a coach",
             "Your study plan reviewed after every practice test",
             "A test-week plan for pacing, sleep and logistics",
             "A monthly call with your parent",
@@ -81,7 +80,6 @@ COMPARE = [
         ("Step-by-step written explanations", ["Diagnostic only", True]),
         ("In-depth video explanations (coming soon)", [False, True]),
         ("Support", ["Help center", "24/7, priority"]),
-        ("1-on-1 coach check-ins", [False, "Weekly, 30 minutes"]),
     ]),
     ("Planning and progress", [
         ("Study plan built around your test date", [False, True]),
