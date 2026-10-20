@@ -126,7 +126,7 @@
     f.title = "Graphing calculator";
     f.addEventListener("load", function () {
       var l = $("pl-calc-frame").querySelector(".calc-loading"); if (l) l.remove();
-      try { var dark = f.contentDocument.getElementById("thDark"); if (dark) dark.click(); } catch (e) { /* other origin */ }
+      try { var embed = f.contentWindow.TOPLINE_EMBED; if (embed && embed.setTheme) embed.setTheme("dark"); } catch (e) { /* other origin */ }
     });
     if (window.TOPLINE_SRC_B64) {  // preview: the calculator is built into the page
       var bin = atob(window.TOPLINE_SRC_B64), bytes = new Uint8Array(bin.length);

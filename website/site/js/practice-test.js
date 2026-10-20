@@ -436,10 +436,10 @@
   var calcBuilt = false;
   function themeCalc() {
     var f = $("calc-frame").querySelector("iframe");
-    [f && f.contentDocument, popup && !popup.closed && popup.document].forEach(function (doc) {
+    [f && f.contentWindow, popup && !popup.closed && popup].forEach(function (win) {
       try {
-        var btn = doc && doc.getElementById(S.view === "light" ? "thLight" : "thDark");
-        if (btn) btn.click();
+        var embed = win && win.TOPLINE_EMBED;
+        if (embed && embed.setTheme) embed.setTheme(S.view === "light" ? "light" : "dark");
       } catch (e) { /* calculator served from another origin */ }
     });
   }
