@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from flask import Blueprint, Response, current_app, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .. import crypto, testaccount
+from .. import admins, crypto, testaccount
 from ..db import execute, now_iso, query, set_clause
 from ..security import (ApiError, body, clean_email, clean_password, clear_events, current_user, login_required,
                         login_user, logout_user, public_user, rate_limited, record_event)
@@ -259,7 +259,7 @@ def sign_out_others():
 def reset_test_account():
     """Starts the student test account over (it keeps its progress between sign-ins otherwise)."""
     user = current_user()
-    if not (user["email"] == testaccount.USERNAME and current_app.config.get("TEST_ACCOUNT")):
+    if not admins.is_test_student(user):
         raise ApiError(403, "Only the test account can be reset.")
     testaccount.reset(user["id"])
     return jsonify({"user": public_user(_fresh(user["id"]))})

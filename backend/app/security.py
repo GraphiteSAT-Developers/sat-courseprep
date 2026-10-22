@@ -80,6 +80,11 @@ def _prefs(user):
     return prefs.load(user)
 
 
+def _admin(user):
+    from .admins import is_admin
+    return is_admin(user)
+
+
 def _drawn(user):
     from .services import prefs
     return prefs.drawn_avatar(user)
@@ -93,6 +98,7 @@ def public_user(user):
         "grade": user["grade"], "test_date": user["test_date"], "target_score": user["target_score"],
         "plan": key_for(user["plan"]), "weekly_goal_hours": user["weekly_goal_hours"], "parent_email": _unseal(user["parent_email"]),
         "role": user["role"] if "role" in user.keys() else "student",
+        "admin": _admin(user),
         "created_at": user["created_at"],
         "appearance": dict({
             "theme": user["theme"] if "theme" in user.keys() else "paper",

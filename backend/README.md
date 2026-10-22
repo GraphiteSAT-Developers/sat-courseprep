@@ -55,6 +55,7 @@ Run it from the main `sat-courseprep` folder. It saves `users.csv`, `leads.csv`,
 | Sign-in | Session cookie (HttpOnly, SameSite=Lax, Secure on HTTPS). "Keep me signed in" lasts 30 days. A password reset signs out every other device. |
 | Password reset | One-time link, valid 30 minutes, emailed to the student. Only a hash of the token is saved. |
 | Home page form | Saved to `leads`, with an email to the student and, if `ADMIN_EMAIL` is set, to you. |
+| Admin | Accounts whose email is in `ADMIN_ACCOUNTS` (comma-separated) get `/admin.html` (home page signups, students, parents), instant plan switching on the subscription page, and "Start my account over" in Settings > Your data. Sign up with the email first, then add it to `ADMIN_ACCOUNTS` on Render: there's no email verification, so an address nobody has registered could be taken by someone else. |
 | Practice tests | The browser gets questions without answers. The server grades, saves the attempt, and returns explanations. |
 | Question bank | 1,000 original questions in `app/content/bank/`, each with a full explanation: best approach, Desmos steps, by-hand steps, why the wrong choices tempt, and how to enter typed answers. |
 | Practice sets | Random practice tests (22 questions, 35 minutes, the real test's domain mix) and topic practice (5–20 questions, untimed, checked one at a time). Every answered question goes on the student's done list and isn't drawn again until every question in that pool is done; then the pool starts over. When only a few are left in a topic, the set is just those, so the student can finish it. |
@@ -265,6 +266,5 @@ On your own computer, Stripe can't reach `127.0.0.1` for webhooks. Checkout stil
 - Counting tutor credits (`tutor_credits_per_month` in `LIMITS`, `app/services/plans.py`): there's no tutor to count them yet
 - Email verification for new accounts
 - Sending the weekly progress email to parents
-- An admin page to see leads and students (for now, query the `leads` and `users` tables)
 - Reading and Writing practice tests, lessons, levels and speed rounds (each page has a "coming soon" preview under its Reading and Writing switch)
 - The tutor's answers: the tutor page and the Tutor tab show a placeholder where the message box goes. Before launch, every claim about the tutor on the home page (it's on every question, it knows what you missed this week, hints before answers) has to be true

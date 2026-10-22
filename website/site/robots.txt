@@ -16,5 +16,6 @@ Disallow: /market.html
 Disallow: /tutor.html
 Disallow: /subscription.html
 Disallow: /calculator.html
+Disallow: /admin.html
 
 Sitemap: https://www.graphiteprep.com/sitemap.xml
