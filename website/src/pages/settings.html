@@ -514,9 +514,14 @@
             <div class="pd-row"><a class="btn btn-secondary" id="st-export" href="/api/me/export" download>Download my data</a></div>
             <p class="fine" id="st-export-note" hidden>Downloads work on the live site.</p>
           </div>
+          <div class="st-form" id="st-admin-box" hidden>
+            <h3 class="pd-h3">Admin</h3>
+            <p class="fine">See home page signups and every account.</p>
+            <div class="pd-row"><a class="btn btn-secondary" href="/admin.html">Open the admin page</a></div>
+          </div>
           <div class="st-form" id="st-test-reset-box" hidden>
-            <h3 class="pd-h3">Start the test account over</h3>
-            <p class="fine">The test account keeps its progress between sign-ins. This clears it back to a brand-new student with 100,000 coins.</p>
+            <h3 class="pd-h3" id="st-test-reset-title">Start the test account over</h3>
+            <p class="fine" id="st-test-reset-about">The test account keeps its progress between sign-ins. This clears it back to a brand-new student with 100,000 coins.</p>
             <div class="status" id="st-test-reset-status" role="status" aria-live="polite" tabindex="-1"></div>
             <div class="pd-row"><button class="btn btn-secondary" type="button" id="st-test-reset">Reset the test account</button></div>
           </div>

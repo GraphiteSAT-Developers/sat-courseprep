@@ -1,0 +1,37 @@
+<!--{"file": "admin.html", "path": "/admin.html", "title": "Admin | Graphite SAT", "description": "Graphite SAT admin: home page signups and accounts.", "robots": "noindex, nofollow", "settings": true, "scripts": ["admin.js"]}-->
+<main id="main" class="admin-page">
+  <div class="wrap dash-stack">
+    <div class="st-head">
+      <p class="label">Admin</p>
+      <h1>Signups and accounts</h1>
+    </div>
+    <p class="sample-note" id="ad-preview-note" hidden><span class="label">Preview</span> The admin page works on the live site, for the emails in ADMIN_ACCOUNTS.</p>
+    <div class="status" id="ad-status" role="status" aria-live="polite" tabindex="-1"></div>
+    <p class="fine" id="ad-counts"></p>
+    <p class="fine">Your own account can switch plans instantly on <a href="/subscription.html">Subscription</a> and start over in <a href="/settings.html#data">Settings &gt; Your data</a>.</p>
+
+    <section class="panel" aria-labelledby="ad-students-title">
+      <div class="panel-head"><h2 id="ad-students-title">Students</h2></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Joined</th><th>Name</th><th>Email</th><th>Grade</th><th>Test date</th><th>Target</th><th>Plan</th></tr></thead>
+        <tbody id="ad-students"></tbody>
+      </table></div>
+    </section>
+
+    <section class="panel" aria-labelledby="ad-leads-title">
+      <div class="panel-head"><h2 id="ad-leads-title">Home page signups</h2></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Sent</th><th>Name</th><th>Email</th><th>Grade</th><th>Test date</th><th>Target</th><th>Message</th></tr></thead>
+        <tbody id="ad-leads"></tbody>
+      </table></div>
+    </section>
+
+    <section class="panel" aria-labelledby="ad-parents-title">
+      <div class="panel-head"><h2 id="ad-parents-title">Parents</h2></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Joined</th><th>Name</th><th>Email</th></tr></thead>
+        <tbody id="ad-parents"></tbody>
+      </table></div>
+    </section>
+  </div>
+</main>

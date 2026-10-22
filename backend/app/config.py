@@ -47,6 +47,9 @@ class Config:
     SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
     MAIL_FROM = os.environ.get("MAIL_FROM", "Graphite SAT <hello@graphiteprep.com>")
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "")
+    # Accounts with admin access (app/admins.py): the /admin page, instant plan switching and wiping their own data.
+    # Comma-separated emails. Each person signs up normally first; matching the email is what makes them admin.
+    ADMIN_ACCOUNTS = frozenset(e.strip().lower() for e in os.environ.get("ADMIN_ACCOUNTS", "").split(",") if e.strip())
 
     # Payments. Without STRIPE_SECRET_KEY, checkout starts plans without charging (handy for trying the site).
     # Use test keys (sk_test_...) first. STRIPE_WEBHOOK_SECRET (whsec_...) comes from the webhook you add in Stripe.
