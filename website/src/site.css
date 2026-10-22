@@ -2257,6 +2257,26 @@ html[data-density="compact"] .lessons-page, html[data-density="compact"] .settin
 .qt-note { margin: 0; }
 .qt-wait { padding: var(--s4); border-radius: 12px; background: var(--raised); }
 .qt-wait p { margin: 0 0 var(--s2); }
+/* the live tutor chat (qtools.js Tutor.chat), in the window and on the tutor page */
+.qt-live { flex: 1; display: flex; flex-direction: column; gap: var(--s3); min-height: 0; }
+.qt-live .qt-chat { flex: 1 0 220px; overflow-y: auto; justify-content: flex-start; padding-right: var(--s1); }
+.qt-msg p + p { margin-top: var(--s2); }
+.qt-msg.qt-me { align-self: flex-end; border-radius: 14px 14px 4px 14px; background: var(--accent); color: var(--accent-ink); }
+.qt-msg.qt-typing { color: var(--muted); font-style: italic; }
+.qt-msg.qt-safety { border: 2px solid var(--accent); }
+.qt-hints { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); }
+.qt-ask:not(:disabled) { color: var(--text); cursor: pointer; }
+.qt-ask:not(:disabled):hover { border-color: var(--accent); background: var(--raised); }
+.qt-ask:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.qt-ask:disabled { opacity: 0.6; cursor: not-allowed; }
+.qt-hint { color: var(--text); }
+.qt-hint-why { flex-basis: 100%; }
+.qt-form { display: flex; align-items: flex-end; gap: var(--s2); }
+.qt-form textarea { flex: 1; min-width: 0; min-height: 48px; max-height: 160px; resize: vertical; padding: var(--s2) var(--s3); border: 2px solid var(--control);
+  border-radius: 12px; background: var(--surface); color: var(--text); font: inherit; font-size: var(--t-sm); }
+.qt-form textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+.qt-form .btn { min-height: 48px; padding: 0 var(--s4); }
+.qt-error, .qt-credits { margin: 0; }
 /* the question reflows into the room beside the window (qtools.js sets --qt-l or --qt-r) */
 html.qt-open:not(.qt-sheet) .qt-shift { margin-left: var(--qt-l, 0px); margin-right: var(--qt-r, 0px); }
 html.qt-settle .qt-shift { animation: qt-settle 0.26s ease-out; }
@@ -2309,6 +2329,7 @@ html.qt-open:not(.qt-sheet) .exam-body.qt-shift { margin: 0; padding-left: var(-
 .tu-about { display: grid; gap: 2px; padding: var(--s3); border-radius: 12px; background: var(--raised); }
 .tu-about .label { margin: 0; }
 .tu-chat { display: flex; flex-direction: column; justify-content: flex-end; gap: var(--s3); min-height: 200px; }
+.tu-live .qt-chat { min-height: 260px; max-height: 60vh; }
 .tu-starts { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .tu-misses, .tu-ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
 .tu-misses button { width: 100%; display: grid; gap: 2px; text-align: left; padding: var(--s3); border: 1px solid var(--line); border-radius: 12px; background: none; color: var(--text); font: inherit; cursor: pointer; }

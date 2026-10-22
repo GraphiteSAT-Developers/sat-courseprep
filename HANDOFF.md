@@ -1,6 +1,6 @@
 # Handoff: SAT Math 800 course (Desmos-first, AI tutor)
 
-_Last updated 2026-10-19. Status: the site is built and runs; the AI tutor and video explanations are not built yet._
+_Last updated 2026-10-22. Status: the site is built and runs. The AI tutor is built (Claude API) and stays off until `ANTHROPIC_API_KEY` is set; video explanations are not built yet._
 
 ## What exists now
 The research below led to a working site, **Graphite SAT**, which differs from the original plan in a few ways:
@@ -9,7 +9,8 @@ The research below led to a working site, **Graphite SAT**, which differs from t
 - **Calculator:** Graphite's own graphing calculator, Topline (`topline/index.html`), built into every question. Not the Desmos API embed described in decision 1 and `docs/desmos-integration.md`. The lessons still teach Desmos moves, since Bluebook uses Desmos.
 - **Built:** accounts and parent accounts, the diagnostic and study plan, 1,500 original questions (1,000 Math, 500 Reading and Writing), practice sets, mock tests, one fixed practice test module, lessons, Level up, speed rounds, rewards, plans and checkout (Stripe), and the parent dashboard, a free score check with no account (`score-check.html`), study guides (`guides.html`), and estimated SAT scores on every practice test (`backend/app/services/scoring.py`).
 - **Plans:** two. Sharpened is free, a taste of each feature. Mechanical has everything for $1.99 a week, $8 a month or $72 a year. Details: `backend/README.md`, "Plans and prices".
-- **Not built yet:** the AI tutor (its page says "Coming soon") and video explanations. The site labels both "coming soon".
+- **AI tutor:** built on Anthropic's Claude API (Haiku 5.5, escalating to Sonnet 5.5), off until `ANTHROPIC_API_KEY` is set. Details: `backend/README.md`, "AI tutor". This settles the Gemini under-18 blocker below by not using Gemini.
+- **Not built yet:** video explanations (labelled "coming soon").
 - **Deploy:** `render.yaml`. Its database is on Render's free plan, which Render deletes after 30 days; move it to a paid plan before real students sign up.
 
 The rest of this file is the research-phase handoff, kept for its decisions and sources.

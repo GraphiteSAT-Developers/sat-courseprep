@@ -85,3 +85,12 @@ class Config:
     # First-party analytics (services/analytics.py), only for visitors who accept analytics cookies.
     ANALYTICS = _bool("ANALYTICS", True)
     ANALYTICS_DAYS = int(os.environ.get("ANALYTICS_DAYS", "395"))  # about 13 months, then rows are deleted
+
+    # The AI tutor (services/tutor.py), on Anthropic's Claude API. Off until ANTHROPIC_API_KEY is set; TUTOR_ENABLED=false
+    # turns it off again with the key still in place. Off, the tutor shows its "coming soon" state.
+    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+    TUTOR_ENABLED = _bool("TUTOR_ENABLED", True)
+    TUTOR_DAILY_CAP = int(os.environ.get("TUTOR_DAILY_CAP", "150"))          # fair-use messages a day, any plan
+    TUTOR_SONNET_DAILY_CAP = int(os.environ.get("TUTOR_SONNET_DAILY_CAP", "20"))  # Sonnet replies a day per student
+    TUTOR_PER_MINUTE = int(os.environ.get("TUTOR_PER_MINUTE", "8"))          # burst limit per student
+    TUTOR_RETENTION_DAYS = int(os.environ.get("TUTOR_RETENTION_DAYS", "90"))  # conversations are deleted after this

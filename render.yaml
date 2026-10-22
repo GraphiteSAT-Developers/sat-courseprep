@@ -40,6 +40,8 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
+      - key: ANTHROPIC_API_KEY  # turns on the AI tutor (Claude API). Optional caps: TUTOR_DAILY_CAP, TUTOR_SONNET_DAILY_CAP
+        sync: false
 
   # Daily study reminders (Settings > Study > Daily reminder). Runs once an hour and emails students whose
   # reminder time it is. Render bills cron jobs by the minute they run; delete this service to skip reminders.

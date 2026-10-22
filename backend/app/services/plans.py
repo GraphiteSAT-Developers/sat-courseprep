@@ -92,7 +92,7 @@ COMPARE = [
 ]
 
 # What each plan allows, for when limits are switched on (None means unlimited). A tutor credit is one
-# question to the tutor; the tutor isn't built yet, so nothing counts them so far.
+# message the tutor answers (services/tutor.py counts them; unlimited still has a fair-use daily cap).
 LIMITS = {
     "free": {"practice_sets_per_week": 3, "practice_tests_per_month": 1, "tutor_credits_per_month": 30, "video_explanations": False,
              "level_up": False, "study_plan": False, "parent_dashboard": False, "review_queue": True,

@@ -10,7 +10,7 @@
      bottom    a bar the window stays above (the practice test's question bar)
      launcher  show the Calculator / Tutor tabs on the right edge (pages with their own buttons turn it off)
      calc      the name the calculator saves its work under (default: the page's file name, so each page keeps its own)
-   Then GraphiteTools.open("calc" | "tutor"), .toggle(tab), .close(), .context({ title, detail }) and
+   Then GraphiteTools.open("calc" | "tutor"), .toggle(tab), .close(), .context({ title, detail, item_id, answer, section }) and
    .tutorAllowed(bool, why) for timed tests, where the tutor waits until the test is submitted, and .resetCalc()
    to start the calculator blank, as each new test attempt does. */
 (function () {
@@ -107,22 +107,242 @@
     D.getElementById("qt-calc").appendChild(f);
   }
 
-  /* ---------- the tutor (a placeholder until it's connected) ---------- */
-  var ASKS = ["Give me a hint", "Where did I go wrong?", "Show me the Desmos way", "Explain the answer"];
+  /* ---------- the tutor ---------- */
+  // Live pages ask /api/tutor whether it's on. Off (no API key yet) or in the static preview, the pane keeps its
+  // "coming soon" look. On, the chat below runs it: the same chat drives the tutor page (tutor.js).
+  var ASKS = [
+    { label: "Where did I go wrong?", send: "Where did I go wrong?", needs: "item" },
+    { label: "Show me the Desmos way", send: "Can you show me the Desmos way for this one?", subject: "math", needs: "item" },
+    { label: "What should I try first?", send: "What should I try first?", needs: "item" },
+    { label: "Explain a topic", fill: "Can you explain " }
+  ];
+  var tutorChat = null;
   function renderTutor() {
     var p = D.getElementById("qt-tutor"); if (!p) return;
     var about = ctx && ctx.title ? '<p class="qt-about"><span class="label">Asking about</span><strong>' + esc(ctx.title) + "</strong>" +
       (ctx.detail ? '<span class="fine">' + esc(ctx.detail) + "</span>" : "") + "</p>" : "";
     if (!allowed) {
+      tutorChat = null;
       p.innerHTML = about + '<div class="qt-wait"><p><strong>The tutor opens after you submit.</strong></p><p class="fine">' + esc(blockedWhy || "This one is timed, so your score stays your own work. Every question is waiting for you in the review.") + "</p></div>";
       return;
     }
-    p.innerHTML = about +
+    if (tutorChat) {
+      var a = p.querySelector(".qt-about-slot"); if (a) a.innerHTML = about;
+      tutorChat.setContext(ctx);
+      return;
+    }
+    p.innerHTML = '<div class="qt-about-slot">' + about + "</div>" +
       '<div class="qt-chat" aria-live="polite"><div class="qt-msg"><p>Stuck? Try the question first, then ask. Hints come one step at a time, so you still do the thinking.</p></div></div>' +
-      '<div class="qt-asks" role="group" aria-label="Quick questions">' + ASKS.map(function (a) { return '<button type="button" class="qt-ask" disabled>' + esc(a) + "</button>"; }).join("") + "</div>" +
+      '<div class="qt-asks" role="group" aria-label="Quick questions">' + ASKS.map(function (a) { return '<button type="button" class="qt-ask" disabled>' + esc(a.label) + "</button>"; }).join("") + "</div>" +
       '<div class="qt-input" role="note"><span>The message box for the tutor goes here.</span><span class="fine">Coming soon</span></div>' +
       '<p class="fine qt-note">The tutor is an automated helper. Your answers are always graded separately, and it can make mistakes, so check its work. <a href="tutor.html">Open the tutor page</a></p>';
+    Tutor.status().then(function (st) {
+      if (!st || !st.enabled || !allowed || tutorChat || !D.getElementById("qt-tutor")) return;
+      var slot = p.querySelector(".qt-about-slot");
+      p.innerHTML = ""; p.appendChild(slot);
+      var host = D.createElement("div"); host.className = "qt-live"; p.appendChild(host);
+      tutorChat = Tutor.chat(host, { starters: ASKS, compact: true, credits: st.credits, link: true });
+      tutorChat.setContext(ctx);
+    });
   }
+
+  // The lines in the student's calculator, as LaTeX, for the tutor. Topline may offer window.topline.analyze();
+  // otherwise its saved state (localStorage, "graphite-calc-v1-" + name) has every row.
+  function calcLines() {
+    var f = el && el.querySelector(".qt-calc iframe"), out = [];
+    try {
+      var tl = f && f.contentWindow && f.contentWindow.topline;
+      if (tl && typeof tl.analyze === "function") {
+        var a = tl.analyze(), list = Array.isArray(a) ? a : (a && a.lines) || [];
+        list.forEach(function (l) { var t = typeof l === "string" ? l : l && (l.latex || l.text); if (t) out.push(String(t)); });
+        if (out.length) return out.slice(0, 20);
+      }
+    } catch (e) { /* other origin */ }
+    try {
+      var st = JSON.parse(localStorage.getItem("graphite-calc-v1-" + calcName()) || "null");
+      (st && st.rows || []).forEach(function (r) { var t = String(r.text || "").trim(); if (r.type !== "table" && t && t.charAt(0) !== '"') out.push(t); });
+    } catch (e) { /* storage blocked */ }
+    return out.slice(0, 20);
+  }
+
+  var Tutor = (function () {
+    var statusP = null;
+    function call(path, data) {
+      var A = window.GraphiteAPI;
+      if (!A || !A.live) return Promise.reject(new Error("preview"));
+      return A.call(path, data);
+    }
+    function status() {
+      if (!statusP) statusP = call("/api/tutor").catch(function () { return null; });
+      return statusP;
+    }
+    // Tutor replies are plain text with a little LaTeX: shown as readable text, one paragraph per line.
+    function pretty(t) {
+      var s = esc(t)
+        .replace(/\\[dt]?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, function (m, a, b) { return (/^[\w.]+$/.test(a) ? a : "(" + a + ")") + "/" + (/^[\w.]+$/.test(b) ? b : "(" + b + ")"); })
+        .replace(/\\sqrt\s*\{([^{}]*)\}/g, "√($1)").replace(/\^\{?2\}?/g, "²").replace(/\^\{?3\}?/g, "³")
+        .replace(/\\cdot|\\times/g, "×").replace(/\\le(q)?\b/g, "≤").replace(/\\ge(q)?\b/g, "≥").replace(/\\ne(q)?\b/g, "≠")
+        .replace(/\\pi\b/g, "π").replace(/\\theta\b/g, "θ").replace(/\\(left|right)\b/g, "").replace(/\\[,;!]/g, " ")
+        .replace(/\\%/g, "%").replace(/\$/g, "").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      return s.split(/\n+/).filter(function (x) { return x.trim(); }).map(function (x) { return "<p>" + x + "</p>"; }).join("");
+    }
+    var HINTS = [["nudge", "Nudge"], ["method", "Method"], ["solution", "Full solution"]];
+
+    function chat(host, o) {
+      o = o || {};
+      var conv = null, solutionOK = false, busy = false, credits = o.credits || null, cur = {}, loadSeq = 0;
+      var free = {};  // free-form conversations by page context, so switching questions and back keeps them
+      host.innerHTML =
+        '<div class="qt-chat tu-log" role="log" aria-live="polite" aria-label="Conversation with the tutor"></div>' +
+        '<div class="qt-hints" role="group" aria-label="Hints, one step at a time">' + HINTS.map(function (h) {
+          return '<button type="button" class="qt-ask qt-hint" data-hint="' + h[0] + '">' + h[1] + "</button>"; }).join("") +
+          '<span class="fine qt-hint-why" hidden>The full solution opens after you answer the question or get the method.</span></div>' +
+        '<div class="qt-asks" role="group" aria-label="Quick questions"></div>' +
+        '<form class="qt-form" novalidate><label class="visually-hidden" for="">Message the tutor</label>' +
+          '<textarea rows="2" maxlength="1500" placeholder="Ask about this question, or say what you tried" data-no-filter></textarea>' +
+          '<button type="submit" class="btn btn-primary qt-send">Send</button></form>' +
+        '<p class="field-error qt-error" role="alert" hidden></p>' +
+        '<p class="fine qt-credits" hidden></p>' +
+        '<p class="fine qt-note">The tutor is an automated helper (AI). It can make mistakes, so check its work. Your answers are always graded separately.' +
+          (o.link ? ' <a href="tutor.html">Open the tutor page</a>' : "") + "</p>";
+      var log = host.querySelector(".tu-log"), form = host.querySelector("form"), box = form.querySelector("textarea");
+      var sendBtn = form.querySelector(".qt-send"), err = host.querySelector(".qt-error"), cred = host.querySelector(".qt-credits");
+      var asks = host.querySelector(".qt-asks"), why = host.querySelector(".qt-hint-why");
+      var uid = "tq" + Math.random().toString(36).slice(2, 8);
+      box.id = uid; form.querySelector("label").setAttribute("for", uid);
+
+      function add(role, text, extra) {
+        var m = D.createElement("div");
+        m.className = "qt-msg" + (role === "user" ? " qt-me" : "") + (extra ? " " + extra : "");
+        m.innerHTML = role === "user" ? "<p>" + esc(text) + "</p>" : pretty(text);
+        if (role !== "user") m.insertAdjacentHTML("afterbegin", '<span class="visually-hidden">Tutor: </span>');
+        else m.insertAdjacentHTML("afterbegin", '<span class="visually-hidden">You: </span>');
+        log.appendChild(m); log.scrollTop = log.scrollHeight;
+        return m;
+      }
+      function greet() {
+        log.innerHTML = "";
+        add("assistant", cur.item_id ? "Hi! What have you tried so far? Tell me your answer or where you got stuck, and we'll take it one step at a time."
+          : (o.greeting || "Hi! Tell me what you're stuck on. If you've tried it already, say what you got, and I'll start from there."));
+      }
+      function showCredits() {
+        if (!credits) { cred.hidden = true; return; }
+        var out = !credits.ok || credits.left === 0;
+        if (credits.unlimited && !out) { cred.hidden = true; }
+        else if (out) {
+          cred.innerHTML = "You've used all " + esc(credits.limit) + " of this month's tutor credits. " +
+            '<a href="subscription.html?feature=tutor">' + esc(credits.need_name || "Mechanical") + "</a> includes unlimited tutor help.";
+          cred.hidden = false;
+        } else {
+          cred.textContent = credits.left + " of " + credits.limit + " tutor credits left this month. Each message you send uses one.";
+          cred.hidden = false;
+        }
+        setBusy(busy);
+      }
+      function out() { return credits && (!credits.ok || credits.left === 0); }
+      function setBusy(b) {
+        busy = b;
+        log.setAttribute("aria-busy", String(b));
+        var off = b || out();
+        sendBtn.disabled = off; box.disabled = out();
+        host.querySelectorAll(".qt-hint").forEach(function (h) {
+          var locked = h.getAttribute("data-hint") === "solution" && !solutionOK;
+          h.disabled = off || locked;
+          if (locked) h.setAttribute("aria-describedby", uid + "-why"); else h.removeAttribute("aria-describedby");
+        });
+        why.id = uid + "-why"; why.hidden = solutionOK;
+        asks.querySelectorAll("button").forEach(function (a) { a.disabled = off; });
+      }
+      function renderAsks() {
+        var math = !(cur.section === "rw" || D.documentElement.getAttribute("data-subject") === "rw");
+        var list = (typeof o.starters === "function" ? o.starters(cur) : o.starters || []).filter(function (a) {
+          return (!a.subject || a.subject === (math ? "math" : "rw")) && (a.needs !== "item" || cur.item_id);
+        });
+        asks.innerHTML = list.map(function (a, i) { return '<button type="button" class="qt-ask" data-i="' + i + '">' + esc(a.label) + "</button>"; }).join("");
+        asks.hidden = !list.length;
+        asks.onclick = function (e) {
+          var b = e.target.closest("[data-i]"); if (!b) return;
+          var a = list[+b.getAttribute("data-i")];
+          if (a.fill) { box.value = a.fill; box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+          else send(typeof a.send === "function" ? a.send(cur) : a.send);
+        };
+        setBusy(busy);
+      }
+      function apply(r) {
+        if (r.conversation_id) { conv = r.conversation_id; if (!cur.item_id) free[cur.key || "page"] = conv; }
+        if ("solution_allowed" in r) solutionOK = !!r.solution_allowed;
+        if (r.credits) credits = r.credits;
+        showCredits();
+      }
+      function fail(e) {
+        var d = (e && e.data) || {};
+        if (e && e.status === 401) { location.href = "/signin.html?next=" + encodeURIComponent(location.pathname + location.search); return; }
+        if (d.code === "plan_required" && d.lock) {
+          credits = Object.assign({}, credits || {}, { ok: false, left: 0, limit: d.lock.limit, need_name: d.lock.need_name });
+          showCredits();
+        }
+        if (d.code === "no_conversation") { conv = null; }
+        err.textContent = (e && e.message && e.message !== "preview") ? e.message : "The tutor couldn't answer just now. Try again in a moment.";
+        err.hidden = false;
+      }
+      function send(text, hint) {
+        if (busy || out()) return;
+        text = String(text || "").trim();
+        if (!text && !hint) { box.focus(); return; }
+        err.hidden = true;
+        var shown = text || { nudge: "Can I have a nudge?", method: "Can you show me the method?", solution: "Can I see the full solution?" }[hint];
+        add("user", shown);
+        var wait = add("assistant", "Thinking…", "qt-typing");
+        setBusy(true);
+        var data = { message: text };
+        if (hint) data.hint_request = hint;
+        if (conv) data.conversation_id = conv; else if (cur.item_id) data.item_id = cur.item_id;
+        if (cur.answer != null && cur.answer !== "") data.answer = String(cur.answer);
+        var lines = cur.section === "rw" ? [] : (o.calc || calcLines)();
+        if (lines.length) data.calculator = lines;
+        call("/api/tutor/message", data).then(function (r) {
+          wait.remove(); add("assistant", r.reply, r.safety ? "qt-safety" : "");
+          apply(r);
+          if (!hint) box.value = "";
+        }).catch(function (e) {
+          wait.remove();
+          if (!hint && text) box.value = text;
+          fail(e);
+        }).then(function () { setBusy(false); });
+      }
+      form.addEventListener("submit", function (e) { e.preventDefault(); send(box.value); });
+      box.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(box.value); }
+      });
+      host.querySelector(".qt-hints").addEventListener("click", function (e) {
+        var b = e.target.closest("[data-hint]"); if (b && !b.disabled) send("", b.getAttribute("data-hint"));
+      });
+
+      function setContext(c) {
+        c = c || {};
+        var next = { item_id: c.item_id || null, answer: c.answer, section: c.section || null, key: c.title || "page" };
+        var same = next.item_id === cur.item_id && (next.item_id || next.key === cur.key);
+        cur = next;
+        if (same) { renderAsks(); return; }
+        conv = next.item_id ? null : (free[next.key] || null);
+        solutionOK = false; err.hidden = true;
+        greet(); renderAsks();
+        if (!next.item_id) return;
+        var seq = ++loadSeq;
+        call("/api/tutor?item_id=" + encodeURIComponent(next.item_id)).then(function (st) {
+          if (seq !== loadSeq || !st || !st.conversation) return;
+          var cv = st.conversation;
+          conv = cv.id; solutionOK = !!cv.solution_allowed;
+          if (st.credits) credits = st.credits;
+          if (cv.messages.length) { log.innerHTML = ""; cv.messages.forEach(function (m) { add(m.role, m.text); }); }
+          showCredits();
+        }).catch(function () { /* a fresh conversation is fine */ });
+      }
+      showCredits(); greet(); renderAsks();
+      return { setContext: setContext, send: send, focus: function () { box.focus(); } };
+    }
+    return { status: status, chat: chat, pretty: pretty };
+  })();
 
   /* ---------- open, close, layout ---------- */
   function show(t) {
@@ -308,7 +528,11 @@
       var l = D.getElementById("qt-launch"); if (l) l.hidden = !yes;
       if (!yes) close();
     },
+    // c: { title, detail } and, for a bank question, item_id, the student's answer and section ("math" or "rw")
     context: function (c) { ctx = c || null; renderTutor(); },
-    tutorAllowed: function (yes, why) { allowed = !!yes; blockedWhy = why || ""; renderTutor(); }
+    tutorAllowed: function (yes, why) { if (allowed === !!yes && (why || "") === blockedWhy) return; allowed = !!yes; blockedWhy = why || ""; renderTutor(); },
+    tab: function () { return tab; }
   };
+  // The tutor page's chat uses the same code.
+  window.GraphiteTutor = Tutor;
 })();

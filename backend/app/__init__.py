@@ -62,6 +62,8 @@ def create_app(overrides=None):
                 raise ApiError(429, "That's a lot of requests at once. Wait a minute and try again.", code="rate_limited")
             if random.random() < 0.01:
                 prune_events()
+                from .services import tutor
+                tutor.prune()  # conversations older than TUTOR_RETENTION_DAYS
             # Parents see a student only through the parent dashboard; students can't use it.
             user = current_user()
             if request.method not in ("GET", "HEAD", "OPTIONS"):
@@ -80,6 +82,14 @@ def create_app(overrides=None):
         import json as _json
         from .services import analytics
         print(_json.dumps(analytics.report(), indent=2))
+
+    @app.cli.command("tutor-report")
+    def tutor_report():
+        """The tutor's last 30 days: messages, tokens and cost by model, and flagged conversations."""
+        import json as _json
+        from .services import tutor
+        tutor.prune()
+        print(_json.dumps(tutor.report(), indent=2))
 
     @app.cli.command("send-weekly-reports")
     def weekly_reports():
