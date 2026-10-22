@@ -114,6 +114,9 @@ All routes return JSON. Writes need `Content-Type: application/json` and must co
 | `GET /api/focus`, `POST /api/focus/start`, `POST /api/focus/<id>/finish` | Focus timer | Yes |
 | `GET /api/lessons`, `GET /api/lessons/<id>`, `POST /api/lessons/<id>/complete` | Lessons and recall checks | Yes |
 | `GET /api/me/prefs`, `PATCH /api/me/prefs` | Dashboard layout, practice defaults and drawn avatar: `{"dashboard": {...}, "study": {...}, "avatar": {...}}`. Look settings go through `PATCH /api/me/appearance` | Yes |
+| `GET /api/tutor` | Whether the tutor is on, the student's credits and recent conversations (`?item_id=` adds the latest one about that question) | Student |
+| `POST /api/tutor/message` | One message to the tutor: `{"conversation_id"?, "item_id"?, "message", "hint_request"?: "nudge"\|"method"\|"solution", "calculator"?: [LaTeX lines], "answer"?}`. Returns the reply, the hint level reached, the model and credits left | Student |
+| `GET /api/tutor/conversations/<id>` | One conversation, to pick it up again | Student |
 | `GET /api/health` | Health check for the host | No |
 
 ## Folder layout
@@ -260,11 +263,39 @@ No products need to be made in Stripe: the server creates each price from `plans
 
 On your own computer, Stripe can't reach `127.0.0.1` for webhooks. Checkout still works, because the plan is also started when the parent comes back from Stripe. To test webhooks locally, use the Stripe CLI: `stripe listen --forward-to localhost:8000/api/stripe/webhook`.
 
+## AI tutor
+
+`app/services/tutor.py` (routes in `app/routes/tutor.py`). It runs on Anthropic's Claude API with the official `anthropic`
+SDK: Claude Haiku 5.5 answers, and a conversation moves to Claude Sonnet 5.5 when the student stays stuck. It's off until
+`ANTHROPIC_API_KEY` is set (`TUTOR_ENABLED=false` turns it off again); off, the Tutor tab and the tutor page keep their
+"coming soon" look. Don't route it through Google Vertex AI or Gemini: their terms bar generative AI in services
+likely to be used by under-18s.
+
+- **Correctness comes from the bank.** Each conversation about a bank question gets the verified key, the worked
+  explanation and its distractor notes, the Desmos lines, and the technique or skill tips. The tutor coaches from them.
+- **Hint ladder, enforced on the server:** nudge, method, full solution. The full solution opens only after the student
+  has submitted an answer to that question or already had the method. Below it, every reply goes through a leak check
+  (the correct letter, the choice's text, or the value as a fraction or decimal); a leaking reply is rewritten once, then
+  replaced with a nudge from the bank.
+- **Timed tests:** while a practice test, mock test, diagnostic or speed round is running, the tutor waits, and questions
+  from a timed test that hasn't been submitted stay closed.
+- **Credits:** one per message answered (`tutor_usage`). Sharpened has `tutor_credits_per_month` (30); Mechanical is
+  unlimited with a fair-use daily cap (`TUTOR_DAILY_CAP`, 150) and a daily Sonnet cap (`TUTOR_SONNET_DAILY_CAP`, 20).
+  Errors and refusals don't use a credit. Burst limit: `TUTOR_PER_MINUTE` (8).
+- **Safety:** messages about self-harm, abuse or danger never reach the model; the student gets the 988 Suicide & Crisis
+  Lifeline, the conversation is flagged and `ADMIN_EMAIL` is emailed. Curse words are refused like everywhere else.
+- **Data:** messages are encrypted, deleted after `TUTOR_RETENTION_DAYS` (90), included in "Download my data" and deleted
+  with the account. No names or emails are sent to the API.
+- **Costs:** `flask --app wsgi tutor-report` shows the last 30 days' messages, tokens and cost by model, and flagged
+  conversations.
+- **Evals** (not in CI; they call the API): `ANTHROPIC_API_KEY=... python tutor_evals/run.py` runs simulated students
+  (asks for the answer, picks a distractor, stays confused, goes off-topic) on 20 bank questions and scores leaks,
+  keystrokes, mistakes found, escalation and cost. Add `--all` for every behaviour on every question, `--show` to read them.
+
 ## Not built yet
 
-- Counting tutor credits (`tutor_credits_per_month` in `LIMITS`, `app/services/plans.py`): there's no tutor to count them yet
 - Email verification for new accounts
 - Sending the weekly progress email to parents
 - An admin page to see leads and students (for now, query the `leads` and `users` tables)
 - Reading and Writing practice tests, lessons, levels and speed rounds (each page has a "coming soon" preview under its Reading and Writing switch)
-- The tutor's answers: the tutor page and the Tutor tab show a placeholder where the message box goes. Before launch, every claim about the tutor on the home page (it's on every question, it knows what you missed this week, hints before answers) has to be true
+- Streaming tutor replies (they come back whole; the two sync workers make long-lived streams risky). Before turning the tutor on, check every claim about it on the home page and in the plan copy ("coming soon") against what it does
