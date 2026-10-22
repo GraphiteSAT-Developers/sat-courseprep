@@ -278,7 +278,7 @@
     if (tools) {
       var ask = document.createElement("button"); ask.type = "button"; ask.className = "btn btn-quiet ask-tutor";
       ask.textContent = g.correct ? "Ask the tutor about this one" : "Ask the tutor where it went wrong";
-      ask.addEventListener("click", function () { tools.context({ title: "Question " + (i + 1), detail: Q[i].skill || Q[i].domain || "" }); tools.open("tutor"); });
+      ask.addEventListener("click", function () { tools.context(askAbout(i)); tools.open("tutor"); });
       area.querySelector(".fb").appendChild(ask);
     }
     if (g.game) {
@@ -610,7 +610,10 @@
       if (tools) {
         var ask = document.createElement("button"); ask.type = "button"; ask.className = "btn btn-quiet ask-tutor";
         ask.textContent = q.correct ? "Ask the tutor about it" : "Ask the tutor where it went wrong";
-        ask.addEventListener("click", function () { tools.context({ title: "Question " + (q.index + 1), detail: q.skill || q.domain || "" }); tools.open("tutor"); });
+        ask.addEventListener("click", function () {
+          tools.context({ title: "Question " + (q.index + 1), detail: q.skill || q.domain || "", item_id: q.id || null, section: q.section || null, answer: q.your_answer });
+          tools.open("tutor");
+        });
         d.querySelector(".res-body").appendChild(ask);
       }
       list.appendChild(d);
@@ -630,11 +633,17 @@
     tools.tutorAllowed(!off, "The tutor isn't available during a timed test, so your score stays your own work. Every question is waiting for you in the review.");
     if (off && tools.tab && tools.tab() === "tutor") tools.close();
   }
+  // What the tutor needs about question i: its bank id (questions from the bank have one), the student's answer and section.
+  function askAbout(i) {
+    var q = Q[i], a = S.answers[i];
+    return { title: "Question " + (i + 1), detail: q.skill || q.domain || "", item_id: q.id || null, section: q.section || null,
+             answer: a === undefined || a === null || a === "" ? null : (q.type === "mc" ? LETTERS[a] : String(a)) };
+  }
   function tutorContext() {
     if (!tools) return;
     var q = Q[S.cur];
     if (S.page === "results") tools.context({ title: "Your results", detail: "Ask about any question you missed." });
-    else if (q) tools.context({ title: "Question " + (S.cur + 1), detail: q.skill || q.domain || "" });
+    else if (q) tools.context(askAbout(S.cur));
   }
   function setCalc(open) { if (tools) { if (open) tools.open("calc"); else tools.close(); } }
   function closePopup() { /* the calculator never leaves the page anymore */ }
