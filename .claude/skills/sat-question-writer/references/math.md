@@ -48,7 +48,7 @@ Students practise in Topline (our calculator) and sit the test in Bluebook's Des
 - Prefer the midpoint/distance formulas to `midpoint()`/`distance()` until those are confirmed in the College Board build.
 - Points of interest (intersections, intercepts, vertices) are clicked, not computed by a line. Say what to click in `read`, and for the checker add a helper line that computes the same value in `check.topline.lines`.
 
-Choose the route honestly. Many items are faster by hand (interpretation, structure, quick algebra); mark them `hand-primary` and keep a Desmos check route only if it's genuinely useful.
+Choose the route honestly: `desmos-primary` when typing it in is clearly faster than the algebra (messy roots, regressions, many-step evaluation), `hand-primary` when a student who knows the move finishes in under about 30 seconds, `either` when they're close. Many items are faster by hand (interpretation, structure, quick algebra); mark them `hand-primary` and keep a Desmos check route only if it's genuinely useful.
 
 ## What good Math items look like
 

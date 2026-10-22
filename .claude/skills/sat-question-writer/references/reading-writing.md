@@ -5,7 +5,7 @@ The Digital SAT Reading and Writing section is 54 questions in two 32-minute mod
 ## Format (one JSON object per line)
 
 ```json
-{"id": "rw-wic-073", "section": "rw", "domain": "craft-structure", "skill": "Words in context", "difficulty": "medium",
+{"id": "rw-wic-NNN", "section": "rw", "domain": "craft-structure", "skill": "Words in context", "difficulty": "medium",
  "format": "mc",
  "passage": [{"kind": "p", "paras": ["... ______ ..."]}],
  "stem": "Which choice completes the text with the most logical and precise word or phrase?",
@@ -17,7 +17,7 @@ The Digital SAT Reading and Writing section is 54 questions in two 32-minute mod
 
 | Field | Rule |
 |---|---|
-| `id` | `rw-<code>-NNN`, where `<code>` is the skill's `code` in `rw_skills.json` (`wic`, `tsp`, `ctc`, `cid`, `coet`, `coeq`, `inf`, `bnd`, `fss`, `tr`, `rs`) and NNN continues after the highest number already in the bank and in other drafts |
+| `id` | `rw-<code>-NNN`, where `<code>` is the skill's `code` in `rw_skills.json` (`wic`, `tsp`, `ctc`, `cid`, `coet`, `coeq`, `inf`, `bnd`, `fss`, `tr`, `rs`) and NNN continues after the highest number for that code in the bank and in any existing `question-drafts/*.jsonl` (the checker fails on a reused id) |
 | `section` | `"rw"` |
 | `domain` | `craft-structure`, `information-ideas`, `conventions`, `expression-ideas` (must match the skill's domain) |
 | `skill` | Exactly a `name` from `rw_skills.json` |

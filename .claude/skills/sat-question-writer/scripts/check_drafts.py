@@ -200,6 +200,12 @@ def main():
             fail(it, "check.blind missing: have a separate agent answer the question without the key")
 
         texts = [it.get("stem", "")] + list(it.get("choices") or []) + [it.get("byHand", "")]
+        if any("\n" in t for t in texts if isinstance(t, str)):
+            fail(it, "line break in the stem, choices or explanation: write it on one line, the bank's way")
+        if it.get("format") == "mc" and it.get("answerIndex") in range(4) and isinstance(it.get("choices"), list) and len(it["choices"]) == 4:
+            ln = [len(c) for c in it["choices"]]
+            if ln[it["answerIndex"]] > max(n for i, n in enumerate(ln) if i != it["answerIndex"]):
+                warn(it, "the right answer is the longest choice (fine sometimes, but not as a habit)")
 
         if it.get("format") == "mc":
             ch = it.get("choices")
@@ -358,7 +364,10 @@ def main():
         else:
             got = next((r["params"][exp["param"]] for r in rows if r["params"] and exp.get("param") in r["params"]), None)
         if isinstance(got, (int, float)) and target is not None and close(got, target, 1e-6):
-            verified.add(it["id"])
+            if tl.get("lines"):
+                warn(it, "confirmed with helper lines, so the student's own route is unproven: exported with verified false")
+            else:
+                verified.add(it["id"])
         else:
             fail(it, f"Topline gives {got!r} for {exp}, expected {target}")
 
@@ -380,7 +389,7 @@ def main():
 
     # Batch-level warnings: answer letters and the longest-choice tell
     mc = [d for d in drafts if d.get("format") == "mc" and d.get("answerIndex") in range(4)]
-    if len(mc) >= 8:
+    if len(mc) >= 4:
         letters = Counter("ABCD"[d["answerIndex"]] for d in mc)
         if max(letters.values()) > 0.4 * len(mc):
             warns.setdefault("(batch)", []).append(f"right answers bunch up: {dict(sorted(letters.items()))}")

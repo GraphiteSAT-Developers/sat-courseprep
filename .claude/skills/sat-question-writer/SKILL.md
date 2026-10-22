@@ -29,7 +29,7 @@ Read the relevant skills file before writing, and match `skill` names to it exac
    - Math: [references/math.md](references/math.md)
    - Reading and Writing: [references/reading-writing.md](references/reading-writing.md)
 3. **Add a `check` block** to every draft (format below). It is draft-only and is stripped on export.
-4. **Blind-solve.** For each question, have a separate agent (a subagent, with no access to your notes or the key) answer it from only what a student sees: passage, stem and choices. Record its answer in `check.blind`. If it disagrees with your key, the question is wrong or ambiguous: fix it or drop it. Don't argue the solver round to your answer.
+4. **Blind-solve.** Have a separate agent (a subagent with no access to your notes or the key) answer the questions from only what a student sees: passage, stem and choices, with SPR questions marked "enter a number". One solver can take the whole batch. Ask it to say if any question has more than one defensible answer. Record its answers in `check.blind`. If it disagrees with your key, the question is wrong or ambiguous: fix it or drop it, and don't argue the solver round to your answer. If you have no way to start a separate agent, stop and ask the user how they want this done; never fill `check.blind` from the key yourself.
 5. **Run the checker** from the repo root, and fix everything it reports:
    ```bash
    python .claude/skills/sat-question-writer/scripts/check_drafts.py question-drafts/<batch>.jsonl
@@ -39,7 +39,7 @@ Read the relevant skills file before writing, and match `skill` names to it exac
    ```bash
    python .../check_drafts.py question-drafts/<batch>.jsonl --export question-drafts/<batch>.ready.jsonl
    ```
-   Export strips `check` and sets `desmos.verified: true` on questions whose Topline lines produced the key.
+   Export strips `check` and sets `desmos.verified: true` only on questions whose own `desmos.lines` produced the key in Topline (helper lines don't count, see below).
 7. **Report** to the user: how many written, how many dropped and why, the skill/difficulty/answer-letter spread, and anything a human should look at (borderline wording, figures that need drawing). Commit the drafts on a `claude/...` branch if they want, but don't merge into the bank unless asked.
 
 ## The rules that matter most
@@ -54,7 +54,7 @@ Read the relevant skills file before writing, and match `skill` names to it exac
 
 **Difficulty is honest.** Easy: one step, a skill used directly. Medium: two or three steps, or a context to translate. Hard: the kind of item that separates 750 from 800: several steps, a constraint to notice, unknown constants, or interpretation that needs care. Don't make "hard" by making numbers ugly.
 
-**Student-facing text** is plain and short. Math is always LaTeX in `$...$` (the bank tests fail on bare `x^2`, `sqrt(`, `<=`, `π` or `3 + 4` outside `$`). Money is written in words ("45.00 dollars"), never with a `$` sign. No emoji, no slang, no names or topics that could upset a teenager, and keep contexts neutral and fair across backgrounds.
+**Student-facing text** is plain and short, on one line (no line breaks in stems, choices or explanations; write systems inline, the bank's way: "In the system of equations $5x - ky = 8$ and $15x + 12y = 2$, ..."). Math is always LaTeX in `$...$` (the bank tests fail on bare `x^2`, `sqrt(`, `<=`, `π` or `3 + 4` outside `$`). Money is written in words ("45.00 dollars"), never with a `$` sign. No emoji, no slang, no names or topics that could upset a teenager, and keep contexts neutral and fair across backgrounds.
 
 ## The `check` block (draft-only)
 
@@ -69,9 +69,9 @@ Read the relevant skills file before writing, and match `skill` names to it exac
 ```
 
 - `sympy` (Math, required): Python that **computes** the answer from the problem's math, with `from sympy import *` already done. Set `answer` (SPR, or the value of the right MC choice) and, for MC, `answer_index` by testing each choice. Don't hard-code the key; the point is an independent route.
-- `topline` (Math, when the item has `desmos.lines`): what the lines should produce. `expect.line` (1-based) checks that line's value; `expect.param` checks a regression parameter (like `"b"`). Points of interest (intersections, intercepts) can't be read by the engine, so for those give the value as a line that computes it (add a helper line to `topline.lines`, which overrides `desmos.lines` for checking only) or omit `expect` and just make sure every line runs.
+- `topline` (Math, when the item has `desmos.lines`): what the lines should produce. `expect.line` (1-based) checks that line's value; `expect.param` checks a regression parameter (like `"b"`). The checker compares against the key (SPR) or `check.value` (MC). Points of interest (intersections, intercepts) can't be read by the engine. For those, either omit `expect` (the checker still makes sure every student line runs) or give `topline.lines`: the student's lines plus a helper line that computes the clicked value from the same math, never the key typed in. Helper lines mean the student's route isn't proven, so the item exports with `verified: false` and a human should try the clicks.
 - `value`: the numeric value of the correct answer when there is one (MC or SPR), as a number or `"p/q"`.
-- `blind` (required): the blind solver's answer: an index 0–3 for MC, a value for SPR.
+- `blind` (required): the blind solver's answer: an index 0–3 for MC; for SPR a number or a `"p/q"` string.
 - Reading and Writing questions need only `blind` (and `notes` if useful).
 
 ## Before you finish
