@@ -3,7 +3,7 @@
 The pages blueprint stays last: it catches every path that isn't an API route.
 """
 from . import (account, auth, checkout, dashboard, family, history, integrity, leads, mocktests, pages, plan, play, practice,
-               scorecheck, settings, subscription, tests)
+               scorecheck, settings, subscription, tests, tutor)
 
 BLUEPRINTS = [
     auth.bp,        # /api/auth/...  create account, sign in and out, password reset
@@ -31,6 +31,7 @@ BLUEPRINTS = [
     play.pet_bp,      # /api/pet      hatch and raise a pet
     history.bp,       # /api/me/history  everything done on the site, and every answered question
     integrity.bp,     # /api/integrity/copy, /api/analytics, /api/consent
+    tutor.bp,         # /api/tutor    the AI tutor: messages, hint ladder, credits
     # Add new feature blueprints above this line. See routes/_example.py.
     pages.bp,       # the website itself, plus /api/health
 ]

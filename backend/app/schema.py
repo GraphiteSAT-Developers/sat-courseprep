@@ -438,7 +438,52 @@ MIGRATIONS = [
     (17, "Paper is the default theme", [
         "UPDATE users SET theme = 'paper' WHERE theme = 'dark'",
     ]),
-    # (18, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
+    # The AI tutor (services/tutor.py). Messages are encrypted (crypto.seal) and deleted after TUTOR_RETENTION_DAYS.
+    # tutor_usage has one row per student message that reached the API: credits, caps and token costs come from it.
+    (18, "AI tutor: conversations, messages and usage", [
+        """CREATE TABLE tutor_conversations (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            item_id TEXT,
+            hint_level INTEGER NOT NULL DEFAULT 0,
+            escalated INTEGER NOT NULL DEFAULT 0,
+            student_turns INTEGER NOT NULL DEFAULT 0,
+            stuck_count INTEGER NOT NULL DEFAULT 0,
+            leak_failures INTEGER NOT NULL DEFAULT 0,
+            flagged INTEGER NOT NULL DEFAULT 0,
+            flag_reason TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_tutor_conv_user ON tutor_conversations (user_id, updated_at)",
+        """CREATE TABLE tutor_messages (
+            id {pk},
+            conversation_id INTEGER NOT NULL REFERENCES tutor_conversations(id) ON DELETE CASCADE,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            hint_level INTEGER NOT NULL DEFAULT 0,
+            model TEXT,
+            at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_tutor_msg_conv ON tutor_messages (conversation_id, id)",
+        """CREATE TABLE tutor_usage (
+            id {pk},
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            conversation_id INTEGER REFERENCES tutor_conversations(id) ON DELETE SET NULL,
+            model TEXT NOT NULL,
+            charged INTEGER NOT NULL DEFAULT 1,
+            calls INTEGER NOT NULL DEFAULT 1,
+            input_tokens INTEGER NOT NULL DEFAULT 0,
+            cached_input_tokens INTEGER NOT NULL DEFAULT 0,
+            cache_write_tokens INTEGER NOT NULL DEFAULT 0,
+            output_tokens INTEGER NOT NULL DEFAULT 0,
+            day TEXT NOT NULL,
+            at TEXT NOT NULL
+        )""",
+        "CREATE INDEX idx_tutor_usage_user ON tutor_usage (user_id, at)",
+    ]),
+    # (19, "Describe your change", ["ALTER TABLE users ADD COLUMN ..."]),
 ]
 
 

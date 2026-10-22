@@ -27,6 +27,7 @@ FEATURES = {
     "score_history": ("score_history", "Score history and skill breakdown", None),
     "parent_dashboard": ("parent_dashboard", "The parent dashboard", None),
     "lessons": ("all_lessons", "Every lesson", None),  # the free plan gets lessons.FREE_LESSONS only
+    "tutor": ("tutor_credits_per_month", "Tutor credits", "month"),  # one credit per message the tutor answers
 }
 
 
@@ -60,6 +61,9 @@ def used(student_id, feature, today=None):
         # Practice sets the student starts: topics and today's sets. Plan tasks, Level up and review count elsewhere.
         row = query("SELECT COUNT(*) AS n FROM practice_sessions WHERE user_id = ? AND mode = 'topic' AND created_at >= ?",
                     (student_id, since), one=True)
+        return row["n"]
+    if feature == "tutor":
+        row = query("SELECT COUNT(*) AS n FROM tutor_usage WHERE user_id = ? AND charged = 1 AND at >= ?", (student_id, since), one=True)
         return row["n"]
     row = query("SELECT COUNT(*) AS n FROM mock_tests WHERE user_id = ? AND created_at >= ?", (student_id, since), one=True)
     single = query("SELECT COUNT(*) AS n FROM practice_sessions WHERE user_id = ? AND mode = 'test' AND plan_task IS NULL "
