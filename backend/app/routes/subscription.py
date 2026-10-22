@@ -10,11 +10,11 @@ A parent can manage the same subscription from the parent dashboard. Whoever pai
 """
 from datetime import date, timedelta
 
-from flask import Blueprint, current_app, jsonify
+from flask import Blueprint, jsonify
 
 from ..db import query
 from ..security import ApiError, body, current_user, login_required
-from .. import testaccount
+from .. import admins
 from ..services import access, billing, parent as service, stripe_api
 from ..services.plans import INTERVALS, PLANS, public_plans
 
@@ -59,7 +59,7 @@ def _out(me):
 
 
 def _is_test(me):
-    return bool(current_app.config.get("TEST_ACCOUNT")) and me["email"] == testaccount.USERNAME
+    return admins.is_test_student(me)
 
 
 TEST_STATUSES = ("active", "past_due", "paused", "canceled")
