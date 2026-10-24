@@ -3005,48 +3005,62 @@ mark.anno:focus-visible { outline: 2px solid var(--x-sel); }
 @media (prefers-reduced-motion: reduce) { .guide-card, .guide-card:hover { transition: none; transform: none; } }
 
 /* ---------- Practice test: test-day bars (practice-test.html) ----------
-   The top and bottom bars take the digital SAT's colors: a pale blue band with navy ink, edged with a dashed stripe
-   of navy, yellow and black. Next is the blue button, the question list the black one. Every view gets the same
-   scheme; dark themes get a deep navy band. The stripe draws itself in once when the test opens. */
+   Modeled on the digital SAT's Bluebook screen: plain white bars edged by a thin dashed line in dark gray, yellow,
+   blue and light gray; blue Back and Next pills; a black question button; and a question list with solid blue
+   answered squares, dashed unanswered ones, a pin over the current question and a red bookmark on marked ones.
+   Dark themes keep their dark bars with the same line and blues. */
 .exam {
-  --x-band: #e7eefc; --x-band-ink: #0c1838; --x-band-soft: #c9d6f3;
-  --x-navy: #1c3f99; --x-gold: #f2c14e; --x-black: #101217;
-  --x-go: #2547c9; --x-go-hover: #1b389f; --x-go-ink: #ffffff;
-  --x-stripe: repeating-linear-gradient(90deg, var(--x-navy) 0 38px, transparent 38px 44px, var(--x-gold) 44px 60px, transparent 60px 66px, var(--x-black) 66px 80px, transparent 80px 86px);
+  --x-band: #ffffff; --x-band-ink: #1e1e1e;
+  --x-cb-blue: #324dc7; --x-cb-blue-hover: #2a40a8; --x-cb-cell: #2f5fd0; --x-cb-red: #c8102e;
+  /* 96 dashes in random order (generated once with a fixed seed), repeating every 1824px, too wide to notice. */
+  --x-dash: repeating-linear-gradient(90deg, #3c3c3c 0px 14px, transparent 14px 19px, #c9c9c9 19px 33px, transparent 33px 38px, #3c3c3c 38px 52px, transparent 52px 57px, #2f7bd9 57px 71px, transparent 71px 76px, #c9c9c9 76px 90px, transparent 90px 95px, #2f7bd9 95px 109px, transparent 109px 114px, #c9c9c9 114px 128px, transparent 128px 133px, #3c3c3c 133px 147px, transparent 147px 152px, #c9c9c9 152px 166px, transparent 166px 171px, #3c3c3c 171px 185px, transparent 185px 190px, #fec629 190px 204px, transparent 204px 209px, #2f7bd9 209px 223px, transparent 223px 228px, #c9c9c9 228px 242px, transparent 242px 247px, #fec629 247px 261px, transparent 261px 266px, #c9c9c9 266px 280px, transparent 280px 285px, #3c3c3c 285px 299px, transparent 299px 304px, #2f7bd9 304px 318px, transparent 318px 323px, #3c3c3c 323px 337px, transparent 337px 342px, #c9c9c9 342px 356px, transparent 356px 361px, #fec629 361px 375px, transparent 375px 380px, #c9c9c9 380px 394px, transparent 394px 399px, #2f7bd9 399px 413px, transparent 413px 418px, #c9c9c9 418px 432px, transparent 432px 437px, #fec629 437px 451px, transparent 451px 456px, #c9c9c9 456px 470px, transparent 470px 475px, #3c3c3c 475px 489px, transparent 489px 494px, #2f7bd9 494px 508px, transparent 508px 513px, #c9c9c9 513px 527px, transparent 527px 532px, #2f7bd9 532px 546px, transparent 546px 551px, #3c3c3c 551px 565px, transparent 565px 570px, #c9c9c9 570px 584px, transparent 584px 589px, #3c3c3c 589px 603px, transparent 603px 608px, #2f7bd9 608px 622px, transparent 622px 627px, #3c3c3c 627px 641px, transparent 641px 646px, #c9c9c9 646px 660px, transparent 660px 665px, #2f7bd9 665px 679px, transparent 679px 684px, #fec629 684px 698px, transparent 698px 703px, #2f7bd9 703px 717px, transparent 717px 722px, #3c3c3c 722px 736px, transparent 736px 741px, #c9c9c9 741px 755px, transparent 755px 760px, #2f7bd9 760px 774px, transparent 774px 779px, #3c3c3c 779px 793px, transparent 793px 798px, #2f7bd9 798px 812px, transparent 812px 817px, #fec629 817px 831px, transparent 831px 836px, #3c3c3c 836px 850px, transparent 850px 855px, #2f7bd9 855px 869px, transparent 869px 874px, #3c3c3c 874px 888px, transparent 888px 893px, #2f7bd9 893px 907px, transparent 907px 912px, #3c3c3c 912px 926px, transparent 926px 931px, #2f7bd9 931px 945px, transparent 945px 950px, #fec629 950px 964px, transparent 964px 969px, #c9c9c9 969px 983px, transparent 983px 988px, #3c3c3c 988px 1002px, transparent 1002px 1007px, #fec629 1007px 1021px, transparent 1021px 1026px, #c9c9c9 1026px 1040px, transparent 1040px 1045px, #fec629 1045px 1059px, transparent 1059px 1064px, #c9c9c9 1064px 1078px, transparent 1078px 1083px, #2f7bd9 1083px 1097px, transparent 1097px 1102px, #3c3c3c 1102px 1116px, transparent 1116px 1121px, #c9c9c9 1121px 1135px, transparent 1135px 1140px, #3c3c3c 1140px 1154px, transparent 1154px 1159px, #fec629 1159px 1173px, transparent 1173px 1178px, #c9c9c9 1178px 1192px, transparent 1192px 1197px, #fec629 1197px 1211px, transparent 1211px 1216px, #2f7bd9 1216px 1230px, transparent 1230px 1235px, #3c3c3c 1235px 1249px, transparent 1249px 1254px, #fec629 1254px 1268px, transparent 1268px 1273px, #2f7bd9 1273px 1287px, transparent 1287px 1292px, #fec629 1292px 1306px, transparent 1306px 1311px, #c9c9c9 1311px 1325px, transparent 1325px 1330px, #3c3c3c 1330px 1344px, transparent 1344px 1349px, #c9c9c9 1349px 1363px, transparent 1363px 1368px, #2f7bd9 1368px 1382px, transparent 1382px 1387px, #fec629 1387px 1401px, transparent 1401px 1406px, #3c3c3c 1406px 1420px, transparent 1420px 1425px, #fec629 1425px 1439px, transparent 1439px 1444px, #2f7bd9 1444px 1458px, transparent 1458px 1463px, #c9c9c9 1463px 1477px, transparent 1477px 1482px, #2f7bd9 1482px 1496px, transparent 1496px 1501px, #c9c9c9 1501px 1515px, transparent 1515px 1520px, #3c3c3c 1520px 1534px, transparent 1534px 1539px, #c9c9c9 1539px 1553px, transparent 1553px 1558px, #2f7bd9 1558px 1572px, transparent 1572px 1577px, #3c3c3c 1577px 1591px, transparent 1591px 1596px, #c9c9c9 1596px 1610px, transparent 1610px 1615px, #fec629 1615px 1629px, transparent 1629px 1634px, #3c3c3c 1634px 1648px, transparent 1648px 1653px, #fec629 1653px 1667px, transparent 1667px 1672px, #3c3c3c 1672px 1686px, transparent 1686px 1691px, #2f7bd9 1691px 1705px, transparent 1705px 1710px, #c9c9c9 1710px 1724px, transparent 1724px 1729px, #2f7bd9 1729px 1743px, transparent 1743px 1748px, #3c3c3c 1748px 1762px, transparent 1762px 1767px, #2f7bd9 1767px 1781px, transparent 1781px 1786px, #3c3c3c 1786px 1800px, transparent 1800px 1805px, #fec629 1805px 1819px, transparent 1819px 1824px);
 }
 html:not(.paper):not([data-theme="light"]) .exam:not([data-view="light"]) {
-  --x-band: #121d3d; --x-band-ink: #eef2ff; --x-band-soft: #2a3a66;
-  --x-navy: #5d84f0; --x-black: #000000;
-  --x-go: #3a5fd6; --x-go-hover: #4d74ea; --x-go-ink: #ffffff;
+  --x-band: var(--surface); --x-band-ink: var(--text); --x-cb-blue: #4d6ae0; --x-cb-blue-hover: #6680ea; --x-cb-cell: #4d6ae0; --x-cb-num: #a9b9ff; --x-cb-red: #ff6b7d;
 }
 .exam-top, .exam-bottom { position: relative; background: var(--x-band); color: var(--x-band-ink); border: 0; }
-.exam-top::after, .exam-bottom::before {
-  content: ""; position: absolute; left: 0; right: 0; height: 4px; pointer-events: none; background: var(--x-stripe);
-}
+.exam-top::after, .exam-bottom::before { content: ""; position: absolute; left: 0; right: 0; height: 3px; pointer-events: none; background: var(--x-dash); }
 .exam-top::after { bottom: 0; }
 .exam-bottom::before { top: 0; }
 .exam-top .exam-title, .exam-top .exam-link, .exam-top .tool, .exam-top .timer-num, .exam-bottom .exam-student { color: var(--x-band-ink); }
-.exam-top .exam-pill { color: var(--x-band-ink); border-color: color-mix(in srgb, var(--x-band-ink) 55%, transparent); background: color-mix(in srgb, var(--x-band) 60%, #fff 40%); }
-.exam-top .tool:hover, .exam-top .tool.on, .exam-top .tool[aria-expanded="true"] { background: var(--x-band-soft); }
-.exam-top .tool.on, .exam-top .tool[aria-expanded="true"] { box-shadow: inset 0 -3px 0 var(--x-gold); }
-html:not(.paper):not([data-theme="light"]) .exam:not([data-view="light"]) .exam-top .exam-pill { background: transparent; }
-/* The question list: black, with a yellow underline like a highlighter. */
-.exam-bottom .nav-btn { background: var(--x-black); color: #ffffff; box-shadow: inset 0 -3px 0 var(--x-gold); border-radius: 999px; padding: 0 var(--s5); }
-.exam-bottom .nav-btn:hover { background: #262a33; }
-/* Next and Back */
-.exam .exam-bottom .btn-primary { background: var(--x-go); color: var(--x-go-ink); border: 0; box-shadow: 0 3px 0 color-mix(in srgb, var(--x-go) 55%, #000); }
-.exam .exam-bottom .btn-primary:hover { background: var(--x-go-hover); color: var(--x-go-ink); }
-.exam .exam-bottom .btn-secondary { background: transparent; color: var(--x-band-ink); border: 1.5px solid var(--x-band-ink); }
-.exam .exam-bottom .btn-secondary:hover { background: var(--x-band-soft); color: var(--x-band-ink); }
-/* The bar above each question: the same stripe, thinner. */
-.exam .q-head { border-bottom: 0; padding-bottom: 3px; background: var(--x-stripe) left bottom / 100% 3px no-repeat, var(--x-bar); }
-.exam .q-num { background: var(--x-black); color: #ffffff; box-shadow: inset 0 -3px 0 var(--x-gold); }
-html:not(.paper):not([data-theme="light"]) .exam:not([data-view="light"]) .q-num { background: var(--x-navy); }
-.exam .mark.on svg path { fill: var(--x-gold); stroke: var(--x-black); }
-@media (prefers-reduced-motion: no-preference) {
-  .exam-top::after, .exam-bottom::before { transform-origin: left center; animation: x-stripe-in 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
-  .exam-bottom::before { animation-delay: 0.15s; }
-  .exam .exam-bottom .btn, .exam-bottom .nav-btn { transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
-  .exam .exam-bottom .btn:active, .exam-bottom .nav-btn:active { transform: translateY(1px); }
+
+/* Question button: black, square-cornered, white text. */
+.exam-bottom .nav-btn { background: #1e1e1e; color: #ffffff; border-radius: 6px; padding: 0 var(--s4); }
+.exam-bottom .nav-btn:hover { background: #3a3a3a; }
+/* Back and Next: blue pills. */
+.exam .exam-bottom .btn-primary, .exam .exam-bottom .btn-secondary { background: var(--x-cb-blue); color: #ffffff; border: 0; border-radius: 999px; box-shadow: none; min-width: 84px; }
+.exam .exam-bottom .btn-primary:hover, .exam .exam-bottom .btn-secondary:hover { background: var(--x-cb-blue-hover); color: #ffffff; }
+
+/* The question list pop-up: white card with a pointer down to the question button. */
+.exam .nav-pop { background: var(--x-band); color: var(--x-band-ink); border: 0; border-radius: 10px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.22); padding: var(--s5) var(--s5) var(--s6); }
+.exam .nav-pop::after { content: ""; position: absolute; left: var(--nav-arrow-x, 50%); bottom: -9px; width: 18px; height: 18px; background: var(--x-band); transform: translateX(-50%) rotate(45deg); box-shadow: 4px 4px 8px -4px rgba(0, 0, 0, 0.18); }
+.exam .nav-pop .review-card-head { position: relative; justify-content: center; text-align: center; padding: 0 36px; }
+.exam .nav-pop .review-card-head strong { font: 700 1.2rem/1.3 var(--font-body); }
+.exam .nav-pop #nav-close { position: absolute; right: -6px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; min-height: 0; padding: 0; border: 0; background: none; font-size: 0; color: var(--x-band-ink); }
+.exam .nav-pop #nav-close::before { content: "\00d7"; font: 400 30px/1 var(--font-body); }
+.exam .nav-pop .nav-legend, .exam .review-card .nav-legend { justify-content: center; gap: var(--s5); padding: var(--s3) 0; border-block: 1px solid color-mix(in srgb, var(--x-band-ink) 25%, transparent); font-size: var(--t-sm); color: var(--x-band-ink); }
+.exam .review-card .nav-legend { border: 0; padding: 0; }
+.exam .nav-legend .lg { width: 16px; height: 16px; border-radius: 0; background: none; border: 0; }
+.exam .nav-legend .lg-cur { background: currentColor; -webkit-mask: var(--x-pin) center / contain no-repeat; mask: var(--x-pin) center / contain no-repeat; }
+.exam .nav-legend .lg-un { width: 15px; height: 15px; border: 1.5px dashed currentColor; }
+.exam .nav-legend .lg-mark { width: 11px; height: 15px; background: var(--x-cb-red); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%); }
+.exam { --x-pin: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20'%3E%3Cpath d='M8 1a6 6 0 0 0-6 6c0 4.5 6 11.5 6 11.5S14 11.5 14 7a6 6 0 0 0-6-6zm0 8.4A2.4 2.4 0 1 1 8 4.6a2.4 2.4 0 0 1 0 4.8z'/%3E%3C/svg%3E"); }
+
+/* Question squares */
+.exam .q-grid { grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); gap: var(--s5) var(--s3); padding-top: var(--s3); justify-items: center; }
+.exam .g-cell { width: 34px; height: 34px; border-radius: 0; border: 1.5px dashed var(--x-band-ink); background: transparent; color: var(--x-cb-num, var(--x-cb-cell)); font: 700 1.05rem/1 var(--font-body); }
+.exam .g-cell:hover { border-style: solid; border-color: var(--x-cb-cell); }
+.exam .g-cell.is-answered { background: var(--x-cb-cell); border: 1.5px solid var(--x-cb-cell); color: #ffffff; }
+.exam .g-cell.is-current { outline: 0; text-decoration: underline; text-underline-offset: 3px; }
+.exam .g-cell.is-current::before { content: ""; position: absolute; left: 50%; top: -21px; width: 14px; height: 18px; transform: translateX(-50%); background: var(--x-band-ink); -webkit-mask: var(--x-pin) center / contain no-repeat; mask: var(--x-pin) center / contain no-repeat; }
+.exam .g-cell.is-marked::after { top: -5px; right: -5px; width: 10px; height: 13px; border: 0; border-radius: 0; background: var(--x-cb-red); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%); }
+.exam .g-cell.is-right { box-shadow: 0 0 0 2px var(--ok); }
+.exam .g-cell.is-wrong { box-shadow: 0 0 0 2px var(--err); }
+/* Go to Review Page: an outlined blue pill. */
+.exam .nav-pop #go-review { justify-self: center; min-height: 36px; padding: 0 var(--s5); border: 1.5px solid var(--x-cb-num, var(--x-cb-blue)); border-radius: 999px; background: transparent; color: var(--x-cb-num, var(--x-cb-blue)); font-weight: 700; }
+.exam .nav-pop #go-review:hover { background: color-mix(in srgb, var(--x-cb-blue) 10%, transparent); color: var(--x-cb-num, var(--x-cb-blue)); }
+/* Phones: the button sits at the left, so the list spans the screen and its pointer follows the button (practice-test.js). */
+@media (max-width: 640px) {
+  .exam .nav-pop { left: 0; transform: none; width: calc(100vw - 32px); padding-inline: var(--s4); }
+  .exam .nav-pop .nav-legend { gap: var(--s2) var(--s4); flex-wrap: wrap; }
 }
-@keyframes x-stripe-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
