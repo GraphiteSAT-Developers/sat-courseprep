@@ -30,7 +30,7 @@
     track_cleared: "10", streak_3: "3d", streak_7: "7d", streak_30: "30d", off_the_line: "GO", lightning: "3:00",
     deep_focus: "25", in_the_zone: "10×", recall_rookie: "R", memory_palace: "3R", total_recall: "All", fresh_look: "¢",
     market_debut: "$", buy_low: "↑", collector: "Set", first_hatch: "Egg", best_friends: "10♥", pet_parent: "3♥" };
-  var KIND = { level_q: "Level up answer", boss: "Boss question", level_done: "Level finished", speed: "Speed round",
+  var KIND = { level_q: "Practice Sets question", boss: "Boss question", level_done: "Level finished", speed: "Speed round",
     focus: "Focus session", lesson: "Lesson", recall: "Recall check", streak: "Streak reward", shop: "Shop", gift: "Starting coins",
     market_buy: "Market", market_sell: "Market", pet_treat: "Pet treat" };
   var EFFECT_ART = {
@@ -212,7 +212,7 @@
         '<div class="rw-pet-info"><p class="label">Your egg</p><h2>' + (egg.ready ? "It's moving. Time to hatch!" : "Study to hatch it") + "</h2>" +
         '<p class="fine">Every XP you earn anywhere warms it up. ' + num(egg.progress) + " of " + num(egg.need) + " XP.</p>" +
         '<div class="hud-bar" role="progressbar" aria-label="Egg warmth" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pctE + '"><span style="width:' + pctE + '%"></span></div>' +
-        (egg.ready ? '<div class="pd-row"><button class="btn btn-primary" type="button" id="rw-hatch">Hatch it</button></div>' : '<div class="pd-row"><a class="btn btn-secondary" href="levels.html">Earn XP in Level up</a></div>') + "</div>";
+        (egg.ready ? '<div class="pd-row"><button class="btn btn-primary" type="button" id="rw-hatch">Hatch it</button></div>' : '<div class="pd-row"><a class="btn btn-secondary" href="levels.html">Earn XP in Practice Sets</a></div>') + "</div>";
       if (egg.ready) $("rw-hatch").addEventListener("click", function () { hatch(egg.id); });
     }
     $("rw-pets").innerHTML = pets.pets.map(function (q) {

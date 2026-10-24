@@ -6,7 +6,7 @@
   if (!T || !hello) return;
   var FULL = { kpis: true, play: true, account: true };  // these span the page; the rest flow in two columns
   var PINS = {
-    levels: ["Level up", "levels.html"], speed: ["Speed round", "speed.html"], focus: ["Focus timer", "focus.html"], lessons: ["Lessons", "lessons.html"],
+    levels: ["Practice Sets", "levels.html"], speed: ["Speed round", "speed.html"], focus: ["Focus timer", "focus.html"], lessons: ["Lessons", "lessons.html"],
     practice_test: ["Practice test", "practice.html", "test"], practice: ["Topic practice", "practice.html"], review: ["Review queue", "dashboard.html#review"],
     plan: ["Study plan", "plan.html"], rewards: ["Rewards and shop", "rewards.html"], calculator: ["Graphing calculator", "calculator.html"]
   };
@@ -68,7 +68,7 @@
   function txt(sel, root) { var n = (root || document).querySelector(sel); return n ? n.textContent.replace(/\s+/g, " ").trim() : ""; }
   var TEASE = {
     today: function () { return txt("#today-meta"); },
-    play: function (p) { var r = txt(".dash-play-xp strong", p); return (r ? r + ". " : "") + "Speed round, lessons, Level up and focus timer"; },
+    play: function (p) { var r = txt(".dash-play-xp strong", p); return (r ? r + ". " : "") + "Speed round, lessons, Practice Sets and focus timer"; },
     scores: function () { var n = txt("#kpi-latest"); return /\d/.test(n) ? "Latest " + n + " · " + txt("#scores-meta") : txt("#scores-meta"); },
     domains: function (p) { var f = p.querySelectorAll(".bar-name .chip").length; return f ? f + (f === 1 ? " area" : " areas") + " marked Focus" : txt("#domains-meta"); },
     review: function (p) { var due = p.querySelectorAll(".due-now").length; return txt("#review-count") + (due ? " · " + due + " due today" : ""); },

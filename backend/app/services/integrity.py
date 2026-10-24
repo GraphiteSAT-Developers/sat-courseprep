@@ -16,8 +16,8 @@ from ..db import execute, now_iso, query
 from . import family, mailer
 
 KINDS = ("copy", "cut", "paste")
-PAGES = {"practice-test": "a practice set", "mock-test": "a mock test", "speed": "the speed round", "plan": "the diagnostic or a study plan quiz",
-         "dashboard": "today's set", "lessons": "a lesson", "levels": "Level up"}
+PAGES = {"practice-test": "a practice set", "mock-test": "a practice test", "speed": "the speed round", "plan": "the diagnostic or a study plan quiz",
+         "dashboard": "today's set", "lessons": "a lesson", "levels": "Practice Sets"}
 EMAIL_GAP_MINUTES = 30
 
 

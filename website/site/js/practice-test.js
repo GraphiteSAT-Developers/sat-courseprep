@@ -52,7 +52,7 @@
   $("dir-rw").hidden = !RW; $("dir-math").hidden = RW;
   var TOPIC = T.mode === "topic" || T.mode === "quiz" || T.mode === "review", UNTIMED = !T.minutes;
   var REVIEW = T.mode === "review";
-  var LEVEL = (T.session && T.session.level) || null; // a Level up set
+  var LEVEL = (T.session && T.session.level) || null; // a Practice Set
   var MOCK = (T.session && T.session.mock) || null; // a module of an adaptive mock test (services/mock.py)
   var FROM_PLAN = !!(T.session && T.session.plan_task) && !REVIEW && !LEVEL && !MOCK;
   if (MOCK) { BACK_URL = "practice.html"; document.documentElement.setAttribute("data-mock", "1"); }
@@ -288,7 +288,7 @@
       area.querySelector(".fb-verdict").insertAdjacentElement("afterend", line);
     }
   }
-  // Level up: the boss question and the current combo, next to the question number.
+  // Practice Sets: the boss question and the current combo, next to the question number.
   function comboAt(i) { var n = 0; while (i >= 0 && checked[i] && checked[i].correct) { n++; i--; } return n; }
   function renderGameTag(i) {
     var tag = $("q-game");
@@ -523,7 +523,7 @@
     $("done-text").textContent = finishedText(list);
     openDialog("done-dialog");
   }
-  // Level up: did this set pass, and what's next.
+  // Practice Sets: did this set pass, and what's next.
   function renderLevel(lv, gm) {
     var box = $("res-level");
     box.hidden = !lv;
@@ -534,7 +534,7 @@
     var head = lock ? "Level " + lv.level + " passed! Level " + lv.next + (lock.reason ? " is locked until your plan is paid." : " comes with " + lock.need_name + ".")
       : lv.passed ? (lv.next ? "Level " + lv.level + " passed! Level " + lv.next + " is unlocked." : "You cleared the top level of " + lv.track_name + "!")
       : "Not quite. You need " + lv.pass + " of " + lv.total + " to pass level " + lv.level + ".";
-    var sub = lock ? (lock.reason ? "Paying opens every level again right away." : "The first " + lock.free_levels + " levels of every track are free. " + lock.need_name + " opens them all.")
+    var sub = lock ? (lock.reason ? "Paying opens every level again right away." : "The first " + lock.free_levels + " levels of every topic are free. " + lock.need_name + " opens them all.")
       : lv.passed ? (lv.next ? "The next set is a little harder. Keep the streak going." : "Every level in this track is done. Try another track, or replay a level with new questions.")
       : "Read the explanations below, then try the level again with new questions.";
     box.innerHTML = "<strong></strong><span></span>";
@@ -792,8 +792,8 @@
     if (!T.session) return;
     // Like Bluebook: Reading and Writing is Section 1, Math is Section 2.
     var heading = MOCK ? "Section " + (RW ? 1 : 2) + ", Module " + MOCK.module + ": " + SECTION : T.mode === "test" ? SECTION + " module" : T.title;
-    var kind = MOCK ? "Mock test · " + SECTION + " · Module " + MOCK.module + " of 2" : REVIEW ? "Review queue · one question" : LEVEL ? "Level up · " + LEVEL.tier : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? SECTION + " practice test" : T.title)
-      : (T.mode === "test" ? "Mock test · one " + SECTION + " module" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
+    var kind = MOCK ? "Practice test · " + SECTION + " · Module " + MOCK.module + " of 2" : REVIEW ? "Review queue · one question" : LEVEL ? "Practice Sets · " + LEVEL.tier : FROM_PLAN ? "Study plan · " + (T.mode === "test" ? SECTION + " practice test" : T.title)
+      : (T.mode === "test" ? "Practice test · one " + SECTION + " module" : "Topic practice · " + (T.session.skill ? "one skill" : "whole domain"));
     $("exam-title").textContent = heading;
     $("start-title").textContent = heading;
     document.querySelector("#start-overlay .label").textContent = kind;
@@ -820,16 +820,16 @@
     $("submit-open").textContent = TOPIC ? "Finish set" : "Submit module";
     $("confirm-title").textContent = TOPIC ? "Finish this set?" : "Submit this module?";
     if (TOPIC) $("confirm-desc").textContent = "Questions you haven't answered go back into the pool for next time.";
-    $("retake").textContent = FROM_PLAN ? "Back to your plan" : LEVEL ? "Try this level again" : MOCK ? "Take another mock test" : (TOPIC ? "New set, same topic" : "Take another module");
-    if (MOCK && MOCK.module === 2) document.querySelector("#results-view > .label").textContent = "Mock test · " + SECTION + " · both modules";
+    $("retake").textContent = FROM_PLAN ? "Back to your plan" : LEVEL ? "Try this level again" : MOCK ? "Take another practice test" : (TOPIC ? "New set, same topic" : "Take another module");
+    if (MOCK && MOCK.module === 2) document.querySelector("#results-view > .label").textContent = "Practice test · " + SECTION + " · both modules";
     if (RW) {
       $("next-text").textContent = "Module 2 is ready: " + N + " questions and " + T.minutes + " minutes. Like on test day, you can't go back to Module 1. Your score comes at the end of Module 2.";
-      document.querySelector("#next-overlay .label").textContent = "Mock test · " + SECTION;
+      document.querySelector("#next-overlay .label").textContent = "Practice test · " + SECTION;
     }
     Array.prototype.forEach.call(document.querySelectorAll('a[href$="dashboard.html"]'), function (a) {
       if (a.id === "save-exit" || a.closest(".dialog-actions")) a.setAttribute("href", BACK_URL);
     });
-    var backText = FROM_PLAN ? "Back to your plan" : LEVEL ? "Back to Level up" : "Back to mock tests";
+    var backText = FROM_PLAN ? "Back to your plan" : LEVEL ? "Back to Practice Sets" : "Back to practice";
     var back = document.querySelector(".res-actions a"); if (back) { back.setAttribute("href", BACK_URL); back.textContent = backText; }
     if (FROM_PLAN || REVIEW) { var r2 = $("retake"); r2.hidden = true; }
     if (REVIEW && back) back.textContent = "Back to your dashboard";

@@ -5,14 +5,14 @@
 <meta name="graphite-mode" content="live">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="/js/theme.js?v=3abd99b3ea"></script>
-<title>Mock Tests | Graphite SAT</title>
-<meta name="description" content="Full-length SAT mock tests in the real format: two adaptive modules, the 10-minute break and an estimated score, plus untimed topic practice.">
+<title>Practice | Graphite SAT</title>
+<meta name="description" content="SAT practice: untimed questions on one topic, or a full-length practice test in the real format with two adaptive modules, the 10-minute break and an estimated score.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#f4f1e9">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Graphite SAT">
-<meta property="og:title" content="Mock Tests | Graphite SAT">
-<meta property="og:description" content="Full-length SAT mock tests in the real format: two adaptive modules, the 10-minute break and an estimated score, plus untimed topic practice.">
+<meta property="og:title" content="Practice | Graphite SAT">
+<meta property="og:description" content="SAT practice: untimed questions on one topic, or a full-length practice test in the real format with two adaptive modules, the 10-minute break and an estimated score.">
 <meta property="og:url" content="https://www.graphiteprep.com/practice.html">
 <meta property="og:image" content="https://www.graphiteprep.com/og-image.png">
 <meta property="og:image:alt" content="Graphite SAT: a yellow pencil end beside the line SAT prep that starts with the questions you miss.">
@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Kalam:wght@400;700&family=Nunito:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=c1f4c78124">
-<script src="/js/site.js?v=a86fa79166" defer></script><script src="/js/practice.js?v=0bb7cf8362" defer></script><script src="/js/effects.js?v=22b28feeaa" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=c2d33bcaf0">
+<script src="/js/site.js?v=9cbc85e6c0" defer></script><script src="/js/practice.js?v=9f7d7b6160" defer></script><script src="/js/effects.js?v=4ca4a6deda" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -41,14 +41,10 @@
     <nav class="site-nav" id="site-nav" aria-label="Dashboard">
       <ul>
         <li><a href="/dashboard.html#today">Today</a></li>
-        <li><a href="/practice.html">Mock tests</a></li>
-        <li><a href="/levels.html">Level up</a></li>
+        <li><a href="/practice.html">Practice</a></li>
         <li><a href="/lessons.html">Lessons</a></li>
-        <li><a href="/speed.html">Speed round</a></li>
-        <li><a href="/focus.html">Focus</a></li>
-        <li><a href="/rewards.html">Rewards</a></li>
-        <li><a href="/market.html">Market</a></li>
         <li><a href="/tutor.html">Tutor</a></li>
+        <li><a href="/rewards.html">Rewards</a></li>
       </ul>
       <div class="nav-actions">
         <span class="account-email" id="account-email"></span>
@@ -57,18 +53,19 @@
     </nav>
   </div>
 </header>
-<div class="crumbs-bar"><nav class="wrap crumbs" aria-label="You are here"><ol id="crumbs"><li><a href="/dashboard.html" data-crumb-home>Dashboard</a></li><li><span aria-current="page" id="crumb-here">Mock Tests</span></li></ol></nav></div>
+<div class="crumbs-bar"><nav class="wrap crumbs" aria-label="You are here"><ol id="crumbs"><li><a href="/dashboard.html" data-crumb-home>Dashboard</a></li><li><span aria-current="page" id="crumb-here">Practice</span></li></ol></nav></div>
+<div class="subnav-bar"><nav class="wrap subnav" aria-label="Practice"><a href="/practice.html" aria-current="page">Topics and tests</a><a href="/levels.html">Practice Sets</a><a href="/speed.html">Speed round</a></nav></div>
 <main id="main" class="practice">
   <div class="wrap dash-stack">
     <p class="sample-note" id="pr-preview-note" hidden><span class="label">Preview</span> This preview saves your answers in this browser only. On the live site they stay with your account.</p>
 
     <div class="dash-top">
       <div>
-        <p class="label">Mock tests</p>
-        <h1>Take the SAT before test day</h1>
+        <p class="label">Practice</p>
+        <h1>Practice a topic or take a full test</h1>
       </div>
     </div>
-    <p class="lede pr-lede">Each section works like the real digital SAT: two timed modules, where Module 2 gets harder or easier depending on how Module 1 went, and the 10-minute break. Every question is one you haven't seen.</p>
+    <p class="lede pr-lede">Topic practice is untimed, with a Check answer button on every question. Full practice tests work like the real digital SAT: two timed modules, where Module 2 gets harder or easier depending on how Module 1 went, and the 10-minute break. Every question is one you haven't seen.</p>
 
     <div class="pr-sections" role="tablist" aria-label="SAT section">
       <button class="pr-section" type="button" role="tab" id="tab-math" aria-controls="pr-math" aria-selected="true" data-section="math">
@@ -88,6 +85,19 @@
     </section>
 
     <div class="pr-modes" id="pr-math" role="tabpanel" aria-labelledby="tab-math">
+      <section class="panel pr-card" id="pr-topic" aria-labelledby="pr-topic-title">
+        <p class="label">Untimed · at your pace</p>
+        <h2 id="pr-topic-title">Practice a Math topic</h2>
+        <p class="panel-lede">Pick a topic and check each answer as you go. You'll see how to solve it right away, plus the Desmos shortcut when there is one. <span id="pr-progress"></span></p>
+        <p class="fine pr-allowance" id="pr-topic-left"></p>
+        <fieldset class="pr-count">
+          <legend class="label">Questions per set</legend>
+          <div class="seg" id="pr-count"></div>
+        </fieldset>
+        <div class="pr-domains" id="pr-domains">
+          <p class="fine">Loading topics…</p>
+        </div>
+      </section>
       <section class="panel pr-card pr-test pr-mock" id="pr-mock" aria-labelledby="pr-mock-title">
         <p class="label">Adaptive · like test day</p>
         <h2 id="pr-mock-title">Full Math section</h2>
@@ -107,7 +117,7 @@
       <section class="panel pr-card" id="pr-test" aria-labelledby="pr-test-title">
         <p class="label">Shorter · one module</p>
         <h2 id="pr-test-title">One Math module</h2>
-        <p class="panel-lede">Just Module 1: fresh questions in the real mix with the clock running. Counts as one of your mock tests.</p>
+        <p class="panel-lede">Just Module 1: fresh questions in the real mix with the clock running. Counts as one of your practice tests.</p>
         <ul class="pr-facts">
           <li><strong id="pr-test-q">22</strong> questions</li>
           <li><strong id="pr-test-min">35</strong> minutes, timed</li>
@@ -116,26 +126,26 @@
       </section>
 
       <section class="panel pr-card pr-recent" id="pr-recent" aria-labelledby="pr-recent-title" hidden>
-        <div class="panel-head"><h2 id="pr-recent-title">Your mock tests</h2></div>
+        <div class="panel-head"><h2 id="pr-recent-title">Your practice tests</h2></div>
         <ul class="queue" id="pr-recent-list"></ul>
       </section>
 
-      <section class="panel pr-card" id="pr-topic" aria-labelledby="pr-topic-title">
-        <p class="label">Untimed · at your pace</p>
-        <h2 id="pr-topic-title">Practice a Math topic</h2>
-        <p class="panel-lede">Pick a topic and check each answer as you go. You'll see how to solve it right away, plus the Desmos shortcut when there is one. <span id="pr-progress"></span></p>
-        <p class="fine pr-allowance" id="pr-topic-left"></p>
-        <fieldset class="pr-count">
-          <legend class="label">Questions per set</legend>
-          <div class="seg" id="pr-count"></div>
-        </fieldset>
-        <div class="pr-domains" id="pr-domains">
-          <p class="fine">Loading topics…</p>
-        </div>
-      </section>
     </div>
 
     <div class="pr-modes" id="pr-rw" role="tabpanel" aria-labelledby="tab-rw" hidden>
+      <section class="panel pr-card" id="pr-rw-topic" aria-labelledby="pr-rw-topic-title">
+        <p class="label">Untimed · at your pace</p>
+        <h2 id="pr-rw-topic-title">Practice a Reading and Writing topic</h2>
+        <p class="panel-lede">Pick a question type and check each answer as you go. You'll see why the answer is right, why the others are wrong, and a strategy for that kind of question. <span id="pr-rw-progress"></span></p>
+        <p class="fine pr-allowance" id="pr-rw-topic-left"></p>
+        <fieldset class="pr-count">
+          <legend class="label">Questions per set</legend>
+          <div class="seg" id="pr-rw-count"></div>
+        </fieldset>
+        <div class="pr-domains" id="pr-rw-domains">
+          <p class="fine">Loading topics…</p>
+        </div>
+      </section>
       <section class="panel pr-card pr-test pr-mock" id="pr-rw-mock" aria-labelledby="pr-rw-mock-title">
         <p class="label">Adaptive · like test day</p>
         <h2 id="pr-rw-mock-title">Full Reading and Writing section</h2>
@@ -155,7 +165,7 @@
       <section class="panel pr-card" id="pr-rw-test" aria-labelledby="pr-rw-test-title">
         <p class="label">Shorter · one module</p>
         <h2 id="pr-rw-test-title">One Reading and Writing module</h2>
-        <p class="panel-lede">Fresh passages in the real mix with the clock running. Counts as one of your mock tests.</p>
+        <p class="panel-lede">Fresh passages in the real mix with the clock running. Counts as one of your practice tests.</p>
         <ul class="pr-facts">
           <li><strong id="pr-rw-test-q">27</strong> questions</li>
           <li><strong id="pr-rw-test-min">32</strong> minutes, timed</li>
@@ -164,23 +174,10 @@
       </section>
 
       <section class="panel pr-card pr-recent" id="pr-rw-recent" aria-labelledby="pr-rw-recent-title" hidden>
-        <div class="panel-head"><h2 id="pr-rw-recent-title">Your Reading and Writing mock tests</h2></div>
+        <div class="panel-head"><h2 id="pr-rw-recent-title">Your Reading and Writing practice tests</h2></div>
         <ul class="queue" id="pr-rw-recent-list"></ul>
       </section>
 
-      <section class="panel pr-card" id="pr-rw-topic" aria-labelledby="pr-rw-topic-title">
-        <p class="label">Untimed · at your pace</p>
-        <h2 id="pr-rw-topic-title">Practice a Reading and Writing topic</h2>
-        <p class="panel-lede">Pick a question type and check each answer as you go. You'll see why the answer is right, why the others are wrong, and a strategy for that kind of question. <span id="pr-rw-progress"></span></p>
-        <p class="fine pr-allowance" id="pr-rw-topic-left"></p>
-        <fieldset class="pr-count">
-          <legend class="label">Questions per set</legend>
-          <div class="seg" id="pr-rw-count"></div>
-        </fieldset>
-        <div class="pr-domains" id="pr-rw-domains">
-          <p class="fine">Loading topics…</p>
-        </div>
-      </section>
     </div>
   </div>
 </main>

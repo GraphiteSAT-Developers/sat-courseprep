@@ -7,7 +7,7 @@ The first round a student starts each day is their ranked run; later rounds that
 A ranked run is the day's shared 10, except that any question the student has already done (in any activity:
 it's on their done list, services/practice.py) is swapped for a new one from the same domain and difficulty, so
 runs stay comparable without repeats. Practice rounds are 10 new questions from the same pool. Every answer goes
-on the done list, so practice sets, level up and mock tests don't serve speed-round questions again either.
+on the done list, so topic practice, Practice Sets and practice tests don't serve speed-round questions again either.
 Time runs on the server from the moment the questions are sent until the last answer arrives, and each
 miss adds PENALTY_MS. Leaderboards show today's runs and the best run of each student this week, for
 the student's state or the whole country.

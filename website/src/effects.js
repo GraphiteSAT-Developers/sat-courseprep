@@ -1,4 +1,4 @@
-/* Page background effects, behind the panels on the main pages (home, dashboard, practice, plan, Level up, lessons,
+/* Page background effects, behind the panels on the main pages (home, dashboard, practice, plan, Practice Sets, lessons,
    speed round, focus, rewards, market, tutor and the parent dashboard; never Settings, sign-in, checkout, tests or
    the legal pages). Settings > Appearance > Background picks one (theme.js puts it on <html data-effect>):
      none           nothing

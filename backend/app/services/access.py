@@ -18,9 +18,9 @@ UNPAID = {"past_due": "A payment didn't go through", "paused": "Your plan is pau
 
 # feature: (limit key, what the student is trying to use, how it's counted)
 FEATURES = {
-    "practice_set": ("practice_sets_per_week", "Practice sets", "week"),
-    "mock_test": ("practice_tests_per_month", "Mock tests", "month"),
-    "level_up": ("level_up", "All Level up levels", None),  # every plan opens plans.FREE_LEVELS of each track
+    "practice_set": ("practice_sets_per_week", "Topic sets", "week"),
+    "mock_test": ("practice_tests_per_month", "Practice tests", "month"),
+    "level_up": ("level_up", "All levels of Practice Sets", None),  # every plan opens plans.FREE_LEVELS of each track
     "study_plan": ("study_plan", "Your study plan", None),
     "review_queue": ("review_queue", "The review queue", None),
     "explanations": ("explanations", "Step-by-step explanations", None),
@@ -57,7 +57,7 @@ def used(student_id, feature, today=None):
     period = FEATURES[feature][2]
     since = _since(period, today)
     if feature == "practice_set":
-        # Practice sets the student starts: topics and today's sets. Plan tasks, Level up and review count elsewhere.
+        # Practice sets the student starts: topics and today's sets. Plan tasks, Practice Sets and review count elsewhere.
         row = query("SELECT COUNT(*) AS n FROM practice_sessions WHERE user_id = ? AND mode = 'topic' AND created_at >= ?",
                     (student_id, since), one=True)
         return row["n"]
@@ -108,7 +108,7 @@ def state(student_id, feature, today=None):
 
 
 def message(st):
-    name = st["name"][:1].lower() + st["name"][1:]  # mid-sentence; "Level up" keeps its capital
+    name = st["name"][:1].lower() + st["name"][1:]  # mid-sentence; "Practice Sets" keeps its capital
     if st["reason"]:
         return f"{st['reason']}, so {name} {'are' if st['name'].endswith('s') else 'is'} locked until it's paid. Fix it on your subscription page."
     if st["period"] and st["limit"]:

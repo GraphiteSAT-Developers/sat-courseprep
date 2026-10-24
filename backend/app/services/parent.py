@@ -169,7 +169,7 @@ def _activity(student_id):
     for r in query("SELECT id, mode, title, item_ids, correct, seconds_used, submitted_at, plan_task FROM practice_sessions "
                    "WHERE user_id = ? AND submitted_at IS NOT NULL ORDER BY submitted_at DESC LIMIT 20", (student_id,)):
         task = r["plan_task"] or ""
-        kind = ("Practice test" if r["mode"] == "test" else "Level up" if task.startswith("ladder:")
+        kind = ("Practice test" if r["mode"] == "test" else "Practice Sets" if task.startswith("ladder:")
                 else "Study plan" if r["mode"] == "quiz" else "Review" if r["mode"] == "review" else "Topic practice")
         out.append({"title": r["title"], "kind": kind, "at": r["submitted_at"], "correct": r["correct"],
                     "total": len(json.loads(r["item_ids"])), "minutes": round((r["seconds_used"] or 0) / 60)})

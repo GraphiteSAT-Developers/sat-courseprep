@@ -187,7 +187,7 @@ def after_module(user_id, session, result, rng=random):
     score = estimate(m["route"], combined["correct"], m["section"])
     stamp = now_iso()
     combined.update({"seconds_used": (r1.get("seconds_used") or 0) + (result.get("seconds_used") or 0), "mode": "mock",
-                     "title": f"{SECTIONS[m['section']]['name']} mock test", "section": m["section"], "submitted_at": stamp, "finished": result.get("finished", []),
+                     "title": f"{SECTIONS[m['section']]['name']} practice test", "section": m["section"], "submitted_at": stamp, "finished": result.get("finished", []),
                      "score": score, "route": m["route"], "estimate": scoring.full(m["section"], m["route"], combined["correct"]),
                      "modules": [{"n": 1, "correct": m["m1_correct"], "total": len(ids1)},
                                  {"n": 2, "correct": result["correct"], "total": len(ids), "route": m["route"]}]})

@@ -318,7 +318,7 @@ def check(user_id, session, index, answer):
         else:
             add_to_review(user_id, [graded])
         if task.startswith("ladder:"):
-            from . import game  # rewards for Level up: XP, combos and the boss question
+            from . import game  # rewards for Practice Sets: XP, combos and the boss question
             right = {int(k): bank.graded_question(items[ids[int(k)]], int(k), v)["correct"] for k, v in checked.items()}
             graded["game"] = game.level_check(user_id, session, index, graded["correct"], right, len(ids))
         return graded, finished

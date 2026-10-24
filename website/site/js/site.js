@@ -144,11 +144,12 @@
   /* 3. Mobile menu */
   var toggle = $(".menu-toggle");
   var nav = $("#site-nav");
-  // Mark the tab for this page in the header (Today, Practice, Level up...). Pages that aren't tabs light up the
-  // tab they belong to: the study plan is part of Today.
+  // Mark the tab for this page in the header (Today, Practice, Lessons, Tutor, Rewards). Pages that aren't tabs light
+  // up the tab they belong to, the same groups as the switch row under the header (SUBNAV in build.py).
   if (nav) {
     var here = location.pathname.split("/").pop() || "index.html";
-    var PARENT_TAB = { "plan.html": "dashboard.html" };
+    var PARENT_TAB = { "plan.html": "dashboard.html", "focus.html": "dashboard.html", "levels.html": "practice.html",
+                       "speed.html": "practice.html", "market.html": "rewards.html" };
     var tab = PARENT_TAB[here] || here;
     $all("a", nav).forEach(function (a) {
       var target = (a.getAttribute("href") || "").replace(/^.*\//, "").split("#")[0];
@@ -1356,7 +1357,7 @@
       } else {
         $("#kpi-latest-label").textContent = "Latest practice test";
         $("#kpi-latest").textContent = "None yet";
-        $("#kpi-latest-sub").textContent = "Take one from Mock tests";
+        $("#kpi-latest-sub").textContent = "Take one from Practice";
       }
       $("#kpi-target").textContent = s.target_score || "Not set";
       $("#kpi-target-sub").textContent = s.target_score ? "Your goal score" : "Add one in Account";
@@ -1506,7 +1507,7 @@
 /* Math | Reading and Writing. Every feature has a Reading and Writing side on the same page.
    Markup: <div class="subject-switch" data-subject-for="ID"> with buttons data-subject="math|rw"; inside #ID,
    blocks marked data-subject-show="math" or "rw" show for that subject only. Pages that draw their own lists
-   (Level up, Speed round, Lessons, Tutor) listen for the graphite:subject event and redraw for the new subject. */
+   (Practice Sets, Speed round, Lessons, Tutor) listen for the graphite:subject event and redraw for the new subject. */
 (function () {
   "use strict";
   var KEY = "graphite_subject";

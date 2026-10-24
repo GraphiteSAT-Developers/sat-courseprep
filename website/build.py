@@ -311,7 +311,7 @@ CRUMBS = {
 GUIDES = ("Study guides", "guides.html")
 CRUMB_NAMES = {"dashboard.html": "Dashboard", "parent.html": "Parent dashboard", "privacy.html": "Privacy policy",
                "terms.html": "Terms of service", "cookies.html": "Cookie policy", "signin.html": "Sign in",
-               "404.html": "Page not found", "plan.html": "Study plan", "levels.html": "Level up",
+               "404.html": "Page not found", "plan.html": "Study plan", "levels.html": "Practice Sets",
                "score-check.html": "Free score check", "guides.html": "Study guides"}
 
 
@@ -324,6 +324,24 @@ def crumbs_html(meta):
     items = "".join(f'<li><a href="{href}"{" data-crumb-home" if href == "dashboard.html" else ""}>{esc(label)}</a></li>' for label, href in trail)
     items += f'<li><span aria-current="page" id="crumb-here">{esc(name)}</span></li>'
     return f'<div class="crumbs-bar"><nav class="wrap crumbs" aria-label="You are here"><ol id="crumbs">{items}</ol></nav></div>\n'
+
+
+# The signed-in header has five tabs. Pages that share a tab get a row of links under the header to switch between
+# them (site.js lights up the shared tab for every page in a group).
+SUBNAV = [
+    ("Today", [("Today", "dashboard.html"), ("Study plan", "plan.html"), ("Study timer", "focus.html")]),
+    ("Practice", [("Topics and tests", "practice.html"), ("Practice Sets", "levels.html"), ("Speed round", "speed.html")]),
+    ("Rewards", [("Rewards", "rewards.html"), ("Market", "market.html")]),
+]
+
+
+def subnav_html(meta):
+    group = next((g for g in SUBNAV if any(href == meta["file"] for _, href in g[1])), None)
+    if not group or meta.get("test"):
+        return ""
+    here = ' aria-current="page"'
+    links = "".join(f'<a href="{href}"{here if href == meta["file"] else ""}>{label}</a>' for label, href in group[1])
+    return f'<div class="subnav-bar"><nav class="wrap subnav" aria-label="{group[0]}">{links}</nav></div>\n'
 
 
 KATEX = SRC / "vendor" / "katex"
@@ -362,7 +380,7 @@ def render(meta, mode):
         page_body = page_body.replace("{{COMPARE}}", compare_html())
     if "{{PLANS_JSON}}" in page_body:
         page_body = page_body.replace("{{PLANS_JSON}}", plans_json())
-    body = head_nav + crumbs_html(meta) + page_body + foot + ("" if meta.get("test") else banner)
+    body = head_nav + crumbs_html(meta) + subnav_html(meta) + page_body + foot + ("" if meta.get("test") else banner)
     # The logo on pages anyone can open: the server's /home sends a signed-in account to its own dashboard and
     # everyone else to the home page. The preview has no server, so there site.js points it at the dashboard.
     body = body.replace("{{LOGO}}", "/home" if mode == "dist" else "./")

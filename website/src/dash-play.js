@@ -1,4 +1,4 @@
-/* The dashboard's "Play and earn" panel: rank and coins, then today's speed round, lessons, focus and Level up.
+/* The dashboard's "Play and earn" panel: rank and coins, then today's speed round, lessons, focus and Practice Sets.
    Live: /api/game/summary, /api/speed, /api/lessons, /api/focus, /api/levels. Preview: play-local.js. */
 (function () {
   "use strict";
@@ -39,7 +39,7 @@
     }
     if (lv) {
       var m = lv.tracks[0];
-      rows.push(["Level up", m.name + ": level " + m.unlocked + " of " + lv.levels + ". Beat the boss question for bonus coins.", "levels.html", "Climb"]);
+      rows.push(["Practice Sets", m.name + ": level " + m.unlocked + " of " + lv.levels + ". Beat the boss question for bonus coins.", "levels.html", "Climb"]);
     }
     if (fo) rows.push(["Focus", Math.round(fo.today_focus_seconds / 60) + " focus minutes today. A 25-minute block earns 25 XP.", "focus.html", "Focus"]);
     document.getElementById("dash-play-list").innerHTML = rows.map(function (x) {

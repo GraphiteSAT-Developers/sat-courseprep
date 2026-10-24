@@ -55,19 +55,19 @@ class LocksTest(Base):
         r = self.post("/api/practice/sessions", {"mode": "topic", "domain": "algebra", "count": 5})
         self.assertEqual((r.status_code, r.json["code"]), (402, "plan_required"))
         self.assertEqual((r.json["lock"]["need"], r.json["lock"]["need_name"]), ("mechanical", "Mechanical"))
-        self.assertEqual(r.json["error"], "You've used all 3 of your practice sets this week. Mechanical includes more.")
+        self.assertEqual(r.json["error"], "You've used all 3 of your topic sets this week. Mechanical includes more.")
         # One mock test a month: a full test or a single module.
         self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 201)
         r = self.post("/api/practice/sessions", {"mode": "test"})
         self.assertEqual(r.status_code, 402)
-        self.assertEqual(r.json["error"], "You've used your mock test this month. Mechanical includes more.")
+        self.assertEqual(r.json["error"], "You've used your practice test this month. Mechanical includes more.")
         self.assertEqual(self.post("/api/mock-tests", {"section": "math"}).status_code, 402)
         # The first 2 levels of every Level up track; the levels above come with Mechanical.
         self.assertEqual(self.client.get("/api/levels").json["free_levels"], 2)
         self.assertEqual(self.post("/api/levels/start", {"track": "algebra", "level": 1}).status_code, 201)
         r = self.post("/api/levels/start", {"track": "algebra", "level": 3})
         self.assertEqual((r.status_code, r.json["lock"]["feature"]), (402, "level_up"))
-        self.assertEqual(r.json["error"], "All Level up levels come with the Mechanical plan.")
+        self.assertEqual(r.json["error"], "All levels of Practice Sets come with the Mechanical plan.")
         # The review queue and score history are free; explanations, the study plan and parent progress aren't.
         feats = self.client.get("/api/dashboard").json["access"]["features"]
         self.assertEqual({k: f["ok"] for k, f in feats.items() if k in ("review_queue", "score_history", "explanations", "study_plan", "parent_dashboard")},

@@ -16,7 +16,7 @@ bp = Blueprint("mocktests", __name__, url_prefix="/api/mock-tests")
 def _mock_or_404(mock_id):
     m = mock.get(current_user()["id"], mock_id)
     if not m:
-        raise ApiError(404, "That mock test doesn't exist.")
+        raise ApiError(404, "That practice test doesn't exist.")
     return m
 
 
@@ -38,7 +38,7 @@ def create():
     if section not in mock.SECTIONS:
         raise ApiError(400, "Pick Math or Reading and Writing.", "section")
     if not mock.SECTIONS[section]["ready"]:
-        raise ApiError(409, f"{mock.SECTIONS[section]['name']} mock tests are coming soon.", code="coming_soon")
+        raise ApiError(409, f"{mock.SECTIONS[section]['name']} practice tests are coming soon.", code="coming_soon")
     access.require(user, "mock_test")
     m = mock.create(user["id"], section, data.get("with_break", True) is not False)
     return jsonify({"mock": mock.public(m)}), 201

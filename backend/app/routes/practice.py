@@ -142,7 +142,7 @@ def submit(session_id):
 
 
 def _level_lock(result):
-    """A passed Level up set whose next level the plan doesn't open: the lock to show instead of "unlocked"."""
+    """A passed Practice Set whose next level the plan doesn't open: the lock to show instead of "unlocked"."""
     lv = result.get("level")
     if lv and lv.get("next") and lv["next"] > FREE_LEVELS:
         st = access.state(current_user()["id"], "level_up")
@@ -186,7 +186,7 @@ def sample_check():
     return jsonify({"correct": g["correct"], "answer": g["answer"], "answer_index": g["answer_index"], "explain_html": g["explain_html"]})
 
 
-# ---------- Level up: sets that get harder one level at a time ----------
+# ---------- Practice Sets: sets that get harder one level at a time ----------
 
 levels_bp = Blueprint("levels", __name__, url_prefix="/api/levels")
 

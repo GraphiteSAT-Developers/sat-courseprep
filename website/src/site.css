@@ -2813,7 +2813,7 @@ html.no-tutor #tutor-toggle, html.no-tutor #qt-tab-tutor, html.no-tutor .qt-laun
 /* Mock tests page: the full section and the single module side by side, then your tests, then topics across the page */
 .pr-modes { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
 .pr-modes .pr-test { position: static; }
-.pr-modes > .pr-recent, .pr-modes > #pr-topic, .pr-modes > .pr-card:nth-child(n+3) { grid-column: 1 / -1; }
+.pr-modes > .pr-recent, .pr-modes > #pr-topic, .pr-modes > #pr-rw-topic { grid-column: 1 / -1; }  /* topic practice on top, the two tests side by side under it */
 @media (max-width: 1000px) { .pr-modes { grid-template-columns: minmax(0, 1fr); } }
 #pr-topic .pr-domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: var(--s4) var(--s6); }
 @media (max-width: 800px) { #pr-topic .pr-domains { grid-template-columns: minmax(0, 1fr); } }

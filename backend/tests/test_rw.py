@@ -196,7 +196,7 @@ class RWRoutesTest(unittest.TestCase):
         self.assertEqual(res["total"], 54)
         self.assertEqual(res["route"], "harder")
         self.assertEqual(res["score"], 800)
-        self.assertEqual(res["title"], "Reading and Writing mock test")
+        self.assertEqual(res["title"], "Reading and Writing practice test")
         self.assertEqual(len(self.cookie("rw")), 54)
 
     def test_rw_levels(self):

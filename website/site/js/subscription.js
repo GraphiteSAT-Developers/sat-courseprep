@@ -32,7 +32,7 @@
     var a = document.createElement("a"); a.className = "btn btn-secondary"; a.href = FROM; a.textContent = text || "Go back to what you were doing";
     return a;
   }
-  function midSentence(name) { return name.charAt(0).toLowerCase() + name.slice(1); }  // "Level up" keeps its capital
+  function midSentence(name) { return name.charAt(0).toLowerCase() + name.slice(1); }  // "Practice Sets" keeps its capital
   function context(d) {
     var box = $("sub-context"), f = FEATURE && d.access.features[FEATURE];
     box.hidden = !f;

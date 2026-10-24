@@ -220,7 +220,7 @@
     return fail(404, "Not found.");
   }
 
-  // Level up hooks, called by practice-local.js (same rules as game.level_check and game.level_finish).
+  // Practice Sets hooks, called by practice-local.js (same rules as game.level_check and game.level_finish).
   function levelCheck(session, index, correct, right, total) {
     var s = load(), xpBefore = totals(s).xp, boss = index === total - 1, combo = 0, i = index, badges = [], xp, coins;
     while (i >= 0 && right[i]) { combo++; i--; }

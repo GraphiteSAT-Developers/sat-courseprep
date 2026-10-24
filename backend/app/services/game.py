@@ -1,7 +1,7 @@
 """Rewards: XP, ranks, coins, a daily streak, badges, and items to buy with coins.
 
 Every reward is a row in xp_events, so totals are sums and can't drift. Spending coins is a row with
-negative coins. A day counts toward the streak when the student earns any XP that day (Level up, a speed
+negative coins. A day counts toward the streak when the student earns any XP that day (Practice Sets, a speed
 round, a focus session or a lesson).
 
 All the numbers live here. The site build copies RANKS, BADGES and SHOP into the preview, and
@@ -11,7 +11,7 @@ from datetime import date, timedelta
 
 from ..db import execute, now_iso, query
 
-# ---------- Level up ----------
+# ---------- Practice Sets ----------
 XP_RIGHT = 10          # a right answer
 XP_MISS = 2            # a miss still counts for something
 COMBO_STEP = 2         # each right answer in a row adds this much...
@@ -47,8 +47,8 @@ RANKS = [
 ]
 
 BADGES = [
-    {"key": "first_steps", "name": "First Steps", "how": "Finish your first Level up set."},
-    {"key": "on_a_roll", "name": "On a Roll", "how": "Get 5 Level up questions right in a row."},
+    {"key": "first_steps", "name": "First Steps", "how": "Finish your first Practice Set."},
+    {"key": "on_a_roll", "name": "On a Roll", "how": "Get 5 questions right in a row in Practice Sets."},
     {"key": "boss_slayer", "name": "Boss Slayer", "how": "Beat a boss question."},
     {"key": "boss_hunter", "name": "Boss Hunter", "how": "Beat 10 boss questions."},
     {"key": "flawless", "name": "Flawless", "how": "Get every question right on a level."},
@@ -218,9 +218,9 @@ def report(user_id, xp_before, gained_xp, gained_coins, badges=(), streak_info=N
     return out
 
 
-# ---------- Level up hooks ----------
+# ---------- Practice Sets hooks ----------
 def level_check(user_id, session, index, correct, checked_correct, total):
-    """One checked Level up answer. checked_correct is {index: right?} for every checked question so far.
+    """One checked Practice Sets answer. checked_correct is {index: right?} for every checked question so far.
     The combo is the run of right answers ending at this question; the last question is the boss."""
     xp_before, _ = totals(user_id)
     boss = index == total - 1
@@ -249,7 +249,7 @@ def level_check(user_id, session, index, correct, checked_correct, total):
 
 
 def level_finish(user_id, session, level, correct, total, passed, first_clear, top):
-    """A finished Level up set: finishing, passing, a first clear and a perfect score each pay out."""
+    """A finished Practice Set: finishing, passing, a first clear and a perfect score each pay out."""
     xp_before, _ = totals(user_id)
     xp, coins = XP_LEVEL_DONE, 0
     lines = [("Finished the set", XP_LEVEL_DONE, 0)]
@@ -426,11 +426,11 @@ def profile(user):
 def earn_table():
     """How to earn, for the rewards page: [{what, xp, coins}] (xp and coins are display text)."""
     return [
-        {"what": "Level up: a right answer", "xp": f"{XP_RIGHT}", "coins": f"{COINS_RIGHT}"},
-        {"what": "Level up: answers in a row (combo)", "xp": f"+{COMBO_STEP} each, up to +{COMBO_CAP}", "coins": ""},
-        {"what": "Level up: the boss question", "xp": f"+{XP_BOSS}", "coins": f"+{COINS_BOSS}"},
-        {"what": "Level up: pass a level for the first time", "xp": f"{XP_LEVEL_DONE + XP_LEVEL_PASS + XP_FIRST_CLEAR}", "coins": f"{COINS_FIRST_CLEAR} × the level"},
-        {"what": "Level up: a perfect set", "xp": f"+{XP_PERFECT}", "coins": ""},
+        {"what": "Practice Sets: a right answer", "xp": f"{XP_RIGHT}", "coins": f"{COINS_RIGHT}"},
+        {"what": "Practice Sets: answers in a row (combo)", "xp": f"+{COMBO_STEP} each, up to +{COMBO_CAP}", "coins": ""},
+        {"what": "Practice Sets: the boss question", "xp": f"+{XP_BOSS}", "coins": f"+{COINS_BOSS}"},
+        {"what": "Practice Sets: pass a level for the first time", "xp": f"{XP_LEVEL_DONE + XP_LEVEL_PASS + XP_FIRST_CLEAR}", "coins": f"{COINS_FIRST_CLEAR} × the level"},
+        {"what": "Practice Sets: a perfect set", "xp": f"+{XP_PERFECT}", "coins": ""},
         {"what": "Speed round", "xp": f"{XP_SPEED_DONE} + {XP_SPEED_RIGHT} per right answer", "coins": f"{COINS_SPEED_DONE} (first round of the day)"},
         {"what": "Focus session, finished", "xp": f"{XP_FOCUS_MINUTE} per minute", "coins": f"{COINS_FOCUS_DONE}"},
         {"what": "Lesson, first time", "xp": f"{XP_LESSON_FIRST}", "coins": f"{COINS_LESSON_FIRST}"},

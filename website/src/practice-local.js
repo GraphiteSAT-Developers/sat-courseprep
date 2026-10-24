@@ -230,7 +230,7 @@
     var finished = [], fresh = !(String(i) in s.checked);
     if (fresh) { s.checked[i] = a; finished = markSeen(st, [q.id]); save(st); }
     var g = graded(q, i, s.checked[i]);
-    // Level up rewards: XP, combos and the boss question (play-local.js, same rules as services/game.py).
+    // Practice Sets rewards: XP, combos and the boss question (play-local.js, same rules as services/game.py).
     if (fresh && parseTag(s.plan_task) && window.GraphitePlayLocal) {
       var right = {};
       Object.keys(s.checked).forEach(function (k) { right[k] = isCorrect(byId[s.item_ids[k]], s.checked[k]); });
@@ -560,7 +560,7 @@
     return fail(404, "Not found.");
   }
 
-  /* ---------- Level up (same rules as services/levels.py) ---------- */
+  /* ---------- Practice Sets (same rules as services/levels.py) ---------- */
   var LV = BANK.levels;
   function parseTag(task) {
     var p = String(task || "").split(":");
@@ -704,7 +704,7 @@
     var ladder = LV.tracks.map(function (t) { var p = lvProgress(st, t.key); return { name: t.name, unlocked: p.unlocked, passed: Object.keys(p.levels).filter(function (n) { return p.levels[n].passed; }).length, levels: LV.count }; });
     var activity = all.filter(function (x) { return x.submitted_at; }).map(function (x) {
       var task = x.plan_task || "";
-      var kind = x.mode === "test" ? "Practice test" : task.indexOf("ladder:") === 0 ? "Level up" : x.mode === "quiz" ? "Study plan" : x.mode === "review" ? "Review" : "Topic practice";
+      var kind = x.mode === "test" ? "Practice test" : task.indexOf("ladder:") === 0 ? "Practice Sets" : x.mode === "quiz" ? "Study plan" : x.mode === "review" ? "Review" : "Topic practice";
       return { title: x.title, kind: kind, at: x.submitted_at, correct: x.result.correct, total: x.item_ids.length, minutes: Math.round((x.result.seconds_used || 0) / 60) };
     });
     if (dsub) activity.push({ title: "10-question diagnostic", kind: "Diagnostic", at: dsub.submitted_at, correct: dsub.results.correct, total: dsub.results.total, minutes: null });
@@ -845,7 +845,7 @@
   }
   function lockMessage(x) {
     var verb = /s$/.test(x.name) ? "are" : "is";
-    var name = x.name.charAt(0).toLowerCase() + x.name.slice(1);  // mid-sentence; "Level up" keeps its capital
+    var name = x.name.charAt(0).toLowerCase() + x.name.slice(1);  // mid-sentence; "Practice Sets" keeps its capital
     if (x.reason) return x.reason + ", so " + name + " " + verb + " locked until it's paid. Fix it on your subscription page.";
     if (x.period && x.limit) return "You've used " + (x.limit === 1 ? "your " + name.slice(0, -1) : "all " + x.limit + " of your " + name) + " this " + x.period + ". " + x.need_name + " includes more.";
     return x.name + " " + (/s$/.test(x.name) ? "come" : "comes") + " with the " + x.need_name + " plan.";
@@ -1105,7 +1105,7 @@
       c.questions.push(g);
     });
     m.m2_correct = res.correct; m.score = estimate(m.route, c.correct, m.section); m.status = "done"; m.finished_at = now();
-    Object.assign(c, { seconds_used: (r1.seconds_used || 0) + (res.seconds_used || 0), mode: "mock", title: MK.sections[m.section].name + " mock test",
+    Object.assign(c, { seconds_used: (r1.seconds_used || 0) + (res.seconds_used || 0), mode: "mock", title: MK.sections[m.section].name + " practice test",
       section: m.section, submitted_at: m.finished_at,
       finished: res.finished || [], score: m.score, route: m.route, estimate: scoreResult(m.section, m.route, c.correct, "full"),
       modules: [{ n: 1, correct: m.m1_correct, total: ids1.length }, { n: 2, correct: res.correct, total: s.item_ids.length, route: m.route }],
@@ -1123,7 +1123,7 @@
     if (path === "/api/mock-tests") {
       var sec = data.section || "math";
       if (!MK.sections[sec]) return fail(400, "Pick Math or Reading and Writing.");
-      if (!MK.sections[sec].ready) { var e = new Error(MK.sections[sec].name + " mock tests are coming soon."); e.status = 409; e.data = { code: "coming_soon" }; return Promise.reject(e); }
+      if (!MK.sections[sec].ready) { var e = new Error(MK.sections[sec].name + " practice tests are coming soon."); e.status = 409; e.data = { code: "coming_soon" }; return Promise.reject(e); }
       var lock = requireAccess("mock_test", st); if (lock) return lock;
       var id = (st.nextMock = (st.nextMock || 0) + 1);
       var m = { id: id, section: sec, status: "module1", with_break: data.with_break !== false, created_at: now() };
@@ -1133,7 +1133,7 @@
       return Promise.resolve({ mock: mockPublic(m) });
     }
     var mm = /^\/api\/mock-tests\/(\d+)(\/break)?$/.exec(path), mk = mm && st.mocks[mm[1]];
-    if (!mk) return fail(404, "That mock test doesn't exist.");
+    if (!mk) return fail(404, "That practice test doesn't exist.");
     if (mm[2]) {
       if (mk.status === "break") {
         if (data.action === "start" && !mk.break_started_at) mk.break_started_at = now();

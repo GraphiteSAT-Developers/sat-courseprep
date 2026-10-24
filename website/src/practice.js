@@ -95,7 +95,7 @@
     ["math", "rw"].forEach(function (sec) {
       var box = el(sec, "mock-lock");
       box.innerHTML = "";
-      allowance(el(sec, "mock-left"), lock, lock && lock.limit === 1 ? "mock test" : "mock tests");
+      allowance(el(sec, "mock-left"), lock, lock && lock.limit === 1 ? "practice test" : "practice tests");
       if (off && window.GraphiteLock) box.appendChild(GraphiteLock.card(lock, true));
       el(sec, "mock-start").hidden = off; el(sec, "test-start").hidden = off;
       el(sec, "mock-break").closest(".check").hidden = off;
@@ -160,7 +160,7 @@
     var list = $("pr-unfinished-list"); list.innerHTML = "";
     all.forEach(function (s) {
       var li = document.createElement("li");
-      var kind = s.mode === "test" ? (/: Module \d$/.test(s.title) ? "Mock test" : "One module") : "Topic practice";
+      var kind = s.mode === "test" ? (/: Module \d$/.test(s.title) ? "Full test" : "One module") : "Topic practice";
       var detail = s.mode === "topic" && s.checked ? s.checked + " of " + s.questions + " checked" : s.questions + " questions";
       li.innerHTML = '<div><strong>' + esc(s.title) + '</strong><p class="fine">' + esc(SECTIONS[s.section || "math"]) + " · " + kind + " · " + detail + "</p></div>" +
         '<a class="btn btn-quiet" href="practice-test.html?session=' + s.id + '">Resume</a>';
@@ -173,7 +173,7 @@
     el(sec, "test-q").textContent = String(d.test.questions);
     el(sec, "test-min").textContent = String(d.test.minutes);
     renderCounts(sec, d.topic_counts);
-    allowance(el(sec, "topic-left"), d.access, d.access && d.access.limit === 1 ? "practice set" : "practice sets");
+    allowance(el(sec, "topic-left"), d.access, d.access && d.access.limit === 1 ? "topic set" : "topic sets");
     var tl = document.querySelector("#" + (sec === "rw" ? "pr-rw-topic" : "pr-topic") + " > .lock-card"); if (tl) tl.remove();
     if (d.access && !d.access.ok && window.GraphiteLock) el(sec, "topic-left").insertAdjacentElement("afterend", GraphiteLock.card(d.access, true));
     // The done list: questions finished this round. A topic starts over once all of its questions are done.
