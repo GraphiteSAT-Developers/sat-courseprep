@@ -1,0 +1,81 @@
+/* Motion for the public pages: things settle into place as they scroll into view, the hero arrives in order, the
+   highlighter swipes across the headline, a reading bar fills along the header, and buttons and plan cards answer the
+   pointer. Signed-in pages (html.app) keep their own motion. site.js adds the classes; nothing is hidden without it.
+   Everything here sits behind prefers-reduced-motion, and html[data-motion="reduce"] (site.css) switches it all off. */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Scroll reveal: site.js marks the pieces .rv and adds .is-in when they reach the screen. --rv-i staggers siblings. */
+  .rv {
+    opacity: 0; transform: translateY(22px);
+    transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: calc(var(--rv-i, 0) * 70ms);
+  }
+  .rv.rv-left { transform: translateX(-26px); }
+  .rv.rv-scale { transform: translateY(16px) scale(0.97); }
+  .rv.is-in { opacity: 1; transform: none; }
+
+  /* The hero, in reading order: kicker, headline, highlighter, copy, buttons, then the question card. */
+  .pp-hero-copy > * { animation: mo-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .pp-hero-copy > :nth-child(2) { animation-delay: 0.08s; }
+  .pp-hero-copy > :nth-child(3) { animation-delay: 0.22s; }
+  .pp-hero-copy > :nth-child(4) { animation-delay: 0.32s; }
+  .pp-hero-copy > :nth-child(n+5) { animation-delay: 0.42s; }
+  .pp-hero .hl { animation: mo-highlight 0.9s 0.55s cubic-bezier(0.6, 0, 0.2, 1) both; }
+  .pp-qwrap .qcard { animation: mo-card 0.9s 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .pp-hero .pen-note { animation: mo-write 1s 1s ease-out both; }
+  .pp-hero .pp-qwrap .pen-note { animation-delay: 1.2s; }
+
+  /* Reading bar along the bottom of the header (site.js sets --read from 0 to 1). */
+  .read-bar {
+    position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; z-index: 3; pointer-events: none;
+    background: var(--hi, var(--accent)); transform-origin: left center; transform: scaleX(var(--read, 0));
+    transition: transform 0.12s linear;
+  }
+
+  /* Buttons lift a little under the pointer and press back down when clicked. */
+  html:not(.app) .btn { transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease; }
+  html:not(.app) .btn:hover { transform: translateY(-2px); }
+  html:not(.app) .btn-primary:hover { box-shadow: 0 4px 0 var(--hi, var(--accent-shadow)); }
+  html:not(.app) .btn:active { transform: translateY(1px); box-shadow: none; transition-duration: 0.06s; }
+  /* A sheen crosses the main button now and then, so the eye finds it. */
+  html:not(.app) .pp-ctas .btn-primary, html:not(.app) .site-header .header-actions .btn-primary { position: relative; overflow: hidden; isolation: isolate; }
+  html:not(.app) .pp-ctas .btn-primary::after, html:not(.app) .site-header .header-actions .btn-primary::after {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+    transform: translateX(-120%); animation: mo-sheen 6s 2s ease-in-out infinite;
+  }
+
+  /* Plan cards rise toward the pointer; the featured one carries a soft yellow shadow. */
+  .tier { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.3s ease; }
+  .tier:hover { transform: translateY(-6px); }
+  html.paper .tier:hover { box-shadow: 8px 10px 0 var(--raised); }
+  html.paper .tier-featured:hover { box-shadow: 10px 12px 0 color-mix(in srgb, var(--hi) 70%, var(--raised)); }
+  /* The price flips when Weekly / Monthly / Yearly changes. */
+  .tier .amount.is-flip { display: inline-block; animation: mo-flip 0.45s cubic-bezier(0.2, 0.8, 0.3, 1); }
+  .tier [data-billed].is-flip, .tier [data-save].is-flip { animation: mo-fade 0.45s ease; }
+  /* The phone feature table fades to the plan just picked. */
+  .compare.is-swap td { animation: mo-fade 0.35s ease; }
+
+  /* Feature cards and study guides lift on hover. */
+  .fold { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.25s ease; }
+  .fold:not([open]):hover { transform: translateY(-3px); box-shadow: 0 14px 28px -20px rgba(0, 0, 0, 0.45); }
+  .guide-card { transition: border-color 0.15s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.25s ease; }
+  .guide-card:hover { box-shadow: 0 14px 28px -20px rgba(0, 0, 0, 0.45); }
+
+  /* FAQ: the answer slides in under its question. */
+  .faq details[open] .answer { animation: mo-rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+  /* Footer links underline from the left. */
+  .site-footer a:not(.logo) { background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat; transition: background-size 0.25s ease; }
+  .site-footer a:not(.logo):hover { background-size: 100% 1px; text-decoration: none; }
+}
+
+@keyframes mo-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes mo-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mo-card { from { opacity: 0; transform: translate(28px, 18px) rotate(1.5deg); } to { opacity: 1; transform: none; } }
+@keyframes mo-highlight { from { background-size: 0% 46%; } to { background-size: 100% 46%; } }
+@keyframes mo-write { from { clip-path: inset(0 100% 0 0); opacity: 0.4; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+@keyframes mo-flip { 0% { opacity: 0; transform: translateY(0.45em) rotateX(60deg); } 100% { opacity: 1; transform: none; } }
+@keyframes mo-sheen { 0%, 78% { transform: translateX(-120%); } 92%, 100% { transform: translateX(120%); } }
+
+html[data-motion="reduce"] .read-bar { display: none; }

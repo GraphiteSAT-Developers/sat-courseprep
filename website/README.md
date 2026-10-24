@@ -17,6 +17,7 @@ The pages run in two modes:
   - `partials/`: the shared header, footer and cookie banner. The dashboard uses `app-header.html` and `app-footer.html`.
   - `site.css`: all styles. Colors, fonts and spacing are set at the top.
   - `paper.css`: the site's look: paper, graphite ink, a yellow highlighter and the tutor's red-pen notes. The build puts `class="paper"` on `<html>` for every page (and `app` on signed-in pages). On signed-in pages Paper is the default theme; `theme.js` takes the class off when an account picks another theme in Settings.
+  - `motion.css`: the public pages' animations: scroll reveals, the hero entrance, the reading bar under the header, and hover effects. `site.js` adds the classes, and all of it is off for reduced motion.
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
   - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results. With `?session=<id>` it runs a set from the question bank: a timed random practice test, or untimed topic practice with a Check answer button. Reading and Writing questions use the same screen as Math, with the passage above the question, and no calculator or reference sheet.
   - `practice.js`: the practice page: for Math or Reading and Writing, practice one topic (shown first), or start an adaptive practice test or one module.

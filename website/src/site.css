@@ -1500,21 +1500,24 @@ body:has(.ripple-bg) main, body:has(.ripple-bg) .app-footer, body:has(.ripple-bg
 .compare-pick { display: none; }
 @media (max-width: 760px) {
   /* Phones: pick a plan, see its column. Feature on the left, what that plan gets on the right. */
-  .compare-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); position: sticky; top: 64px; z-index: 2; }
+  .compare-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); z-index: 2; box-shadow: 0 -13px 0 0 var(--bg), 0 8px 18px -14px rgba(0, 0, 0, 0.45); }
   .compare-pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
   .compare-pick label { display: grid; place-items: center; min-height: 40px; border-radius: 8px; font-weight: 700; font-size: var(--t-sm); color: var(--muted); cursor: pointer; text-align: center; }
   .compare-pick input:checked + label { background: var(--accent); color: var(--accent-ink); }
   .compare-pick input:focus-visible + label { outline: 3px solid var(--accent); outline-offset: 2px; }
   .compare-table, .compare-table tbody { display: block; }
   .compare-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .compare-table tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 40%); align-items: center; }
+  /* Every row is the same two columns, so the values line up down the page; the value cell fills the row's height. */
+  .compare-table tr { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: stretch; }
   .compare-table tr.compare-group { display: block; }
   .compare-table tbody tr + tr > * { border-top: 0; }
   .compare-table tbody tr:not(.compare-group) { border-top: 1px solid var(--line); }
-  .compare-table tr.compare-group th { display: block; }
-  .compare-table td { display: none; text-align: right; padding: var(--s3) 0 var(--s3) var(--s3); }
+  .compare-table tr.compare-group th { display: block; padding-top: var(--s5); }
+  .compare-table tbody th[scope="row"] { align-self: center; padding: var(--s3) var(--s3) var(--s3) 0; font-size: var(--t-sm); line-height: 1.35; overflow-wrap: anywhere; }
+  .compare-table td { display: none; align-items: center; justify-content: flex-end; text-align: right; padding: var(--s3) var(--s4) var(--s3) var(--s3); line-height: 1.35; overflow-wrap: anywhere; }
   .compare-table td.is-featured { background: none; }
-  .compare[data-show="0"] td:nth-of-type(1), .compare[data-show="1"] td:nth-of-type(2) { display: block; }
+  .compare[data-show="0"] td:nth-of-type(1), .compare[data-show="1"] td:nth-of-type(2) { display: flex; }
+  .compare .yes { margin-right: 3px; }
 }
 
 /* Checkout */
@@ -3000,3 +3003,50 @@ mark.anno:focus-visible { outline: 2px solid var(--x-sel); }
 .guide-steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s3); }
 .doc code { font-family: var(--font-mono); font-size: 0.92em; padding: 1px 5px; border-radius: 4px; background: var(--raised); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .guide-card, .guide-card:hover { transition: none; transform: none; } }
+
+/* ---------- Practice test: test-day bars (practice-test.html) ----------
+   The top and bottom bars take the digital SAT's colors: a pale blue band with navy ink, edged with a dashed stripe
+   of navy, yellow and black. Next is the blue button, the question list the black one. Every view gets the same
+   scheme; dark themes get a deep navy band. The stripe draws itself in once when the test opens. */
+.exam {
+  --x-band: #e7eefc; --x-band-ink: #0c1838; --x-band-soft: #c9d6f3;
+  --x-navy: #1c3f99; --x-gold: #f2c14e; --x-black: #101217;
+  --x-go: #2547c9; --x-go-hover: #1b389f; --x-go-ink: #ffffff;
+  --x-stripe: repeating-linear-gradient(90deg, var(--x-navy) 0 38px, transparent 38px 44px, var(--x-gold) 44px 60px, transparent 60px 66px, var(--x-black) 66px 80px, transparent 80px 86px);
+}
+html:not(.paper):not([data-theme="light"]) .exam:not([data-view="light"]) {
+  --x-band: #121d3d; --x-band-ink: #eef2ff; --x-band-soft: #2a3a66;
+  --x-navy: #5d84f0; --x-black: #000000;
+  --x-go: #3a5fd6; --x-go-hover: #4d74ea; --x-go-ink: #ffffff;
+}
+.exam-top, .exam-bottom { position: relative; background: var(--x-band); color: var(--x-band-ink); border: 0; }
+.exam-top::after, .exam-bottom::before {
+  content: ""; position: absolute; left: 0; right: 0; height: 4px; pointer-events: none; background: var(--x-stripe);
+}
+.exam-top::after { bottom: 0; }
+.exam-bottom::before { top: 0; }
+.exam-top .exam-title, .exam-top .exam-link, .exam-top .tool, .exam-top .timer-num, .exam-bottom .exam-student { color: var(--x-band-ink); }
+.exam-top .exam-pill { color: var(--x-band-ink); border-color: color-mix(in srgb, var(--x-band-ink) 55%, transparent); background: color-mix(in srgb, var(--x-band) 60%, #fff 40%); }
+.exam-top .tool:hover, .exam-top .tool.on, .exam-top .tool[aria-expanded="true"] { background: var(--x-band-soft); }
+.exam-top .tool.on, .exam-top .tool[aria-expanded="true"] { box-shadow: inset 0 -3px 0 var(--x-gold); }
+html:not(.paper):not([data-theme="light"]) .exam:not([data-view="light"]) .exam-top .exam-pill { background: transparent; }
+/* The question list: black, with a yellow underline like a highlighter. */
+.exam-bottom .nav-btn { background: var(--x-black); color: #ffffff; box-shadow: inset 0 -3px 0 var(--x-gold); border-radius: 999px; padding: 0 var(--s5); }
+.exam-bottom .nav-btn:hover { background: #262a33; }
+/* Next and Back */
+.exam .exam-bottom .btn-primary { background: var(--x-go); color: var(--x-go-ink); border: 0; box-shadow: 0 3px 0 color-mix(in srgb, var(--x-go) 55%, #000); }
+.exam .exam-bottom .btn-primary:hover { background: var(--x-go-hover); color: var(--x-go-ink); }
+.exam .exam-bottom .btn-secondary { background: transparent; color: var(--x-band-ink); border: 1.5px solid var(--x-band-ink); }
+.exam .exam-bottom .btn-secondary:hover { background: var(--x-band-soft); color: var(--x-band-ink); }
+/* The bar above each question: the same stripe, thinner. */
+.exam .q-head { border-bottom: 0; padding-bottom: 3px; background: var(--x-stripe) left bottom / 100% 3px no-repeat, var(--x-bar); }
+.exam .q-num { background: var(--x-black); color: #ffffff; box-shadow: inset 0 -3px 0 var(--x-gold); }
+html:not(.paper):not([data-theme="light"]) .exam:not([data-view="light"]) .q-num { background: var(--x-navy); }
+.exam .mark.on svg path { fill: var(--x-gold); stroke: var(--x-black); }
+@media (prefers-reduced-motion: no-preference) {
+  .exam-top::after, .exam-bottom::before { transform-origin: left center; animation: x-stripe-in 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+  .exam-bottom::before { animation-delay: 0.15s; }
+  .exam .exam-bottom .btn, .exam-bottom .nav-btn { transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
+  .exam .exam-bottom .btn:active, .exam-bottom .nav-btn:active { transform: translateY(1px); }
+}
+@keyframes x-stripe-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }

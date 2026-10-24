@@ -167,7 +167,7 @@ class WithStripe(CheckoutTest):
         self.assertEqual(other.get("/api/checkout/session/cs_test_1").status_code, 404)
 
     def test_dashboard_changes_go_to_stripe(self):
-        self.buy("mechanical", "month"); self.fake.pay("cs_test_1", 800)
+        self.buy("mechanical", "month"); self.fake.pay("cs_test_1", 1500)
         self.parent.get("/api/checkout/session/cs_test_1")
         url = f"/api/parent/students/{self.student_id}/plan"
         self.assertEqual(self.post(self.parent, url, {"plan": "mechanical", "interval": "year"}).json["code"], "checkout_required")
@@ -194,7 +194,7 @@ class WithStripe(CheckoutTest):
         self.buy("mechanical", "month")
         meta = {"student_id": str(self.student_id), "plan": "mechanical", "interval": "month", "payer_id": "2"}
         done = {"id": "evt_1", "type": "checkout.session.completed", "data": {"object": {
-            "mode": "subscription", "payment_status": "paid", "metadata": meta, "customer": "cus_9", "amount_total": 800,
+            "mode": "subscription", "payment_status": "paid", "metadata": meta, "customer": "cus_9", "amount_total": 1500,
             "subscription": {"id": "sub_9", "current_period_end": int(time.time()) + 30 * 86400}}}}
         self.assertEqual(self.webhook(done, secret="whsec_wrong").status_code, 400, "unsigned events are refused")
         self.assertEqual(self.webhook(done).status_code, 200)
@@ -241,7 +241,7 @@ class WithStripe(CheckoutTest):
                 "items": {"data": [{"price": price}]}}}})
         # Moved in Stripe to the Mechanical price this site made (its metadata names the plan).
         moved("evt_m1", {"id": "price_1", "metadata": {"plan": "mechanical", "interval": "month"}, "recurring": {"interval": "month"}})
-        self.assertEqual((self.sub()["plan"], self.sub()["price_label"], self.sub()["legacy"]), ("mechanical", "$8/month", False))
+        self.assertEqual((self.sub()["plan"], self.sub()["price_label"], self.sub()["legacy"]), ("mechanical", "$15/month", False))
         # A price with only our lookup key works too.
         moved("evt_m2", {"id": "price_2", "lookup_key": "graphite_mechanical_year_7200", "recurring": {"interval": "year"}})
         self.assertEqual((self.sub()["interval"], self.sub()["price_label"]), ("year", "$6/month, billed $72 yearly"))

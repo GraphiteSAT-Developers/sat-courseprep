@@ -143,3 +143,38 @@ html[data-motion="reduce"] .nav-mark { transition: none; animation: none; }
   color: var(--text); text-decoration: none; font-size: var(--t-sm); font-weight: 600; }
 .subnav a:hover { border-color: var(--text); color: var(--text); text-decoration: none; }
 .subnav a[aria-current="page"] { background: var(--text); border-color: var(--text); color: var(--bg); }
+
+/* ---------- The public header: Sign in and Free diagnostic always in view ----------
+   header.html keeps the two buttons outside the menu (.header-actions) and marks the header .is-pinned, so the whole
+   header stays stuck to the top instead of letting the top row scroll away. Once the page scrolls (.is-stuck, site.js)
+   the top row tightens a little to give the page back some room. */
+.header-actions { display: flex; align-items: center; gap: var(--s4); position: relative; z-index: 2; }
+.header-actions .signin-link { color: var(--nav-ink); font-size: var(--t-sm); font-weight: 700; white-space: nowrap; text-decoration: none; }
+.header-actions .signin-link:hover, .header-actions .signin-link[aria-current] { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+html .site-header .header-actions .btn { min-height: 40px; padding: 0 16px; white-space: nowrap; }
+
+@media (min-width: 1201px) {
+  html { scroll-padding-top: 124px; }
+  .site-header.is-pinned { top: env(safe-area-inset-top, 0px); }
+  .site-header.is-pinned .header-actions { grid-area: 1 / 2; justify-self: end; align-self: center; }
+  .site-header.is-pinned.is-stuck { --nav-top: 50px; }
+  .site-header.is-pinned.is-stuck .logo svg { transform: scale(0.88); }
+  @media (prefers-reduced-motion: no-preference) {
+    .site-header.is-pinned .header-row, .site-header.is-pinned .site-nav { transition: grid-template-rows 0.3s cubic-bezier(0.2, 0.8, 0.3, 1); }
+    .site-header.is-pinned .logo svg { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1); }
+  }
+}
+
+@media (max-width: 1200px) {
+  .site-header.is-pinned .header-actions { margin-left: auto; gap: var(--s3); }
+  .site-header.is-pinned .menu-toggle { margin-left: 0; }
+}
+/* Phones: the hexagon stands in for the wordmark and the Menu button shows just its bars, so both buttons fit. */
+@media (max-width: 560px) {
+  .site-header.is-pinned .header-row { gap: var(--s2); }
+  .site-header.is-pinned .logo > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .site-header.is-pinned .header-actions { gap: var(--s3); }
+  html .site-header.is-pinned .header-actions .btn { min-height: 40px; padding: 0 12px; font-size: 0.875rem; }
+  .site-header.is-pinned .menu-toggle { padding: 0 var(--s3); }
+  .site-header.is-pinned .menu-toggle .menu-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}

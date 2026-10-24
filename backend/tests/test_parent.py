@@ -138,7 +138,7 @@ class ParentTest(unittest.TestCase):
             self.assertEqual(self.post(self.parent, url + "/plan", {"plan": old, "interval": "month"}).status_code, 400)
         r = self.post(self.parent, url + "/plan", {"plan": "mechanical", "interval": "month"}).json
         sub = r["subscription"]
-        self.assertEqual((sub["plan"], sub["plan_name"], sub["price_label"], sub["legacy"]), ("mechanical", "Mechanical", "$8/month", False))
+        self.assertEqual((sub["plan"], sub["plan_name"], sub["price_label"], sub["legacy"]), ("mechanical", "Mechanical", "$15/month", False))
         self.assertIn("No card was charged", r["billing"][0]["detail"])
         self.assertEqual(self.student.get("/api/me").json["user"]["plan"], "mechanical")
         r = self.post(self.parent, url + "/plan", {"plan": "mechanical", "interval": "week"}).json
@@ -164,9 +164,9 @@ class ParentTest(unittest.TestCase):
         self.assertEqual([p["key"] for p in plans], ["free", "mechanical"])
         self.assertEqual([p["name"] for p in plans], ["Sharpened", "Mechanical"])
         mech = plans[1]
-        self.assertEqual(mech["cents"], {"week": 199, "month": 800, "year": 7200})
-        self.assertEqual(mech["per_month_cents"], {"week": 862, "month": 800, "year": 600})
-        self.assertEqual(mech["savings"]["year"], {"percent": 25, "per_year_cents": 2400})
+        self.assertEqual(mech["cents"], {"week": 199, "month": 1500, "year": 7200})
+        self.assertEqual(mech["per_month_cents"], {"week": 862, "month": 1500, "year": 600})
+        self.assertEqual(mech["savings"]["year"], {"percent": 60, "per_year_cents": 10800})
         prices = [p["per_month_cents"]["month"] for p in plans]
         self.assertEqual(prices, sorted(prices), "plans go from free to the top plan")
 

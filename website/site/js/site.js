@@ -253,6 +253,52 @@
     };
     window.addEventListener("scroll", stuck, { passive: true });
     stuck();
+    // The public header's reading bar (motion.css): fills along the bottom edge as the page scrolls.
+    if (siteHeader.classList.contains("is-pinned")) {
+      var readBar = document.createElement("span");
+      readBar.className = "read-bar"; readBar.setAttribute("aria-hidden", "true");
+      siteHeader.appendChild(readBar);
+      var reading = false;
+      var read = function () {
+        reading = false;
+        var h = document.documentElement.scrollHeight - innerHeight;
+        readBar.style.setProperty("--read", h > 0 ? Math.min(1, scrollY / h).toFixed(4) : 0);
+      };
+      window.addEventListener("scroll", function () { if (!reading) { reading = true; requestAnimationFrame(read); } }, { passive: true });
+      read();
+    }
+  }
+
+  /* 3c. Public pages: pieces below the first screen settle into place as they scroll into view (motion.css).
+     Only what starts off-screen is hidden, so nothing on the first screen blinks, and each piece drops its
+     classes once it has settled, so later hover and open animations aren't slowed by the reveal's transition. */
+  var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.getAttribute("data-motion") === "reduce";
+  if (!document.documentElement.classList.contains("app") && !calm && "IntersectionObserver" in window && $("main")) {
+    var REVEAL = [
+      [".pp-head, .section-head, .doc > *, .guide-list > *, .pp-note, .plan-fine, .compare, .billing-switch"],
+      [".pp-planner, .calc-feature-grid > *, .pp-tutor > *", "rv-left"],
+      [".pp-steps > li, .fold, .tier, .faq > details, .vs-table, .footer-grid > *, .sc-card, .form-panel", "rv-scale"]
+    ];
+    var revealIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        revealIO.unobserve(el);
+        el.classList.add("is-in");
+        setTimeout(function () { el.classList.remove("rv", "rv-left", "rv-scale", "is-in"); el.style.removeProperty("--rv-i"); }, 1400);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    REVEAL.forEach(function (group) {
+      $all(group[0]).forEach(function (el) {
+        if (el.closest(".pp-hero, .exam, header, [hidden]") || el.classList.contains("rv")) return;
+        if (el.getBoundingClientRect().top < innerHeight) return;
+        var i = Array.prototype.indexOf.call(el.parentNode.children, el);
+        el.classList.add("rv");
+        if (group[1]) el.classList.add(group[1]);
+        el.style.setProperty("--rv-i", Math.min(i, 6));
+        revealIO.observe(el);
+      });
+    });
   }
 
   /* 4. Analytics (consent-gated)
@@ -1053,6 +1099,9 @@
         card.querySelector("[data-billed]").textContent = card.getAttribute("data-" + iv + "-billed");
         var save = card.querySelector("[data-save]"), text = card.getAttribute("data-" + iv + "-save");
         save.textContent = text; save.hidden = !text;
+        [card.querySelector("[data-amount]"), card.querySelector("[data-billed]"), save].forEach(function (n) {
+          n.classList.remove("is-flip"); void n.offsetWidth; n.classList.add("is-flip");  // replays the flip (motion.css)
+        });
       });
       Analytics.track("pricing_interval", { interval: iv });
     });
@@ -1061,7 +1110,11 @@
   // Phones show one plan's column of the feature table at a time.
   var compare = $("#compare");
   if (compare) $all('input[name="compare-show"]', compare).forEach(function (r) {
-    r.addEventListener("change", function () { if (r.checked) compare.setAttribute("data-show", r.value); });
+    r.addEventListener("change", function () {
+      if (!r.checked) return;
+      compare.setAttribute("data-show", r.value);
+      compare.classList.remove("is-swap"); void compare.offsetWidth; compare.classList.add("is-swap");
+    });
   });
 
   /* 9. Dashboard */

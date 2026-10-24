@@ -179,7 +179,7 @@ There are two plans: Sharpened, which is free, and Mechanical, which has everyth
 | Plan | Weekly | Monthly | Yearly |
 | --- | --- | --- | --- |
 | Sharpened (free) | $0 | $0 | $0 |
-| Mechanical | $1.99 ($8.62/month) | $8 | $72 ($6/month, 25% off) |
+| Mechanical | $1.99 ($8.62/month) | $15 | $72 ($6/month, 60% off) |
 
 Prices are always shown per month, with monthly billing first. The feature lists and the "Compare every feature" table on the home page come from the same file. `LIMITS` there says what each plan allows, and `app/services/access.py` enforces it:
 
