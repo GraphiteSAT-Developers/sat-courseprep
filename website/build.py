@@ -47,8 +47,8 @@ def calculator_html():
         t = t.replace(old, new)
     return t
 # site.css, then paper.css: the site's look, scoped to html.paper so the other themes in Settings still work.
-# nav.css last: the answer-sheet header on every theme.
-css = (SRC / "site.css").read_text() + "\n" + (SRC / "paper.css").read_text() + "\n" + (SRC / "nav.css").read_text()
+# nav.css next: the answer-sheet header on every theme. motion.css last: the public pages' animations.
+css = "\n".join((SRC / n).read_text() for n in ("site.css", "paper.css", "nav.css", "motion.css"))
 BLOCKED_WORDS = Path(__file__).resolve().parent.parent / "backend" / "app" / "content" / "blocked_words.txt"
 
 

@@ -1,10 +1,14 @@
 <a class="skip" href="#main">Skip to content</a>
-<header class="site-header">
+<header class="site-header is-pinned">
   <div class="wrap header-row">
     <a class="logo" href="{{LOGO}}" data-logo aria-label="Graphite SAT home">
       <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><polygon points="32,3 57,17.5 57,46.5 32,61 7,46.5 7,17.5" fill="#f2c14e"/><path d="M32 32L57 17.5V46.5ZM32 32V61L7 46.5ZM32 32L7 17.5L32 3Z" fill="#000" fill-opacity=".12"/><circle cx="32" cy="32" r="16" fill="#e9c79a"/><circle cx="32" cy="32" r="7" fill="#2d3136"/></svg>
       <span>Graphite SAT</span>
     </a>
+    <div class="header-actions">
+      <a class="signin-link" href="signin.html"{{SIGNIN_CURRENT}} data-track="nav_signin">Sign in</a>
+      <a class="btn btn-primary" href="{{H}}#start" data-track="nav_start">Free diagnostic</a>
+    </div>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
       <span class="menu-bars" aria-hidden="true"><span></span></span><span class="menu-label">Menu</span>
     </button>
@@ -16,10 +20,6 @@
         <li><a href="{{H}}#pricing">Pricing</a></li>
         <li><a href="{{H}}#faq">FAQ</a></li>
       </ul>
-      <div class="nav-actions">
-        <a class="signin-link" href="signin.html"{{SIGNIN_CURRENT}} data-track="nav_signin">Sign in</a>
-        <a class="btn btn-primary" href="{{H}}#start" data-track="nav_start">Free diagnostic</a>
-      </div>
     </nav>
   </div>
 </header>

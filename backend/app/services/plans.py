@@ -43,7 +43,7 @@ PLANS = {
         "tagline": "Everything Graphite SAT has, in one plan.",
         "blurb": "Everything: unlimited practice tests, every lesson and explanation, your study plan, and the parent dashboard.",
         "badge": "Everything included",
-        "prices": {"week": 199, "month": 800, "year": 7200},
+        "prices": {"week": 199, "month": 1500, "year": 7200},
         "intro": "Everything in Sharpened, plus:",
         "features": [
             "Unlimited full practice tests in the real test layout",

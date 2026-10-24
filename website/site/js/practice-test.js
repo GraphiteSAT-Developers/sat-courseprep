@@ -460,7 +460,11 @@
     for (var i = 0; i < N; i++) { if (isAnswered(i)) answered++; if (S.marked[i]) marked++; }
     $("review-summary").textContent = answered + " of " + N + " answered · " + marked + " marked for review";
   }
-  function openNav() { $("nav-pop").hidden = false; $("nav-toggle").setAttribute("aria-expanded", "true"); renderNav(); var c = $("nav-grid").querySelector(".is-current") || $("nav-grid").firstChild; if (c) c.focus(); }
+  function openNav() {
+    var pop = $("nav-pop"), btn = $("nav-toggle").getBoundingClientRect();
+    pop.hidden = false; $("nav-toggle").setAttribute("aria-expanded", "true"); renderNav();
+    pop.style.setProperty("--nav-arrow-x", (btn.left + btn.width / 2 - pop.getBoundingClientRect().left) + "px");  // the pointer sits over the button
+    var c = $("nav-grid").querySelector(".is-current") || $("nav-grid").firstChild; if (c) c.focus(); }
   function closeNav() { $("nav-pop").hidden = true; $("nav-toggle").setAttribute("aria-expanded", "false"); }
 
   function showPage(p) {
