@@ -478,9 +478,26 @@
       });
     return out;
   }
+  // Unfinished work from the last two weeks, carried into this one (same rules as studyplan.catch_up).
+  function catchUp(plan, index, states) {
+    var week = plan.weeks[index];
+    if (!index || week.phase === "test") return [];
+    var covered = {}, hasTest = week.tasks.some(function (t) { return t.kind === "test"; }), out = [];
+    week.tasks.forEach(function (t) { if (t.skill) covered[t.skill.skill] = 1; });
+    for (var wi = index - 1; wi >= Math.max(0, index - 2); wi--) {
+      plan.weeks[wi].tasks.forEach(function (t) {
+        if (t.kind === "quiz" || (states[t.key] && states[t.key].done)) return;
+        if (t.kind === "drill") { if (covered[t.skill.skill]) return; covered[t.skill.skill] = 1; }
+        else if (t.kind === "test") { if (hasTest) return; hasTest = true; }
+        out.push({ week: wi, week_n: plan.weeks[wi].n, task: t });
+      });
+    }
+    return out.slice(0, 2);
+  }
   function planOut(st, row, today) {
     var o = JSON.parse(JSON.stringify(row.plan));
     o.id = row.id; o.current_week = currentWeek(row.plan, today); o.tasks = planTasks(st, row.id);
+    o.catch_up = catchUp(o, o.current_week, o.tasks);
     o.results = st.diagnostics[row.diagnostic_id].results;
     return o;
   }
@@ -1036,9 +1053,15 @@
     var score = sections.reduce(function (t, s) { return t + s.score; }, 0), sp = SC.spread.check_total;
     var ranked = Object.keys(skills).map(function (k) { return Object.assign({}, skills[k], { points: Math.round(skills[k].points / 10) * 10 }); })
       .sort(function (a, b) { return (b.points - a.points) || (b.missed - a.missed) || (a.skill < b.skill ? -1 : 1); });
+    var top = ranked.filter(function (s) { return s.points > 0; }).slice(0, CK.top), fix = {};
+    top.forEach(function (s) { fix[s.skill] = 1; });
+    var potential = CK.sections.reduce(function (t, sec) {
+      return t + project(sec[0], all.filter(function (g) { return g.section === sec[0]; }).map(function (g) { return Object.assign({}, g, { correct: g.correct || !!fix[g.skill] }); }), "check").score;
+    }, 0);
     return { total: { score: score, low: Math.max(400, score - sp), high: Math.min(1600, score + sp) }, sections: sections,
-      skills: ranked.filter(function (s) { return s.points > 0; }).slice(0, CK.top),
-      correct: all.filter(function (g) { return g.correct; }).length, count: all.length, questions: all };
+      skills: top, potential: potential,
+      correct: all.filter(function (g) { return g.correct; }).length, count: all.length,
+      skipped: all.filter(function (g) { return !g.answered; }).length, questions: all };
   }
   function scoreCheckCall(path, data) {
     if (path === "/api/score-check" && !data) {

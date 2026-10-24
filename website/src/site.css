@@ -3000,3 +3000,12 @@ mark.anno:focus-visible { outline: 2px solid var(--x-sel); }
 .guide-steps { margin: 0; padding-left: 1.4em; display: grid; gap: var(--s3); }
 .doc code { font-family: var(--font-mono); font-size: 0.92em; padding: 1px 5px; border-radius: 4px; background: var(--raised); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .guide-card, .guide-card:hover { transition: none; transform: none; } }
+
+/* Study plan: work carried over from earlier weeks (plan.js) */
+.pl-carry { display: grid; gap: var(--s2); margin-top: var(--s4); padding-top: var(--s4); border-top: 1px dashed var(--line); }
+.pl-carry .label, .pl-carry .fine { margin: 0; }
+
+/* The score check's result carried into sign-up and the diagnostic (site.js GraphiteScoreCheck) */
+.score-carry { margin: 0; padding: var(--s3) var(--s4); border-radius: var(--radius); border-left: 3px solid var(--accent); background: var(--raised); font-size: var(--t-sm); }
+.sc-potential { margin: 0; font-weight: 600; }
+.sc-encourage { margin: 0; padding: var(--s3) var(--s4); border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }

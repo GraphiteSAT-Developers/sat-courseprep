@@ -24,8 +24,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Kalam:wght@400;700&family=Nunito:wght@400;700;800&display=swap">
-<link rel="stylesheet" href="/css/site.css?v=c1f4c78124"><link rel="stylesheet" href="/vendor/katex/katex.min.css">
-<script src="/js/site.js?v=a86fa79166" defer></script><script src="/vendor/katex/katex.min.js" defer></script><script src="/js/qtools.js?v=6716a0ab0b" defer></script><script src="/js/score-check.js?v=73c21c1d2c" defer></script>
+<link rel="stylesheet" href="/css/site.css?v=3b40573d29"><link rel="stylesheet" href="/vendor/katex/katex.min.css">
+<script src="/js/site.js?v=9898090f65" defer></script><script src="/vendor/katex/katex.min.js" defer></script><script src="/js/qtools.js?v=6716a0ab0b" defer></script><script src="/js/score-check.js?v=49757cd769" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -68,7 +68,7 @@
     <p>10 Reading and Writing questions, then 10 Math, in the real test's order. The graphing calculator is built in for Math, like Bluebook's.</p>
     <div class="pp-ctas">
       <button class="btn btn-primary" type="button" id="sc-start" data-track="score_check_start">Start the score check</button>
-      <a class="btn btn-quiet" href="/#start">Or make a free account</a>
+      <a class="btn btn-quiet" href="/signin.html#create">Or make a free account</a>
     </div>
     <p class="fine sc-note">Your answers stay in this browser and aren't saved anywhere unless you make an account. The score is an estimate from our own questions, not an official College Board score. Bluebook's full practice tests are the best predictor of your real score.</p>
     <p class="sc-error" id="sc-error" role="alert" hidden></p>
@@ -109,16 +109,18 @@
       <p class="sc-total-range" id="sc-range"></p>
       <p class="fine" id="sc-right"></p>
     </div>
+    <p class="sc-encourage" id="sc-encourage" hidden></p>
     <div class="sc-sections" id="sc-sections"></div>
     <div class="sc-skills">
       <h2>Where your points are</h2>
       <p class="fine">About how many points each skill would add to its section if you got these questions right. Lucky guesses count half.</p>
       <ol id="sc-skills"></ol>
+      <p class="sc-potential" id="sc-potential" hidden></p>
     </div>
     <div class="sc-cta">
       <h2>Turn this into a plan</h2>
       <p>A free account gives you the full diagnostic, a full practice test every month, and a review queue that brings back every question you miss until you get it right twice. Mechanical adds a day-by-day plan to your test date, aimed at the skills above, and you can try it free for 7 days.</p>
-      <a class="btn btn-primary" href="/#start" data-track="score_check_signup">Make a free account</a>
+      <a class="btn btn-primary" href="/signin.html#create" data-track="score_check_signup">Make a free account</a>
       <button class="btn btn-quiet" type="button" id="sc-again">Take another score check</button>
     </div>
     <div class="sc-review">

@@ -488,6 +488,19 @@
   }
   window.GraphiteAPI = { live: LIVE, call: api };
 
+  // The last score check taken on this device (score-check.js saves it), or null. Shown on the sign-up form and
+  // the diagnostic's intro so the student sees their work carried forward. Older than 60 days counts as gone.
+  window.GraphiteScoreCheck = {
+    last: function () {
+      try {
+        var r = JSON.parse(localStorage.getItem("graphite_score_check_last"));
+        if (!r || !r.total || Date.now() - new Date(r.at).getTime() > 60 * 864e5) return null;
+        r.skills = r.skills || [];
+        return r;
+      } catch (e) { return null; }
+    }
+  };
+
   /* Locks: what a plan doesn't include, or everything paid while a plan isn't paid (services/access.py).
      GraphiteLock.card(lock) makes the box that replaces a locked panel; GraphiteLock.handle(err) shows it as a
      dialog when a request comes back 402 plan_required, and returns true when it did. */
@@ -801,6 +814,14 @@
     $("#create-cancel").addEventListener("click", function () { showCreate(false); $("#signin-email").focus(); });
     if (location.hash === "#create") showCreate(true);
     setRole(ROLE);
+    // Came from the score check (score-check.js keeps its last result on this device): say what it found.
+    var carry = $("#create-scorecheck"), last = GraphiteScoreCheck.last();
+    if (carry && last) {
+      carry.textContent = "Your score check estimated about " + last.total.score + " (likely " + last.total.low + " to " + last.total.high + ")" +
+        (last.skills.length ? " and found the most points in " + last.skills.slice(0, 2).join(" and ") + "." : ".") +
+        " With an account, the diagnostic turns that into a plan.";
+      carry.hidden = false;
+    }
     // Sent here from a page for the other kind of account (for example a student opening the parent dashboard).
     if (LIVE && /[?&]as=(parent|student)\b/.test(location.search)) {
       api("/api/me").then(function (r) {

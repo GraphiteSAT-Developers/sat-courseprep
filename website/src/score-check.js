@@ -120,6 +120,17 @@
       return '<li><span class="sc-pts">+' + s.points + '</span><span class="sc-skill"><strong>' + esc(s.skill) + '</strong><span class="fine">' +
         esc(s.section) + " · " + esc(s.domain) + " · " + why + "</span></span></li>";
     }).join("") : "<li><span class=\"sc-skill\"><strong>Nothing missed, and you were sure every time.</strong><span class=\"fine\">A full mock test is the next real check.</span></span></li>";
+    // What fixing those skills is worth, all together, as a score to aim for.
+    var pot = $("sc-potential"), gain = (r.potential || 0) - r.total.score;
+    pot.hidden = !(r.skills.length && gain > 0);
+    if (!pot.hidden) pot.innerHTML = "Get these " + (r.skills.length === 1 ? "questions" : r.skills.length + " skills") + " right and your estimate rises to about <strong>" +
+      r.potential + "</strong>, a gain of <strong>+" + gain + "</strong>.";
+    // A low or mostly skipped check: say what it means and what to do, so the number isn't the last word.
+    var enc = $("sc-encourage"), notes = [];
+    if (r.skipped >= 3) notes.push("You left " + r.skipped + " questions blank, and blanks count as wrong. On the real SAT there's no penalty for guessing, so always answer.");
+    if (r.total.score < 1000) notes.push("This is a starting point, not a verdict. A low first score means more questions you can learn to get right, and the list below shows where to begin.");
+    enc.hidden = !notes.length;
+    enc.textContent = notes.join(" ");
     var list = $("sc-list"); list.innerHTML = "";
     r.questions.forEach(function (q) {
       var yours = !q.answered ? "No answer" : esc(q.your_answer);
@@ -131,7 +142,7 @@
         '<div class="res-explain">' + (q.explain_html || "") + "</div></div>";
       list.appendChild(d);
     });
-    // Kept on this device, so the home page can remind the student what the check found.
+    // Kept on this device, so the sign-up form can remind the student what the check found (site.js).
     try { localStorage.setItem("graphite_score_check_last", JSON.stringify({ total: r.total, sections: r.sections.map(function (s) { return { name: s.name, score: s.score }; }),
       skills: r.skills.map(function (s) { return s.skill; }), at: new Date().toISOString() })); } catch (e) { /* storage blocked */ }
   }

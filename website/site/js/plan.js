@@ -23,6 +23,12 @@
   function view(name) {
     $("pl-loading").hidden = true;
     $("pl-intro").hidden = name !== "intro";
+    var last = name === "intro" && window.GraphiteScoreCheck && GraphiteScoreCheck.last(), sc = $("pl-scorecheck");
+    if (sc && last) {
+      sc.textContent = "Your score check estimated about " + last.total.score + (last.skills.length ? " and pointed at " + last.skills.join(", ") : "") +
+        ". The diagnostic checks every part of the test and turns that into your plan.";
+      sc.hidden = false;
+    }
     $("pl-quiz").hidden = name !== "quiz";
     $("pl-done").hidden = name !== "done";
     if (name !== "quiz") setCalc(false);
@@ -218,6 +224,13 @@
       '<h3 id="pl-now-title">' + (w.phase === "test" ? "Test week" : w.focus.map(function (f) { return esc(f.name); }).join(" + ")) + "</h3>" +
       '<p class="pl-diff"><span class="chip">' + esc(w.difficulty_label) + "</span>" + (w.review ? " <span class=\"fine\">Plus a review of " + esc(w.review.name) + "</span>" : "") + "</p></div>" +
       '<ul class="pl-tasks">' + w.tasks.map(function (t, i) { return taskLine(plan, now, t, i === firstOpen); }).join("") + "</ul>";
+    // Unfinished work from the last two weeks (services/studyplan.py, catch_up): at most two tasks, so nothing piles up.
+    var carried = plan.catch_up || [];
+    if (carried.length) html += '<div class="pl-carry"><p class="label">Carried over</p><p class="fine">Missed some days? These were left from earlier weeks. ' +
+      "The rest moved on with the plan, so missed days never pile up.</p>" +
+      '<ul class="pl-tasks">' + carried.map(function (c, i) {
+        return taskLine(plan, c.week, Object.assign({}, c.task, { title: c.task.title + " (week " + c.week_n + ")" }), firstOpen < 0 && i === 0);
+      }).join("") + "</ul></div>";
     if (w.checklist) html += '<ul class="pl-checklist">' + w.checklist.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ul>";
     if (w.rw_focus) html += '<p class="fine pl-rw">Reading and Writing focus: <strong>' + esc(w.rw_focus) + "</strong>" +
       (w.tasks.some(function (t) { return t.key === "w" + w.n + "-rw"; }) ? ". Its drill is in the list above." :

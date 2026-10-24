@@ -181,6 +181,40 @@ def rw_skill(domain_name, turn):
     return {"domain": d["key"], "skill": s["key"], "name": s["name"]}
 
 
+CATCH_UP_WEEKS = 2  # how many past weeks unfinished work is carried from
+CATCH_UP_LIMIT = 2  # at most this many carried tasks, so falling behind never buries a week
+
+
+def catch_up(plan, index, states):
+    """Unfinished work from the last two weeks, carried into this one: [{week, week_n, task}], the most recent
+    week first and, within a week, in its own order (its weakest skill first). At most two tasks.
+
+    A quiz isn't carried (this week's quiz retests the same skills), nor a drill on a skill this week already
+    covers, nor a practice test when this week has one. Test week stays light, so nothing is carried into it.
+    states is practice.plan_task_states: a task counts as finished once a set for it was submitted.
+    """
+    week = plan["weeks"][index]
+    if index == 0 or week["phase"] == "test":
+        return []
+    covered = {t["skill"]["skill"] for t in week["tasks"] if t.get("skill")}
+    has_test = any(t["kind"] == "test" for t in week["tasks"])
+    out = []
+    for wi in range(index - 1, max(-1, index - 1 - CATCH_UP_WEEKS), -1):
+        for t in plan["weeks"][wi]["tasks"]:
+            if t["kind"] == "quiz" or states.get(t["key"], {}).get("done"):
+                continue
+            if t["kind"] == "drill":
+                if t["skill"]["skill"] in covered:
+                    continue
+                covered.add(t["skill"]["skill"])
+            elif t["kind"] == "test":
+                if has_test:
+                    continue
+                has_test = True
+            out.append({"week": wi, "week_n": plan["weeks"][wi]["n"], "task": t})
+    return out[:CATCH_UP_LIMIT]
+
+
 def current_week(plan, today):
     """Index of this week in the plan, kept within the plan."""
     start = date.fromisoformat(plan["start"])
