@@ -549,10 +549,18 @@
     stats(); load(false);
   })();
 
-  /* ---------- test account reset ---------- */
+  /* ---------- test account and admin reset ---------- */
   (function () {
     var me = T.me && T.me();
-    if (!LIVE || !me || me.email !== "beta") return;
+    if (!LIVE || !me) return;
+    if (me.admin) $("st-admin-box").hidden = false;
+    var admin = me.admin && me.role === "student";  // admins can start their own account over, like the test account
+    if (me.email !== "beta" && !admin) return;
+    if (admin) {
+      $("st-test-reset-title").textContent = "Start your account over";
+      $("st-test-reset-about").textContent = "Admin account: clears your practice, plan, rewards and settings back to a brand-new student with 100,000 coins, and puts you back on the free plan. Your email and password stay.";
+      $("st-test-reset").textContent = "Start my account over";
+    }
     $("st-test-reset-box").hidden = false;
     $("st-test-reset").addEventListener("click", function () {
       var btn = this, st = $("st-test-reset-status");

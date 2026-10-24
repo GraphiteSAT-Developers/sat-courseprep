@@ -3,6 +3,7 @@ from pathlib import Path
 
 from flask import Blueprint, abort, current_app, jsonify, redirect, request, send_from_directory
 
+from .. import admins
 from ..security import current_user
 
 bp = Blueprint("pages", __name__)
@@ -12,6 +13,7 @@ PROTECTED = {"dashboard.html", "subscription.html", "practice-test.html", "pract
              "speed.html", "focus.html", "lessons.html", "rewards.html", "market.html", "tutor.html"}
 PARENT_PAGES = {"parent.html"}
 ANY_ACCOUNT_PAGES = {"settings.html"}  # need a signed-in account of either kind
+ADMIN_PAGES = {"admin.html"}  # ADMIN_ACCOUNTS only (app/admins.py); anyone else gets "not found"
 
 
 def home_for(user):
@@ -50,8 +52,10 @@ def page(path):
     if not target.is_file():
         abort(404)
     user = current_user()
-    if (path in PROTECTED or path in PARENT_PAGES or path in ANY_ACCOUNT_PAGES) and not user:
+    if (path in PROTECTED or path in PARENT_PAGES or path in ANY_ACCOUNT_PAGES or path in ADMIN_PAGES) and not user:
         return redirect(f"/signin.html?next=/{path}")
+    if path in ADMIN_PAGES and not admins.is_admin(user):
+        abort(404)
     # A page for the other kind of account: offer to sign in with that kind, instead of bouncing to your own
     # dashboard (a student who opens the parent dashboard wants to sign in as the parent, not be sent back).
     if user and user["role"] == "parent" and path in PROTECTED:

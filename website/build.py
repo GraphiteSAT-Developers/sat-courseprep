@@ -517,7 +517,7 @@ def build():
     shutil.copy(SRC / "levels.js", DIST / "js" / "levels.js")
     shutil.copy(SRC / "parent.js", DIST / "js" / "parent.js")
     for n in ("effects.js", "theme.js", "settings.js", "checkout.js", "game-ui.js", "rewards.js", "speed.js", "focus.js",
-              "lessons.js", "lesson-kit.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js", "integrity.js", "subscription.js", "score-check.js"):
+              "lessons.js", "lesson-kit.js", "dash-play.js", "dash-layout.js", "market.js", "qtools.js", "tutor.js", "pets.js", "integrity.js", "subscription.js", "score-check.js", "admin.js"):
         shutil.copy(SRC / n, DIST / "js" / n)
     (DIST / "calculator.html").write_text(calculator_html())
     if (DIST / "vendor" / "katex").exists():
@@ -534,7 +534,7 @@ def build():
         sm.append(f"  <url><loc>{SITE}{p['path']}</loc><lastmod>2026-10-15</lastmod><priority>{pr}</priority></url>")
     sm.append("</urlset>")
     (DIST / "sitemap.xml").write_text("\n".join(sm) + "\n")
-    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /market.html\nDisallow: /tutor.html\nDisallow: /subscription.html\nDisallow: /calculator.html\n\nSitemap: {SITE}/sitemap.xml\n")
+    (DIST / "robots.txt").write_text(f"User-agent: *\nAllow: /\nDisallow: /dashboard.html\nDisallow: /practice-test.html\nDisallow: /practice.html\nDisallow: /plan.html\nDisallow: /levels.html\nDisallow: /parent.html\nDisallow: /settings.html\nDisallow: /checkout.html\nDisallow: /speed.html\nDisallow: /focus.html\nDisallow: /lessons.html\nDisallow: /rewards.html\nDisallow: /market.html\nDisallow: /tutor.html\nDisallow: /subscription.html\nDisallow: /calculator.html\nDisallow: /admin.html\n\nSitemap: {SITE}/sitemap.xml\n")
     (DIST / "site.webmanifest").write_text(json.dumps({
         "name": "Graphite SAT", "short_name": "Graphite SAT", "start_url": "/",
         "display": "standalone", "background_color": "#1c1e21", "theme_color": "#1c1e21",
