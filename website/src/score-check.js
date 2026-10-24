@@ -119,7 +119,7 @@
       var why = [s.missed ? s.missed + " missed" : "", s.guessed ? s.guessed + " guessed" : ""].filter(Boolean).join(", ");
       return '<li><span class="sc-pts">+' + s.points + '</span><span class="sc-skill"><strong>' + esc(s.skill) + '</strong><span class="fine">' +
         esc(s.section) + " · " + esc(s.domain) + " · " + why + "</span></span></li>";
-    }).join("") : "<li><span class=\"sc-skill\"><strong>Nothing missed, and you were sure every time.</strong><span class=\"fine\">A full mock test is the next real check.</span></span></li>";
+    }).join("") : "<li><span class=\"sc-skill\"><strong>Nothing missed, and you were sure every time.</strong><span class=\"fine\">A full practice test is the next real check.</span></span></li>";
     var list = $("sc-list"); list.innerHTML = "";
     r.questions.forEach(function (q) {
       var yours = !q.answered ? "No answer" : esc(q.your_answer);

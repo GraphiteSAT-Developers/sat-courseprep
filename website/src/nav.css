@@ -135,3 +135,11 @@ html[data-motion="reduce"] .nav-mark { transition: none; animation: none; }
 }
 @keyframes nav-sheet { from { opacity: 0; transform: translateY(-10px); } }
 @keyframes nav-row { from { opacity: 0; transform: translateX(-12px); } }
+
+/* The switch row under the header, for pages that share a tab (Practice: topics and tests, Practice Sets, speed round). */
+.subnav-bar { border-bottom: 1px solid var(--line); }
+.subnav { display: flex; flex-wrap: wrap; gap: var(--s2); padding-block: var(--s3); }
+.subnav a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 var(--s4); border: 1.5px solid var(--line); border-radius: 999px;
+  color: var(--text); text-decoration: none; font-size: var(--t-sm); font-weight: 600; }
+.subnav a:hover { border-color: var(--text); color: var(--text); text-decoration: none; }
+.subnav a[aria-current="page"] { background: var(--text); border-color: var(--text); color: var(--bg); }

@@ -1,4 +1,4 @@
-/* Graphite SAT Level up: practice sets that get harder one level at a time, for Math and for Reading and Writing.
+/* Graphite SAT Practice Sets: practice sets that get harder one level at a time, for Math and for Reading and Writing.
    The Math | Reading and Writing switch (site.js) picks which tracks show.
    Live: talks to /api/levels. Preview: the same requests go to GraphitePracticeLocal (practice-local.js). */
 (function () {
@@ -146,7 +146,7 @@
     if (planLock && !document.querySelector(".lv-plan-lock")) {
       var card = GraphiteLock.card(planLock, true); card.classList.add("lv-plan-lock");
       if (!planLock.reason && d.free_levels) {
-        card.querySelector("p").textContent = firstLevels(d.free_levels) + " of every track are open on your plan. " + planLock.need_name + " opens all " + d.levels + ".";
+        card.querySelector("p").textContent = firstLevels(d.free_levels) + " of every topic are open on your plan. " + planLock.need_name + " opens all " + d.levels + ".";
       }
       $("lv-loading").insertAdjacentElement("afterend", card);
     }

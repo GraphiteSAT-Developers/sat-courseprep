@@ -419,7 +419,7 @@
   /* ---------- dashboard layout ---------- */
   var SECTION_NAMES = { kpis: "Score summary", play: "Play and earn", today: "Today's set", scores: "Practice test scores", domains: "Skill areas",
     review: "Review queue", plan: "Week-by-week plan", account: "Your account" };
-  var PIN_NAMES = { levels: "Level up", speed: "Speed round", focus: "Focus timer", lessons: "Lessons", practice_test: "Practice test",
+  var PIN_NAMES = { levels: "Practice Sets", speed: "Speed round", focus: "Focus timer", lessons: "Lessons", practice_test: "Practice test",
     practice: "Topic practice", review: "Review queue", plan: "Study plan", rewards: "Rewards and shop", calculator: "Graphing calculator" };
   var MAX_PINS = 4, layout = null;
   function drawLayout() {

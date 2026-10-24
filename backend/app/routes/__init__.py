@@ -15,7 +15,7 @@ BLUEPRINTS = [
     plan.bp,        # /api/plan      the diagnostic and the study plan
     practice.sample_bp,  # /api/sample  the home page's sample question
     scorecheck.bp,  # /api/score-check  20 questions without an account, scored like the SAT
-    practice.levels_bp,  # /api/levels  Level up: sets that get harder level by level
+    practice.levels_bp,  # /api/levels  Practice Sets: sets that get harder level by level
     dashboard.bp,   # /api/dashboard, /api/review, /api/activity
     family.student_bp,  # /api/family  a student's Parent access: link codes and connected parents
     family.bp,      # /api/parent  the parent dashboard

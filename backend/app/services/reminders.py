@@ -42,7 +42,7 @@ def send_due(now=None):
         keep = (f"You're on a {st['days']}-day streak. Earn any XP today to keep it going.\n\n" if st["days"] else "")
         mailer.send(u["email"], "Your SAT practice for today",
                     f"Hi {first},\n\n{keep}A quick idea: today's speed round takes about two minutes, or pick up where you "
-                    f"left off in Level up.\n\n{base}/dashboard.html\n\n"
+                    f"left off in Practice Sets.\n\n{base}/dashboard.html\n\n"
                     f"You asked for this reminder. Turn it off or change the time in Settings: {base}/settings.html#study\n\nGraphite SAT")
         execute("UPDATE users SET reminder_sent_on = ? WHERE id = ?", (local.date().isoformat(), u["id"]))
         sent += 1

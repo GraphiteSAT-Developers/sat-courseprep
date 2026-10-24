@@ -1,5 +1,5 @@
 /* Graphite SAT rewards on screen: the XP / rank / streak / coins strip, and the pop-ups after earning something.
-   Used by Level up, the practice test (Level up sets), speed rounds, focus sessions, lessons and the rewards page.
+   Used by Practice Sets, the practice test (Practice Sets), speed rounds, focus sessions, lessons and the rewards page.
    The numbers come from the server (services/game.py) or, in the preview, from play-local.js. */
 (function () {
   "use strict";

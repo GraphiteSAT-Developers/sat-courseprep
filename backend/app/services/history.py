@@ -4,7 +4,7 @@ Two logs:
 - user_events: every change made through the API (sign-ins, profile and settings changes, practice, rewards,
   market trades, pages opened), with what was sent and which account fields changed. One row per request,
   written by the request hooks in app/__init__.py, so a new route is logged without extra code.
-- question_log: every question answered anywhere (practice, Level up, practice tests, the diagnostic,
+- question_log: every question answered anywhere (practice, Practice Sets, practice tests, the diagnostic,
   speed rounds, lessons and recall checks), with the answer and whether it was right.
 
 Privacy
@@ -37,7 +37,7 @@ LABELS = {
     "practice.check": "Checked an answer", "practice.submit": "Finished a practice set",
     "plan.start_diagnostic": "Started the diagnostic", "plan.submit_diagnostic": "Finished the diagnostic",
     "plan.rebuild": "Rebuilt the study plan", "plan.start_task": "Started a plan task",
-    "levels.levels_start": "Started a Level up set", "dashboard.start_today": "Started today's practice",
+    "levels.levels_start": "Started a Practice Set", "dashboard.start_today": "Started today's practice",
     "dashboard.review_practice": "Practiced a review question", "dashboard.review_right": "Cleared a review question",
     "dashboard.log_activity": "Logged study time", "family.make_code": "Made a parent link code",
     "family.remove_parent": "Removed a parent", "parent.link_student": "Linked a student",
@@ -160,7 +160,7 @@ def question(user_id, item_id, source, ref, answer, correct):
              None if correct is None else (1 if correct else 0), today().isoformat(), now_iso()))
 
 
-SOURCES = {"practice": "Topic practice", "level": "Level up", "practice_test": "Practice test", "test": "Practice test",
+SOURCES = {"practice": "Topic practice", "level": "Practice Sets", "practice_test": "Practice test", "test": "Practice test",
            "diagnostic": "Diagnostic", "speed": "Speed round", "lesson": "Lesson", "recall": "Recall check",
            "review": "Review"}
 

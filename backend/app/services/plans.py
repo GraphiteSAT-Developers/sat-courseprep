@@ -22,7 +22,7 @@ PLANS = {
     "free": {
         "name": "Sharpened",
         "tagline": "Try Graphite SAT before you pay.",
-        "blurb": "The diagnostic, 1 practice test a month, 3 practice sets a week, 3 starter lessons and the first Level up levels.",
+        "blurb": "The diagnostic, 1 practice test a month, 3 topic sets a week, 3 starter lessons and the first 2 levels of Practice Sets.",
         "badge": None,
         "prices": {"week": 0, "month": 0, "year": 0},
         "intro": None,
@@ -30,9 +30,9 @@ PLANS = {
             "The 10-question diagnostic",
             "Your strongest and weakest skill areas",
             "1 full practice test a month, with your score breakdown",
-            "3 practice sets a week",
+            "3 topic sets a week",
             "3 starter lessons",
-            "Level up: the first 2 levels of every track",
+            "Practice Sets: the first 2 levels of every topic",
             "A review queue that brings back every miss",
             "30 tutor credits a month (tutor coming soon)",
             "Built-in graphing calculator",
@@ -47,9 +47,9 @@ PLANS = {
         "intro": "Everything in Sharpened, plus:",
         "features": [
             "Unlimited full practice tests in the real test layout",
-            "Unlimited practice sets, picked from your weakest skills",
+            "Unlimited topic sets, picked from your weakest skills",
             "Every lesson, including the full Desmos course",
-            "Level up: every level of every track",
+            "Practice Sets: every level of every topic",
             "Step-by-step explanations for every answer",
             "A study plan built around your test date",
             "Unlimited tutor help, any time of day (coming soon)",
@@ -69,8 +69,8 @@ COMPARE = [
     ("Practice", [
         ("10-question diagnostic with your strong and weak areas", [True, True]),
         ("Full practice tests in the real test layout", ["1 a month", "Unlimited"]),
-        ("Practice sets picked from your weakest skills", ["3 a week", "Unlimited"]),
-        ("Level up: sets that get harder level by level", ["First 2 levels of each track", "Every level"]),
+        ("Topic sets picked from your weakest skills", ["3 a week", "Unlimited"]),
+        ("Practice Sets that get harder level by level", ["First 2 levels of each topic", "Every level"]),
         ("Review queue that brings back every miss", [True, True]),
         ("Hands-on lessons, including the Desmos course", ["3 starter lessons", "All"]),
         ("Built-in graphing calculator", [True, True]),
@@ -101,7 +101,7 @@ LIMITS = {
                    "level_up": True, "study_plan": True, "parent_dashboard": True, "review_queue": True,
                    "explanations": True, "score_history": True, "all_lessons": True},
 }
-# Level up levels every plan can play, in every track. The levels above them need level_up (every level).
+# Practice Sets levels every plan can play, in every track. The levels above them need level_up (every level).
 FREE_LEVELS = 2
 
 # Plan names used before, mapped to the plan that replaced them: Daily and Coached (until early October 2026),

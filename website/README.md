@@ -19,7 +19,7 @@ The pages run in two modes:
   - `paper.css`: the site's look: paper, graphite ink, a yellow highlighter and the tutor's red-pen notes. The build puts `class="paper"` on `<html>` for every page (and `app` on signed-in pages). On signed-in pages Paper is the default theme; `theme.js` takes the class off when an account picks another theme in Settings.
   - `site.js`: mobile menu, cookie consent, analytics, forms and the practice question on the home page.
   - `practice-test.js`: the test interface: timer, calculator panel, reference sheet, mark for review, answer elimination, question navigator, review page and results. With `?session=<id>` it runs a set from the question bank: a timed random practice test, or untimed topic practice with a Check answer button. Reading and Writing questions use the same screen as Math, with the passage above the question, and no calculator or reference sheet.
-  - `practice.js`: the practice page: for Math or Reading and Writing, start an adaptive mock test, one module, or practice one topic.
+  - `practice.js`: the practice page: for Math or Reading and Writing, practice one topic (shown first), or start an adaptive practice test or one module.
   - `theme.js`: signed-in pages only. Applies the theme and accent color before the page draws, and adds the profile picture to the header.
   - `settings.js`: the Settings page.
   - `checkout.js`: the checkout page.
@@ -36,12 +36,15 @@ The pages run in two modes:
 
 ## Pages
 
+Signed-in pages have five header tabs: Today, Practice, Lessons, Tutor and Rewards. Pages that share a tab get a row of links under the header to switch between them (`SUBNAV` in `build.py`): Today (dashboard, study plan, study timer), Practice (topics and tests, Practice Sets, speed round) and Rewards (rewards, market).
+
 | Page | File |
 | --- | --- |
 | Home | `index.html` |
 | Sign in | `signin.html` |
 | Dashboard (signed-in students) | `dashboard.html` |
-| Practice: random practice test or one topic | `practice.html` |
+| Practice (tab: Practice > Topics and tests): one topic, or a full practice test | `practice.html` |
+| Practice Sets (tab: Practice): sets that get harder as you pass them | `levels.html` |
 | Math practice test with graphing calculator | `practice-test.html` |
 | Settings: profile picture or drawn avatar, name, themes, colors, text size and font, study goals, practice defaults, dashboard layout, leaderboard, email, password, data | `settings.html` |
 | Checkout: pick a plan and how to pay, then pay on Stripe | `checkout.html` |

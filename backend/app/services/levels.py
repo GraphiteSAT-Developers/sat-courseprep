@@ -1,4 +1,4 @@
-"""Level up: practice sets that get harder one level at a time.
+"""Practice Sets: practice sets that get harder one level at a time.
 
 Each track (all of Math, one Math domain, all of Reading and Writing, or one Reading and Writing
 domain) has LEVELS levels of SIZE questions. Level 1 is
